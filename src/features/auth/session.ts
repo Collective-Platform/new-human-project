@@ -16,6 +16,7 @@ export interface SessionUser {
   role: string;
   status: string;
   displayName: string | null;
+  onboardedAt: Date | null;
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
@@ -65,6 +66,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
       role: users.role,
       status: users.status,
       displayName: users.displayName,
+      onboardedAt: users.onboardedAt,
     })
     .from(users)
     .where(eq(users.id, session.userId))
