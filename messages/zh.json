@@ -1,0 +1,89 @@
+{
+  "nav": {
+    "home": "首页",
+    "progress": "进度",
+    "community": "社区",
+    "profile": "个人"
+  },
+  "dashboard": {
+    "verseOfDay": "今日经文",
+    "streakLabel": "连续天数",
+    "activityCalendar": "活动日历",
+    "recentLogs": "最近记录",
+    "last7Days": "最近 7 天",
+    "last30Days": "最近 30 天"
+  },
+  "progress": {
+    "dayLabel": "第 {day} 天",
+    "mental": "心智成长",
+    "emotional": "情绪健康",
+    "physical": "身体健康",
+    "memorise": "背诵 {reference}",
+    "study": "学习 {reference}",
+    "moodLog": "心情记录",
+    "exercise": "运动",
+    "done": "完成",
+    "completed": "已完成"
+  },
+  "mood": {
+    "pickEmoji": "你今天感觉怎么样？",
+    "terrible": "很差",
+    "bad": "不好",
+    "okay": "还行",
+    "good": "不错",
+    "excellent": "非常好",
+    "influences": "什么在影响你的心情？",
+    "family": "家庭",
+    "friends": "朋友",
+    "love": "爱情",
+    "work": "工作",
+    "school": "学校",
+    "health": "健康",
+    "moreContext": "更多描述（可选）",
+    "submit": "提交"
+  },
+  "community": {
+    "friends": "朋友",
+    "addFriends": "添加朋友",
+    "peopleYouMayKnow": "你可能认识的人",
+    "addFriend": "添加朋友",
+    "mutualFriend": "{count} 个共同好友",
+    "completed": "已完成",
+    "sentFriendRequest": "向你发送了好友请求",
+    "accept": "接受",
+    "reject": "拒绝"
+  },
+  "block": {
+    "theFoundation": "根基",
+    "the25DayBlock": "25 天挑战",
+    "startJourney": "开始旅程",
+    "blockComplete": "你已完成第 {block} 阶段！🎉",
+    "encourageMessage": "做得好！每一步都在塑造你的旅程。"
+  },
+  "profile": {
+    "badges": "徽章",
+    "moodHistory": "心情历史",
+    "notifications": "通知",
+    "privacy": "隐私",
+    "language": "语言",
+    "logOut": "退出登录"
+  },
+  "auth": {
+    "enterEmail": "输入你的邮箱",
+    "sendCode": "发送验证码",
+    "enterOTP": "输入 6 位验证码",
+    "verify": "验证"
+  },
+  "notifications": {
+    "dailyReminder": "是时候进行每日灵修了！🌱",
+    "friendRequest": "{name} 向你发送了好友请求"
+  },
+  "onboarding": {
+    "welcome": "欢迎来到新人类计划",
+    "mentalExplain": "通过圣经学习成长你的心智",
+    "emotionalExplain": "通过每日反思建立情绪觉察",
+    "physicalExplain": "通过简单的日常运动关爱你的身体",
+    "blockExplain": "你的旅程从 25 天挑战开始——小步前行，大步蜕变。",
+    "getStarted": "开始"
+  }
+}

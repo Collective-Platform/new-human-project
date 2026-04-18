@@ -1,0 +1,89 @@
+{
+  "nav": {
+    "home": "Home",
+    "progress": "Progress",
+    "community": "Community",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "verseOfDay": "Verse of the Day",
+    "streakLabel": "Day Streak",
+    "activityCalendar": "Activity Calendar",
+    "recentLogs": "Recent Logs",
+    "last7Days": "Last 7 days",
+    "last30Days": "Last 30 days"
+  },
+  "progress": {
+    "dayLabel": "Day {day}",
+    "mental": "Mental Capacity",
+    "emotional": "Emotional Health",
+    "physical": "Physical Well-Being",
+    "memorise": "Memorise {reference}",
+    "study": "Study {reference}",
+    "moodLog": "Mood Log",
+    "exercise": "Exercise",
+    "done": "Done",
+    "completed": "Completed"
+  },
+  "mood": {
+    "pickEmoji": "How are you feeling today?",
+    "terrible": "Terrible",
+    "bad": "Bad",
+    "okay": "Okay",
+    "good": "Good",
+    "excellent": "Excellent",
+    "influences": "What is influencing your mood?",
+    "family": "Family",
+    "friends": "Friends",
+    "love": "Love",
+    "work": "Work",
+    "school": "School",
+    "health": "Health",
+    "moreContext": "More context (optional)",
+    "submit": "Submit"
+  },
+  "community": {
+    "friends": "Friends",
+    "addFriends": "Add friends",
+    "peopleYouMayKnow": "People you may know",
+    "addFriend": "Add friend",
+    "mutualFriend": "{count} Mutual Friend",
+    "completed": "completed",
+    "sentFriendRequest": "sent you a friend request",
+    "accept": "Accept",
+    "reject": "Reject"
+  },
+  "block": {
+    "theFoundation": "The Foundation",
+    "the25DayBlock": "The 25-Day Block",
+    "startJourney": "Start Journey",
+    "blockComplete": "You've completed Block {block}! 🎉",
+    "encourageMessage": "Great effort! Every step counts on your journey."
+  },
+  "profile": {
+    "badges": "Badges",
+    "moodHistory": "Mood History",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "language": "Language",
+    "logOut": "Log Out"
+  },
+  "auth": {
+    "enterEmail": "Enter your email",
+    "sendCode": "Send Code",
+    "enterOTP": "Enter the 6-digit code",
+    "verify": "Verify"
+  },
+  "notifications": {
+    "dailyReminder": "Time for your daily formation! 🌱",
+    "friendRequest": "{name} sent you a friend request"
+  },
+  "onboarding": {
+    "welcome": "Welcome to The New Human Project",
+    "mentalExplain": "Grow your mind through Scripture study",
+    "emotionalExplain": "Build emotional awareness through daily reflection",
+    "physicalExplain": "Care for your body with simple daily movement",
+    "blockExplain": "Your journey starts with a 25-day block — small steps, big transformation.",
+    "getStarted": "Get Started"
+  }
+}

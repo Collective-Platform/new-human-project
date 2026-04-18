@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #fef8f5;
   --foreground: #171717;
 }
 
 @theme inline {
+  /* Background & Foreground */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Primary palette */
+  --color-primary: #c10014;
+  --color-secondary: #135db9;
+  --color-tertiary: #645f50;
+
+  /* Surface */
+  --color-surface: #fef8f5;
+
+  /* Category colours */
+  --color-category-physical: #fff7e4;
+  --color-category-mental: #ee1c24;
+  --color-category-emotional: #679fff;
+
+  /* Border radius presets */
+  --radius-sm: 1rem;
+  --radius-md: 2rem;
+  --radius-lg: 3rem;
+  --radius-full: 9999px;
+
+  /* Card shadow */
+  --shadow-card: 0 12px 32px rgba(53, 50, 47, 0.06);
+
+  /* Font families with CJK fallbacks (CSS vars injected by next/font) */
+  --font-headline: var(--font-plus-jakarta-sans), var(--font-noto-sans-sc),
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: var(--font-manrope), var(--font-noto-sans-sc), "PingFang SC",
+    "Microsoft YaHei", sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
 }
