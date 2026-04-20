@@ -1,5 +1,6 @@
 import { getSessionUser } from "@/src/features/auth";
 import { sendFriendRequest } from "@/src/features/community";
+import { sendPushToUser } from "@/src/features/notifications";
 
 export async function POST(request: Request) {
   const user = await getSessionUser();
@@ -15,6 +16,20 @@ export async function POST(request: Request) {
   }
 
   const result = await sendFriendRequest(user.id, receiverId);
+
+  // Send push notification to receiver for new requests
+  if (result) {
+    const senderName = user.displayName ?? user.firstName ?? "Someone";
+    sendPushToUser(
+      receiverId,
+      {
+        title: "The New Human Project",
+        body: `${senderName} sent you a friend request`,
+        url: "/community",
+      },
+      "friend_request"
+    ).catch(() => {});
+  }
 
   return Response.json({ success: true, alreadyExists: result === null });
 }
