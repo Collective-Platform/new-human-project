@@ -9,6 +9,16 @@ import { StreakBadge } from "./streak-badge";
 import { ActivityCalendar } from "./activity-calendar";
 import { RecentFeed } from "./recent-feed";
 import { TimeFilter } from "./time-filter";
+import { BlockCelebration } from "./block-celebration";
+import { BlockEncouragement } from "./block-encouragement";
+
+interface EarnedBadge {
+  name: string;
+  description: string | null;
+  iconUrl: string | null;
+  blockNumber: number;
+  earnedAt: string;
+}
 
 interface DashboardData {
   currentDay: number;
@@ -17,6 +27,8 @@ interface DashboardData {
   streak: number;
   calendar: { date: string; categories: string[] }[];
   recent: { category: string; name: string; completedAt: string }[];
+  earnedBadge: EarnedBadge | null;
+  blockEndedWithoutCompletion: boolean;
 }
 
 export function DashboardClient({
@@ -28,6 +40,8 @@ export function DashboardClient({
   const tp = useTranslations("progress");
   const [timeRange, setTimeRange] = useState<"7" | "30">("7");
   const [data, setData] = useState<DashboardData | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [showEncouragement, setShowEncouragement] = useState(false);
 
   const fetchData = useCallback(async () => {
     const res = await fetch(`/api/dashboard?days=${timeRange}`);
@@ -40,15 +54,60 @@ export function DashboardClient({
     fetchData();
   }, [fetchData]);
 
+  // Trigger celebration or encouragement after data loads
+  useEffect(() => {
+    if (!data) return;
+
+    // Check if we should show the celebration overlay for a newly earned badge
+    if (data.earnedBadge) {
+      const seenKey = `badge-seen-${data.earnedBadge.blockNumber}`;
+      if (!localStorage.getItem(seenKey)) {
+        setShowCelebration(true);
+      }
+    }
+
+    // Check if block ended without completion (day 25+, no badge)
+    if (data.blockEndedWithoutCompletion && !data.earnedBadge) {
+      const dismissKey = "block-encourage-dismissed-1";
+      if (!localStorage.getItem(dismissKey)) {
+        setShowEncouragement(true);
+      }
+    }
+  }, [data]);
+
   const now = new Date();
 
   return (
     <div className="space-y-4 px-4 pt-4 pb-4">
+      {/* Block Completion Celebration Overlay (9.3 / 9.4) */}
+      {showCelebration && data?.earnedBadge && (
+        <BlockCelebration
+          badge={data.earnedBadge}
+          onDismiss={() => {
+            localStorage.setItem(
+              `badge-seen-${data.earnedBadge!.blockNumber}`,
+              "1"
+            );
+            setShowCelebration(false);
+          }}
+        />
+      )}
+
       {verse && (
         <VerseCard
           reference={verse.reference}
           text={verse.text}
           label={t("verseOfDay")}
+        />
+      )}
+
+      {/* Block ended without completion encouragement (9.5) */}
+      {showEncouragement && (
+        <BlockEncouragement
+          onDismiss={() => {
+            localStorage.setItem("block-encourage-dismissed-1", "1");
+            setShowEncouragement(false);
+          }}
         />
       )}
 

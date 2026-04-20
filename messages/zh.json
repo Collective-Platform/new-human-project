@@ -58,7 +58,9 @@
     "the25DayBlock": "25 天挑战",
     "startJourney": "开始旅程",
     "blockComplete": "你已完成第 {block} 阶段！🎉",
-    "encourageMessage": "做得好！每一步都在塑造你的旅程。"
+    "encourageMessage": "做得好！每一步都在塑造你的旅程。",
+    "continue": "继续",
+    "keepGoing": "不用着急——准备好了随时可以继续。"
   },
   "profile": {
     "badges": "徽章",

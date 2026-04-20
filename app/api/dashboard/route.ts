@@ -7,6 +7,7 @@ import {
   getActivityCalendar,
   getRecentCompletions,
 } from "@/src/features/dashboard";
+import { getNewlyEarnedBadge, hasCompletedBlock } from "@/src/features/badges";
 
 export async function GET(request: Request) {
   const user = await getSessionUser();
@@ -32,13 +33,19 @@ export async function GET(request: Request) {
   endDate.setDate(endDate.getDate() + 1);
   endDate.setHours(0, 0, 0, 0);
 
-  const [radar, grid, streak, calendar, recent] = await Promise.all([
-    getRadarChartData(user.id, blockNumber, daysElapsed),
-    getBlockGrid(user.id, blockNumber, currentDay),
-    getStreak(user.id),
-    getActivityCalendar(user.id, startDate, endDate),
-    getRecentCompletions(user.id, 10, startDate),
-  ]);
+  const [radar, grid, streak, calendar, recent, earnedBadge, blockDone] =
+    await Promise.all([
+      getRadarChartData(user.id, blockNumber, daysElapsed),
+      getBlockGrid(user.id, blockNumber, currentDay),
+      getStreak(user.id),
+      getActivityCalendar(user.id, startDate, endDate),
+      getRecentCompletions(user.id, 10, startDate),
+      getNewlyEarnedBadge(user.id, blockNumber),
+      hasCompletedBlock(user.id, blockNumber),
+    ]);
+
+  // Block ended without completion: day 25 reached but block not done
+  const blockEndedWithoutCompletion = currentDay >= 25 && !blockDone;
 
   return Response.json({
     currentDay,
@@ -51,5 +58,15 @@ export async function GET(request: Request) {
       name: r.name,
       completedAt: r.completedAt.toISOString(),
     })),
+    earnedBadge: earnedBadge
+      ? {
+          name: earnedBadge.name,
+          description: earnedBadge.description,
+          iconUrl: earnedBadge.iconUrl,
+          blockNumber: earnedBadge.blockNumber,
+          earnedAt: earnedBadge.earnedAt.toISOString(),
+        }
+      : null,
+    blockEndedWithoutCompletion,
   });
 }

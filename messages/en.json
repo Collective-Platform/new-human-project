@@ -58,7 +58,9 @@
     "the25DayBlock": "The 25-Day Block",
     "startJourney": "Start Journey",
     "blockComplete": "You've completed Block {block}! 🎉",
-    "encourageMessage": "Great effort! Every step counts on your journey."
+    "encourageMessage": "Great effort! Every step counts on your journey.",
+    "continue": "Continue",
+    "keepGoing": "There's no rush — pick up where you left off whenever you're ready."
   },
   "profile": {
     "badges": "Badges",
