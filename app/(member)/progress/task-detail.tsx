@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
+import { getLocalizedString } from "@/src/features/content";
 import { ScriptureMemoriseRenderer } from "./renderers/scripture-memorise";
 import { ScriptureStudyRenderer } from "./renderers/scripture-study";
 import { MoodLogRenderer } from "./renderers/mood-log";
@@ -14,18 +15,6 @@ interface TaskData {
   name: string;
   content: Record<string, unknown> | null;
   completed: boolean;
-}
-
-function getLocalizedString(
-  field: unknown,
-  locale: string
-): string {
-  if (typeof field === "string") return field;
-  if (typeof field === "object" && field !== null) {
-    const obj = field as Record<string, string>;
-    return obj[locale] ?? obj.en ?? "";
-  }
-  return "";
 }
 
 export function TaskDetail({
