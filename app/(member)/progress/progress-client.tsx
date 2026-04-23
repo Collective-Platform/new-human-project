@@ -75,6 +75,25 @@ export function ProgressClient({ locale }: { locale: string }) {
     }
   }
 
+  async function handleToggleComplete(taskId: string) {
+    const task = data?.tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const url = task.completed
+      ? "/api/tasks/uncomplete"
+      : "/api/tasks/complete";
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ taskId }),
+    });
+
+    if (res.ok && selectedDay !== null) {
+      await fetchDay(selectedDay);
+    }
+  }
+
   async function handleDaySelect(day: number) {
     setSelectedDay(day);
     setActiveTask(null);
@@ -93,6 +112,9 @@ export function ProgressClient({ locale }: { locale: string }) {
     // Find the latest version of the task from data (with updated completed state)
     const current =
       data.tasks.find((t) => t.id === activeTask.id) ?? activeTask;
+    const categoryTasks = data.tasks.filter(
+      (t) => t.category === current.category,
+    );
     return (
       <TaskDetail
         task={current}
@@ -102,6 +124,8 @@ export function ProgressClient({ locale }: { locale: string }) {
           setActiveTask(null);
           if (selectedDay !== null) fetchDay(selectedDay);
         }}
+        categoryTasks={categoryTasks}
+        onNavigate={(t) => setActiveTask(t)}
       />
     );
   }
@@ -118,6 +142,7 @@ export function ProgressClient({ locale }: { locale: string }) {
       <TaskList
         tasks={data.tasks}
         onTaskTap={setActiveTask}
+        onToggleComplete={handleToggleComplete}
         labels={{
           mental: t("mental"),
           emotional: t("emotional"),

@@ -9,11 +9,6 @@ export function DevotionalRenderer({
   keyIdea,
   reflection,
   practice,
-  completed,
-  onDone,
-  loading,
-  doneLabel,
-  completedLabel,
 }: {
   passageRef: string;
   focus: string;
@@ -21,11 +16,6 @@ export function DevotionalRenderer({
   keyIdea: string;
   reflection: string;
   practice: string;
-  completed: boolean;
-  onDone: () => void;
-  loading: boolean;
-  doneLabel: string;
-  completedLabel: string;
 }) {
   return (
     <div className="space-y-6">
@@ -92,31 +82,6 @@ export function DevotionalRenderer({
         </div>
       )}
 
-      <button
-        onClick={onDone}
-        disabled={completed || loading}
-        className={`w-full rounded-md py-3 text-sm font-semibold transition-opacity ${
-          completed
-            ? "bg-green-100 text-green-700"
-            : "bg-primary text-white hover:opacity-90"
-        } disabled:opacity-60`}
-      >
-        {completed ? (
-          <span className="flex items-center justify-center gap-2">
-            <span
-              className="material-symbols-outlined text-[18px]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              check_circle
-            </span>
-            {completedLabel}
-          </span>
-        ) : loading ? (
-          "…"
-        ) : (
-          doneLabel
-        )}
-      </button>
     </div>
   );
 }

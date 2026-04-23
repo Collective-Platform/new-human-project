@@ -10,28 +10,36 @@ interface TaskItem {
   completionData: Record<string, unknown> | null;
 }
 
-const categoryConfig: Record<string, { color: string; border: string }> = {
+const categoryConfig: Record<
+  string,
+  { iconBg: string; iconColor: string; icon: string }
+> = {
   Mental: {
-    color: "bg-category-mental",
-    border: "border-l-category-mental",
+    iconBg: "bg-[#ffaca3]",
+    iconColor: "text-[#c10014]",
+    icon: "auto_stories",
   },
   Emotional: {
-    color: "bg-category-emotional",
-    border: "border-l-category-emotional",
+    iconBg: "bg-[#d7e2ff]",
+    iconColor: "text-[#135db9]",
+    icon: "mood",
   },
   Physical: {
-    color: "bg-category-physical border-[#d4c8a0]",
-    border: "border-l-category-physical",
+    iconBg: "bg-[#fef6e3]",
+    iconColor: "text-[#645f50]",
+    icon: "fitness_center",
   },
 };
 
 export function TaskList({
   tasks,
   onTaskTap,
+  onToggleComplete,
   labels,
 }: {
   tasks: TaskItem[];
   onTaskTap: (task: TaskItem) => void;
+  onToggleComplete: (taskId: string) => void;
   labels: { mental: string; emotional: string; physical: string };
 }) {
   const categories = ["Mental", "Emotional", "Physical"] as const;
@@ -42,55 +50,84 @@ export function TaskList({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {categories.map((cat) => {
         const catTasks = tasks.filter((t) => t.category === cat);
         const config = categoryConfig[cat];
 
         return (
-          <div
-            key={cat}
-            className={`rounded-md border-l-4 bg-white shadow-card ${config.border}`}
-          >
-            <div className="px-4 pt-4 pb-2">
-              <div className="flex items-center gap-2">
-                <span className={`h-2.5 w-2.5 rounded-full ${config.color}`} />
-                <h3 className="text-sm font-semibold text-foreground">
-                  {labelMap[cat]}
-                </h3>
+          <section key={cat} className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full ${config.iconBg} ${config.iconColor}`}
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  {config.icon}
+                </span>
+              </div>
+              <h3 className="text-xl font-bold font-['Plus_Jakarta_Sans'] text-foreground">
+                {labelMap[cat]}
+              </h3>
+            </div>
+            <div className="rounded-3xl bg-white shadow-card">
+              <div className="divide-y divide-zinc-50">
+                {catTasks.map((task) => {
+                  const isExercise = task.taskType === "exercise";
+                  return (
+                    <div
+                      key={task.id}
+                      className="flex w-full items-center gap-3 px-5 py-3.5 first:rounded-t-3xl last:rounded-b-3xl"
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleComplete(task.id);
+                        }}
+                        className="shrink-0 flex items-center justify-center transition-transform active:scale-90"
+                        aria-label={
+                          task.completed ? "Mark incomplete" : "Mark complete"
+                        }
+                      >
+                        {task.completed ? (
+                          <span
+                            className="material-symbols-outlined text-[20px] leading-none text-green-500"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            check_circle
+                          </span>
+                        ) : (
+                          <span className="material-symbols-outlined text-[20px] leading-none text-zinc-300 hover:text-green-400 transition-colors">
+                            circle
+                          </span>
+                        )}
+                      </button>
+                      {isExercise ? (
+                        <span
+                          className={`flex-1 text-sm font-medium ${task.completed ? "text-foreground/50" : "text-foreground"}`}
+                        >
+                          {task.name}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => onTaskTap(task)}
+                          className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
+                        >
+                          <span
+                            className={`flex-1 text-sm font-medium ${task.completed ? "text-foreground/50" : "text-foreground"}`}
+                          >
+                            {task.name}
+                          </span>
+                          <span className="material-symbols-outlined text-[18px] text-zinc-400">
+                            chevron_right
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
-            <div className="divide-y divide-zinc-50">
-              {catTasks.map((task) => (
-                <button
-                  key={task.id}
-                  onClick={() => onTaskTap(task)}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-zinc-50"
-                >
-                  {task.completed ? (
-                    <span
-                      className="material-symbols-outlined text-[20px] text-green-500"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      check_circle
-                    </span>
-                  ) : (
-                    <span className="material-symbols-outlined text-[20px] text-zinc-300">
-                      circle
-                    </span>
-                  )}
-                  <span
-                    className={`flex-1 text-sm ${task.completed ? "text-foreground/50" : "text-foreground"}`}
-                  >
-                    {task.name}
-                  </span>
-                  <span className="material-symbols-outlined text-[18px] text-zinc-400">
-                    chevron_right
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
+          </section>
         );
       })}
     </div>

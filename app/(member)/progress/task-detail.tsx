@@ -7,7 +7,6 @@ import { DevotionalRenderer } from "./renderers/devotional";
 import { ScriptureMemoriseRenderer } from "./renderers/scripture-memorise";
 import { ScriptureStudyRenderer } from "./renderers/scripture-study";
 import { MoodLogRenderer } from "./renderers/mood-log";
-import { ExerciseRenderer } from "./renderers/exercise";
 
 interface TaskData {
   id: string;
@@ -24,28 +23,60 @@ export function TaskDetail({
   locale,
   onComplete,
   onClose,
+  categoryTasks,
+  onNavigate,
 }: {
   task: TaskData;
   locale: string;
   onComplete: (taskId: string, data?: Record<string, unknown>) => Promise<void>;
   onClose: () => void;
+  categoryTasks: TaskData[];
+  onNavigate: (task: TaskData) => void;
 }) {
   const t = useTranslations("progress");
   const tm = useTranslations("mood");
   const [loading, setLoading] = useState(false);
-  const [completed, setCompleted] = useState(task.completed);
 
-  const handleDone = useCallback(
-    async (data?: Record<string, unknown>) => {
+  const currentIndex = categoryTasks.findIndex((t) => t.id === task.id);
+  const hasPrev = currentIndex > 0;
+  const hasNext = currentIndex < categoryTasks.length - 1;
+  const isOnly = categoryTasks.length === 1;
+
+  const handleNext = useCallback(async () => {
+    setLoading(true);
+    try {
+      await onComplete(task.id);
+      if (hasNext) {
+        onNavigate(categoryTasks[currentIndex + 1]);
+      } else {
+        onClose();
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [onComplete, task.id, hasNext, categoryTasks, currentIndex, onNavigate, onClose]);
+
+  const handlePrev = useCallback(() => {
+    if (hasPrev) {
+      onNavigate(categoryTasks[currentIndex - 1]);
+    }
+  }, [hasPrev, categoryTasks, currentIndex, onNavigate]);
+
+  const handleMoodSubmit = useCallback(
+    async (data: Record<string, unknown>) => {
       setLoading(true);
       try {
         await onComplete(task.id, data);
-        setCompleted(true);
+        if (hasNext) {
+          onNavigate(categoryTasks[currentIndex + 1]);
+        } else {
+          onClose();
+        }
       } finally {
         setLoading(false);
       }
     },
-    [onComplete, task.id]
+    [onComplete, task.id, hasNext, categoryTasks, currentIndex, onNavigate, onClose],
   );
 
   const content = task.content ?? {};
@@ -68,7 +99,7 @@ export function TaskDetail({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 pb-24">
         {task.taskType === "devotional" && (
           <DevotionalRenderer
             passageRef={(content.passage_ref as string) ?? ""}
@@ -77,11 +108,6 @@ export function TaskDetail({
             keyIdea={getLocalizedString(content.key_idea, locale)}
             reflection={getLocalizedString(content.reflection, locale)}
             practice={getLocalizedString(content.practice, locale)}
-            completed={completed}
-            onDone={() => handleDone()}
-            loading={loading}
-            doneLabel={t("done")}
-            completedLabel={t("completed")}
           />
         )}
 
@@ -95,78 +121,30 @@ export function TaskDetail({
                 Read this passage in your Bible or Bible app.
               </p>
             </div>
-            <button
-              onClick={() => handleDone()}
-              disabled={completed || loading}
-              className={`w-full rounded-md py-3 text-sm font-semibold transition-opacity ${
-                completed
-                  ? "bg-green-100 text-green-700"
-                  : "bg-primary text-white hover:opacity-90"
-              } disabled:opacity-60`}
-            >
-              {completed ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span
-                    className="material-symbols-outlined text-[18px]"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    check_circle
-                  </span>
-                  {t("completed")}
-                </span>
-              ) : loading ? (
-                "…"
-              ) : (
-                t("done")
-              )}
-            </button>
           </div>
         )}
 
         {task.taskType === "scripture_memorise" && (
           <ScriptureMemoriseRenderer
-            reference={
-              (content.memory_verse_reference as string) ?? ""
-            }
-            verseText={getLocalizedString(
-              content.memory_verse_text,
-              locale
-            )}
-            completed={completed}
-            onDone={() => handleDone()}
-            loading={loading}
-            doneLabel={t("done")}
-            completedLabel={t("completed")}
+            reference={(content.memory_verse_reference as string) ?? ""}
+            verseText={getLocalizedString(content.memory_verse_text, locale)}
           />
         )}
 
         {task.taskType === "scripture_study" && (
           <ScriptureStudyRenderer
-            reference={
-              (content.scripture_reference as string) ?? ""
-            }
-            passageText={getLocalizedString(
-              content.scripture_text,
-              locale
-            )}
-            explanation={getLocalizedString(
-              content.explanation,
-              locale
-            )}
+            reference={(content.scripture_reference as string) ?? ""}
+            passageText={getLocalizedString(content.scripture_text, locale)}
+            explanation={getLocalizedString(content.explanation, locale)}
             videoUrl={(content.video_url as string) ?? ""}
-            completed={completed}
-            onDone={() => handleDone()}
-            loading={loading}
-            doneLabel={t("done")}
-            completedLabel={t("completed")}
           />
         )}
 
         {task.taskType === "mood_log" && (
           <MoodLogRenderer
-            completed={completed}
+            completed={task.completed}
             initialData={task.completionData}
-            onSubmit={(data) => handleDone(data)}
+            onSubmit={handleMoodSubmit}
             loading={loading}
             labels={{
               pickEmoji: tm("pickEmoji"),
@@ -190,16 +168,40 @@ export function TaskDetail({
           />
         )}
 
-        {task.taskType === "exercise" && (
-          <ExerciseRenderer
-            completed={completed}
-            onToggle={() => handleDone()}
-            loading={loading}
-            label={task.name}
-            completedLabel={t("completed")}
-          />
-        )}
       </div>
+
+      {/* Nav arrows – anchored above bottom nav */}
+      {task.taskType !== "mood_log" && (
+        <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] inset-x-0 z-50 mx-auto flex max-w-3xl items-center justify-between px-6 py-3">
+          {hasPrev ? (
+            <button
+              onClick={handlePrev}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 active:scale-95 transition-all"
+              aria-label="Previous task"
+            >
+              <span className="material-symbols-outlined text-[20px] text-foreground">
+                arrow_back
+              </span>
+            </button>
+          ) : (
+            <div />
+          )}
+          <button
+            onClick={handleNext}
+            disabled={loading}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-60"
+            aria-label="Next task"
+          >
+            {loading ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <span className="material-symbols-outlined text-[20px]">
+                arrow_forward
+              </span>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
