@@ -62,27 +62,22 @@ function parseCSVLine(line: string): string[] {
 function buildContent(row: Record<string, string>): Record<string, unknown> {
   const taskType = row.task_type;
 
-  if (taskType === "scripture_memorise") {
+  if (taskType === "devotional") {
     return {
-      memory_verse_reference: row.memory_verse_ref || null,
-      memory_verse_text: buildLocaleObj(
-        row.memory_verse_text_en,
-        row.memory_verse_text_zh
-      ),
-      xp_weight: parseInt(row.xp_weight) || 1,
+      passage_ref: row.passage_ref || null,
+      focus: buildLocaleObj(row.focus_en, row.focus_zh),
+      reading_notes: buildLocaleObj(row.reading_notes_en, row.reading_notes_zh),
+      key_idea: buildLocaleObj(row.key_idea_en, row.key_idea_zh),
+      reflection: buildLocaleObj(row.reflection_en, row.reflection_zh),
+      practice: buildLocaleObj(row.practice_en, row.practice_zh),
+      xp_weight: parseInt(row.xp_weight) || 2,
     };
   }
 
-  if (taskType === "scripture_study") {
+  if (taskType === "scripture_reading") {
     return {
       scripture_reference: row.scripture_reference || null,
-      scripture_text: buildLocaleObj(
-        row.scripture_text_en,
-        row.scripture_text_zh
-      ),
-      explanation: buildLocaleObj(row.explanation_en, row.explanation_zh),
-      video_url: row.video_url || null,
-      xp_weight: parseInt(row.xp_weight) || 2,
+      xp_weight: parseInt(row.xp_weight) || 1,
     };
   }
 

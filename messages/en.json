@@ -40,7 +40,8 @@
     "school": "School",
     "health": "Health",
     "moreContext": "More context (optional)",
-    "submit": "Submit"
+    "submit": "Submit",
+    "updateMood": "Update Mood"
   },
   "community": {
     "friends": "Friends",

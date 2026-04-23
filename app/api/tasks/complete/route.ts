@@ -16,22 +16,21 @@ export async function POST(request: Request) {
     return Response.json({ error: "taskId required" }, { status: 400 });
   }
 
-  // Insert completion (ignore duplicates via unique constraint)
-  try {
-    await db.insert(taskCompletions).values({
+  await db
+    .insert(taskCompletions)
+    .values({
       userId: user.id,
       taskId,
       data: data ?? {},
       completedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: [taskCompletions.userId, taskCompletions.taskId],
+      set: {
+        data: data ?? {},
+        completedAt: new Date(),
+      },
     });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "";
-    // Unique constraint violation — already completed
-    if (message.includes("unique") || message.includes("duplicate") || message.includes("23505")) {
-      return Response.json({ success: true, alreadyCompleted: true });
-    }
-    throw err;
-  }
 
   // Check block completion: has user completed at least 1 task in each category?
   const categoryCheck = await db.execute(sql`

@@ -7,26 +7,21 @@ interface TaskItem {
   name: string;
   content: Record<string, unknown> | null;
   completed: boolean;
+  completionData: Record<string, unknown> | null;
 }
 
-const categoryConfig: Record<
-  string,
-  { color: string; border: string; label: string }
-> = {
+const categoryConfig: Record<string, { color: string; border: string }> = {
   Mental: {
     color: "bg-category-mental",
     border: "border-l-category-mental",
-    label: "Mental Capacity",
   },
   Emotional: {
     color: "bg-category-emotional",
     border: "border-l-category-emotional",
-    label: "Emotional Health",
   },
   Physical: {
     color: "bg-category-physical border-[#d4c8a0]",
     border: "border-l-category-physical",
-    label: "Physical Well-Being",
   },
 };
 
@@ -50,7 +45,6 @@ export function TaskList({
     <div className="space-y-4">
       {categories.map((cat) => {
         const catTasks = tasks.filter((t) => t.category === cat);
-        if (catTasks.length === 0) return null;
         const config = categoryConfig[cat];
 
         return (
@@ -60,9 +54,7 @@ export function TaskList({
           >
             <div className="px-4 pt-4 pb-2">
               <div className="flex items-center gap-2">
-                <span
-                  className={`h-2.5 w-2.5 rounded-full ${config.color}`}
-                />
+                <span className={`h-2.5 w-2.5 rounded-full ${config.color}`} />
                 <h3 className="text-sm font-semibold text-foreground">
                   {labelMap[cat]}
                 </h3>
@@ -76,7 +68,8 @@ export function TaskList({
                   className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-zinc-50"
                 >
                   {task.completed ? (
-                    <span className="material-symbols-outlined text-[20px] text-green-500"
+                    <span
+                      className="material-symbols-outlined text-[20px] text-green-500"
                       style={{ fontVariationSettings: "'FILL' 1" }}
                     >
                       check_circle

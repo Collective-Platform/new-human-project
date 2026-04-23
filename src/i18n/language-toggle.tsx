@@ -1,14 +1,21 @@
 "use client";
 
-import { useLocale } from "./locale";
+import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
+import type { Locale } from "./locale";
+
+function setLocaleCookie(locale: Locale) {
+  document.cookie = `locale=${locale};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
+}
 
 export function LanguageToggle() {
-  const { locale, toggleLocale } = useLocale();
+  const locale = useLocale();
   const router = useRouter();
 
   function handleToggle() {
-    toggleLocale();
+    const next = locale === "en" ? "zh" : "en";
+    localStorage.setItem("locale", next);
+    setLocaleCookie(next);
     router.refresh();
   }
 

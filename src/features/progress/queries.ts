@@ -25,22 +25,22 @@ export async function getDayTasks(blockNumber: number, dayNumber: number) {
 export async function getUserCompletions(
   userId: number,
   taskIds: string[]
-): Promise<Set<string>> {
-  if (taskIds.length === 0) return new Set();
+): Promise<Map<string, Record<string, unknown> | null>> {
+  if (taskIds.length === 0) return new Map();
 
   const completions = await db
-    .select({ taskId: taskCompletions.taskId })
+    .select({ taskId: taskCompletions.taskId, data: taskCompletions.data })
     .from(taskCompletions)
     .where(eq(taskCompletions.userId, userId));
 
   const taskIdSet = new Set(taskIds);
-  const completedSet = new Set<string>();
+  const completedMap = new Map<string, Record<string, unknown> | null>();
   for (const c of completions) {
     if (taskIdSet.has(c.taskId)) {
-      completedSet.add(c.taskId);
+      completedMap.set(c.taskId, c.data as Record<string, unknown> | null);
     }
   }
-  return completedSet;
+  return completedMap;
 }
 
 export async function getDayCompletionStates(

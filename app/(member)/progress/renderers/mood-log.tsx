@@ -21,11 +21,13 @@ const influenceKeys = [
 
 export function MoodLogRenderer({
   completed,
+  initialData,
   onSubmit,
   loading,
   labels,
 }: {
   completed: boolean;
+  initialData: Record<string, unknown> | null;
   onSubmit: (data: {
     mood: string;
     influences: string[];
@@ -49,26 +51,22 @@ export function MoodLogRenderer({
     moreContext: string;
     submit: string;
     completed: string;
+    updateMood: string;
   };
 }) {
-  const [step, setStep] = useState(1);
-  const [mood, setMood] = useState("");
-  const [influences, setInfluences] = useState<string[]>([]);
-  const [context, setContext] = useState("");
+  const savedMood = (initialData?.mood as string) ?? "";
+  const savedInfluences = (initialData?.influences as string[]) ?? [];
+  const savedContext = (initialData?.context as string) ?? "";
 
-  if (completed) {
-    return (
-      <div className="flex items-center justify-center gap-2 rounded-md bg-green-100 py-4 text-sm font-semibold text-green-700">
-        <span
-          className="material-symbols-outlined text-[18px]"
-          style={{ fontVariationSettings: "'FILL' 1" }}
-        >
-          check_circle
-        </span>
-        {labels.completed}
-      </div>
-    );
-  }
+  const [mood, setMood] = useState(savedMood);
+  const [influences, setInfluences] = useState<string[]>(savedInfluences);
+  const [context, setContext] = useState(savedContext);
+
+  const hasChanges =
+    mood !== savedMood ||
+    context !== savedContext ||
+    influences.length !== savedInfluences.length ||
+    influences.some((inf) => !savedInfluences.includes(inf));
 
   const moodLabels: Record<string, string> = {
     terrible: labels.terrible,
@@ -93,84 +91,79 @@ export function MoodLogRenderer({
     );
   }
 
+  const canSubmit = !loading && !!mood && (!completed || hasChanges);
+
+  let buttonLabel = labels.submit;
+  if (completed && hasChanges) {
+    buttonLabel = labels.updateMood;
+  } else if (completed && !hasChanges) {
+    buttonLabel = labels.completed;
+  }
+
   return (
     <div className="space-y-6">
-      {step === 1 && (
-        <div>
-          <p className="mb-4 text-sm font-medium text-foreground">
-            {labels.pickEmoji}
-          </p>
-          <div className="flex justify-between gap-2">
-            {moods.map((m) => (
-              <button
-                key={m.key}
-                onClick={() => {
-                  setMood(m.key);
-                  setStep(2);
-                }}
-                className={`flex flex-col items-center gap-1 rounded-md px-3 py-3 transition-colors hover:bg-zinc-50 ${
-                  mood === m.key ? "bg-zinc-100" : ""
-                }`}
-              >
-                <span className="text-2xl">{m.emoji}</span>
-                <span className="text-[10px] text-foreground/60">
-                  {moodLabels[m.key]}
-                </span>
-              </button>
-            ))}
-          </div>
+      <div>
+        <p className="mb-4 text-sm font-medium text-foreground">
+          {labels.pickEmoji}
+        </p>
+        <div className="flex justify-between gap-2">
+          {moods.map((m) => (
+            <button
+              key={m.key}
+              onClick={() => setMood(m.key)}
+              className={`flex flex-col items-center gap-1 rounded-md px-3 py-3 transition-colors hover:bg-zinc-50 ${
+                mood === m.key ? "bg-zinc-100" : ""
+              }`}
+            >
+              <span className="text-2xl">{m.emoji}</span>
+              <span className="text-[10px] text-foreground/60">
+                {moodLabels[m.key]}
+              </span>
+            </button>
+          ))}
         </div>
-      )}
+      </div>
 
-      {step === 2 && (
-        <div>
-          <p className="mb-4 text-sm font-medium text-foreground">
-            {labels.influences}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {influenceKeys.map((key) => (
-              <button
-                key={key}
-                onClick={() => toggleInfluence(key)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  influences.includes(key)
-                    ? "bg-secondary text-white"
-                    : "bg-zinc-100 text-foreground/70 hover:bg-zinc-200"
-                }`}
-              >
-                {influenceLabels[key]}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={() => setStep(3)}
-            className="mt-4 w-full rounded-md bg-primary py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-          >
-            Next
-          </button>
+      <div>
+        <p className="mb-4 text-sm font-medium text-foreground">
+          {labels.influences}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {influenceKeys.map((key) => (
+            <button
+              key={key}
+              onClick={() => toggleInfluence(key)}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                influences.includes(key)
+                  ? "bg-secondary text-white"
+                  : "bg-zinc-100 text-foreground/70 hover:bg-zinc-200"
+              }`}
+            >
+              {influenceLabels[key]}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
 
-      {step === 3 && (
-        <div>
-          <p className="mb-3 text-sm font-medium text-foreground">
-            {labels.moreContext}
-          </p>
-          <textarea
-            value={context}
-            onChange={(e) => setContext(e.target.value)}
-            rows={3}
-            className="w-full rounded-sm border border-foreground/10 bg-white px-4 py-3 text-sm text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-          <button
-            onClick={() => onSubmit({ mood, influences, context })}
-            disabled={loading}
-            className="mt-4 w-full rounded-md bg-primary py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {loading ? "…" : labels.submit}
-          </button>
-        </div>
-      )}
+      <div>
+        <p className="mb-3 text-sm font-medium text-foreground">
+          {labels.moreContext}
+        </p>
+        <textarea
+          value={context}
+          onChange={(e) => setContext(e.target.value)}
+          rows={3}
+          className="w-full rounded-sm border border-foreground/10 bg-white px-4 py-3 text-sm text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+      </div>
+
+      <button
+        onClick={() => onSubmit({ mood, influences, context })}
+        disabled={!canSubmit}
+        className="w-full rounded-md bg-primary py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+      >
+        {loading ? "…" : buttonLabel}
+      </button>
     </div>
   );
 }

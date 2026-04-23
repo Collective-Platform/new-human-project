@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
@@ -13,6 +13,7 @@ interface TaskData {
   name: string;
   content: Record<string, unknown> | null;
   completed: boolean;
+  completionData: Record<string, unknown> | null;
 }
 
 interface CarouselDay {
@@ -34,26 +35,34 @@ export function ProgressClient({ locale }: { locale: string }) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
 
-  const fetchData = useCallback(
-    async (day?: number) => {
-      const params = day ? `?day=${day}` : "";
-      const res = await fetch(`/api/progress${params}`);
-      if (res.ok) {
+  async function fetchDay(day: number) {
+    const res = await fetch(`/api/progress?day=${day}`);
+    if (res.ok) {
+      const d: ProgressData = await res.json();
+      setData(d);
+    }
+  }
+
+  // Initial load only
+  useEffect(() => {
+    let cancelled = false;
+    async function init() {
+      const res = await fetch("/api/progress");
+      if (res.ok && !cancelled) {
         const d: ProgressData = await res.json();
         setData(d);
-        if (selectedDay === null) setSelectedDay(d.currentDay);
+        setSelectedDay(d.currentDay);
       }
-    },
-    [selectedDay]
-  );
-
-  useEffect(() => {
-    fetchData(selectedDay ?? undefined);
-  }, [selectedDay]); // eslint-disable-line react-hooks/exhaustive-deps
+    }
+    init();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleComplete(
     taskId: string,
-    taskData?: Record<string, unknown>
+    taskData?: Record<string, unknown>,
   ) {
     const res = await fetch("/api/tasks/complete", {
       method: "POST",
@@ -61,15 +70,15 @@ export function ProgressClient({ locale }: { locale: string }) {
       body: JSON.stringify({ taskId, data: taskData }),
     });
 
-    if (res.ok) {
-      // Re-fetch to update completion states
-      await fetchData(selectedDay ?? undefined);
+    if (res.ok && selectedDay !== null) {
+      await fetchDay(selectedDay);
     }
   }
 
-  function handleDaySelect(day: number) {
+  async function handleDaySelect(day: number) {
     setSelectedDay(day);
     setActiveTask(null);
+    await fetchDay(day);
   }
 
   if (!data) {
@@ -82,7 +91,8 @@ export function ProgressClient({ locale }: { locale: string }) {
 
   if (activeTask) {
     // Find the latest version of the task from data (with updated completed state)
-    const current = data.tasks.find((t) => t.id === activeTask.id) ?? activeTask;
+    const current =
+      data.tasks.find((t) => t.id === activeTask.id) ?? activeTask;
     return (
       <TaskDetail
         task={current}
@@ -90,7 +100,7 @@ export function ProgressClient({ locale }: { locale: string }) {
         onComplete={handleComplete}
         onClose={() => {
           setActiveTask(null);
-          fetchData(selectedDay ?? undefined);
+          if (selectedDay !== null) fetchDay(selectedDay);
         }}
       />
     );

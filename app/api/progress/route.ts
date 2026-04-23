@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const blockNumber = 1;
   const tasks = await getDayTasks(blockNumber, requestedDay);
   const taskIds = tasks.map((t) => t.id);
-  const completedSet = await getUserCompletions(user.id, taskIds);
+  const completedMap = await getUserCompletions(user.id, taskIds);
 
   // Get completion states for all days (for carousel)
   const dayStates = await getDayCompletionStates(user.id, blockNumber);
@@ -41,7 +41,8 @@ export async function GET(request: Request) {
       taskType: t.taskType,
       name: t.name,
       content: t.content,
-      completed: completedSet.has(t.id),
+      completed: completedMap.has(t.id),
+      completionData: completedMap.get(t.id) ?? null,
     })),
   });
 }

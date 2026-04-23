@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { useLocale } from "@/src/i18n/locale";
+import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 
 interface NotificationPrefs {
@@ -15,7 +14,7 @@ interface NotificationPrefs {
 export function SettingsClient() {
   const t = useTranslations("profile");
   const router = useRouter();
-  const { locale, toggleLocale } = useLocale();
+  const locale = useLocale();
 
   const [prefs, setPrefs] = useState<NotificationPrefs>({
     daily_reminder: true,
@@ -56,7 +55,9 @@ export function SettingsClient() {
   }
 
   function handleLanguageToggle() {
-    toggleLocale();
+    const next = locale === "en" ? "zh" : "en";
+    localStorage.setItem("locale", next);
+    document.cookie = `locale=${next};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
     router.refresh();
   }
 

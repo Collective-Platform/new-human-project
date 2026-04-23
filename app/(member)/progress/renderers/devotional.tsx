@@ -2,21 +2,25 @@
 
 import Markdown from "react-markdown";
 
-export function ScriptureStudyRenderer({
-  reference,
-  passageText,
-  explanation,
-  videoUrl,
+export function DevotionalRenderer({
+  passageRef,
+  focus,
+  readingNotes,
+  keyIdea,
+  reflection,
+  practice,
   completed,
   onDone,
   loading,
   doneLabel,
   completedLabel,
 }: {
-  reference: string;
-  passageText: string;
-  explanation: string;
-  videoUrl: string;
+  passageRef: string;
+  focus: string;
+  readingNotes: string;
+  keyIdea: string;
+  reflection: string;
+  practice: string;
   completed: boolean;
   onDone: () => void;
   loading: boolean;
@@ -25,16 +29,18 @@ export function ScriptureStudyRenderer({
 }) {
   return (
     <div className="space-y-6">
+      <p className="font-headline text-lg font-bold text-foreground">
+        {passageRef}
+      </p>
+
       <div>
-        <p className="mb-3 font-headline text-lg font-bold text-foreground">
-          {reference}
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-foreground/50">
+          Today's Focus
         </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">
-          {passageText}
-        </p>
+        <p className="text-sm leading-relaxed text-foreground/80">{focus}</p>
       </div>
 
-      {explanation && (
+      {readingNotes && (
         <div className="rounded-sm bg-zinc-50 p-4">
           <div className="space-y-2 text-sm leading-relaxed text-foreground/70">
             <Markdown
@@ -54,20 +60,35 @@ export function ScriptureStudyRenderer({
                 li: ({ children }) => <li>{children}</li>,
               }}
             >
-              {explanation}
+              {readingNotes}
             </Markdown>
           </div>
         </div>
       )}
 
-      {videoUrl && (
-        <div className="aspect-video overflow-hidden rounded-sm">
-          <iframe
-            src={videoUrl.replace("watch?v=", "embed/")}
-            className="h-full w-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+      {keyIdea && (
+        <blockquote className="border-l-4 border-primary pl-4 italic text-foreground/80">
+          <p className="text-sm leading-relaxed">{keyIdea}</p>
+        </blockquote>
+      )}
+
+      <div>
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-foreground/50">
+          Reflection
+        </p>
+        <p className="text-sm leading-relaxed text-foreground/80">
+          {reflection}
+        </p>
+      </div>
+
+      {practice && (
+        <div className="rounded-sm bg-amber-50 p-4">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-foreground/50">
+            Today's Practice
+          </p>
+          <p className="text-sm leading-relaxed text-foreground/80">
+            {practice}
+          </p>
         </div>
       )}
 
