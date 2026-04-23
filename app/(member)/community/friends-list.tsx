@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 interface Friend {
@@ -18,9 +19,12 @@ function Avatar({
 }) {
   if (url) {
     return (
-      <img
+      <Image
         src={url}
         alt={name ?? ""}
+        width={40}
+        height={40}
+        unoptimized
         className="h-10 w-10 rounded-full object-cover"
       />
     );

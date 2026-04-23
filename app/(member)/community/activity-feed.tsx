@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 interface FeedItem {
   displayName: string | null;
   avatarUrl: string | null;
@@ -33,9 +35,12 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
       {items.map((item, i) => (
         <div key={i} className="flex items-center gap-3 px-4 py-3">
           {item.avatarUrl ? (
-            <img
+            <Image
               src={item.avatarUrl}
               alt={item.displayName ?? ""}
+              width={40}
+              height={40}
+              unoptimized
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (

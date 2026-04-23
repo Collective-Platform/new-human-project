@@ -15,9 +15,9 @@
   },
   "progress": {
     "dayLabel": "第 {day} 天",
-    "mental": "心智成长",
-    "emotional": "情绪健康",
-    "physical": "身体健康",
+    "mental": "心智",
+    "emotional": "情绪",
+    "physical": "身体",
     "memorise": "背诵 {reference}",
     "study": "学习 {reference}",
     "moodLog": "心情记录",

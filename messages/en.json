@@ -15,9 +15,9 @@
   },
   "progress": {
     "dayLabel": "Day {day}",
-    "mental": "Mental Capacity",
-    "emotional": "Emotional Health",
-    "physical": "Physical Well-Being",
+    "mental": "Mental",
+    "emotional": "Emotional",
+    "physical": "Physical",
     "memorise": "Memorise {reference}",
     "study": "Study {reference}",
     "moodLog": "Mood Log",

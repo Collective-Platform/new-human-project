@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 interface Suggestion {
@@ -44,9 +45,12 @@ export function PeopleYouMayKnow({
             className="flex w-32 shrink-0 flex-col items-center rounded-md bg-white p-4 shadow-card"
           >
             {s.avatarUrl ? (
-              <img
+              <Image
                 src={s.avatarUrl}
                 alt={s.displayName ?? ""}
+                width={56}
+                height={56}
+                unoptimized
                 className="mb-2 h-14 w-14 rounded-full object-cover"
               />
             ) : (

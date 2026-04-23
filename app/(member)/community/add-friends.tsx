@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 interface SearchResult {
@@ -81,9 +82,12 @@ export function AddFriends({
               className="flex items-center gap-3 px-4 py-3"
             >
               {user.avatarUrl ? (
-                <img
+                <Image
                   src={user.avatarUrl}
                   alt={user.displayName ?? ""}
+                  width={40}
+                  height={40}
+                  unoptimized
                   className="h-10 w-10 rounded-full object-cover"
                 />
               ) : (

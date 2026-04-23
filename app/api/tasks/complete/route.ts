@@ -1,6 +1,11 @@
 import { getSessionUser } from "@/src/features/auth";
 import { db } from "@/src/db";
-import { taskCompletions, blockDayTasks, memberBlockCompletions, badgeDefinitions, memberBadges } from "@/src/db/schema";
+import {
+  taskCompletions,
+  memberBlockCompletions,
+  badgeDefinitions,
+  memberBadges,
+} from "@/src/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 
 export async function POST(request: Request) {
@@ -10,7 +15,10 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { taskId, data } = body as { taskId: string; data?: Record<string, unknown> };
+  const { taskId, data } = body as {
+    taskId: string;
+    data?: Record<string, unknown>;
+  };
 
   if (!taskId) {
     return Response.json({ error: "taskId required" }, { status: 400 });
@@ -41,7 +49,9 @@ export async function POST(request: Request) {
       AND bdt.block_number = 1
   `);
 
-  const catCount = Number((categoryCheck.rows[0] as { cat_count: number })?.cat_count ?? 0);
+  const catCount = Number(
+    (categoryCheck.rows[0] as { cat_count: number })?.cat_count ?? 0,
+  );
 
   let blockCompleted = false;
   if (catCount >= 3) {
@@ -52,8 +62,8 @@ export async function POST(request: Request) {
       .where(
         and(
           eq(memberBlockCompletions.userId, user.id),
-          eq(memberBlockCompletions.blockNumber, 1)
-        )
+          eq(memberBlockCompletions.blockNumber, 1),
+        ),
       )
       .limit(1);
 

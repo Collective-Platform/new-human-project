@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 interface FriendRequest {
@@ -41,9 +42,12 @@ export function FriendRequests({
       {visible.map((req) => (
         <div key={req.requestId} className="flex items-center gap-3 px-4 py-3">
           {req.avatarUrl ? (
-            <img
+            <Image
               src={req.avatarUrl}
               alt={req.displayName ?? ""}
+              width={40}
+              height={40}
+              unoptimized
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (
