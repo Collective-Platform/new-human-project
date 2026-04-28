@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const currentDay = getCurrentDay(user.onboardedAt);
   const requestedDay = Math.min(
     Math.max(Number(url.searchParams.get("day")) || currentDay, 1),
-    currentDay
+    25
   );
 
   const blockNumber = 1;
@@ -26,14 +26,22 @@ export async function GET(request: Request) {
     const day = i + 1;
     return {
       day,
-      reachable: day <= currentDay,
+      reachable: true,
       hasCompletion: dayStates.has(day),
     };
   });
 
+  // Count missed days: past days (before currentDay) with no completions
+  let missedDays = 0;
+  for (let d = 1; d < currentDay; d++) {
+    if (!dayStates.has(d)) missedDays++;
+  }
+
   return Response.json({
     currentDay,
     selectedDay: requestedDay,
+    blockStartDate: user.onboardedAt.toISOString(),
+    missedDays,
     carousel,
     tasks: tasks.map((t) => ({
       id: t.id,

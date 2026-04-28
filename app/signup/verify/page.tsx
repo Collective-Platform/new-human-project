@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/src/features/auth";
-import { VerifyForm } from "./verify-form";
+import { VerifyForm } from "@/app/login/verify/verify-form";
 
-export default async function VerifyPage({
+export default async function SignupVerifyPage({
   searchParams,
 }: {
   searchParams: Promise<{ email?: string }>;
@@ -11,12 +11,12 @@ export default async function VerifyPage({
   if (user) redirect("/");
 
   const { email } = await searchParams;
-  if (!email) redirect("/login");
+  if (!email) redirect("/signup");
 
   return (
     <div className="w-full max-w-sm space-y-6 p-8">
       <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold font-headline text-foreground">
+        <h1 className="text-2xl font-bold font-(family-name:--font-headline) text-foreground">
           Check your email
         </h1>
         <p className="text-sm text-foreground/60">
@@ -24,7 +24,7 @@ export default async function VerifyPage({
           <span className="font-medium text-foreground">{email}</span>
         </p>
       </div>
-      <VerifyForm email={email} />
+      <VerifyForm email={email} mode="signup" />
     </div>
   );
 }

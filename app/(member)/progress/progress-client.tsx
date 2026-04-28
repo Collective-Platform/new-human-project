@@ -25,6 +25,8 @@ interface CarouselDay {
 interface ProgressData {
   currentDay: number;
   selectedDay: number;
+  blockStartDate: string;
+  missedDays: number;
   carousel: CarouselDay[];
   tasks: TaskData[];
 }
@@ -137,7 +139,23 @@ export function ProgressClient({ locale }: { locale: string }) {
         selectedDay={selectedDay ?? data.currentDay}
         onSelect={handleDaySelect}
         dayLabel={t("dayLabel", { day: selectedDay ?? data.currentDay })}
+        blockStartDate={data.blockStartDate}
+        currentDay={data.currentDay}
       />
+
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-extrabold tracking-tight text-foreground font-['Plus_Jakarta_Sans']">
+          {t("dayLabel", { day: selectedDay ?? data.currentDay })} of 25
+        </h2>
+        {data.missedDays > 0 && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 bg-white/50 backdrop-blur-sm">
+            <span className="material-symbols-outlined text-base text-foreground leading-none">schedule</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">
+              {data.missedDays} missed {data.missedDays === 1 ? "day" : "days"}
+            </span>
+          </div>
+        )}
+      </div>
 
       <TaskList
         tasks={data.tasks}

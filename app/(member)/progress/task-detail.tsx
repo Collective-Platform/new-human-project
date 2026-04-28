@@ -82,7 +82,7 @@ export function TaskDetail({
   const content = task.content ?? {};
 
   return (
-    <div className="fixed inset-0 z-50 mx-auto flex max-w-3xl flex-col bg-surface">
+    <div className="fixed inset-0 z-50 mx-auto flex max-w-[375px] flex-col bg-surface">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-100 bg-white">
         <button
@@ -133,6 +133,7 @@ export function TaskDetail({
 
         {task.taskType === "scripture_study" && (
           <ScriptureStudyRenderer
+            title={task.name}
             reference={(content.scripture_reference as string) ?? ""}
             passageText={getLocalizedString(content.scripture_text, locale)}
             explanation={getLocalizedString(content.explanation, locale)}
@@ -172,7 +173,7 @@ export function TaskDetail({
 
       {/* Nav arrows – anchored above bottom nav */}
       {task.taskType !== "mood_log" && (
-        <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] inset-x-0 z-50 mx-auto flex max-w-3xl items-center justify-between px-6 py-3">
+        <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] inset-x-0 z-50 mx-auto flex max-w-[375px] items-center justify-between px-6 py-3">
           {hasPrev ? (
             <button
               onClick={handlePrev}

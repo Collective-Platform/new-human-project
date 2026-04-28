@@ -69,7 +69,17 @@
     "notifications": "通知",
     "privacy": "隐私",
     "language": "语言",
-    "logOut": "退出登录"
+    "logOut": "退出登录",
+    "editName": "编辑昵称",
+    "displayName": "昵称",
+    "changePhoto": "更换头像",
+    "save": "保存",
+    "saving": "保存中…",
+    "cancel": "取消",
+    "nameRequired": "昵称不能为空",
+    "nameTooLong": "昵称不能超过 50 个字符",
+    "invalidImage": "请选择图片文件",
+    "imageTooLarge": "图片大小须小于 {max}MB"
   },
   "auth": {
     "enterEmail": "输入你的邮箱",

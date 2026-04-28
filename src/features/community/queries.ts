@@ -203,8 +203,13 @@ export async function getActivityFeed(userId: number) {
     FROM task_completions tc
     JOIN block_day_tasks t ON tc.task_id = t.id
     JOIN users u ON tc.user_id = u.id
-    WHERE tc.user_id IN (SELECT friend_id FROM friend_ids)
-      AND u.privacy_public = true
+    WHERE (
+        tc.user_id = ${userId}
+        OR (
+          tc.user_id IN (SELECT friend_id FROM friend_ids)
+          AND u.privacy_public = true
+        )
+      )
     ORDER BY tc.completed_at DESC
     LIMIT 50
   `);

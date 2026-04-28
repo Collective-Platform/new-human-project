@@ -69,7 +69,17 @@
     "notifications": "Notifications",
     "privacy": "Privacy",
     "language": "Language",
-    "logOut": "Log Out"
+    "logOut": "Log Out",
+    "editName": "Edit name",
+    "displayName": "Display name",
+    "changePhoto": "Change profile photo",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "nameRequired": "Name cannot be empty",
+    "nameTooLong": "Name must be 50 characters or fewer",
+    "invalidImage": "Please select an image file",
+    "imageTooLarge": "Image must be smaller than {max}MB"
   },
   "auth": {
     "enterEmail": "Enter your email",

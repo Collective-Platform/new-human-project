@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSessionUser } from "@/src/features/auth";
-import { LoginForm } from "./login-form";
+import { SignupForm } from "./signup-form";
 
-export default async function LoginPage({
+export default async function SignupPage({
   searchParams,
 }: {
   searchParams: Promise<{ email?: string }>;
@@ -21,18 +21,21 @@ export default async function LoginPage({
             <h1 className="text-2xl font-bold font-headline text-foreground">
               Welcome to Rhythm
             </h1>
+            <p className="text-sm text-foreground/60">
+              Create your account to begin your journey
+            </p>
           </div>
-          <LoginForm initialEmail={email ?? ""} />
+          <SignupForm initialEmail={email ?? ""} />
         </div>
       </div>
 
       <p className="pb-8 text-center text-sm text-foreground/60">
-        Don&apos;t have an account yet?{" "}
+        Already have an account?{" "}
         <Link
-          href="/signup"
+          href="/login"
           className="text-secondary hover:underline font-medium"
         >
-          Sign up
+          Log in
         </Link>
       </p>
     </div>

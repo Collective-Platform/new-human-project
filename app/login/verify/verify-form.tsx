@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function VerifyForm({ email }: { email: string }) {
+type Mode = "login" | "signup";
+
+export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mode }) {
   const router = useRouter();
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,7 +22,7 @@ export function VerifyForm({ email }: { email: string }) {
       const res = await fetch("/api/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email, otp, mode }),
       });
 
       if (res.status === 429) {
@@ -56,7 +58,7 @@ export function VerifyForm({ email }: { email: string }) {
       const res = await fetch("/api/auth/otp/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, mode }),
       });
 
       if (res.status === 429) {

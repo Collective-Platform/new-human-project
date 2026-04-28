@@ -31,7 +31,7 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
+    <div className=" divide-y divide-zinc-100">
       {items.map((item, i) => (
         <div key={i} className="flex items-center gap-3 px-4 py-3">
           {item.avatarUrl ? (
@@ -51,11 +51,12 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="truncate font-headline text-sm font-semibold text-foreground">
-              {item.displayName ?? "User"}
-            </p>
-            <p className="truncate text-xs text-foreground/60">
-              {item.activity}
+            <p className="truncate text-sm text-foreground">
+              <span className="font-headline font-semibold">
+                {item.displayName ?? "User"}
+              </span>
+              <span className="text-foreground/60"> completed </span>
+              <span className="font-medium">{item.activity}</span>
             </p>
           </div>
           <div className="flex flex-col items-end gap-1">

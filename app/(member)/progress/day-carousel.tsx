@@ -8,16 +8,31 @@ interface DayInfo {
   hasCompletion: boolean;
 }
 
+function getDateForDay(blockStartDate: string, day: number): string {
+  const start = new Date(blockStartDate);
+  const date = new Date(start);
+  date.setDate(start.getDate() + (day - 1));
+  const monthNames = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+  return `${monthNames[date.getMonth()]} ${date.getDate()}`;
+}
+
 export function DayCarousel({
   days,
   selectedDay,
   onSelect,
   dayLabel,
+  blockStartDate,
+  currentDay,
 }: {
   days: DayInfo[];
   selectedDay: number;
   onSelect: (day: number) => void;
   dayLabel: string;
+  blockStartDate: string;
+  currentDay: number;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -32,33 +47,55 @@ export function DayCarousel({
 
   return (
     <div className="mb-4">
-      <p className="mb-2 px-1 text-xs font-medium text-foreground/50">
-        {dayLabel}
-      </p>
       <div
         ref={scrollRef}
-        className="flex gap-2 overflow-x-auto pb-2 scrollbar-none"
+        className="flex gap-4 overflow-x-auto pb-2 scrollbar-none py-2 -mx-2 px-2"
       >
         {days.map((d) => {
           const isSelected = d.day === selectedDay;
-          const isFuture = !d.reachable;
+          const isToday = d.day === currentDay;
 
           return (
             <button
               key={d.day}
-              disabled={isFuture}
               onClick={() => onSelect(d.day)}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium transition-colors ${
-                isSelected
-                  ? "bg-primary text-white"
-                  : isFuture
-                    ? "bg-zinc-100 text-zinc-300"
-                    : d.hasCompletion
-                      ? "bg-primary/15 text-primary"
-                      : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
-              }`}
+              className="flex-shrink-0 flex flex-col items-center gap-1.5 group"
             >
-              {d.day}
+              <div
+                className={`w-14 h-14 rounded-full flex flex-col items-center justify-center transition-all duration-200 active:scale-95 ${
+                  isToday ? "border-2 border-black" : ""
+                } ${
+                  isSelected
+                    ? "bg-primary text-white shadow-lg"
+                    : d.hasCompletion
+                      ? "bg-primary/15 text-primary hover:bg-primary/25"
+                      : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
+                }`}
+              >
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-tighter ${
+                    isSelected ? "text-white/70" : d.hasCompletion ? "text-primary/60" : "text-zinc-400"
+                  }`}
+                >
+                  Day
+                </span>
+                <span
+                  className={`text-lg font-bold leading-none ${
+                    isSelected ? "text-white" : d.hasCompletion ? "text-primary" : "text-zinc-600"
+                  }`}
+                >
+                  {d.day}
+                </span>
+              </div>
+              <span
+                className={`text-[11px] ${
+                  isSelected
+                    ? "font-bold text-foreground"
+                    : "font-semibold text-foreground/50 group-hover:text-foreground/70"
+                }`}
+              >
+                {isToday ? "Today" : getDateForDay(blockStartDate, d.day)}
+              </span>
             </button>
           );
         })}

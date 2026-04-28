@@ -3,11 +3,13 @@
 import Markdown from "react-markdown";
 
 export function ScriptureStudyRenderer({
+  title,
   reference,
   passageText,
   explanation,
   videoUrl,
 }: {
+  title: string;
   reference: string;
   passageText: string;
   explanation: string;
@@ -16,7 +18,10 @@ export function ScriptureStudyRenderer({
   return (
     <div className="space-y-6">
       <div>
-        <p className="mb-3 font-headline text-lg font-bold text-foreground">
+        <h1 className="mb-2 font-headline text-xl font-bold text-foreground">
+          {title}
+        </h1>
+        <p className="mb-3 text-sm text-foreground/70">
           {reference}
         </p>
         <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">

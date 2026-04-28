@@ -83,6 +83,32 @@ export async function PATCH(request: Request) {
   if (body.privacyPublic !== undefined) {
     updates.privacyPublic = body.privacyPublic;
   }
+  if (body.displayName !== undefined) {
+    if (typeof body.displayName !== "string") {
+      return Response.json({ error: "Invalid displayName" }, { status: 400 });
+    }
+    const trimmed = body.displayName.trim();
+    if (trimmed.length === 0 || trimmed.length > 50) {
+      return Response.json(
+        { error: "Display name must be 1-50 characters" },
+        { status: 400 }
+      );
+    }
+    updates.displayName = trimmed;
+  }
+  if (body.avatarUrl !== undefined) {
+    if (body.avatarUrl !== null && typeof body.avatarUrl !== "string") {
+      return Response.json({ error: "Invalid avatarUrl" }, { status: 400 });
+    }
+    // Cap data URL size to ~1.5MB encoded (~1MB raw)
+    if (typeof body.avatarUrl === "string" && body.avatarUrl.length > 1_500_000) {
+      return Response.json(
+        { error: "Avatar image is too large" },
+        { status: 413 }
+      );
+    }
+    updates.avatarUrl = body.avatarUrl;
+  }
 
   if (Object.keys(updates).length === 0) {
     return Response.json({ error: "No updates" }, { status: 400 });

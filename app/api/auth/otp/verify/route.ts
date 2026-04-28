@@ -8,10 +8,13 @@ import {
 } from "@/src/features/auth";
 import { eq, and, gt, isNull } from "drizzle-orm";
 
+type Mode = "login" | "signup";
+
 export async function POST(request: Request) {
   const body = await request.json();
   const email = body.email?.trim()?.toLowerCase();
   const otp = body.otp?.trim();
+  const mode: Mode = body.mode === "signup" ? "signup" : "login";
 
   if (!email || !otp) {
     return Response.json(
@@ -51,7 +54,8 @@ export async function POST(request: Request) {
   const user = userRows[0];
   const otpHash = hashToken(otp);
 
-  // Find matching unused, unexpired token
+  // Find matching unused, unexpired token whose mode matches the submitted mode.
+  // This ensures an OTP issued for "signup" can't be used to log in (and vice versa).
   const tokenRows = await db
     .select()
     .from(tokens)
@@ -59,7 +63,7 @@ export async function POST(request: Request) {
       and(
         eq(tokens.tokenHash, otpHash),
         eq(tokens.userId, user.id),
-        eq(tokens.mode, "otp"),
+        eq(tokens.mode, mode),
         gt(tokens.expiresAt, new Date()),
         isNull(tokens.usedAt)
       )
@@ -79,10 +83,10 @@ export async function POST(request: Request) {
     .set({ usedAt: new Date() })
     .where(eq(tokens.id, tokenRows[0].id));
 
-  // Update user: verify email and activate if guest
+  // Update user: verify email; activate only on signup
   const updates: Record<string, unknown> = {};
   updates.emailVerifiedAt = new Date();
-  if (user.status === "guest") {
+  if (mode === "signup" && user.status === "guest") {
     updates.status = "active";
   }
   await db.update(users).set(updates).where(eq(users.id, user.id));

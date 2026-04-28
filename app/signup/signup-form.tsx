@@ -4,24 +4,24 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export function LoginForm({ initialEmail = "" }: { initialEmail?: string }) {
+export function SignupForm({ initialEmail = "" }: { initialEmail?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState(initialEmail);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [notExists, setNotExists] = useState(false);
+  const [alreadyExists, setAlreadyExists] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setNotExists(false);
+    setAlreadyExists(false);
     setLoading(true);
 
     try {
       const res = await fetch("/api/auth/otp/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, mode: "login" }),
+        body: JSON.stringify({ email, mode: "signup" }),
       });
 
       if (res.status === 429) {
@@ -29,13 +29,13 @@ export function LoginForm({ initialEmail = "" }: { initialEmail?: string }) {
         return;
       }
 
-      if (res.status === 404) {
+      if (res.status === 409) {
         const data = await res.json().catch(() => ({}));
-        if (data?.code === "NOT_EXISTS") {
-          setNotExists(true);
+        if (data?.code === "ALREADY_EXISTS") {
+          setAlreadyExists(true);
           return;
         }
-        setError("No account found for this email.");
+        setError("An account with this email already exists.");
         return;
       }
 
@@ -44,7 +44,7 @@ export function LoginForm({ initialEmail = "" }: { initialEmail?: string }) {
         return;
       }
 
-      router.push(`/login/verify?email=${encodeURIComponent(email)}`);
+      router.push(`/signup/verify?email=${encodeURIComponent(email)}`);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -67,14 +67,14 @@ export function LoginForm({ initialEmail = "" }: { initialEmail?: string }) {
       </div>
 
       {error && <p className="text-sm text-primary">{error}</p>}
-      {notExists && (
+      {alreadyExists && (
         <p className="text-sm text-primary">
-          No account found for this email.{" "}
+          An account with this email already exists.{" "}
           <Link
-            href={`/signup?email=${encodeURIComponent(email)}`}
+            href={`/login?email=${encodeURIComponent(email)}`}
             className="underline font-medium"
           >
-            Sign up instead?
+            Log in instead?
           </Link>
         </p>
       )}
@@ -84,8 +84,25 @@ export function LoginForm({ initialEmail = "" }: { initialEmail?: string }) {
         disabled={loading}
         className="w-full rounded-sm bg-primary py-3 text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
       >
-        {loading ? "Sending code…" : "Continue"}
+        {loading ? "Sending code…" : "Create account"}
       </button>
+
+      <p className="text-center text-sm text-foreground/60">
+        By signing up, you agree to our <br />
+        <Link
+          href="https://collective.my/terms/"
+          className="text-secondary hover:underline font-medium"
+        >
+          Terms of Use
+        </Link>
+        {" and "}
+        <Link
+          href="https://collective.my/privacy/"
+          className="text-secondary hover:underline font-medium"
+        >
+          Privacy Policy
+        </Link>
+      </p>
     </form>
   );
 }
