@@ -1,6 +1,6 @@
 import { getSessionUser } from "@/src/features/auth";
 import { db } from "@/src/db";
-import { users } from "@/src/db/shared-schema";
+import { users } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function POST() {

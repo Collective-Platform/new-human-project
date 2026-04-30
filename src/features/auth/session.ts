@@ -1,18 +1,19 @@
 import { cookies } from "next/headers";
 import { db } from "@/src/db";
-import { sessions, users } from "@/src/db/shared-schema";
-import { eq } from "drizzle-orm";
+import { sessions, users } from "@/src/db/schema";
+import { and, eq } from "drizzle-orm";
 import { hashToken, generateSessionId, generateRawToken } from "./crypto";
 
 const SESSION_COOKIE = "__session";
 const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
 const SLIDING_RENEWAL_MS = 7 * 24 * 60 * 60 * 1000;
+// Don't UPDATE the session row more than once a day to avoid hammering Neon
+// HTTP with a write per request once we're inside the renewal window.
+const RENEWAL_WRITE_THROTTLE_MS = 24 * 60 * 60 * 1000;
 
 export interface SessionUser {
   id: number;
   email: string;
-  firstName: string | null;
-  lastName: string | null;
   role: string;
   status: string;
   displayName: string | null;
@@ -48,9 +49,14 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   if (session.tokenHash !== tokenHash) return null;
   if (session.expiresAt < new Date()) return null;
 
-  const timeUntilExpiry = session.expiresAt.getTime() - Date.now();
-  if (timeUntilExpiry < SLIDING_RENEWAL_MS) {
-    const newExpiry = new Date(Date.now() + SESSION_DURATION_MS);
+  const now = Date.now();
+  const timeUntilExpiry = session.expiresAt.getTime() - now;
+  const timeSinceLastWrite = now - session.updatedAt.getTime();
+  if (
+    timeUntilExpiry < SLIDING_RENEWAL_MS &&
+    timeSinceLastWrite > RENEWAL_WRITE_THROTTLE_MS
+  ) {
+    const newExpiry = new Date(now + SESSION_DURATION_MS);
     await db
       .update(sessions)
       .set({ expiresAt: newExpiry, updatedAt: new Date() })
@@ -61,8 +67,6 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     .select({
       id: users.id,
       email: users.email,
-      firstName: users.firstName,
-      lastName: users.lastName,
       role: users.role,
       status: users.status,
       displayName: users.displayName,
@@ -100,16 +104,26 @@ export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(SESSION_COOKIE);
 
+  // Clear the cookie regardless — even if the value is malformed, we still
+  // want the browser to drop it.
+  cookieStore.delete(SESSION_COOKIE);
+
   if (!sessionCookie?.value) return;
 
   const dotIndex = sessionCookie.value.indexOf(".");
   if (dotIndex === -1) return;
 
   const sessionId = sessionCookie.value.substring(0, dotIndex);
+  const rawToken = sessionCookie.value.substring(dotIndex + 1);
+  if (!sessionId || !rawToken) return;
 
-  await db.delete(sessions).where(eq(sessions.id, sessionId));
+  const tokenHash = hashToken(rawToken);
 
-  cookieStore.delete(SESSION_COOKIE);
+  // Defense in depth: only delete the session if the token hash also matches.
+  // Stops anyone with just the session_id half from logging another user out.
+  await db
+    .delete(sessions)
+    .where(and(eq(sessions.id, sessionId), eq(sessions.tokenHash, tokenHash)));
 }
 
 export async function setSessionCookie(cookieValue: string): Promise<void> {

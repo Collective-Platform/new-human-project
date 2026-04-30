@@ -31,35 +31,37 @@ function hashToken(rawToken: string): string {
 }
 
 async function seed() {
-  const client = new pg.Client({ connectionString: DATABASE_URL });
+  const client = new pg.Client({
+    connectionString: DATABASE_URL,
+    options: "-c search_path=nhp,public",
+  });
   await client.connect();
 
   try {
     console.log("🌱 Seeding development database...\n");
 
-    // Insert test users
+    // Insert test users. nhp.users has a unique index on lower(email), so the
+    // ON CONFLICT target is the expression, not a plain column.
     const userResult = await client.query(
-      `INSERT INTO users (email, email_verified_at, first_name, last_name, role, status)
-       VALUES ($1, now(), $2, $3, $4, $5)
-       ON CONFLICT ((email)) DO UPDATE SET
-         first_name = EXCLUDED.first_name,
-         last_name = EXCLUDED.last_name,
+      `INSERT INTO users (email, email_verified_at, display_name, role, status)
+       VALUES ($1, now(), $2, $3, $4)
+       ON CONFLICT (lower(email)) DO UPDATE SET
+         display_name = EXCLUDED.display_name,
          role = EXCLUDED.role,
          status = EXCLUDED.status
        RETURNING id, email, role`,
-      ["user@test.local", "Test", "User", "user", "active"]
+      ["user@test.local", "Test User", "user", "active"]
     );
 
     const adminResult = await client.query(
-      `INSERT INTO users (email, email_verified_at, first_name, last_name, role, status)
-       VALUES ($1, now(), $2, $3, $4, $5)
-       ON CONFLICT ((email)) DO UPDATE SET
-         first_name = EXCLUDED.first_name,
-         last_name = EXCLUDED.last_name,
+      `INSERT INTO users (email, email_verified_at, display_name, role, status)
+       VALUES ($1, now(), $2, $3, $4)
+       ON CONFLICT (lower(email)) DO UPDATE SET
+         display_name = EXCLUDED.display_name,
          role = EXCLUDED.role,
          status = EXCLUDED.status
        RETURNING id, email, role`,
-      ["admin@test.local", "Test", "Admin", "admin", "active"]
+      ["admin@test.local", "Test Admin", "admin", "active"]
     );
 
     const testUser = userResult.rows[0];

@@ -2,7 +2,8 @@ import { createHmac, randomBytes, randomInt } from "node:crypto";
 import { env } from "@/src/env";
 
 export function generateOtp(): string {
-  return randomInt(100000, 999999).toString();
+  // Full 6-digit space (000000–999999), zero-padded.
+  return randomInt(0, 1_000_000).toString().padStart(6, "0");
 }
 
 export function hashToken(raw: string): string {

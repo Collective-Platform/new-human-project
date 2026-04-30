@@ -15,6 +15,10 @@ import pg from "pg";
 const DATABASE_URL =
   process.env.DATABASE_URL ?? "postgres://localhost:5432/new_human_dev";
 
+// All NHP tables live in the `nhp` Postgres schema. Set search_path so
+// unqualified INSERT statements resolve into nhp.
+const PG_OPTIONS = "-c search_path=nhp,public";
+
 function parseCSV(raw: string): Record<string, string>[] {
   const lines = raw.split("\n").filter((l) => l.trim());
   const headers = parseCSVLine(lines[0]);
@@ -102,7 +106,10 @@ async function seed() {
   const raw = readFileSync(csvPath, "utf-8");
   const rows = parseCSV(raw);
 
-  const client = new pg.Client({ connectionString: DATABASE_URL });
+  const client = new pg.Client({
+    connectionString: DATABASE_URL,
+    options: PG_OPTIONS,
+  });
   await client.connect();
 
   try {

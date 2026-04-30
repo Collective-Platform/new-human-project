@@ -1,8 +1,11 @@
 import { getSessionUser } from "@/src/features/auth";
 import { db } from "@/src/db";
-import { users } from "@/src/db/shared-schema";
-import { memberBadges, badgeDefinitions, taskCompletions, blockDayTasks } from "@/src/db/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import {
+  users,
+  memberBadges,
+  badgeDefinitions,
+} from "@/src/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function GET() {
   const sessionUser = await getSessionUser();

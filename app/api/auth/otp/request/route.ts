@@ -1,14 +1,16 @@
 import { db } from "@/src/db";
-import { users, tokens } from "@/src/db/shared-schema";
+import { users, pendingAuth } from "@/src/db/schema";
 import {
   generateOtp,
   hashToken,
   checkRateLimit,
   sendOtp,
 } from "@/src/features/auth";
-import { eq } from "drizzle-orm";
+import { and, eq, gt, isNull, sql } from "drizzle-orm";
 
 type Mode = "login" | "signup";
+
+const OTP_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -36,17 +38,19 @@ export async function POST(request: Request) {
     );
   }
 
+  // Check whether a user with this email already exists. We DO NOT create a
+  // users row here — that only happens after the OTP is verified, so a typo
+  // can't pollute `users`.
   const userRows = await db
     .select({ id: users.id, status: users.status })
     .from(users)
-    .where(eq(users.email, email))
+    .where(sql`lower(${users.email}) = ${email}`)
     .limit(1);
 
-  let userId: number;
+  const existing = userRows[0];
 
   if (mode === "login") {
-    // Login requires an existing, active user
-    if (userRows.length === 0 || userRows[0].status !== "active") {
+    if (!existing || existing.status !== "active") {
       return Response.json(
         {
           success: false,
@@ -56,42 +60,42 @@ export async function POST(request: Request) {
         { status: 404 }
       );
     }
-    userId = userRows[0].id;
   } else {
-    // Signup: create user if missing; reject if already active
-    if (userRows.length === 0) {
-      await db
-        .insert(users)
-        .values({ email, role: "user", status: "guest" });
-      const created = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(eq(users.email, email))
-        .limit(1);
-      userId = created[0].id;
-    } else {
-      if (userRows[0].status === "active") {
-        return Response.json(
-          {
-            success: false,
-            code: "ALREADY_EXISTS",
-            error: "An account with this email already exists. Please log in instead.",
-          },
-          { status: 409 }
-        );
-      }
-      userId = userRows[0].id;
+    // signup
+    if (existing && existing.status === "active") {
+      return Response.json(
+        {
+          success: false,
+          code: "ALREADY_EXISTS",
+          error:
+            "An account with this email already exists. Please log in instead.",
+        },
+        { status: 409 }
+      );
     }
   }
 
-  // Generate and store OTP, stamped with the intent (mode)
+  // Invalidate any prior unconsumed OTPs for this email + mode so an old code
+  // can't be used against a new request.
+  await db
+    .update(pendingAuth)
+    .set({ consumedAt: new Date() })
+    .where(
+      and(
+        sql`lower(${pendingAuth.email}) = ${email}`,
+        eq(pendingAuth.mode, mode),
+        isNull(pendingAuth.consumedAt),
+        gt(pendingAuth.expiresAt, new Date())
+      )
+    );
+
   const otp = generateOtp();
   const tokenHash = hashToken(otp);
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  const expiresAt = new Date(Date.now() + OTP_TTL_MS);
 
-  await db.insert(tokens).values({
+  await db.insert(pendingAuth).values({
+    email,
     tokenHash,
-    userId,
     mode,
     expiresAt,
   });

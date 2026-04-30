@@ -1,26 +1,132 @@
 /**
- * Formation-specific Drizzle schema.
+ * NHP Drizzle schema.
  *
- * These tables are created and managed by Drizzle migrations.
- * The users table is shared with giving-platform — only formation-specific
- * columns are added via ALTER TABLE (see migration 2.4).
+ * Every table lives in the `nhp` Postgres schema so it cannot collide with —
+ * and cannot be dropped by — giving-platform's `drizzle-kit push`, which only
+ * looks at the `public` schema by default.
+ *
+ * NHP owns 100% of these tables, including its own `users` table. There is
+ * no longer a shared `users` table or any FK across schemas.
  */
 
+import { sql } from "drizzle-orm";
 import {
-  pgTable,
+  pgSchema,
+  serial,
   uuid,
+  varchar,
   text,
   integer,
   boolean,
   timestamp,
   jsonb,
   uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
-import { users } from "./shared-schema";
 
-// --- Block Day Tasks (2.5) ---
+export const nhp = pgSchema("nhp");
 
-export const blockDayTasks = pgTable("block_day_tasks", {
+// --- Users (NHP-owned) ------------------------------------------------------
+
+export const users = nhp.table(
+  "users",
+  {
+    id: serial().primaryKey(),
+    email: varchar({ length: 254 }).notNull(),
+    emailVerifiedAt: timestamp({ withTimezone: true }),
+    role: text().notNull().default("user"),
+    status: text().notNull().default("guest"),
+    // Profile
+    displayName: text(),
+    searchHandle: text(),
+    avatarUrl: text(),
+    churchId: uuid(),
+    onboardedAt: timestamp({ withTimezone: true }),
+    // Preferences
+    notificationPrefs: jsonb()
+      .$type<{
+        daily_reminder: boolean;
+        reminder_time: string;
+        friend_requests: boolean;
+      }>()
+      .default(
+        sql`'{"daily_reminder": true, "reminder_time": "08:00", "friend_requests": true}'::jsonb`
+      ),
+    privacyPublic: boolean().notNull().default(true),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("users_email_idx").on(sql`lower(${t.email})`),
+    uniqueIndex("users_search_handle_idx").on(t.searchHandle),
+    index("users_display_name_lower_idx").on(sql`lower(${t.displayName})`),
+  ]
+);
+
+// --- Sessions ---------------------------------------------------------------
+
+export const sessions = nhp.table(
+  "sessions",
+  {
+    id: varchar({ length: 21 }).primaryKey(),
+    tokenHash: varchar({ length: 255 }).notNull(),
+    userId: integer()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp({ withTimezone: true }).notNull(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("sessions_token_hash_idx").on(t.tokenHash)]
+);
+
+// --- Pending auth (OTPs not yet associated with a verified user) ------------
+//
+// Replaces the previous `tokens` table. OTPs are keyed by email, NOT by
+// user_id, so a typo'd email creates only a short-lived pending row and
+// never pollutes `users`. The user row is only inserted on successful verify.
+
+export const pendingAuth = nhp.table(
+  "pending_auth",
+  {
+    id: serial().primaryKey(),
+    email: varchar({ length: 254 }).notNull(),
+    tokenHash: varchar({ length: 255 }).notNull(),
+    mode: text().notNull(), // 'login' | 'signup'
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp({ withTimezone: true }).notNull(),
+    consumedAt: timestamp({ withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("pending_auth_token_hash_idx").on(t.tokenHash),
+    index("pending_auth_email_idx").on(sql`lower(${t.email})`),
+    index("pending_auth_expires_at_idx").on(t.expiresAt),
+  ]
+);
+
+// --- Rate limit attempts ----------------------------------------------------
+
+export const rateLimitAttempts = nhp.table(
+  "rate_limit_attempts",
+  {
+    id: serial().primaryKey(),
+    identifier: varchar({ length: 255 }).notNull(),
+    action: text().notNull(), // 'otp_request' | 'otp_verify'
+    attemptCount: integer().notNull().default(1),
+    windowStartedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    lastAttemptAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("rate_limit_attempts_identifier_action_idx").on(
+      t.identifier,
+      t.action
+    ),
+  ]
+);
+
+// --- Block Day Tasks --------------------------------------------------------
+
+export const blockDayTasks = nhp.table("block_day_tasks", {
   id: uuid().primaryKey().defaultRandom(),
   blockNumber: integer().notNull(),
   dayNumber: integer().notNull(),
@@ -33,9 +139,9 @@ export const blockDayTasks = pgTable("block_day_tasks", {
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
-// --- Task Completions (2.6) ---
+// --- Task Completions -------------------------------------------------------
 
-export const taskCompletions = pgTable(
+export const taskCompletions = nhp.table(
   "task_completions",
   {
     id: uuid().primaryKey().defaultRandom(),
@@ -48,17 +154,14 @@ export const taskCompletions = pgTable(
     data: jsonb(),
     completedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
-    uniqueIndex("task_completions_user_id_task_id_idx").on(
-      table.userId,
-      table.taskId
-    ),
+  (t) => [
+    uniqueIndex("task_completions_user_id_task_id_idx").on(t.userId, t.taskId),
   ]
 );
 
-// --- Member Block Completions (2.7) ---
+// --- Member Block Completions ----------------------------------------------
 
-export const memberBlockCompletions = pgTable(
+export const memberBlockCompletions = nhp.table(
   "member_block_completions",
   {
     id: uuid().primaryKey().defaultRandom(),
@@ -68,17 +171,17 @@ export const memberBlockCompletions = pgTable(
     blockNumber: integer().notNull().default(1),
     completedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
+  (t) => [
     uniqueIndex("member_block_completions_user_id_block_number_idx").on(
-      table.userId,
-      table.blockNumber
+      t.userId,
+      t.blockNumber
     ),
   ]
 );
 
-// --- Badge Definitions (2.8) ---
+// --- Badge Definitions -----------------------------------------------------
 
-export const badgeDefinitions = pgTable(
+export const badgeDefinitions = nhp.table(
   "badge_definitions",
   {
     id: uuid().primaryKey().defaultRandom(),
@@ -89,14 +192,12 @@ export const badgeDefinitions = pgTable(
     isMilestone: boolean(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
-    uniqueIndex("badge_definitions_block_number_idx").on(table.blockNumber),
-  ]
+  (t) => [uniqueIndex("badge_definitions_block_number_idx").on(t.blockNumber)]
 );
 
-// --- Member Badges (2.9) ---
+// --- Member Badges ---------------------------------------------------------
 
-export const memberBadges = pgTable(
+export const memberBadges = nhp.table(
   "member_badges",
   {
     id: uuid().primaryKey().defaultRandom(),
@@ -108,17 +209,14 @@ export const memberBadges = pgTable(
       .references(() => badgeDefinitions.id),
     earnedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
-    uniqueIndex("member_badges_user_id_badge_id_idx").on(
-      table.userId,
-      table.badgeId
-    ),
+  (t) => [
+    uniqueIndex("member_badges_user_id_badge_id_idx").on(t.userId, t.badgeId),
   ]
 );
 
-// --- Friend Requests (2.10) ---
+// --- Friend Requests -------------------------------------------------------
 
-export const friendRequests = pgTable(
+export const friendRequests = nhp.table(
   "friend_requests",
   {
     id: uuid().primaryKey().defaultRandom(),
@@ -132,34 +230,40 @@ export const friendRequests = pgTable(
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
+  (t) => [
     uniqueIndex("friend_requests_sender_id_receiver_id_idx").on(
-      table.senderId,
-      table.receiverId
+      t.senderId,
+      t.receiverId
     ),
   ]
 );
 
-// --- Push Subscriptions (2.11) ---
+// --- Push Subscriptions ----------------------------------------------------
+//
+// One row per device. Unique on `endpoint`, NOT on user_id, so a single
+// user can register multiple browsers/devices. Re-registering the same
+// browser upserts onto the existing row.
 
-export const pushSubscriptions = pgTable(
+export const pushSubscriptions = nhp.table(
   "push_subscriptions",
   {
     id: uuid().primaryKey().defaultRandom(),
     userId: integer()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    endpoint: text().notNull(),
     subscription: jsonb().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
-    uniqueIndex("push_subscriptions_user_id_idx").on(table.userId),
+  (t) => [
+    uniqueIndex("push_subscriptions_endpoint_idx").on(t.endpoint),
+    index("push_subscriptions_user_id_idx").on(t.userId),
   ]
 );
 
-// --- Notification Log (2.12) ---
+// --- Notification Log ------------------------------------------------------
 
-export const notificationLog = pgTable("notification_log", {
+export const notificationLog = nhp.table("notification_log", {
   id: uuid().primaryKey().defaultRandom(),
   userId: integer()
     .notNull()

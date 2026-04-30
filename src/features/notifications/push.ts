@@ -23,34 +23,43 @@ export async function sendPushToUser(
 ) {
   if (!ensureVapid()) return;
 
+  // A user may have multiple subscriptions (one per device/browser).
   const rows = await db
-    .select({ subscription: pushSubscriptions.subscription })
+    .select({
+      endpoint: pushSubscriptions.endpoint,
+      subscription: pushSubscriptions.subscription,
+    })
     .from(pushSubscriptions)
-    .where(eq(pushSubscriptions.userId, userId))
-    .limit(1);
+    .where(eq(pushSubscriptions.userId, userId));
 
   if (rows.length === 0) return;
 
-  const sub = rows[0].subscription as webpush.PushSubscription;
+  let anyDelivered = false;
 
-  try {
-    await webpush.sendNotification(sub, JSON.stringify(payload));
+  for (const row of rows) {
+    const sub = row.subscription as webpush.PushSubscription;
+    try {
+      await webpush.sendNotification(sub, JSON.stringify(payload));
+      anyDelivered = true;
+    } catch (err: unknown) {
+      const statusCode =
+        err instanceof webpush.WebPushError ? err.statusCode : 0;
+      // Subscription expired or invalid — clean up just this device's row.
+      if (statusCode === 410 || statusCode === 404) {
+        await db
+          .delete(pushSubscriptions)
+          .where(eq(pushSubscriptions.endpoint, row.endpoint));
+      }
+      // Other errors: continue to the next subscription.
+    }
+  }
 
-    // Log the notification
+  if (anyDelivered) {
     await db.insert(notificationLog).values({
       userId,
       type,
       title: payload.title,
       body: payload.body,
     });
-  } catch (err: unknown) {
-    const statusCode =
-      err instanceof webpush.WebPushError ? err.statusCode : 0;
-    // Subscription expired or invalid — clean up
-    if (statusCode === 410 || statusCode === 404) {
-      await db
-        .delete(pushSubscriptions)
-        .where(eq(pushSubscriptions.userId, userId));
-    }
   }
 }

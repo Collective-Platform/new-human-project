@@ -1,7 +1,5 @@
 import { db } from "@/src/db";
-import { pushSubscriptions } from "@/src/db/schema";
-import { users } from "@/src/db/shared-schema";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { sendPushToUser } from "./push";
 
 // Localised messages

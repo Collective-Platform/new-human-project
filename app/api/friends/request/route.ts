@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
   // Send push notification to receiver for new requests
   if (result) {
-    const senderName = user.displayName ?? user.firstName ?? "Someone";
+    const senderName = user.displayName ?? "Someone";
     sendPushToUser(
       receiverId,
       {

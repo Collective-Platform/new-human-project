@@ -8,8 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "db:setup-local": "psql new_human_dev < scripts/setup-local-db.sql",
+    "db:migrate": "drizzle-kit migrate",
+    "db:generate": "drizzle-kit generate",
     "db:seed-dev": "tsx src/db/seed-dev.ts",
-    "db:reset-local": "dropdb new_human_dev && createdb new_human_dev && pnpm db:setup-local && pnpm db:seed-dev",
+    "db:reset-local": "dropdb new_human_dev && createdb new_human_dev && pnpm db:setup-local && pnpm db:migrate && pnpm db:seed && pnpm db:seed-dev",
     "db:seed": "tsx src/db/seed.ts"
   },
   "dependencies": {

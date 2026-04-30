@@ -8,6 +8,9 @@ export default defineConfig({
   schema: "./src/db/schema.ts",
   dialect: "postgresql",
   casing: "snake_case",
+  // Only manage NHP's own schema. We share the database instance with
+  // giving-platform but never touch its `public` tables.
+  schemaFilter: ["nhp"],
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },

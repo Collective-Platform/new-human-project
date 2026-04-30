@@ -1,10 +1,12 @@
 import { db } from "@/src/db";
-import { rateLimitAttempts } from "@/src/db/shared-schema";
+import { rateLimitAttempts } from "@/src/db/schema";
 import { eq, and } from "drizzle-orm";
+
+export type RateLimitAction = "otp_request" | "otp_verify";
 
 interface RateLimitConfig {
   identifier: string;
-  action: string;
+  action: RateLimitAction;
   maxAttempts: number;
   windowMinutes: number;
 }
