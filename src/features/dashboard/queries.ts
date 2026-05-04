@@ -45,8 +45,8 @@ export async function getRadarChartData(
       COALESCE(SUM(CASE WHEN bdt.category = 'Mental' THEN (bdt.content->>'xp_weight')::int ELSE 0 END), 0) AS mental_xp,
       COALESCE(COUNT(CASE WHEN bdt.category = 'Emotional' THEN 1 END), 0) AS emotional_count,
       COALESCE(COUNT(CASE WHEN bdt.category = 'Physical' THEN 1 END), 0) AS physical_count
-    FROM task_completions tc
-    JOIN block_day_tasks bdt ON tc.task_id = bdt.id
+    FROM nhp.task_completions tc
+    JOIN nhp.block_day_tasks bdt ON tc.task_id = bdt.id
     WHERE tc.user_id = ${userId}
       AND bdt.block_number = ${blockNumber}
   `);
@@ -79,8 +79,8 @@ export async function getBlockGrid(
 ): Promise<{ day: number; categoriesCompleted: number }[]> {
   const result = await db.execute(sql`
     SELECT bdt.day_number, COUNT(DISTINCT bdt.category)::int AS categories
-    FROM task_completions tc
-    JOIN block_day_tasks bdt ON tc.task_id = bdt.id
+    FROM nhp.task_completions tc
+    JOIN nhp.block_day_tasks bdt ON tc.task_id = bdt.id
     WHERE tc.user_id = ${userId} AND bdt.block_number = ${blockNumber}
     GROUP BY bdt.day_number
   `);
@@ -101,7 +101,7 @@ export async function getStreak(userId: number): Promise<number> {
   const result = await db.execute(sql`
     WITH completion_dates AS (
       SELECT DISTINCT tc.completed_at::date AS d
-      FROM task_completions tc
+      FROM nhp.task_completions tc
       WHERE tc.user_id = ${userId}
     ),
     numbered AS (
@@ -125,8 +125,8 @@ export async function getActivityCalendar(
 ): Promise<{ date: string; categories: string[] }[]> {
   const result = await db.execute(sql`
     SELECT tc.completed_at::date AS d, array_agg(DISTINCT bdt.category) AS categories
-    FROM task_completions tc
-    JOIN block_day_tasks bdt ON tc.task_id = bdt.id
+    FROM nhp.task_completions tc
+    JOIN nhp.block_day_tasks bdt ON tc.task_id = bdt.id
     WHERE tc.user_id = ${userId}
       AND tc.completed_at >= ${startDate}
       AND tc.completed_at < ${endDate}

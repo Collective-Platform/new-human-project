@@ -144,7 +144,6 @@ export function ProgressClient({ locale }: { locale: string }) {
         days={data.carousel}
         selectedDay={selectedDay ?? data.currentDay}
         onSelect={handleDaySelect}
-        dayLabel={t("dayLabel", { day: selectedDay ?? data.currentDay })}
         blockStartDate={data.blockStartDate}
         currentDay={data.currentDay}
       />

@@ -12,13 +12,13 @@ export async function getFriends(userId: number) {
       u.avatar_url,
       (
         SELECT tc.completed_at
-        FROM task_completions tc
+        FROM nhp.task_completions tc
         WHERE tc.user_id = u.id
         ORDER BY tc.completed_at DESC
         LIMIT 1
       ) AS last_activity
-    FROM friend_requests fr
-    JOIN users u ON u.id = CASE
+    FROM nhp.friend_requests fr
+    JOIN nhp.users u ON u.id = CASE
       WHEN fr.sender_id = ${userId} THEN fr.receiver_id
       ELSE fr.sender_id
     END
@@ -45,8 +45,8 @@ export async function getIncomingRequests(userId: number) {
       u.display_name,
       u.avatar_url,
       fr.created_at
-    FROM friend_requests fr
-    JOIN users u ON u.id = fr.sender_id
+    FROM nhp.friend_requests fr
+    JOIN nhp.users u ON u.id = fr.sender_id
     WHERE fr.receiver_id = ${userId}
       AND fr.status = 'pending'
     ORDER BY fr.created_at DESC
@@ -136,7 +136,7 @@ export async function searchUsers(query: string, currentUserId: number) {
   const pattern = `%${query}%`;
   const result = await db.execute(sql`
     SELECT id, display_name, avatar_url, search_handle
-    FROM users
+    FROM nhp.users
     WHERE id != ${currentUserId}
       AND (
         search_handle ILIKE ${pattern}
@@ -160,15 +160,15 @@ export async function getPeopleYouMayKnow(userId: number) {
   const result = await db.execute(sql`
     SELECT potential.id, potential.display_name, potential.avatar_url,
            COUNT(*) AS mutual_count
-    FROM users potential
-    JOIN friend_requests fr1 ON (potential.id = fr1.sender_id OR potential.id = fr1.receiver_id)
+    FROM nhp.users potential
+    JOIN nhp.friend_requests fr1 ON (potential.id = fr1.sender_id OR potential.id = fr1.receiver_id)
       AND fr1.status = 'accepted'
-    JOIN friend_requests fr2 ON (fr2.sender_id = ${userId} OR fr2.receiver_id = ${userId})
+    JOIN nhp.friend_requests fr2 ON (fr2.sender_id = ${userId} OR fr2.receiver_id = ${userId})
       AND fr2.status = 'accepted'
     WHERE potential.id != ${userId}
       AND potential.id NOT IN (
         SELECT CASE WHEN sender_id = ${userId} THEN receiver_id ELSE sender_id END
-        FROM friend_requests
+        FROM nhp.friend_requests
         WHERE status = 'accepted'
           AND (sender_id = ${userId} OR receiver_id = ${userId})
       )
@@ -195,14 +195,14 @@ export async function getActivityFeed(userId: number) {
         WHEN sender_id = ${userId} THEN receiver_id
         ELSE sender_id
       END AS friend_id
-      FROM friend_requests
+      FROM nhp.friend_requests
       WHERE status = 'accepted'
         AND (sender_id = ${userId} OR receiver_id = ${userId})
     )
     SELECT u.display_name, u.search_handle, u.avatar_url, t.category, t.name AS activity, tc.completed_at
-    FROM task_completions tc
-    JOIN block_day_tasks t ON tc.task_id = t.id
-    JOIN users u ON tc.user_id = u.id
+    FROM nhp.task_completions tc
+    JOIN nhp.block_day_tasks t ON tc.task_id = t.id
+    JOIN nhp.users u ON tc.user_id = u.id
     WHERE (
         tc.user_id = ${userId}
         OR (

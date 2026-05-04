@@ -34,14 +34,12 @@ export function DayCarousel({
   days,
   selectedDay,
   onSelect,
-  dayLabel,
   blockStartDate,
   currentDay,
 }: {
   days: DayInfo[];
   selectedDay: number;
   onSelect: (day: number) => void;
-  dayLabel: string;
   blockStartDate: string;
   currentDay: number;
 }) {

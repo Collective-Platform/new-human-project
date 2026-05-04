@@ -43,8 +43,8 @@ export async function POST(request: Request) {
   // Check block completion: has user completed at least 1 task in each category?
   const categoryCheck = await db.execute(sql`
     SELECT COUNT(DISTINCT bdt.category)::int AS cat_count
-    FROM task_completions tc
-    JOIN block_day_tasks bdt ON tc.task_id = bdt.id
+    FROM nhp.task_completions tc
+    JOIN nhp.block_day_tasks bdt ON tc.task_id = bdt.id
     WHERE tc.user_id = ${user.id}
       AND bdt.block_number = 1
   `);

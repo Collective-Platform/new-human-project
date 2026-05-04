@@ -25,8 +25,8 @@ export async function sendDailyReminders(currentHour: string) {
   // who have a push subscription
   const result = await db.execute(sql`
     SELECT u.id, u.notification_prefs
-    FROM users u
-    JOIN push_subscriptions ps ON ps.user_id = u.id
+    FROM nhp.users u
+    JOIN nhp.push_subscriptions ps ON ps.user_id = u.id
     WHERE u.onboarded_at IS NOT NULL
       AND (u.notification_prefs->>'daily_reminder')::boolean = true
       AND COALESCE(u.notification_prefs->>'reminder_time', '08:00') = ${currentHour}

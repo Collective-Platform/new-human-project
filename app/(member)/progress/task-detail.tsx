@@ -57,7 +57,6 @@ export function TaskDetail({
   const currentIndex = categoryTasks.findIndex((t) => t.id === task.id);
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < categoryTasks.length - 1;
-  const isOnly = categoryTasks.length === 1;
 
   const handleNext = useCallback(async () => {
     setLoading(true);
@@ -115,7 +114,7 @@ export function TaskDetail({
   const content = task.content ?? EMPTY_CONTENT;
 
   return (
-    <div className="fixed inset-0 z-50 mx-auto flex max-w-[375px] flex-col bg-surface">
+    <div className="fixed inset-0 z-50 mx-auto flex max-w-93.75 flex-col bg-surface">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-100 bg-white">
         <button

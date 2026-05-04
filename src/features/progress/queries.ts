@@ -49,8 +49,8 @@ export async function getDayCompletionStates(
 ): Promise<Map<number, boolean>> {
   const result = await db.execute(sql`
     SELECT DISTINCT bdt.day_number
-    FROM task_completions tc
-    JOIN block_day_tasks bdt ON tc.task_id = bdt.id
+    FROM nhp.task_completions tc
+    JOIN nhp.block_day_tasks bdt ON tc.task_id = bdt.id
     WHERE tc.user_id = ${userId} AND bdt.block_number = ${blockNumber}
   `);
 
@@ -67,8 +67,8 @@ export async function getFullyCompletedDays(
 ): Promise<Set<number>> {
   const result = await db.execute(sql`
     SELECT bdt.day_number
-    FROM block_day_tasks bdt
-    LEFT JOIN task_completions tc
+    FROM nhp.block_day_tasks bdt
+    LEFT JOIN nhp.task_completions tc
       ON tc.task_id = bdt.id AND tc.user_id = ${userId}
     WHERE bdt.block_number = ${blockNumber}
     GROUP BY bdt.day_number
