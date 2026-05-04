@@ -4,16 +4,52 @@ import Image from "next/image";
 
 interface FeedItem {
   displayName: string | null;
+  searchHandle: string | null;
   avatarUrl: string | null;
   category: string;
   activity: string;
   completedAt: string;
 }
 
-const categoryColor: Record<string, string> = {
-  Mental: "bg-category-mental text-white",
-  Emotional: "bg-category-emotional text-white",
-  Physical: "bg-category-physical text-foreground/70",
+const categoryStyles: Record<
+  string,
+  {
+    badgeBg: string;
+    badgeText: string;
+    iconBg: string;
+    accentText: string;
+    icon: string;
+  }
+> = {
+  Mental: {
+    badgeBg: "bg-primary-container",
+    badgeText: "text-on-primary-container",
+    iconBg: "bg-primary",
+    accentText: "text-primary",
+    icon: "psychology",
+  },
+  Emotional: {
+    badgeBg: "bg-secondary-container",
+    badgeText: "text-on-secondary-container",
+    iconBg: "bg-secondary",
+    accentText: "text-secondary",
+    icon: "favorite",
+  },
+  Physical: {
+    badgeBg: "bg-tertiary-container",
+    badgeText: "text-on-tertiary-fixed-variant",
+    iconBg: "bg-tertiary",
+    accentText: "text-tertiary",
+    icon: "fitness_center",
+  },
+};
+
+const defaultStyle = {
+  badgeBg: "bg-surface-container",
+  badgeText: "text-on-surface-variant",
+  iconBg: "bg-on-surface",
+  accentText: "text-on-surface",
+  icon: "check_circle",
 };
 
 function relativeTime(dateStr: string): string {
@@ -31,48 +67,66 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <div className=" divide-y divide-zinc-100">
-      {items.map((item, i) => (
-        <div key={i} className="flex items-center gap-3 px-4 py-3">
-          {item.avatarUrl ? (
-            <Image
-              src={item.avatarUrl}
-              alt={item.displayName ?? ""}
-              width={40}
-              height={40}
-              unoptimized
-              className="h-10 w-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200">
-              <span className="material-symbols-outlined text-[18px] text-zinc-500">
-                person
-              </span>
+    <div className="flex flex-col gap-4">
+      {items.map((item, i) => {
+        const style = categoryStyles[item.category] ?? defaultStyle;
+        const name = item.searchHandle
+          ? `@${item.searchHandle}`
+          : item.displayName ?? "User";
+        return (
+          <div
+            key={i}
+            className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
+          >
+            <div className="relative">
+              {item.avatarUrl ? (
+                <Image
+                  src={item.avatarUrl}
+                  alt={name}
+                  width={56}
+                  height={56}
+                  unoptimized
+                  className="w-14 h-14 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
+                  <span className="material-symbols-outlined text-on-surface-variant">
+                    person
+                  </span>
+                </div>
+              )}
+              <div
+                className={`absolute -bottom-1 -right-1 ${style.iconBg} p-1.5 rounded-full border-4 border-white`}
+              >
+                <span className="material-symbols-outlined text-[12px] text-white block">
+                  {style.icon}
+                </span>
+              </div>
             </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="truncate text-sm text-foreground">
-              <span className="font-headline font-semibold">
-                {item.displayName ?? "User"}
-              </span>
-              <span className="text-foreground/60"> completed </span>
-              <span className="font-medium">{item.activity}</span>
-            </p>
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-start">
+                <p className="text-on-surface text-sm">
+                  <span className="font-bold">{name}</span>{" "}
+                  <span className="text-on-surface-variant">completed</span>{" "}
+                  <span className={`font-semibold ${style.accentText}`}>
+                    {item.activity}
+                  </span>
+                </p>
+                <span className="text-[10px] font-bold text-outline uppercase tracking-tighter shrink-0 ml-2">
+                  {relativeTime(item.completedAt)}
+                </span>
+              </div>
+              <div className="mt-2 flex gap-2">
+                <span
+                  className={`px-3 py-1 ${style.badgeBg} rounded-full text-[10px] font-bold ${style.badgeText} uppercase tracking-widest`}
+                >
+                  {item.category}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col items-end gap-1">
-            <span
-              className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                categoryColor[item.category] ?? "bg-zinc-100 text-foreground/60"
-              }`}
-            >
-              {item.category}
-            </span>
-            <span className="text-[10px] text-foreground/40">
-              {relativeTime(item.completedAt)}
-            </span>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

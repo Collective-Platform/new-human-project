@@ -8,7 +8,12 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const q = url.searchParams.get("q")?.trim() ?? "";
+  // Strip leading "@" so "@alice" matches handles stored as "alice"
+  const q =
+    url.searchParams
+      .get("q")
+      ?.trim()
+      .replace(/^@+/, "") ?? "";
 
   if (q.length < 2) {
     return Response.json({ results: [] });

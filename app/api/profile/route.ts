@@ -99,6 +99,19 @@ export async function PATCH(request: Request) {
     }
     updates.displayName = trimmed;
   }
+  if (body.searchHandle !== undefined) {
+    if (typeof body.searchHandle !== "string") {
+      return Response.json({ error: "Invalid username" }, { status: 400 });
+    }
+    const handle = body.searchHandle.trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,30}$/.test(handle)) {
+      return Response.json(
+        { error: "invalid_username" },
+        { status: 400 }
+      );
+    }
+    updates.searchHandle = handle;
+  }
   if (body.avatarUrl !== undefined) {
     if (body.avatarUrl !== null && typeof body.avatarUrl !== "string") {
       return Response.json({ error: "Invalid avatarUrl" }, { status: 400 });
@@ -119,7 +132,19 @@ export async function PATCH(request: Request) {
 
   updates.updatedAt = new Date();
 
-  await db.update(users).set(updates).where(eq(users.id, sessionUser.id));
+  try {
+    await db.update(users).set(updates).where(eq(users.id, sessionUser.id));
+  } catch (err: unknown) {
+    // Postgres unique violation = 23505 (e.g. searchHandle conflict)
+    const code =
+      err && typeof err === "object" && "code" in err
+        ? (err as { code?: string }).code
+        : undefined;
+    if (code === "23505" && updates.searchHandle !== undefined) {
+      return Response.json({ error: "username_taken" }, { status: 409 });
+    }
+    throw err;
+  }
 
   return Response.json({ success: true });
 }

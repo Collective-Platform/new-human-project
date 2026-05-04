@@ -28,6 +28,8 @@ interface ProfileData {
   }[];
 }
 
+const HANDLE_REGEX = /^[a-z0-9_]{3,30}$/;
+
 const MAX_AVATAR_DIMENSION = 256;
 const MAX_AVATAR_FILE_BYTES = 5 * 1024 * 1024; // 5 MB — standard for profile photos
 const MAX_AVATAR_FILE_MB = 5;
@@ -68,13 +70,13 @@ export function ProfileClient() {
   const router = useRouter();
   const [data, setData] = useState<ProfileData | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [editingName, setEditingName] = useState(false);
-  const [nameValue, setNameValue] = useState("");
-  const [savingName, setSavingName] = useState(false);
+  const [editingHandle, setEditingHandle] = useState(false);
+  const [handleValue, setHandleValue] = useState("");
+  const [savingHandle, setSavingHandle] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const nameInputRef = useRef<HTMLInputElement>(null);
+  const handleInputRef = useRef<HTMLInputElement>(null);
 
   const fetchData = useCallback(async () => {
     const res = await fetch("/api/profile");
@@ -88,11 +90,11 @@ export function ProfileClient() {
   }, [fetchData]);
 
   useEffect(() => {
-    if (editingName && nameInputRef.current) {
-      nameInputRef.current.focus();
-      nameInputRef.current.select();
+    if (editingHandle && handleInputRef.current) {
+      handleInputRef.current.focus();
+      handleInputRef.current.select();
     }
-  }, [editingName]);
+  }, [editingHandle]);
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -101,49 +103,54 @@ export function ProfileClient() {
     router.refresh();
   }
 
-  function startEditingName() {
-    setNameValue(data?.user.displayName ?? "");
-    setEditingName(true);
+  function startEditingHandle() {
+    setHandleValue(data?.user.searchHandle ?? "");
+    setEditingHandle(true);
     setError(null);
   }
 
-  function cancelEditingName() {
-    setEditingName(false);
+  function cancelEditingHandle() {
+    setEditingHandle(false);
     setError(null);
   }
 
-  async function saveName() {
-    const trimmed = nameValue.trim();
-    if (!trimmed) {
-      setError(t("nameRequired"));
+  async function saveHandle() {
+    const normalized = handleValue.trim().toLowerCase();
+    if (!normalized) {
+      setError(t("usernameRequired"));
       return;
     }
-    if (trimmed.length > 50) {
-      setError(t("nameTooLong"));
+    if (!HANDLE_REGEX.test(normalized)) {
+      setError(t("usernameInvalid"));
       return;
     }
-    if (trimmed === data?.user.displayName) {
-      setEditingName(false);
+    if (normalized === data?.user.searchHandle) {
+      setEditingHandle(false);
       return;
     }
-    setSavingName(true);
+    setSavingHandle(true);
     setError(null);
     try {
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ displayName: trimmed }),
+        body: JSON.stringify({ searchHandle: normalized }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to update name");
+        if (res.status === 409 || body?.error === "username_taken") {
+          setError(t("usernameTaken"));
+        } else if (body?.error === "invalid_username") {
+          setError(t("usernameInvalid"));
+        } else {
+          setError(t("usernameInvalid"));
+        }
+        return;
       }
-      setEditingName(false);
+      setEditingHandle(false);
       await fetchData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update name");
     } finally {
-      setSavingName(false);
+      setSavingHandle(false);
     }
   }
 
@@ -240,42 +247,52 @@ export function ProfileClient() {
           />
         </div>
 
-        {/* Name + edit */}
+        {/* Username + edit */}
         <div className="flex-1 min-w-0">
-          {editingName ? (
+          {editingHandle ? (
             <div className="space-y-2">
-              <input
-                ref={nameInputRef}
-                type="text"
-                value={nameValue}
-                onChange={(e) => setNameValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    saveName();
-                  } else if (e.key === "Escape") {
-                    e.preventDefault();
-                    cancelEditingName();
+              <div className="relative">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 font-headline text-lg font-bold text-foreground/40">
+                  @
+                </span>
+                <input
+                  ref={handleInputRef}
+                  type="text"
+                  value={handleValue}
+                  onChange={(e) =>
+                    setHandleValue(e.target.value.toLowerCase())
                   }
-                }}
-                maxLength={50}
-                disabled={savingName}
-                aria-label={t("displayName")}
-                className="w-full rounded-md border border-zinc-200 bg-white px-2 py-1 font-headline text-lg font-bold text-foreground focus:border-primary focus:outline-none disabled:opacity-60"
-              />
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      saveHandle();
+                    } else if (e.key === "Escape") {
+                      e.preventDefault();
+                      cancelEditingHandle();
+                    }
+                  }}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  maxLength={30}
+                  disabled={savingHandle}
+                  aria-label={t("username")}
+                  className="w-full rounded-md border border-zinc-200 bg-white pl-6 pr-2 py-1 font-headline text-lg font-bold text-foreground focus:border-primary focus:outline-none disabled:opacity-60"
+                />
+              </div>
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={saveName}
-                  disabled={savingName}
+                  onClick={saveHandle}
+                  disabled={savingHandle}
                   className="rounded-md bg-primary px-3 py-1 text-xs font-semibold text-white disabled:opacity-60"
                 >
-                  {savingName ? t("saving") : t("save")}
+                  {savingHandle ? t("saving") : t("save")}
                 </button>
                 <button
                   type="button"
-                  onClick={cancelEditingName}
-                  disabled={savingName}
+                  onClick={cancelEditingHandle}
+                  disabled={savingHandle}
                   className="rounded-md bg-zinc-100 px-3 py-1 text-xs font-semibold text-foreground/70 disabled:opacity-60"
                 >
                   {t("cancel")}
@@ -285,13 +302,13 @@ export function ProfileClient() {
           ) : (
             <div className="flex items-center gap-2">
               <p className="truncate font-headline text-lg font-bold text-foreground">
-                {user.displayName ?? "User"}
+                {user.searchHandle ? `@${user.searchHandle}` : t("username")}
               </p>
               <button
                 type="button"
-                onClick={startEditingName}
-                aria-label={t("editName")}
-                title={t("editName")}
+                onClick={startEditingHandle}
+                aria-label={t("editUsername")}
+                title={t("editUsername")}
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-foreground/60 transition-colors hover:bg-zinc-200"
               >
                 <span className="material-symbols-outlined text-[16px]">
@@ -301,11 +318,6 @@ export function ProfileClient() {
             </div>
           )}
           <p className="truncate text-sm text-foreground/60">{user.email}</p>
-          {user.searchHandle && (
-            <p className="truncate text-sm text-foreground/40">
-              @{user.searchHandle}
-            </p>
-          )}
         </div>
       </div>
 
@@ -318,8 +330,9 @@ export function ProfileClient() {
         </div>
       )}
 
-      {/* Badges */}
-      <BadgeGrid badges={badges} title={t("badges")} />
+      {/* Badges — hidden while badge system/design is on hold.
+          Component and data flow preserved intentionally; do not delete. */}
+      {false && <BadgeGrid badges={badges} title={t("badges")} />}
 
       {/* Menu items */}
       <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">

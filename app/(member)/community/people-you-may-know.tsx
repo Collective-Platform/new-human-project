@@ -20,6 +20,7 @@ export function PeopleYouMayKnow({
 }) {
   const t = useTranslations("community");
   const [sentIds, setSentIds] = useState<Set<number>>(new Set());
+  const [dismissedIds, setDismissedIds] = useState<Set<number>>(new Set());
 
   async function handleAdd(userId: number) {
     const res = await fetch("/api/friends/request", {
@@ -33,53 +34,61 @@ export function PeopleYouMayKnow({
     }
   }
 
+  function handleDismiss(userId: number) {
+    setDismissedIds((prev) => new Set(prev).add(userId));
+  }
+
+  const visible = suggestions.filter((s) => !dismissedIds.has(s.id));
+  if (visible.length === 0) return null;
+
   return (
-    <div>
-      <p className="mb-2 text-xs font-medium uppercase tracking-wider text-foreground/50">
-        {t("peopleYouMayKnow")}
-      </p>
-      <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none">
-        {suggestions.map((s) => (
-          <div
-            key={s.id}
-            className="flex w-32 shrink-0 flex-col items-center rounded-md bg-white p-4 shadow-card"
+    <div className="flex overflow-x-auto gap-4 scrollbar-none -mx-6 px-6 pb-2">
+      {visible.map((s) => (
+        <div
+          key={s.id}
+          className="flex-shrink-0 w-40 bg-surface-container-low rounded-xl p-4 flex flex-col items-center text-center relative"
+        >
+          <button
+            onClick={() => handleDismiss(s.id)}
+            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-surface-container-highest rounded-full text-on-surface-variant"
           >
-            {s.avatarUrl ? (
-              <Image
-                src={s.avatarUrl}
-                alt={s.displayName ?? ""}
-                width={56}
-                height={56}
-                unoptimized
-                className="mb-2 h-14 w-14 rounded-full object-cover"
-              />
-            ) : (
-              <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-200">
-                <span className="material-symbols-outlined text-[24px] text-zinc-500">
-                  person
-                </span>
-              </div>
-            )}
-            <p className="mb-1 truncate w-full text-center font-headline text-xs font-semibold text-foreground">
-              {s.displayName ?? "User"}
-            </p>
-            <p className="mb-2 text-[10px] text-foreground/50">
-              {t("mutualFriend", { count: s.mutualCount })}
-            </p>
-            <button
-              onClick={() => handleAdd(s.id)}
-              disabled={sentIds.has(s.id)}
-              className={`w-full rounded-full py-1.5 text-[10px] font-semibold transition-colors ${
-                sentIds.has(s.id)
-                  ? "bg-zinc-100 text-foreground/40"
-                  : "bg-primary text-white active:bg-primary/80"
-              }`}
-            >
-              {sentIds.has(s.id) ? "Sent" : t("addFriend")}
-            </button>
-          </div>
-        ))}
-      </div>
+            <span className="material-symbols-outlined text-sm">close</span>
+          </button>
+          {s.avatarUrl ? (
+            <Image
+              src={s.avatarUrl}
+              alt={s.displayName ?? ""}
+              width={80}
+              height={80}
+              unoptimized
+              className="w-20 h-20 rounded-full object-cover mb-3"
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-full bg-surface-container-highest flex items-center justify-center mb-3">
+              <span className="text-2xl font-bold text-on-surface-variant font-headline">
+                {(s.displayName ?? "U").charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+          <p className="font-bold text-sm truncate w-full mb-0.5 text-on-surface">
+            {s.displayName ?? "User"}
+          </p>
+          <p className="text-xs text-on-surface-variant mb-4">
+            {t("mutualFriend", { count: s.mutualCount })}
+          </p>
+          <button
+            onClick={() => handleAdd(s.id)}
+            disabled={sentIds.has(s.id)}
+            className={`w-full py-1.5 rounded-full text-xs font-bold transition-opacity ${
+              sentIds.has(s.id)
+                ? "bg-surface-container-highest text-on-surface-variant"
+                : "bg-on-surface text-surface hover:opacity-90"
+            }`}
+          >
+            {sentIds.has(s.id) ? "Sent" : t("addFriend")}
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

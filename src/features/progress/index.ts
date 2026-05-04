@@ -1,1 +1,6 @@
-export { getDayTasks, getUserCompletions, getDayCompletionStates } from "./queries";
+export {
+  getDayTasks,
+  getUserCompletions,
+  getDayCompletionStates,
+  getFullyCompletedDays,
+} from "./queries";

@@ -17,6 +17,26 @@
 
   /* Surface */
   --color-surface: #fef8f5;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f8f2ef;
+  --color-surface-container: #f3ede9;
+  --color-surface-container-high: #ede7e3;
+  --color-surface-container-highest: #e8e1dd;
+
+  /* On-surface text */
+  --color-on-surface: #35322f;
+  --color-on-surface-variant: #625e5b;
+  --color-outline: #7e7a76;
+  --color-outline-variant: #b6b1ad;
+
+  /* Tonal containers */
+  --color-primary-dim: #ab0010;
+  --color-primary-container: #ffaca3;
+  --color-on-primary-container: #7f0009;
+  --color-tertiary-container: #fef6e3;
+  --color-on-tertiary-fixed-variant: #6d6859;
+  --color-secondary-container: #d7e2ff;
+  --color-on-secondary-container: #004fa5;
 
   /* Category colours */
   --color-category-physical: #fff7e4;

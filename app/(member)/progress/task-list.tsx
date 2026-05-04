@@ -73,6 +73,7 @@ export function TaskList({
               <div className="divide-y divide-zinc-50">
                 {catTasks.map((task) => {
                   const isExercise = task.taskType === "exercise";
+                  const isMoodLog = task.taskType === "mood_log";
                   return (
                     <div
                       key={task.id}
@@ -81,22 +82,30 @@ export function TaskList({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          onToggleComplete(task.id);
+                          if (isMoodLog) {
+                            onTaskTap(task);
+                          } else {
+                            onToggleComplete(task.id);
+                          }
                         }}
                         className="shrink-0 flex items-center justify-center transition-transform active:scale-90"
                         aria-label={
-                          task.completed ? "Mark incomplete" : "Mark complete"
+                          isMoodLog
+                            ? "Open mood log"
+                            : task.completed
+                              ? "Mark incomplete"
+                              : "Mark complete"
                         }
                       >
                         {task.completed ? (
                           <span
-                            className="material-symbols-outlined text-[20px] leading-none text-green-500"
+                            className="material-symbols-outlined text-[20px] leading-none text-primary"
                             style={{ fontVariationSettings: "'FILL' 1" }}
                           >
                             check_circle
                           </span>
                         ) : (
-                          <span className="material-symbols-outlined text-[20px] leading-none text-zinc-300 hover:text-green-400 transition-colors">
+                          <span className="material-symbols-outlined text-[20px] leading-none text-zinc-300 hover:text-primary/80 transition-colors">
                             circle
                           </span>
                         )}

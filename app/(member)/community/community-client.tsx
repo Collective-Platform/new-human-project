@@ -32,6 +32,7 @@ interface Suggestion {
 
 interface FeedItem {
   displayName: string | null;
+  searchHandle: string | null;
   avatarUrl: string | null;
   category: string;
   activity: string;
@@ -62,28 +63,30 @@ export function CommunityClient() {
   }, [fetchData]);
 
   return (
-    <div className="px-4 pt-4 pb-4 space-y-4">
-      {/* Toggle buttons */}
-      <div className="flex gap-2">
+    <div className="max-w-2xl mx-auto px-6 pt-6 pb-8">
+      {/* Action Buttons */}
+      <div className="flex gap-3 mb-6">
         <button
           onClick={() => setTab("friends")}
-          className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition-colors ${
+          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-headline font-semibold transition-colors ${
             tab === "friends"
-              ? "bg-primary text-white"
-              : "bg-zinc-100 text-foreground/60"
+              ? "bg-on-surface text-surface border border-on-surface"
+              : "border border-outline-variant text-on-surface hover:bg-surface-container"
           }`}
         >
-          {t("friends")}
+          <span className="material-symbols-outlined text-xl">group</span>
+          <span>{t("friends")}</span>
         </button>
         <button
           onClick={() => setTab("add")}
-          className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition-colors ${
+          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-headline font-semibold transition-colors ${
             tab === "add"
-              ? "bg-primary text-white"
-              : "bg-zinc-100 text-foreground/60"
+              ? "bg-on-surface text-surface border border-on-surface"
+              : "border border-outline-variant text-on-surface hover:bg-surface-container"
           }`}
         >
-          {t("addFriends")}
+          <span className="material-symbols-outlined text-xl">person_add</span>
+          <span>{t("addFriends")}</span>
         </button>
       </div>
 
@@ -94,7 +97,7 @@ export function CommunityClient() {
       )}
 
       {data && tab === "friends" && (
-        <>
+        <div className="space-y-4">
           {/* Incoming friend requests */}
           {data.requests.length > 0 && (
             <FriendRequests requests={data.requests} onUpdate={fetchData} />
@@ -102,10 +105,15 @@ export function CommunityClient() {
 
           {/* People You May Know carousel */}
           {data.suggestions.length > 0 && (
-            <PeopleYouMayKnow
-              suggestions={data.suggestions}
-              onAdd={fetchData}
-            />
+            <section className="mb-10">
+              <h2 className="text-lg font-bold mb-4 font-headline text-on-surface">
+                {t("peopleYouMayKnow")}
+              </h2>
+              <PeopleYouMayKnow
+                suggestions={data.suggestions}
+                onAdd={fetchData}
+              />
+            </section>
           )}
 
           {/* Friends list */}
@@ -113,7 +121,7 @@ export function CommunityClient() {
 
           {/* Activity Feed */}
           <ActivityFeed items={data.feed} />
-        </>
+        </div>
       )}
 
       {data && tab === "add" && <AddFriends onRequestSent={fetchData} />}

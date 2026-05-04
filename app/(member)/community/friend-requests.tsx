@@ -38,43 +38,46 @@ export function FriendRequests({
   if (visible.length === 0) return null;
 
   return (
-    <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
+    <div className="flex flex-col gap-4">
       {visible.map((req) => (
-        <div key={req.requestId} className="flex items-center gap-3 px-4 py-3">
+        <div
+          key={req.requestId}
+          className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
+        >
           {req.avatarUrl ? (
             <Image
               src={req.avatarUrl}
               alt={req.displayName ?? ""}
-              width={40}
-              height={40}
+              width={56}
+              height={56}
               unoptimized
-              className="h-10 w-10 rounded-full object-cover"
+              className="w-14 h-14 rounded-full object-cover"
             />
           ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200">
-              <span className="material-symbols-outlined text-[18px] text-zinc-500">
+            <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
+              <span className="material-symbols-outlined text-on-surface-variant">
                 person
               </span>
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="truncate font-headline text-sm font-semibold text-foreground">
+            <p className="truncate font-headline text-sm font-bold text-on-surface">
               {req.displayName ?? "User"}
             </p>
-            <p className="text-xs text-foreground/50">
+            <p className="text-xs text-on-surface-variant mt-0.5">
               {t("sentFriendRequest")}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0">
             <button
               onClick={() => handleAction(req.requestId, "accept")}
-              className="rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-white active:bg-primary/80"
+              className="rounded-full bg-on-surface px-3 py-1.5 text-xs font-bold text-surface hover:opacity-90"
             >
               {t("accept")}
             </button>
             <button
               onClick={() => handleAction(req.requestId, "reject")}
-              className="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-foreground/60 active:bg-zinc-200"
+              className="rounded-full bg-surface-container-highest px-3 py-1.5 text-xs font-bold text-on-surface-variant hover:opacity-90"
             >
               {t("reject")}
             </button>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useNavVisibility } from "./nav-visibility";
 
 const tabs = [
   { key: "home" as const, href: "/", icon: "home" },
@@ -11,9 +12,14 @@ const tabs = [
   { key: "profile" as const, href: "/profile", icon: "person" },
 ];
 
+const FILLED_ICON_STYLE = { fontVariationSettings: "'FILL' 1" };
+
 export function BottomNav() {
   const pathname = usePathname();
   const t = useTranslations("nav");
+  const { hidden } = useNavVisibility();
+
+  if (hidden) return null;
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -40,9 +46,7 @@ export function BottomNav() {
                   className={`material-symbols-outlined text-[22px] ${
                     active ? "text-white" : "text-zinc-500"
                   }`}
-                  style={
-                    active ? { fontVariationSettings: "'FILL' 1" } : undefined
-                  }
+                  style={active ? FILLED_ICON_STYLE : undefined}
                 >
                   {tab.icon}
                 </span>

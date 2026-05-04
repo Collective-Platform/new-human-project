@@ -5,18 +5,29 @@ import { useRef, useEffect } from "react";
 interface DayInfo {
   day: number;
   reachable: boolean;
-  hasCompletion: boolean;
+  fullyCompleted: boolean;
 }
+
+const MONTH_NAMES = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 function getDateForDay(blockStartDate: string, day: number): string {
   const start = new Date(blockStartDate);
   const date = new Date(start);
   date.setDate(start.getDate() + (day - 1));
-  const monthNames = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
-  return `${monthNames[date.getMonth()]} ${date.getDate()}`;
+  return `${MONTH_NAMES[date.getMonth()]} ${date.getDate()}`;
 }
 
 export function DayCarousel({
@@ -59,39 +70,47 @@ export function DayCarousel({
             <button
               key={d.day}
               onClick={() => onSelect(d.day)}
-              className="flex-shrink-0 flex flex-col items-center gap-1.5 group"
+              className="shrink-0 flex flex-col items-center gap-1.5 group"
             >
               <div
                 className={`w-14 h-14 rounded-full flex flex-col items-center justify-center transition-all duration-200 active:scale-95 ${
-                  isToday ? "border-2 border-black" : ""
-                } ${
                   isSelected
                     ? "bg-primary text-white shadow-lg"
-                    : d.hasCompletion
+                    : d.fullyCompleted
                       ? "bg-primary/15 text-primary hover:bg-primary/25"
                       : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
                 }`}
               >
                 <span
                   className={`text-[10px] font-bold uppercase tracking-tighter ${
-                    isSelected ? "text-white/70" : d.hasCompletion ? "text-primary/60" : "text-zinc-400"
+                    isSelected
+                      ? "text-white/70"
+                      : d.fullyCompleted
+                        ? "text-primary/60"
+                        : "text-zinc-400"
                   }`}
                 >
                   Day
                 </span>
                 <span
                   className={`text-lg font-bold leading-none ${
-                    isSelected ? "text-white" : d.hasCompletion ? "text-primary" : "text-zinc-600"
+                    isSelected
+                      ? "text-white"
+                      : d.fullyCompleted
+                        ? "text-primary"
+                        : "text-zinc-600"
                   }`}
                 >
                   {d.day}
                 </span>
               </div>
               <span
-                className={`text-[11px] ${
-                  isSelected
-                    ? "font-bold text-foreground"
-                    : "font-semibold text-foreground/50 group-hover:text-foreground/70"
+                className={`text-[11px] px-2 py-0.5 ${
+                  isToday
+                    ? "rounded-full border-primary/80 text-primary/80 border font-semibold"
+                    : isSelected
+                      ? "font-bold text-foreground"
+                      : "font-semibold text-foreground/50 group-hover:text-foreground/70"
                 }`}
               >
                 {isToday ? "Today" : getDateForDay(blockStartDate, d.day)}

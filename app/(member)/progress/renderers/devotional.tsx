@@ -24,64 +24,62 @@ export function DevotionalRenderer({
       </p>
 
       <div>
-        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-foreground/50">
-          Today's Focus
+        <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">
+          Today&apos;s Focus
         </p>
-        <p className="text-sm leading-relaxed text-foreground/80">{focus}</p>
+        <p className="text-md leading-relaxed italic text-foreground">
+          {focus}
+        </p>
       </div>
 
       {readingNotes && (
-        <div className="rounded-sm bg-zinc-50 p-4">
-          <div className="space-y-2 text-sm leading-relaxed text-foreground/70">
-            <Markdown
-              components={{
-                p: ({ children }) => <p className="mb-2">{children}</p>,
-                strong: ({ children }) => (
-                  <strong className="font-semibold text-foreground/80">
-                    {children}
-                  </strong>
-                ),
-                ul: ({ children }) => (
-                  <ul className="list-disc pl-4 space-y-1">{children}</ul>
-                ),
-                ol: ({ children }) => (
-                  <ol className="list-decimal pl-4 space-y-1">{children}</ol>
-                ),
-                li: ({ children }) => <li>{children}</li>,
-              }}
-            >
-              {readingNotes}
-            </Markdown>
-          </div>
+        <div className="space-y-2 text-md leading-relaxed text-foreground">
+          <Markdown
+            components={{
+              p: ({ children }) => <p className="mb-2">{children}</p>,
+              strong: ({ children }) => (
+                <strong className="font-semibold text-foreground/80">
+                  {children}
+                </strong>
+              ),
+              ul: ({ children }) => (
+                <ul className="list-disc pl-4 space-y-1">{children}</ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="list-decimal pl-4 space-y-1">{children}</ol>
+              ),
+              li: ({ children }) => <li>{children}</li>,
+            }}
+          >
+            {readingNotes}
+          </Markdown>
         </div>
       )}
 
       {keyIdea && (
-        <blockquote className="border-l-4 border-primary pl-4 italic text-foreground/80">
-          <p className="text-sm leading-relaxed">{keyIdea}</p>
+        <blockquote className="border-l-4 border-primary text-foreground bg-primary/10 p-4">
+          <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">
+            Key Idea
+          </p>
+          <p className="text-md leading-relaxed">{keyIdea}</p>
         </blockquote>
       )}
 
       <div>
-        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-foreground/50">
+        <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">
           Reflection
         </p>
-        <p className="text-sm leading-relaxed text-foreground/80">
-          {reflection}
-        </p>
+        <p className="text-md leading-relaxed text-foreground">{reflection}</p>
       </div>
 
       {practice && (
-        <div className="rounded-sm bg-amber-50 p-4">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-foreground/50">
-            Today's Practice
+        <div>
+          <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">
+            Today&apos;s Practice
           </p>
-          <p className="text-sm leading-relaxed text-foreground/80">
-            {practice}
-          </p>
+          <p className="text-md leading-relaxed text-foreground">{practice}</p>
         </div>
       )}
-
     </div>
   );
 }

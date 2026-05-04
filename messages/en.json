@@ -15,6 +15,7 @@
   },
   "progress": {
     "dayLabel": "Day {day}",
+    "blockLabel": "Block {block}",
     "mental": "Mental",
     "emotional": "Emotional",
     "physical": "Physical",
@@ -70,14 +71,15 @@
     "privacy": "Privacy",
     "language": "Language",
     "logOut": "Log Out",
-    "editName": "Edit name",
-    "displayName": "Display name",
+    "editUsername": "Edit username",
+    "username": "Username",
     "changePhoto": "Change profile photo",
     "save": "Save",
     "saving": "Saving…",
     "cancel": "Cancel",
-    "nameRequired": "Name cannot be empty",
-    "nameTooLong": "Name must be 50 characters or fewer",
+    "usernameRequired": "Username cannot be empty",
+    "usernameInvalid": "Use 3–30 characters: letters, numbers, or underscores",
+    "usernameTaken": "That username is already taken",
     "invalidImage": "Please select an image file",
     "imageTooLarge": "Image must be smaller than {max}MB"
   },
@@ -93,10 +95,13 @@
   },
   "onboarding": {
     "welcome": "Welcome to The New Human Project",
-    "mentalExplain": "Grow your mind through Scripture study",
-    "emotionalExplain": "Build emotional awareness through daily reflection",
-    "physicalExplain": "Care for your body with simple daily movement",
-    "blockExplain": "Your journey starts with a 25-day block — small steps, big transformation.",
-    "getStarted": "Get Started"
+    "pickUsernameTitle": "Pick a username",
+    "pickUsernameSubtitle": "Friends use this to find you in the community. You can change it later in your profile.",
+    "usernamePlaceholder": "your_username",
+    "usernameRules": "3–30 characters: letters, numbers, or underscores",
+    "usernameTaken": "That username is already taken",
+    "usernameInvalid": "Use 3–30 characters: letters, numbers, or underscores",
+    "getStarted": "Get Started",
+    "saving": "Saving…"
   }
 }

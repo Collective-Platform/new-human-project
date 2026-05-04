@@ -13,7 +13,7 @@ export async function sendOtp(email: string, otp: string): Promise<void> {
       Authorization: `Bearer ${env.MAILERSEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: { email: "noreply@yourdomain.com", name: "The New Human Project" },
+      from: { email: env.MAILERSEND_FROM_EMAIL, name: env.MAILERSEND_FROM_NAME },
       to: [{ email }],
       subject: "Your login code",
       text: `Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`,
@@ -21,6 +21,9 @@ export async function sendOtp(email: string, otp: string): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to send OTP email: ${response.statusText}`);
+    const body = await response.text();
+    throw new Error(
+      `Failed to send OTP email: ${response.status} ${response.statusText} — ${body}`
+    );
   }
 }

@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { VerseCard } from "./verse-card";
 import { RadarChart } from "./radar-chart";
-import { BlockGrid } from "./block-grid";
 import { StreakBadge } from "./streak-badge";
 import { ActivityCalendar } from "./activity-calendar";
 import { RecentFeed } from "./recent-feed";
@@ -43,37 +42,40 @@ export function DashboardClient({
   const [showCelebration, setShowCelebration] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    const res = await fetch(`/api/dashboard?days=${timeRange}`);
-    if (res.ok) {
-      setData(await res.json());
-    }
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      const res = await fetch(`/api/dashboard?days=${timeRange}`);
+      if (cancelled || !res.ok) return;
+
+      const json: DashboardData = await res.json();
+      if (cancelled) return;
+
+      setData(json);
+
+      // Badge system is on hold — celebration and encouragement overlays
+      // are temporarily disabled until the badge design is finalized.
+      // Code is preserved intentionally; do not delete.
+      // if (json.earnedBadge) {
+      //   const seenKey = `badge-seen-${json.earnedBadge.blockNumber}`;
+      //   if (!localStorage.getItem(seenKey)) {
+      //     setShowCelebration(true);
+      //   }
+      // }
+      //
+      // if (json.blockEndedWithoutCompletion && !json.earnedBadge) {
+      //   const dismissKey = "block-encourage-dismissed-1";
+      //   if (!localStorage.getItem(dismissKey)) {
+      //     setShowEncouragement(true);
+      //   }
+      // }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [timeRange]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  // Trigger celebration or encouragement after data loads
-  useEffect(() => {
-    if (!data) return;
-
-    // Check if we should show the celebration overlay for a newly earned badge
-    if (data.earnedBadge) {
-      const seenKey = `badge-seen-${data.earnedBadge.blockNumber}`;
-      if (!localStorage.getItem(seenKey)) {
-        setShowCelebration(true);
-      }
-    }
-
-    // Check if block ended without completion (day 25+, no badge)
-    if (data.blockEndedWithoutCompletion && !data.earnedBadge) {
-      const dismissKey = "block-encourage-dismissed-1";
-      if (!localStorage.getItem(dismissKey)) {
-        setShowEncouragement(true);
-      }
-    }
-  }, [data]);
 
   const now = new Date();
 
@@ -86,7 +88,7 @@ export function DashboardClient({
           onDismiss={() => {
             localStorage.setItem(
               `badge-seen-${data.earnedBadge!.blockNumber}`,
-              "1"
+              "1",
             );
             setShowCelebration(false);
           }}
@@ -113,24 +115,22 @@ export function DashboardClient({
 
       {data && (
         <>
-          <div className="grid grid-cols-2 gap-4">
-            <StreakBadge count={data.streak} label={t("streakLabel")} />
-            <BlockGrid
-              days={data.grid}
-              title={tp("dayLabel", { day: data.currentDay })}
+          <div className="relative">
+            <div className="absolute left-auto top-3 right-3">
+              <StreakBadge count={data.streak} />
+            </div>
+
+            <RadarChart
+              mental={data.radar.mental}
+              emotional={data.radar.emotional}
+              physical={data.radar.physical}
+              labels={{
+                mental: tp("mental"),
+                emotional: tp("emotional"),
+                physical: tp("physical"),
+              }}
             />
           </div>
-
-          <RadarChart
-            mental={data.radar.mental}
-            emotional={data.radar.emotional}
-            physical={data.radar.physical}
-            labels={{
-              mental: tp("mental"),
-              emotional: tp("emotional"),
-              physical: tp("physical"),
-            }}
-          />
 
           <TimeFilter
             value={timeRange}

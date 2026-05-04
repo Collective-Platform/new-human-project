@@ -4,128 +4,108 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const steps = [
-  {
-    icon: "auto_stories",
-    colorClass: "text-category-mental",
-    bgClass: "bg-category-mental/10",
-    translationKey: "mentalExplain" as const,
-  },
-  {
-    icon: "favorite",
-    colorClass: "text-category-emotional",
-    bgClass: "bg-category-emotional/10",
-    translationKey: "emotionalExplain" as const,
-  },
-  {
-    icon: "fitness_center",
-    colorClass: "text-[#b8a44c]",
-    bgClass: "bg-category-physical",
-    translationKey: "physicalExplain" as const,
-  },
-];
+const HANDLE_REGEX = /^[a-z0-9_]{3,30}$/;
 
 export default function OnboardingPage() {
   const t = useTranslations("onboarding");
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [handle, setHandle] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const isWelcome = currentStep === 0;
-  const isBlockExplain = currentStep === steps.length + 1;
-  const stepIndex = currentStep - 1;
+  const normalized = handle.trim().toLowerCase();
+  const isValid = HANDLE_REGEX.test(normalized);
 
-  async function handleGetStarted() {
+  async function handleSubmit() {
+    setError(null);
+    if (!isValid) {
+      setError(t("usernameInvalid"));
+      return;
+    }
     setLoading(true);
     try {
-      const res = await fetch("/api/onboarding/complete", { method: "POST" });
+      const res = await fetch("/api/onboarding/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ searchHandle: normalized }),
+      });
       if (res.ok) {
         router.push("/");
         router.refresh();
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 409 || data?.error === "username_taken") {
+        setError(t("usernameTaken"));
+      } else {
+        setError(t("usernameInvalid"));
       }
     } finally {
       setLoading(false);
     }
   }
 
-  function handleNext() {
-    if (isBlockExplain) {
-      handleGetStarted();
-    } else {
-      setCurrentStep((s) => s + 1);
-    }
-  }
-
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-      {isWelcome && (
-        <div className="space-y-6 max-w-sm">
-          <div className="flex items-center justify-center w-20 h-20 mx-auto rounded-full bg-primary/10">
-            <span className="material-symbols-outlined text-[40px] text-primary">
-              church
-            </span>
-          </div>
-          <h1 className="text-3xl font-bold font-headline text-foreground">
-            {t("welcome")}
-          </h1>
-          <p className="text-foreground/60 leading-relaxed">
-            {t("blockExplain")}
-          </p>
+      <div className="space-y-6 max-w-sm w-full">
+        <div className="flex items-center justify-center w-20 h-20 mx-auto rounded-full bg-primary/10">
+          <span className="material-symbols-outlined text-[40px] text-primary">
+            alternate_email
+          </span>
         </div>
-      )}
+        <h1 className="text-3xl font-bold font-headline text-foreground">
+          {t("pickUsernameTitle")}
+        </h1>
+        <p className="text-foreground/60 leading-relaxed">
+          {t("pickUsernameSubtitle")}
+        </p>
 
-      {!isWelcome && !isBlockExplain && steps[stepIndex] && (
-        <div className="space-y-6 max-w-sm">
-          <div
-            className={`flex items-center justify-center w-20 h-20 mx-auto rounded-full ${steps[stepIndex].bgClass}`}
-          >
-            <span
-              className={`material-symbols-outlined text-[40px] ${steps[stepIndex].colorClass}`}
-            >
-              {steps[stepIndex].icon}
-            </span>
-          </div>
-          <h2 className="text-2xl font-bold font-headline text-foreground">
-            {t(steps[stepIndex].translationKey)}
-          </h2>
-        </div>
-      )}
-
-      {isBlockExplain && (
-        <div className="space-y-6 max-w-sm">
-          <div className="flex items-center justify-center w-20 h-20 mx-auto rounded-full bg-primary/10">
-            <span className="material-symbols-outlined text-[40px] text-primary">
-              calendar_month
-            </span>
-          </div>
-          <h2 className="text-2xl font-bold font-headline text-foreground">
-            {t("blockExplain")}
-          </h2>
-        </div>
-      )}
-
-      {/* Step indicators */}
-      <div className="flex gap-2 mt-10">
-        {Array.from({ length: steps.length + 2 }).map((_, i) => (
-          <div
-            key={i}
-            className={`h-1.5 w-8 rounded-full transition-colors ${
-              i === currentStep ? "bg-primary" : "bg-foreground/10"
-            }`}
+        <div className="relative text-left">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40">
+            @
+          </span>
+          <input
+            type="text"
+            value={handle}
+            onChange={(e) => {
+              setHandle(e.target.value);
+              setError(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (!loading) handleSubmit();
+              }
+            }}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            maxLength={30}
+            disabled={loading}
+            placeholder={t("usernamePlaceholder")}
+            aria-label={t("pickUsernameTitle")}
+            aria-invalid={error ? true : undefined}
+            className="w-full rounded-md border border-zinc-200 bg-white py-3 pl-7 pr-3 text-base text-foreground outline-none focus:border-primary disabled:opacity-60"
           />
-        ))}
+        </div>
+
+        {error ? (
+          <p role="alert" className="text-sm text-red-600 text-left">
+            {error}
+          </p>
+        ) : (
+          <p className="text-xs text-foreground/40 text-left">
+            {t("usernameRules")}
+          </p>
+        )}
       </div>
 
       <button
-        onClick={handleNext}
-        disabled={loading}
+        onClick={handleSubmit}
+        disabled={loading || !isValid}
         className="mt-8 w-full max-w-sm rounded-md bg-primary py-4 text-white font-semibold text-lg transition-opacity hover:opacity-90 disabled:opacity-50"
       >
-        {isBlockExplain
-          ? loading
-            ? "…"
-            : t("getStarted")
-          : t("getStarted")}
+        {loading ? t("saving") : t("getStarted")}
       </button>
     </div>
   );

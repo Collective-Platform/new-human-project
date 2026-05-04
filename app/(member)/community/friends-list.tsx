@@ -22,16 +22,16 @@ function Avatar({
       <Image
         src={url}
         alt={name ?? ""}
-        width={40}
-        height={40}
+        width={56}
+        height={56}
         unoptimized
-        className="h-10 w-10 rounded-full object-cover"
+        className="w-14 h-14 rounded-full object-cover"
       />
     );
   }
   return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200">
-      <span className="material-symbols-outlined text-[18px] text-zinc-500">
+    <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
+      <span className="material-symbols-outlined text-on-surface-variant">
         person
       </span>
     </div>
@@ -54,23 +54,26 @@ export function FriendsList({ friends }: { friends: Friend[] }) {
 
   if (friends.length === 0) {
     return (
-      <div className="rounded-md bg-white p-5 shadow-card text-center text-sm text-foreground/50">
+      <div className="bg-white p-5 rounded-2xl text-center text-sm text-on-surface-variant">
         No friends yet
       </div>
     );
   }
 
   return (
-    <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
+    <div className="flex flex-col gap-4">
       {friends.map((friend) => (
-        <div key={friend.id} className="flex items-center gap-3 px-4 py-3">
+        <div
+          key={friend.id}
+          className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
+        >
           <Avatar url={friend.avatarUrl} name={friend.displayName} />
           <div className="flex-1 min-w-0">
-            <p className="truncate font-headline text-sm font-semibold text-foreground">
+            <p className="truncate font-headline text-sm font-bold text-on-surface">
               {friend.displayName ?? "User"}
             </p>
             {friend.lastActivity && (
-              <p className="text-xs text-foreground/50">
+              <p className="text-xs text-on-surface-variant mt-0.5">
                 {t("completed")} · {relativeTime(friend.lastActivity)}
               </p>
             )}

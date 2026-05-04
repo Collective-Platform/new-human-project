@@ -68,8 +68,9 @@ export function LoginForm({ initialEmail = "" }: { initialEmail?: string }) {
 
       {error && <p className="text-sm text-primary">{error}</p>}
       {notExists && (
-        <p className="text-sm text-primary">
-          No account found for this email.{" "}
+        <p className="text-sm text-primary text-center">
+          No account found for this email.
+          <br />
           <Link
             href={`/signup?email=${encodeURIComponent(email)}`}
             className="underline font-medium"

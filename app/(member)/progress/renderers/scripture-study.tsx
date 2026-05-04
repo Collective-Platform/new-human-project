@@ -1,17 +1,20 @@
 "use client";
 
 import Markdown from "react-markdown";
+import { BilingualPassage } from "./bilingual-passage";
 
 export function ScriptureStudyRenderer({
   title,
   reference,
   passageText,
+  prefetchedPassage,
   explanation,
   videoUrl,
 }: {
   title: string;
   reference: string;
   passageText: string;
+  prefetchedPassage: { reference: string; content: string } | null;
   explanation: string;
   videoUrl: string;
 }) {
@@ -21,12 +24,11 @@ export function ScriptureStudyRenderer({
         <h1 className="mb-2 font-headline text-xl font-bold text-foreground">
           {title}
         </h1>
-        <p className="mb-3 text-sm text-foreground/70">
-          {reference}
-        </p>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">
-          {passageText}
-        </p>
+        <p className="mb-3 text-sm text-foreground/70">{reference}</p>
+        <BilingualPassage
+          passage={prefetchedPassage}
+          fallbackText={passageText}
+        />
       </div>
 
       {explanation && (
@@ -65,7 +67,6 @@ export function ScriptureStudyRenderer({
           />
         </div>
       )}
-
     </div>
   );
 }

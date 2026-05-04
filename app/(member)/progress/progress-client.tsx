@@ -19,10 +19,11 @@ interface TaskData {
 interface CarouselDay {
   day: number;
   reachable: boolean;
-  hasCompletion: boolean;
+  fullyCompleted: boolean;
 }
 
 interface ProgressData {
+  blockNumber: number;
   currentDay: number;
   selectedDay: number;
   blockStartDate: string;
@@ -45,22 +46,25 @@ export function ProgressClient({ locale }: { locale: string }) {
     }
   }
 
-  // Initial load only
+  // Initial load (and re-load when locale changes so prefetched
+  // scripture passages match the active language)
   useEffect(() => {
     let cancelled = false;
     async function init() {
-      const res = await fetch("/api/progress");
+      const day = selectedDay !== null ? `?day=${selectedDay}` : "";
+      const res = await fetch(`/api/progress${day}`);
       if (res.ok && !cancelled) {
         const d: ProgressData = await res.json();
         setData(d);
-        setSelectedDay(d.currentDay);
+        if (selectedDay === null) setSelectedDay(d.currentDay);
       }
     }
     init();
     return () => {
       cancelled = true;
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
 
   async function handleComplete(
     taskId: string,
@@ -121,6 +125,8 @@ export function ProgressClient({ locale }: { locale: string }) {
       <TaskDetail
         task={current}
         locale={locale}
+        blockNumber={data.blockNumber}
+        dayNumber={selectedDay ?? data.currentDay}
         onComplete={handleComplete}
         onClose={() => {
           setActiveTask(null);
@@ -147,11 +153,16 @@ export function ProgressClient({ locale }: { locale: string }) {
         <h2 className="text-2xl font-extrabold tracking-tight text-foreground font-['Plus_Jakarta_Sans']">
           {t("dayLabel", { day: selectedDay ?? data.currentDay })} of 25
         </h2>
-        {data.missedDays > 0 && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 bg-white/50 backdrop-blur-sm">
-            <span className="material-symbols-outlined text-base text-foreground leading-none">schedule</span>
+        {data.missedDays > 0 ? (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
             <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">
               {data.missedDays} missed {data.missedDays === 1 ? "day" : "days"}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">
+              On Track!
             </span>
           </div>
         )}

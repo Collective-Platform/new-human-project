@@ -41,6 +41,7 @@ export async function GET() {
     })),
     feed: feed.map((f) => ({
       displayName: f.display_name,
+      searchHandle: f.search_handle,
       avatarUrl: f.avatar_url,
       category: f.category,
       activity: f.activity,

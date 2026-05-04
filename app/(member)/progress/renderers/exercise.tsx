@@ -19,13 +19,13 @@ export function ExerciseRenderer({
       disabled={completed || loading}
       className={`flex w-full items-center gap-4 rounded-md px-5 py-4 text-left transition-colors ${
         completed
-          ? "bg-green-100"
+          ? "bg-primary/10"
           : "bg-zinc-50 hover:bg-zinc-100"
       } disabled:cursor-default`}
     >
       {completed ? (
         <span
-          className="material-symbols-outlined text-[24px] text-green-500"
+          className="material-symbols-outlined text-[24px] text-primary"
           style={{ fontVariationSettings: "'FILL' 1" }}
         >
           check_circle
@@ -36,7 +36,7 @@ export function ExerciseRenderer({
         </span>
       )}
       <span
-        className={`flex-1 text-sm font-medium ${completed ? "text-green-700" : "text-foreground"}`}
+        className={`flex-1 text-sm font-medium ${completed ? "text-primary" : "text-foreground"}`}
       >
         {completed ? completedLabel : label}
       </span>

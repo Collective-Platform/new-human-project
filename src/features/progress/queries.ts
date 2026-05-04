@@ -60,3 +60,25 @@ export async function getDayCompletionStates(
   }
   return map;
 }
+
+export async function getFullyCompletedDays(
+  userId: number,
+  blockNumber: number
+): Promise<Set<number>> {
+  const result = await db.execute(sql`
+    SELECT bdt.day_number
+    FROM block_day_tasks bdt
+    LEFT JOIN task_completions tc
+      ON tc.task_id = bdt.id AND tc.user_id = ${userId}
+    WHERE bdt.block_number = ${blockNumber}
+    GROUP BY bdt.day_number
+    HAVING COUNT(DISTINCT bdt.id) > 0
+       AND COUNT(DISTINCT bdt.id) = COUNT(DISTINCT tc.task_id)
+  `);
+
+  const set = new Set<number>();
+  for (const row of result.rows as { day_number: number }[]) {
+    set.add(Number(row.day_number));
+  }
+  return set;
+}

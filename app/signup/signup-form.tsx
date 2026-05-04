@@ -68,8 +68,9 @@ export function SignupForm({ initialEmail = "" }: { initialEmail?: string }) {
 
       {error && <p className="text-sm text-primary">{error}</p>}
       {alreadyExists && (
-        <p className="text-sm text-primary">
-          An account with this email already exists.{" "}
+        <p className="text-sm text-primary text-center">
+          An account with this email already exists.
+          <br />
           <Link
             href={`/login?email=${encodeURIComponent(email)}`}
             className="underline font-medium"

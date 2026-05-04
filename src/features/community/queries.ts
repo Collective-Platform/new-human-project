@@ -199,7 +199,7 @@ export async function getActivityFeed(userId: number) {
       WHERE status = 'accepted'
         AND (sender_id = ${userId} OR receiver_id = ${userId})
     )
-    SELECT u.display_name, u.avatar_url, t.category, t.name AS activity, tc.completed_at
+    SELECT u.display_name, u.search_handle, u.avatar_url, t.category, t.name AS activity, tc.completed_at
     FROM task_completions tc
     JOIN block_day_tasks t ON tc.task_id = t.id
     JOIN users u ON tc.user_id = u.id
@@ -216,6 +216,7 @@ export async function getActivityFeed(userId: number) {
 
   return result.rows as {
     display_name: string | null;
+    search_handle: string | null;
     avatar_url: string | null;
     category: string;
     activity: string;

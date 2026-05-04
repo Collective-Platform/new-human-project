@@ -15,6 +15,7 @@
   },
   "progress": {
     "dayLabel": "第 {day} 天",
+    "blockLabel": "第 {block} 阶段",
     "mental": "心智",
     "emotional": "情绪",
     "physical": "身体",
@@ -70,14 +71,15 @@
     "privacy": "隐私",
     "language": "语言",
     "logOut": "退出登录",
-    "editName": "编辑昵称",
-    "displayName": "昵称",
+    "editUsername": "编辑用户名",
+    "username": "用户名",
     "changePhoto": "更换头像",
     "save": "保存",
     "saving": "保存中…",
     "cancel": "取消",
-    "nameRequired": "昵称不能为空",
-    "nameTooLong": "昵称不能超过 50 个字符",
+    "usernameRequired": "用户名不能为空",
+    "usernameInvalid": "请使用 3–30 个字符：字母、数字或下划线",
+    "usernameTaken": "该用户名已被使用",
     "invalidImage": "请选择图片文件",
     "imageTooLarge": "图片大小须小于 {max}MB"
   },
@@ -93,10 +95,13 @@
   },
   "onboarding": {
     "welcome": "欢迎来到新人类计划",
-    "mentalExplain": "通过圣经学习成长你的心智",
-    "emotionalExplain": "通过每日反思建立情绪觉察",
-    "physicalExplain": "通过简单的日常运动关爱你的身体",
-    "blockExplain": "你的旅程从 25 天挑战开始——小步前行，大步蜕变。",
-    "getStarted": "开始"
+    "pickUsernameTitle": "选择一个用户名",
+    "pickUsernameSubtitle": "朋友会通过用户名在社区里找到你。之后可以在个人资料中修改。",
+    "usernamePlaceholder": "your_username",
+    "usernameRules": "3–30 个字符：字母、数字或下划线",
+    "usernameTaken": "该用户名已被使用",
+    "usernameInvalid": "请使用 3–30 个字符：字母、数字或下划线",
+    "getStarted": "开始",
+    "saving": "保存中…"
   }
 }

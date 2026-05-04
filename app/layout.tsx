@@ -50,7 +50,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-full">
-        <div className="mx-auto flex min-h-screen max-w-[375px] flex-col">
+        <div className="mx-auto flex min-h-screen max-w-93.75 flex-col">
           <NextIntlClientProvider locale={locale} messages={messages}>
             {children}
           </NextIntlClientProvider>

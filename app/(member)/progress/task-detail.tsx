@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { getLocalizedString } from "@/src/features/content";
+import { useNavVisibility } from "../nav-visibility";
 import { DevotionalRenderer } from "./renderers/devotional";
 import { ScriptureMemoriseRenderer } from "./renderers/scripture-memorise";
 import { ScriptureStudyRenderer } from "./renderers/scripture-study";
 import { MoodLogRenderer } from "./renderers/mood-log";
+import { BilingualPassage } from "./renderers/bilingual-passage";
 
 interface TaskData {
   id: string;
@@ -18,9 +20,13 @@ interface TaskData {
   completionData: Record<string, unknown> | null;
 }
 
+const EMPTY_CONTENT: Record<string, unknown> = {};
+
 export function TaskDetail({
   task,
   locale,
+  blockNumber,
+  dayNumber,
   onComplete,
   onClose,
   categoryTasks,
@@ -28,6 +34,8 @@ export function TaskDetail({
 }: {
   task: TaskData;
   locale: string;
+  blockNumber: number;
+  dayNumber: number;
   onComplete: (taskId: string, data?: Record<string, unknown>) => Promise<void>;
   onClose: () => void;
   categoryTasks: TaskData[];
@@ -36,6 +44,15 @@ export function TaskDetail({
   const t = useTranslations("progress");
   const tm = useTranslations("mood");
   const [loading, setLoading] = useState(false);
+  const { setHidden } = useNavVisibility();
+
+  // Hide bottom nav while inside a Mental or Emotional activity
+  useEffect(() => {
+    if (task.category === "Mental" || task.category === "Emotional") {
+      setHidden(true);
+      return () => setHidden(false);
+    }
+  }, [task.category, setHidden]);
 
   const currentIndex = categoryTasks.findIndex((t) => t.id === task.id);
   const hasPrev = currentIndex > 0;
@@ -54,7 +71,15 @@ export function TaskDetail({
     } finally {
       setLoading(false);
     }
-  }, [onComplete, task.id, hasNext, categoryTasks, currentIndex, onNavigate, onClose]);
+  }, [
+    onComplete,
+    task.id,
+    hasNext,
+    categoryTasks,
+    currentIndex,
+    onNavigate,
+    onClose,
+  ]);
 
   const handlePrev = useCallback(() => {
     if (hasPrev) {
@@ -76,10 +101,18 @@ export function TaskDetail({
         setLoading(false);
       }
     },
-    [onComplete, task.id, hasNext, categoryTasks, currentIndex, onNavigate, onClose],
+    [
+      onComplete,
+      task.id,
+      hasNext,
+      categoryTasks,
+      currentIndex,
+      onNavigate,
+      onClose,
+    ],
   );
 
-  const content = task.content ?? {};
+  const content = task.content ?? EMPTY_CONTENT;
 
   return (
     <div className="fixed inset-0 z-50 mx-auto flex max-w-[375px] flex-col bg-surface">
@@ -117,9 +150,14 @@ export function TaskDetail({
               <p className="mb-3 font-headline text-lg font-bold text-foreground">
                 {(content.scripture_reference as string) ?? ""}
               </p>
-              <p className="text-sm text-foreground/60">
-                Read this passage in your Bible or Bible app.
-              </p>
+              <BilingualPassage
+                passage={
+                  (content.prefetched_passage as {
+                    reference: string;
+                    content: string;
+                  } | null) ?? null
+                }
+              />
             </div>
           </div>
         )}
@@ -136,6 +174,12 @@ export function TaskDetail({
             title={task.name}
             reference={(content.scripture_reference as string) ?? ""}
             passageText={getLocalizedString(content.scripture_text, locale)}
+            prefetchedPassage={
+              (content.prefetched_passage as {
+                reference: string;
+                content: string;
+              } | null) ?? null
+            }
             explanation={getLocalizedString(content.explanation, locale)}
             videoUrl={(content.video_url as string) ?? ""}
           />
@@ -168,16 +212,15 @@ export function TaskDetail({
             }}
           />
         )}
-
       </div>
 
-      {/* Nav arrows – anchored above bottom nav */}
+      {/* Footer nav – sits where the bottom nav was, with divider and meta */}
       {task.taskType !== "mood_log" && (
-        <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] inset-x-0 z-50 mx-auto flex max-w-[375px] items-center justify-between px-6 py-3">
+        <div className="fixed bottom-0 inset-x-0 z-50 mx-auto flex max-w-[375px] items-center justify-between gap-3 border-t border-zinc-200 bg-white px-6 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
           {hasPrev ? (
             <button
               onClick={handlePrev}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 active:scale-95 transition-all"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 active:scale-95 transition-all"
               aria-label="Previous task"
             >
               <span className="material-symbols-outlined text-[20px] text-foreground">
@@ -185,12 +228,22 @@ export function TaskDetail({
               </span>
             </button>
           ) : (
-            <div />
+            <div className="h-11 w-11 shrink-0" />
           )}
+          <div className="flex flex-1 flex-col items-center justify-center text-center leading-tight">
+            <span className="text-xs font-semibold text-foreground">
+              {t("blockLabel", { block: blockNumber })} |{" "}
+              {t(task.category.toLowerCase())}
+            </span>
+            <span className="text-[11px] text-foreground/60">
+              {t("dayLabel", { day: dayNumber })} | {currentIndex + 1} of{" "}
+              {categoryTasks.length}
+            </span>
+          </div>
           <button
             onClick={handleNext}
             disabled={loading}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-60"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-60"
             aria-label="Next task"
           >
             {loading ? (

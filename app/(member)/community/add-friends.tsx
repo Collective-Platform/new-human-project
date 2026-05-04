@@ -24,13 +24,15 @@ export function AddFriends({
 
   async function handleSearch(q: string) {
     setQuery(q);
-    if (q.trim().length < 2) {
+    // Strip a leading "@" so users can paste "@alice" or type "alice"
+    const normalized = q.trim().replace(/^@+/, "");
+    if (normalized.length < 2) {
       setResults([]);
       return;
     }
     setLoading(true);
     const res = await fetch(
-      `/api/friends/search?q=${encodeURIComponent(q.trim())}`
+      `/api/friends/search?q=${encodeURIComponent(normalized)}`
     );
     if (res.ok) {
       const data = await res.json();
@@ -52,18 +54,21 @@ export function AddFriends({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Search input */}
       <div className="relative">
-        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-zinc-400">
+        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-on-surface-variant">
           search
         </span>
         <input
           type="text"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search by name or handle..."
-          className="w-full rounded-full bg-zinc-100 py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-primary/30"
+          placeholder="Search username (e.g. alice)…"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          className="w-full rounded-xl border border-outline-variant bg-white py-3 pl-11 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant outline-none focus:ring-2 focus:ring-primary/30"
         />
       </div>
 
@@ -75,34 +80,34 @@ export function AddFriends({
 
       {/* Results */}
       {!loading && results.length > 0 && (
-        <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
+        <div className="flex flex-col gap-4">
           {results.map((user) => (
             <div
               key={user.id}
-              className="flex items-center gap-3 px-4 py-3"
+              className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
             >
               {user.avatarUrl ? (
                 <Image
                   src={user.avatarUrl}
                   alt={user.displayName ?? ""}
-                  width={40}
-                  height={40}
+                  width={56}
+                  height={56}
                   unoptimized
-                  className="h-10 w-10 rounded-full object-cover"
+                  className="w-14 h-14 rounded-full object-cover"
                 />
               ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200">
-                  <span className="material-symbols-outlined text-[18px] text-zinc-500">
+                <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
+                  <span className="material-symbols-outlined text-on-surface-variant">
                     person
                   </span>
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="truncate font-headline text-sm font-semibold text-foreground">
+                <p className="truncate font-headline text-sm font-bold text-on-surface">
                   {user.displayName ?? "User"}
                 </p>
                 {user.searchHandle && (
-                  <p className="text-xs text-foreground/50">
+                  <p className="text-xs text-on-surface-variant mt-0.5">
                     @{user.searchHandle}
                   </p>
                 )}
@@ -110,10 +115,10 @@ export function AddFriends({
               <button
                 onClick={() => handleAdd(user.id)}
                 disabled={sentIds.has(user.id)}
-                className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
+                className={`rounded-full px-4 py-1.5 text-xs font-bold transition-opacity shrink-0 ${
                   sentIds.has(user.id)
-                    ? "bg-zinc-100 text-foreground/40"
-                    : "bg-primary text-white active:bg-primary/80"
+                    ? "bg-surface-container-highest text-on-surface-variant"
+                    : "bg-on-surface text-surface hover:opacity-90"
                 }`}
               >
                 {sentIds.has(user.id) ? "Sent" : t("addFriend")}
@@ -124,7 +129,7 @@ export function AddFriends({
       )}
 
       {!loading && query.length >= 2 && results.length === 0 && (
-        <p className="text-center text-sm text-foreground/50 py-6">
+        <p className="text-center text-sm text-on-surface-variant py-6">
           No users found
         </p>
       )}
