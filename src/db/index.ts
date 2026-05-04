@@ -1,9 +1,18 @@
 import { drizzle as drizzleNode } from "drizzle-orm/node-postgres";
 import { drizzle as drizzleNeonHttp } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
+import { neon, neonConfig } from "@neondatabase/serverless";
 import pg from "pg";
 import { env } from "@/src/env";
 import * as schema from "./schema";
+
+// PlanetScale Postgres exposes the Neon serverless wire protocol but at
+// different HTTP/WS endpoints than neon.tech. Without these overrides the
+// driver tries to hit Neon's endpoints and `fetch failed`s.
+// https://planetscale.com/docs/postgres/connecting/neon-serverless-driver
+neonConfig.fetchEndpoint = (host) => `https://${host}/sql`;
+neonConfig.useSecureWebSocket = true;
+neonConfig.pipelineConnect = false;
+neonConfig.wsProxy = (host, port) => `${host}/v2?address=${host}:${port}`;
 
 // All NHP tables live in the `nhp` Postgres schema. Drizzle-generated queries
 // are fully qualified (`"nhp"."users"`) thanks to `pgSchema("nhp")` in

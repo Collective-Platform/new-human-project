@@ -6,7 +6,8 @@
  *
  * Usage: pnpm db:seed-dev
  */
-
+import { config } from "dotenv";
+config({ path: ".env.local" });
 import { randomBytes, createHmac } from "node:crypto";
 import pg from "pg";
 
@@ -50,7 +51,7 @@ async function seed() {
          role = EXCLUDED.role,
          status = EXCLUDED.status
        RETURNING id, email, role`,
-      ["user@test.local", "Test User", "user", "active"]
+      ["user@test.local", "Test User", "user", "active"],
     );
 
     const adminResult = await client.query(
@@ -61,14 +62,18 @@ async function seed() {
          role = EXCLUDED.role,
          status = EXCLUDED.status
        RETURNING id, email, role`,
-      ["admin@test.local", "Test Admin", "admin", "active"]
+      ["admin@test.local", "Test Admin", "admin", "active"],
     );
 
     const testUser = userResult.rows[0];
     const adminUser = adminResult.rows[0];
 
-    console.log(`  ✅ User:  id=${testUser.id}  ${testUser.email}  (${testUser.role})`);
-    console.log(`  ✅ Admin: id=${adminUser.id}  ${adminUser.email}  (${adminUser.role})`);
+    console.log(
+      `  ✅ User:  id=${testUser.id}  ${testUser.email}  (${testUser.role})`,
+    );
+    console.log(
+      `  ✅ Admin: id=${adminUser.id}  ${adminUser.email}  (${adminUser.role})`,
+    );
 
     // Create sessions for both users
     const sessions: { email: string; cookie: string }[] = [];
@@ -83,7 +88,7 @@ async function seed() {
         `INSERT INTO sessions (id, token_hash, user_id, expires_at)
          VALUES ($1, $2, $3, $4)
          ON CONFLICT (id) DO NOTHING`,
-        [sessionId, tokenHash, user.id, expiresAt]
+        [sessionId, tokenHash, user.id, expiresAt],
       );
 
       const cookie = `${sessionId}.${rawToken}`;

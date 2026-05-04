@@ -8,6 +8,9 @@
  *   Default CSV: data/block1-seed.csv
  */
 
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import pg from "pg";

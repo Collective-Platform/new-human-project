@@ -215,7 +215,7 @@ export function TaskDetail({
 
       {/* Footer nav – sits where the bottom nav was, with divider and meta */}
       {task.taskType !== "mood_log" && (
-        <div className="fixed bottom-0 inset-x-0 z-50 mx-auto flex max-w-[375px] items-center justify-between gap-3 border-t border-zinc-200 bg-white px-6 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+        <div className="fixed bottom-0 inset-x-0 z-50 mx-auto flex max-w-93.75 items-center justify-between gap-3 border-t border-zinc-200 bg-white px-6 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
           {hasPrev ? (
             <button
               onClick={handlePrev}
