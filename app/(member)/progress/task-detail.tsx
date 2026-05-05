@@ -132,6 +132,7 @@ export function TaskDetail({
       <div className="flex-1 overflow-y-auto p-4 pb-24">
         {task.taskType === "devotional" && (
           <DevotionalRenderer
+            introMarkdown={getLocalizedString(content.intro_markdown, locale)}
             passageRef={(content.passage_ref as string) ?? ""}
             focus={getLocalizedString(content.focus, locale)}
             readingNotes={getLocalizedString(content.reading_notes, locale)}
@@ -168,6 +169,7 @@ export function TaskDetail({
 
         {task.taskType === "scripture_study" && (
           <ScriptureStudyRenderer
+            introMarkdown={getLocalizedString(content.intro_markdown, locale)}
             title={task.name}
             reference={(content.scripture_reference as string) ?? ""}
             passageText={getLocalizedString(content.scripture_text, locale)}

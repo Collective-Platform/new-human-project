@@ -1,7 +1,4 @@
-"use client";
-
 import { LanguageToggle } from "@/src/i18n/language-toggle";
-import Link from "next/link";
 
 export function AppHeader() {
   return (

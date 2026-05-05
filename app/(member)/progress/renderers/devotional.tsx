@@ -1,8 +1,9 @@
 "use client";
 
-import Markdown from "react-markdown";
+import { MarkdownContent } from "./markdown-content";
 
 export function DevotionalRenderer({
+  introMarkdown,
   passageRef,
   focus,
   readingNotes,
@@ -10,6 +11,7 @@ export function DevotionalRenderer({
   reflection,
   practice,
 }: {
+  introMarkdown?: string;
   passageRef: string;
   focus: string;
   readingNotes: string;
@@ -19,6 +21,14 @@ export function DevotionalRenderer({
 }) {
   return (
     <div className="space-y-6">
+      {introMarkdown && (
+        <div className="rounded-sm bg-zinc-50 p-4">
+          <div className="space-y-2 text-sm leading-relaxed text-foreground/75">
+            <MarkdownContent>{introMarkdown}</MarkdownContent>
+          </div>
+        </div>
+      )}
+
       <p className="font-headline text-lg font-bold text-foreground">
         {passageRef}
       </p>
@@ -34,25 +44,7 @@ export function DevotionalRenderer({
 
       {readingNotes && (
         <div className="space-y-2 text-md leading-relaxed text-foreground">
-          <Markdown
-            components={{
-              p: ({ children }) => <p className="mb-2">{children}</p>,
-              strong: ({ children }) => (
-                <strong className="font-semibold text-foreground/80">
-                  {children}
-                </strong>
-              ),
-              ul: ({ children }) => (
-                <ul className="list-disc pl-4 space-y-1">{children}</ul>
-              ),
-              ol: ({ children }) => (
-                <ol className="list-decimal pl-4 space-y-1">{children}</ol>
-              ),
-              li: ({ children }) => <li>{children}</li>,
-            }}
-          >
-            {readingNotes}
-          </Markdown>
+          <MarkdownContent>{readingNotes}</MarkdownContent>
         </div>
       )}
 

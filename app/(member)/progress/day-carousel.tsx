@@ -34,12 +34,18 @@ export function DayCarousel({
   days,
   selectedDay,
   onSelect,
+  onPrefetch,
   blockStartDate,
   currentDay,
 }: {
   days: DayInfo[];
   selectedDay: number;
   onSelect: (day: number) => void;
+  /**
+   * Fired when the user hovers or touches a day chip — warms the
+   * day's data cache so a subsequent tap resolves instantly. (Task 3.0)
+   */
+  onPrefetch?: (day: number) => void;
   blockStartDate: string;
   currentDay: number;
 }) {
@@ -64,10 +70,17 @@ export function DayCarousel({
           const isSelected = d.day === selectedDay;
           const isToday = d.day === currentDay;
 
+          const warm = () => {
+            if (onPrefetch && d.day !== selectedDay) onPrefetch(d.day);
+          };
+
           return (
             <button
               key={d.day}
               onClick={() => onSelect(d.day)}
+              onMouseEnter={warm}
+              onTouchStart={warm}
+              onFocus={warm}
               className="shrink-0 flex flex-col items-center gap-1.5 group"
             >
               <div

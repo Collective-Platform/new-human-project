@@ -11,7 +11,7 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import pg from "pg";
 
@@ -70,7 +70,7 @@ function buildContent(row: Record<string, string>): Record<string, unknown> {
   const taskType = row.task_type;
 
   if (taskType === "devotional") {
-    return {
+    return withIntroMarkdown(row, {
       passage_ref: row.passage_ref || null,
       focus: buildLocaleObj(row.focus_en, row.focus_zh),
       reading_notes: buildLocaleObj(row.reading_notes_en, row.reading_notes_zh),
@@ -78,7 +78,7 @@ function buildContent(row: Record<string, string>): Record<string, unknown> {
       reflection: buildLocaleObj(row.reflection_en, row.reflection_zh),
       practice: buildLocaleObj(row.practice_en, row.practice_zh),
       xp_weight: parseInt(row.xp_weight) || 2,
-    };
+    });
   }
 
   if (taskType === "scripture_reading") {
@@ -88,8 +88,55 @@ function buildContent(row: Record<string, string>): Record<string, unknown> {
     };
   }
 
+  if (taskType === "scripture_study") {
+    return withIntroMarkdown(row, {
+      scripture_reference: row.scripture_reference || null,
+      scripture_text: buildLocaleObj(
+        row.scripture_text_en,
+        row.scripture_text_zh
+      ),
+      explanation: buildLocaleObj(row.explanation_en, row.explanation_zh),
+      video_url: row.video_url || null,
+      xp_weight: parseInt(row.xp_weight) || 2,
+    });
+  }
+
   // mood_log and exercise have no seeded content
   return {};
+}
+
+function withIntroMarkdown(
+  row: Record<string, string>,
+  content: Record<string, unknown>
+): Record<string, unknown> {
+  const intro = buildLocaleObj(
+    readOptionalTaskContent(row, "intro", "en"),
+    readOptionalTaskContent(row, "intro", "zh")
+  );
+
+  if (!intro) return content;
+
+  return {
+    ...content,
+    intro_markdown: intro,
+  };
+}
+
+function readOptionalTaskContent(
+  row: Record<string, string>,
+  name: string,
+  locale: "en" | "zh"
+): string {
+  const filePath = resolve(
+    "data/task-content-overrides",
+    `block-${row.block}`,
+    `day-${row.day}`,
+    `order-${row.order}`,
+    `${name}.${locale}.md`
+  );
+
+  if (!existsSync(filePath)) return "";
+  return readFileSync(filePath, "utf-8");
 }
 
 function buildLocaleObj(
@@ -119,27 +166,46 @@ async function seed() {
     console.log(`📖 Reading ${rows.length} rows from ${csvPath}\n`);
 
     let inserted = 0;
+    let updated = 0;
     for (const row of rows) {
       const content = buildContent(row);
+      const params = [
+        parseInt(row.block),
+        parseInt(row.day),
+        row.category,
+        row.task_type,
+        row.name,
+        JSON.stringify(content),
+        parseInt(row.order),
+      ];
+
+      const updateResult = await client.query(
+        `UPDATE block_day_tasks
+         SET name = $5, content = $6, updated_at = now()
+         WHERE block_number = $1
+           AND day_number = $2
+           AND category = $3
+           AND task_type = $4
+           AND display_order = $7`,
+        params
+      );
+
+      if (updateResult.rowCount && updateResult.rowCount > 0) {
+        updated += updateResult.rowCount;
+        continue;
+      }
 
       await client.query(
         `INSERT INTO block_day_tasks (id, block_number, day_number, category, task_type, name, content, display_order)
-         VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7)
-         ON CONFLICT DO NOTHING`,
-        [
-          parseInt(row.block),
-          parseInt(row.day),
-          row.category,
-          row.task_type,
-          row.name,
-          JSON.stringify(content),
-          parseInt(row.order),
-        ]
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7)`,
+        params
       );
       inserted++;
     }
 
-    console.log(`  ✅ Inserted ${inserted} tasks into block_day_tasks`);
+    console.log(
+      `  ✅ Synced block_day_tasks (${inserted} inserted, ${updated} updated)`
+    );
 
     // 2.15: Seed Block 1 badge definition
     await client.query(

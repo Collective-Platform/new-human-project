@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { BadgeGrid } from "./badge-grid";
+import NextImage from "next/image";
 
 interface ProfileData {
   user: {
@@ -211,9 +212,12 @@ export function ProfileClient() {
           {/* Avatar with camera button */}
           <div className="relative shrink-0">
             {user.avatarUrl ? (
-              <img
+              <NextImage
                 src={user.avatarUrl}
                 alt={user.displayName ?? ""}
+                width={64}
+                height={64}
+                unoptimized
                 className="h-16 w-16 rounded-full object-cover"
               />
             ) : (

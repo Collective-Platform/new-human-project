@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
@@ -26,29 +26,105 @@ export function ProgressClient({
   );
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
 
-  async function fetchDay(day: number) {
-    const res = await fetch(`/api/progress?day=${day}`);
-    if (res.ok) {
-      const d: ProgressData = await res.json();
-      setData(d);
-    }
+  // Intent-based prefetch cache for day data. (Task 3.0)
+  // Hovering / touching a day chip warms this cache so the subsequent
+  // tap can resolve from memory instead of waiting on a round-trip.
+  // This is intentionally a small ad-hoc cache that will be replaced
+  // by TanStack Query in Task 4.0 — keep the surface minimal.
+  const dayCacheRef = useRef<Map<number, ProgressData>>(
+    new Map([[initialData.selectedDay, initialData]]),
+  );
+  const inFlightRef = useRef<Map<number, Promise<ProgressData | null>>>(
+    new Map(),
+  );
+
+  async function loadDay(day: number): Promise<ProgressData | null> {
+    const cached = dayCacheRef.current.get(day);
+    if (cached) return cached;
+
+    const existing = inFlightRef.current.get(day);
+    if (existing) return existing;
+
+    const promise = (async () => {
+      try {
+        const res = await fetch(`/api/progress?day=${day}`);
+        if (!res.ok) return null;
+        const d: ProgressData = await res.json();
+        dayCacheRef.current.set(day, d);
+        return d;
+      } finally {
+        inFlightRef.current.delete(day);
+      }
+    })();
+    inFlightRef.current.set(day, promise);
+    return promise;
   }
+
+  // Fire-and-forget warm-up — no UI change, just primes the cache.
+  function prefetchDay(day: number) {
+    if (dayCacheRef.current.has(day) || inFlightRef.current.has(day)) return;
+    void loadDay(day);
+  }
+
+  async function fetchDay(day: number) {
+    const d = await loadDay(day);
+    if (d) setData(d);
+  }
+
+  // Warm the immediate neighbors of the current day on mount so the most
+  // common "peek at yesterday/tomorrow" path is instant. Runs once after
+  // hydration via requestIdleCallback so it doesn't compete with paint.
+  // Bounded to [1, 25] and skips the already-cached current day. (Task 3.0)
+  useEffect(() => {
+    const neighbors = [
+      initialData.currentDay - 1,
+      initialData.currentDay + 1,
+    ].filter((d) => d >= 1 && d <= 25);
+
+    const idle =
+      typeof window !== "undefined" &&
+      "requestIdleCallback" in window
+        ? (window as Window).requestIdleCallback
+        : null;
+
+    const handle =
+      idle != null
+        ? idle(() => neighbors.forEach(prefetchDay))
+        : window.setTimeout(() => neighbors.forEach(prefetchDay), 200);
+
+    return () => {
+      if (idle != null && "cancelIdleCallback" in window) {
+        (window as Window).cancelIdleCallback(handle as number);
+      } else {
+        clearTimeout(handle as number);
+      }
+    };
+    // Mount-only; prefetchDay is stable (only writes to refs).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Optimistically apply a patch to a single task in local state, then run
   // a fetch in the background. If the request fails, roll back to the
   // previous task snapshot. We never await fetchDay here — UI flips first,
   // server reconciles second. (Task 1.0 of tasks-perf-improvements.md)
+  // Also patches the prefetch cache (Task 3.0) so navigating away and back
+  // doesn't restore stale completion state from the cache.
   function applyTaskPatch(taskId: string, patch: Partial<TaskData>) {
-    setData((prev) =>
-      prev
-        ? {
-            ...prev,
-            tasks: prev.tasks.map((t) =>
-              t.id === taskId ? { ...t, ...patch } : t,
-            ),
-          }
-        : prev,
-    );
+    setData((prev) => ({
+      ...prev,
+      tasks: prev.tasks.map((t) =>
+        t.id === taskId ? { ...t, ...patch } : t,
+      ),
+    }));
+    const cached = dayCacheRef.current.get(selectedDay);
+    if (cached) {
+      dayCacheRef.current.set(selectedDay, {
+        ...cached,
+        tasks: cached.tasks.map((t) =>
+          t.id === taskId ? { ...t, ...patch } : t,
+        ),
+      });
+    }
   }
 
   async function handleComplete(
@@ -149,6 +225,7 @@ export function ProgressClient({
         days={data.carousel}
         selectedDay={selectedDay}
         onSelect={handleDaySelect}
+        onPrefetch={prefetchDay}
         blockStartDate={data.blockStartDate}
         currentDay={data.currentDay}
       />
