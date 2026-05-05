@@ -58,17 +58,15 @@ export function TaskDetail({
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < categoryTasks.length - 1;
 
-  const handleNext = useCallback(async () => {
-    setLoading(true);
-    try {
-      await onComplete(task.id);
-      if (hasNext) {
-        onNavigate(categoryTasks[currentIndex + 1]);
-      } else {
-        onClose();
-      }
-    } finally {
-      setLoading(false);
+  const handleNext = useCallback(() => {
+    // Fire-and-forget: parent applies the optimistic completion patch
+    // synchronously before awaiting the network. We navigate in the same
+    // frame so the user sees the next task instantly. (Task 1.4)
+    void onComplete(task.id);
+    if (hasNext) {
+      onNavigate(categoryTasks[currentIndex + 1]);
+    } else {
+      onClose();
     }
   }, [
     onComplete,

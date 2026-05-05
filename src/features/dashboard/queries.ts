@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
 import { blockDayTasks, taskCompletions } from "@/src/db/schema";
-import { and, eq, sql, desc, gte, lt } from "drizzle-orm";
+import { and, eq, sql, desc, gte } from "drizzle-orm";
 
 export function getCurrentDay(onboardedAt: Date): number {
   const msPerDay = 86_400_000;
@@ -121,16 +121,23 @@ export async function getStreak(userId: number): Promise<number> {
 export async function getActivityCalendar(
   userId: number,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
+  onboardedAt: Date
 ): Promise<{ date: string; categories: string[] }[]> {
   const result = await db.execute(sql`
-    SELECT tc.completed_at::date AS d, array_agg(DISTINCT bdt.category) AS categories
-    FROM nhp.task_completions tc
-    JOIN nhp.block_day_tasks bdt ON tc.task_id = bdt.id
-    WHERE tc.user_id = ${userId}
-      AND tc.completed_at >= ${startDate}
-      AND tc.completed_at < ${endDate}
-    GROUP BY tc.completed_at::date
+    WITH assigned_completions AS (
+      SELECT
+        (${onboardedAt}::timestamptz + ((bdt.day_number - 1) * interval '1 day'))::date AS assigned_date,
+        bdt.category
+      FROM nhp.task_completions tc
+      JOIN nhp.block_day_tasks bdt ON tc.task_id = bdt.id
+      WHERE tc.user_id = ${userId}
+    )
+    SELECT assigned_date AS d, array_agg(DISTINCT category) AS categories
+    FROM assigned_completions
+    WHERE assigned_date >= ${startDate}::date
+      AND assigned_date < ${endDate}::date
+    GROUP BY assigned_date
     ORDER BY d
   `);
 
@@ -164,26 +171,30 @@ export async function getRecentCompletions(
     .limit(limit);
 }
 
-export async function getDayCompletions(userId: number, date: Date) {
-  const nextDay = new Date(date);
-  nextDay.setDate(nextDay.getDate() + 1);
-
-  return db
-    .select({
-      completedAt: taskCompletions.completedAt,
-      category: blockDayTasks.category,
-      name: blockDayTasks.name,
-      taskType: blockDayTasks.taskType,
-      data: taskCompletions.data,
-    })
-    .from(taskCompletions)
-    .innerJoin(blockDayTasks, eq(taskCompletions.taskId, blockDayTasks.id))
-    .where(
-      and(
-        eq(taskCompletions.userId, userId),
-        gte(taskCompletions.completedAt, date),
-        lt(taskCompletions.completedAt, nextDay)
-      )
-    )
-    .orderBy(blockDayTasks.displayOrder);
+export async function getDayCompletions(
+  userId: number,
+  date: Date,
+  onboardedAt: Date
+) {
+  return db.execute(sql`
+    SELECT
+      tc.completed_at AS "completedAt",
+      bdt.category,
+      bdt.name,
+      bdt.task_type AS "taskType",
+      tc.data
+    FROM nhp.task_completions tc
+    JOIN nhp.block_day_tasks bdt ON tc.task_id = bdt.id
+    WHERE tc.user_id = ${userId}
+      AND (${onboardedAt}::timestamptz + ((bdt.day_number - 1) * interval '1 day'))::date = ${date}::date
+    ORDER BY bdt.display_order
+  `).then((result) =>
+    result.rows as {
+      completedAt: Date;
+      category: string;
+      name: string;
+      taskType: string;
+      data: unknown;
+    }[]
+  );
 }

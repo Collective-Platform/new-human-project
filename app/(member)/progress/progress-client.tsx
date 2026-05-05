@@ -1,41 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
 import { TaskDetail } from "./task-detail";
+import type { ProgressPayload } from "@/src/features/progress";
 
-interface TaskData {
-  id: string;
-  category: string;
-  taskType: string;
-  name: string;
-  content: Record<string, unknown> | null;
-  completed: boolean;
-  completionData: Record<string, unknown> | null;
-}
+type TaskData = ProgressPayload["tasks"][number];
+type ProgressData = ProgressPayload;
 
-interface CarouselDay {
-  day: number;
-  reachable: boolean;
-  fullyCompleted: boolean;
-}
-
-interface ProgressData {
-  blockNumber: number;
-  currentDay: number;
-  selectedDay: number;
-  blockStartDate: string;
-  missedDays: number;
-  carousel: CarouselDay[];
-  tasks: TaskData[];
-}
-
-export function ProgressClient({ locale }: { locale: string }) {
+export function ProgressClient({
+  locale,
+  initialData,
+}: {
+  locale: string;
+  initialData: ProgressData;
+}) {
   const t = useTranslations("progress");
-  const [data, setData] = useState<ProgressData | null>(null);
-  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  // Seeded from server-rendered payload — first paint shows real content,
+  // no initial-load spinner. (Task 2.0 of tasks-perf-improvements.md)
+  const [data, setData] = useState<ProgressData>(initialData);
+  const [selectedDay, setSelectedDay] = useState<number>(
+    initialData.selectedDay,
+  );
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
 
   async function fetchDay(day: number) {
@@ -46,57 +34,81 @@ export function ProgressClient({ locale }: { locale: string }) {
     }
   }
 
-  // Initial load (and re-load when locale changes so prefetched
-  // scripture passages match the active language)
-  useEffect(() => {
-    let cancelled = false;
-    async function init() {
-      const day = selectedDay !== null ? `?day=${selectedDay}` : "";
-      const res = await fetch(`/api/progress${day}`);
-      if (res.ok && !cancelled) {
-        const d: ProgressData = await res.json();
-        setData(d);
-        if (selectedDay === null) setSelectedDay(d.currentDay);
-      }
-    }
-    init();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
+  // Optimistically apply a patch to a single task in local state, then run
+  // a fetch in the background. If the request fails, roll back to the
+  // previous task snapshot. We never await fetchDay here — UI flips first,
+  // server reconciles second. (Task 1.0 of tasks-perf-improvements.md)
+  function applyTaskPatch(taskId: string, patch: Partial<TaskData>) {
+    setData((prev) =>
+      prev
+        ? {
+            ...prev,
+            tasks: prev.tasks.map((t) =>
+              t.id === taskId ? { ...t, ...patch } : t,
+            ),
+          }
+        : prev,
+    );
+  }
 
   async function handleComplete(
     taskId: string,
     taskData?: Record<string, unknown>,
   ) {
-    const res = await fetch("/api/tasks/complete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ taskId, data: taskData }),
+    const previous = data.tasks.find((t) => t.id === taskId);
+    if (!previous) return;
+
+    // Optimistic: mark complete immediately so Next/checkbox feel instant.
+    applyTaskPatch(taskId, {
+      completed: true,
+      completionData: taskData ?? previous.completionData,
     });
 
-    if (res.ok && selectedDay !== null) {
-      await fetchDay(selectedDay);
+    // Background write — no await, no full-day refetch.
+    try {
+      const res = await fetch("/api/tasks/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ taskId, data: taskData }),
+      });
+      if (!res.ok) {
+        // Rollback to the snapshot we captured before flipping.
+        applyTaskPatch(taskId, {
+          completed: previous.completed,
+          completionData: previous.completionData,
+        });
+      }
+    } catch {
+      applyTaskPatch(taskId, {
+        completed: previous.completed,
+        completionData: previous.completionData,
+      });
     }
   }
 
   async function handleToggleComplete(taskId: string) {
-    const task = data?.tasks.find((t) => t.id === taskId);
-    if (!task) return;
+    const previous = data.tasks.find((t) => t.id === taskId);
+    if (!previous) return;
 
-    const url = task.completed
+    const nextCompleted = !previous.completed;
+    const url = previous.completed
       ? "/api/tasks/uncomplete"
       : "/api/tasks/complete";
 
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ taskId }),
-    });
+    // Optimistic flip: checkbox updates within the same frame as the tap.
+    applyTaskPatch(taskId, { completed: nextCompleted });
 
-    if (res.ok && selectedDay !== null) {
-      await fetchDay(selectedDay);
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ taskId }),
+      });
+      if (!res.ok) {
+        applyTaskPatch(taskId, { completed: previous.completed });
+      }
+    } catch {
+      applyTaskPatch(taskId, { completed: previous.completed });
     }
   }
 
@@ -104,14 +116,6 @@ export function ProgressClient({ locale }: { locale: string }) {
     setSelectedDay(day);
     setActiveTask(null);
     await fetchDay(day);
-  }
-
-  if (!data) {
-    return (
-      <div className="flex justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
   }
 
   if (activeTask) {
@@ -126,11 +130,12 @@ export function ProgressClient({ locale }: { locale: string }) {
         task={current}
         locale={locale}
         blockNumber={data.blockNumber}
-        dayNumber={selectedDay ?? data.currentDay}
+        dayNumber={selectedDay}
         onComplete={handleComplete}
         onClose={() => {
+          // No refetch on close — local optimistic state already reflects
+          // the latest completion status. (Task 1.5 of perf improvements)
           setActiveTask(null);
-          if (selectedDay !== null) fetchDay(selectedDay);
         }}
         categoryTasks={categoryTasks}
         onNavigate={(t) => setActiveTask(t)}
@@ -142,7 +147,7 @@ export function ProgressClient({ locale }: { locale: string }) {
     <div className="px-4 pt-4">
       <DayCarousel
         days={data.carousel}
-        selectedDay={selectedDay ?? data.currentDay}
+        selectedDay={selectedDay}
         onSelect={handleDaySelect}
         blockStartDate={data.blockStartDate}
         currentDay={data.currentDay}
@@ -150,7 +155,7 @@ export function ProgressClient({ locale }: { locale: string }) {
 
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-extrabold tracking-tight text-foreground font-['Plus_Jakarta_Sans']">
-          {t("dayLabel", { day: selectedDay ?? data.currentDay })} of 25
+          {t("dayLabel", { day: selectedDay })} of 25
         </h2>
         {data.missedDays > 0 ? (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">

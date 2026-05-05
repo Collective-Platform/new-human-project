@@ -38,7 +38,7 @@ export async function GET(request: Request) {
       getRadarChartData(user.id, blockNumber, daysElapsed),
       getBlockGrid(user.id, blockNumber, currentDay),
       getStreak(user.id),
-      getActivityCalendar(user.id, startDate, endDate),
+      getActivityCalendar(user.id, startDate, endDate, user.onboardedAt),
       getRecentCompletions(user.id, 10, startDate),
       getNewlyEarnedBadge(user.id, blockNumber),
       hasCompletedBlock(user.id, blockNumber),

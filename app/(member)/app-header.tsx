@@ -9,18 +9,7 @@ export function AppHeader() {
       <div className="mx-auto flex max-w-93.75 items-center justify-between px-4 py-3">
         <div className="flex items-center font-bold text-xl">Rhythm</div>
 
-        <div className="flex items-center gap-2">
-          <LanguageToggle />
-          <Link
-            href="/profile"
-            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-zinc-100 transition-colors"
-            aria-label="Settings"
-          >
-            <span className="material-symbols-outlined text-[22px] text-zinc-600">
-              settings
-            </span>
-          </Link>
-        </div>
+        <LanguageToggle />
       </div>
     </header>
   );

@@ -16,13 +16,14 @@ export default async function CalendarDayPage({
 }) {
   const user = await getSessionUser();
   if (!user) redirect("/login");
+  if (!user.onboardedAt) redirect("/");
 
   const { date: dateStr } = await params;
   const date = new Date(dateStr + "T00:00:00");
 
   if (isNaN(date.getTime())) redirect("/");
 
-  const completions = await getDayCompletions(user.id, date);
+  const completions = await getDayCompletions(user.id, date, user.onboardedAt);
 
   const formatted = date.toLocaleDateString("en-US", {
     weekday: "long",
