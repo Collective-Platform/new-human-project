@@ -43,6 +43,7 @@ export async function getIncomingRequests(userId: number) {
       fr.id AS request_id,
       u.id AS user_id,
       u.display_name,
+      u.search_handle,
       u.avatar_url,
       fr.created_at
     FROM nhp.friend_requests fr
@@ -56,6 +57,7 @@ export async function getIncomingRequests(userId: number) {
     request_id: string;
     user_id: number;
     display_name: string | null;
+    search_handle: string | null;
     avatar_url: string | null;
     created_at: string;
   }[];

@@ -19,6 +19,7 @@ interface FriendRequest {
   requestId: string;
   userId: number;
   displayName: string | null;
+  searchHandle: string | null;
   avatarUrl: string | null;
   createdAt: string;
 }

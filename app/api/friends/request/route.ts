@@ -19,7 +19,9 @@ export async function POST(request: Request) {
 
   // Send push notification to receiver for new requests
   if (result) {
-    const senderName = user.displayName ?? "Someone";
+    const senderName = user.searchHandle
+      ? `@${user.searchHandle}`
+      : user.displayName ?? "Someone";
     sendPushToUser(
       receiverId,
       {

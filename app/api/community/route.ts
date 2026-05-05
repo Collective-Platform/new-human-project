@@ -30,6 +30,7 @@ export async function GET() {
       requestId: r.request_id,
       userId: r.user_id,
       displayName: r.display_name,
+      searchHandle: r.search_handle,
       avatarUrl: r.avatar_url,
       createdAt: r.created_at,
     })),
