@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 interface Friend {
   id: number;
   displayName: string | null;
+  searchHandle: string | null;
   avatarUrl: string | null;
   lastActivity: string | null;
 }
@@ -62,24 +63,30 @@ export function FriendsList({ friends }: { friends: Friend[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {friends.map((friend) => (
-        <div
-          key={friend.id}
-          className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
-        >
-          <Avatar url={friend.avatarUrl} name={friend.displayName} />
-          <div className="flex-1 min-w-0">
-            <p className="truncate font-headline text-sm font-bold text-on-surface">
-              {friend.displayName ?? "User"}
-            </p>
-            {friend.lastActivity && (
-              <p className="text-xs text-on-surface-variant mt-0.5">
-                {t("completed")} · {relativeTime(friend.lastActivity)}
+      {friends.map((friend) => {
+        const friendName = friend.searchHandle
+          ? `@${friend.searchHandle}`
+          : friend.displayName ?? "User";
+
+        return (
+          <div
+            key={friend.id}
+            className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
+          >
+            <Avatar url={friend.avatarUrl} name={friendName} />
+            <div className="flex-1 min-w-0">
+              <p className="truncate font-headline text-sm font-bold text-on-surface">
+                {friendName}
               </p>
-            )}
+              {friend.lastActivity && (
+                <p className="text-xs text-on-surface-variant mt-0.5">
+                  {t("completed")} · {relativeTime(friend.lastActivity)}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

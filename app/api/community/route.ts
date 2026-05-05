@@ -23,6 +23,7 @@ export async function GET() {
     friends: friends.map((f) => ({
       id: f.id,
       displayName: f.display_name,
+      searchHandle: f.search_handle,
       avatarUrl: f.avatar_url,
       lastActivity: f.last_activity,
     })),
@@ -37,6 +38,7 @@ export async function GET() {
     suggestions: suggestions.map((s) => ({
       id: s.id,
       displayName: s.display_name,
+      searchHandle: s.search_handle,
       avatarUrl: s.avatar_url,
       mutualCount: Number(s.mutual_count),
     })),

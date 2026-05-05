@@ -9,6 +9,7 @@ export async function getFriends(userId: number) {
     SELECT
       u.id,
       u.display_name,
+      u.search_handle,
       u.avatar_url,
       (
         SELECT tc.completed_at
@@ -24,12 +25,13 @@ export async function getFriends(userId: number) {
     END
     WHERE fr.status = 'accepted'
       AND (fr.sender_id = ${userId} OR fr.receiver_id = ${userId})
-    ORDER BY u.display_name
+    ORDER BY u.search_handle, u.display_name
   `);
 
   return result.rows as {
     id: number;
     display_name: string | null;
+    search_handle: string | null;
     avatar_url: string | null;
     last_activity: string | null;
   }[];
@@ -160,7 +162,7 @@ export async function searchUsers(query: string, currentUserId: number) {
 
 export async function getPeopleYouMayKnow(userId: number) {
   const result = await db.execute(sql`
-    SELECT potential.id, potential.display_name, potential.avatar_url,
+    SELECT potential.id, potential.display_name, potential.search_handle, potential.avatar_url,
            COUNT(*) AS mutual_count
     FROM nhp.users potential
     JOIN nhp.friend_requests fr1 ON (potential.id = fr1.sender_id OR potential.id = fr1.receiver_id)
@@ -174,15 +176,16 @@ export async function getPeopleYouMayKnow(userId: number) {
         WHERE status = 'accepted'
           AND (sender_id = ${userId} OR receiver_id = ${userId})
       )
-    GROUP BY potential.id, potential.display_name, potential.avatar_url
+    GROUP BY potential.id, potential.display_name, potential.search_handle, potential.avatar_url
     HAVING COUNT(*) >= 1
-    ORDER BY mutual_count DESC
+    ORDER BY mutual_count DESC, potential.search_handle
     LIMIT 10
   `);
 
   return result.rows as {
     id: number;
     display_name: string | null;
+    search_handle: string | null;
     avatar_url: string | null;
     mutual_count: number;
   }[];

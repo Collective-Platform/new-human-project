@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { FriendsList } from "./friends-list";
 import { AddFriends } from "./add-friends";
 import { FriendRequests } from "./friend-requests";
 import { PeopleYouMayKnow } from "./people-you-may-know";
@@ -11,6 +10,7 @@ import { ActivityFeed } from "./activity-feed";
 interface Friend {
   id: number;
   displayName: string | null;
+  searchHandle: string | null;
   avatarUrl: string | null;
   lastActivity: string | null;
 }
@@ -27,6 +27,7 @@ interface FriendRequest {
 interface Suggestion {
   id: number;
   displayName: string | null;
+  searchHandle: string | null;
   avatarUrl: string | null;
   mutualCount: number;
 }
@@ -47,10 +48,14 @@ interface CommunityData {
   feed: FeedItem[];
 }
 
-export function CommunityClient() {
+export function CommunityClient({
+  initialData,
+}: {
+  initialData: CommunityData;
+}) {
   const t = useTranslations("community");
   const [tab, setTab] = useState<"friends" | "add">("friends");
-  const [data, setData] = useState<CommunityData | null>(null);
+  const [data, setData] = useState<CommunityData>(initialData);
 
   const fetchData = useCallback(async () => {
     const res = await fetch("/api/community");
@@ -58,10 +63,6 @@ export function CommunityClient() {
       setData(await res.json());
     }
   }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   return (
     <div className="max-w-2xl mx-auto px-6 pt-6 pb-8">
@@ -91,13 +92,7 @@ export function CommunityClient() {
         </button>
       </div>
 
-      {!data && (
-        <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
-      )}
-
-      {data && tab === "friends" && (
+      {tab === "friends" && (
         <div className="space-y-4">
           {/* Incoming friend requests */}
           {data.requests.length > 0 && (
@@ -118,14 +113,14 @@ export function CommunityClient() {
           )}
 
           {/* Friends list */}
-          <FriendsList friends={data.friends} />
+          {/* <FriendsList friends={data.friends} /> */}
 
           {/* Activity Feed */}
           <ActivityFeed items={data.feed} />
         </div>
       )}
 
-      {data && tab === "add" && <AddFriends onRequestSent={fetchData} />}
+      {tab === "add" && <AddFriends onRequestSent={fetchData} />}
     </div>
   );
 }
