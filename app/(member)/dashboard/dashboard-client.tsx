@@ -10,6 +10,7 @@ import { RecentFeed } from "./recent-feed";
 import { TimeFilter } from "./time-filter";
 import { BlockCelebration } from "./block-celebration";
 import { BlockEncouragement } from "./block-encouragement";
+import { FoundationCard } from "./foundation-card";
 
 interface EarnedBadge {
   name: string;
@@ -131,6 +132,8 @@ export function DashboardClient({
               }}
             />
           </div>
+
+          <FoundationCard />
 
           <TimeFilter
             value={timeRange}

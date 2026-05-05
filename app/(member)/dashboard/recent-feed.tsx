@@ -12,7 +12,7 @@ function relativeTime(dateStr: string): string {
   return `${days}d ago`;
 }
 
-const categoryDotColor: Record<string, string> = {
+const categoryBarColor: Record<string, string> = {
   Mental: "bg-category-mental",
   Emotional: "bg-category-emotional",
   Physical: "bg-category-physical border border-[#d4c8a0]",
@@ -28,31 +28,42 @@ export function RecentFeed({
   emptyLabel: string;
 }) {
   return (
-    <div className="rounded-md bg-white shadow-card">
-      <p className="px-5 pt-5 pb-2 text-xs font-medium uppercase tracking-wider text-foreground/50">
+    <section className="space-y-4">
+      <h3 className="px-2 font-headline text-xl font-bold text-on-surface">
         {title}
-      </p>
+      </h3>
       {items.length === 0 ? (
-        <p className="px-5 pb-5 text-center text-sm text-foreground/50">
+        <p className="rounded-md bg-white p-5 text-center text-sm text-on-surface-variant shadow-[0_4px_16px_rgba(53,50,47,0.03)]">
           {emptyLabel}
         </p>
       ) : (
-        <div className="divide-y divide-zinc-100">
+        <div className="space-y-3">
           {items.map((item, i) => (
-            <div key={i} className="flex items-center gap-3 px-5 py-3">
+            <div
+              key={i}
+              className="flex items-center gap-4 rounded-md bg-white p-4 shadow-[0_4px_16px_rgba(53,50,47,0.03)] transition-transform active:scale-[0.98]"
+            >
               <span
-                className={`h-2.5 w-2.5 shrink-0 rounded-full ${categoryDotColor[item.category] ?? "bg-zinc-300"}`}
+                className={`h-10 w-1.5 shrink-0 rounded-full ${categoryBarColor[item.category] ?? "bg-zinc-300"}`}
               />
-              <p className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
-                {item.name}
-              </p>
-              <span className="shrink-0 text-xs text-foreground/50">
-                {relativeTime(item.completedAt)}
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-bold text-on-surface">
+                  {item.name}
+                </p>
+                <p className="truncate text-xs font-medium text-on-surface-variant">
+                  {item.category} · {relativeTime(item.completedAt)}
+                </p>
+              </div>
+              <span
+                aria-hidden="true"
+                className="material-symbols-outlined shrink-0 text-[22px] text-outline-variant"
+              >
+                chevron_right
               </span>
             </div>
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
