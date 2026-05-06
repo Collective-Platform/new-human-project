@@ -5,8 +5,6 @@ import { useTranslations } from "next-intl";
 import { getLocalizedString } from "@/src/features/content";
 import { useNavVisibility } from "../nav-visibility";
 import { DevotionalRenderer } from "./renderers/devotional";
-import { ScriptureMemoriseRenderer } from "./renderers/scripture-memorise";
-import { ScriptureStudyRenderer } from "./renderers/scripture-study";
 import { MoodLogRenderer } from "./renderers/mood-log";
 import { BilingualPassage } from "./renderers/bilingual-passage";
 
@@ -158,30 +156,6 @@ export function TaskDetail({
               />
             </div>
           </div>
-        )}
-
-        {task.taskType === "scripture_memorise" && (
-          <ScriptureMemoriseRenderer
-            reference={(content.memory_verse_reference as string) ?? ""}
-            verseText={getLocalizedString(content.memory_verse_text, locale)}
-          />
-        )}
-
-        {task.taskType === "scripture_study" && (
-          <ScriptureStudyRenderer
-            introMarkdown={getLocalizedString(content.intro_markdown, locale)}
-            title={task.name}
-            reference={(content.scripture_reference as string) ?? ""}
-            passageText={getLocalizedString(content.scripture_text, locale)}
-            prefetchedPassage={
-              (content.prefetched_passage as {
-                reference: string;
-                content: string;
-              } | null) ?? null
-            }
-            explanation={getLocalizedString(content.explanation, locale)}
-            videoUrl={(content.video_url as string) ?? ""}
-          />
         )}
 
         {task.taskType === "mood_log" && (
