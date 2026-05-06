@@ -7,6 +7,8 @@ import Link from "next/link";
 interface MoodEntry {
   completedAt: string;
   data: {
+    mood?: string;
+    moods?: string[];
     emoji?: string;
     rating?: number;
     influences?: string[];
@@ -22,9 +24,16 @@ const emojiMap: Record<number, string> = {
   5: "😄",
 };
 
+const moodEmojiMap: Record<string, string> = {
+  terrible: "😡",
+  bad: "☹️",
+  okay: "😐",
+  good: "☺️",
+  excellent: "😆",
+};
+
 export function MoodHistoryClient() {
   const t = useTranslations("profile");
-  const tMood = useTranslations("mood");
   const [entries, setEntries] = useState<MoodEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -67,7 +76,16 @@ export function MoodHistoryClient() {
         <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
           {entries.map((entry, i) => {
             const data = entry.data;
-            const emoji = data?.emoji ?? (data?.rating ? emojiMap[data.rating] : "😐");
+            const moodEmojis =
+              data?.moods
+                ?.map((mood) => moodEmojiMap[mood])
+                .filter(Boolean)
+                .join("") ??
+              (data?.mood ? moodEmojiMap[data.mood] : undefined);
+            const emoji =
+              moodEmojis ??
+              data?.emoji ??
+              (data?.rating ? emojiMap[data.rating] : "😐");
             const date = new Date(entry.completedAt);
 
             return (
