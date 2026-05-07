@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { mutate } from "swr";
 import { useTranslations } from "next-intl";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
@@ -47,7 +48,9 @@ export function ProgressClient({
 
     const promise = (async () => {
       try {
-        const res = await fetch(`/api/progress?day=${day}`);
+        const res = await fetch(`/api/progress?day=${day}`, {
+          cache: "no-store",
+        });
         if (!res.ok) return null;
         const d: ProgressData = await res.json();
         dayCacheRef.current.set(day, d);
@@ -112,17 +115,31 @@ export function ProgressClient({
   function applyTaskPatch(taskId: string, patch: Partial<TaskData>) {
     setData((prev) => ({
       ...prev,
-      tasks: prev.tasks.map((t) =>
-        t.id === taskId ? { ...t, ...patch } : t,
-      ),
+      tasks: prev.tasks.map((t) => {
+        if (t.id !== taskId) return t;
+        // Merge completionData rather than overwrite so concurrent autosaves
+        // (practice + reflection firing in the same debounce window) accumulate
+        // both fields. The updater form of setData applies patches sequentially,
+        // so the second patch sees the first patch's output as `t.completionData`.
+        const completionData =
+          patch.completionData !== undefined
+            ? { ...(t.completionData ?? {}), ...patch.completionData }
+            : t.completionData;
+        return { ...t, ...patch, completionData };
+      }),
     }));
     const cached = dayCacheRef.current.get(selectedDay);
     if (cached) {
       dayCacheRef.current.set(selectedDay, {
         ...cached,
-        tasks: cached.tasks.map((t) =>
-          t.id === taskId ? { ...t, ...patch } : t,
-        ),
+        tasks: cached.tasks.map((t) => {
+          if (t.id !== taskId) return t;
+          const completionData =
+            patch.completionData !== undefined
+              ? { ...(t.completionData ?? {}), ...patch.completionData }
+              : t.completionData;
+          return { ...t, ...patch, completionData };
+        }),
       });
     }
   }
@@ -140,12 +157,16 @@ export function ProgressClient({
       completionData: taskData ?? previous.completionData,
     });
 
-    // Background write — no await, no full-day refetch.
+    // Background write — no await, no full-day refetch. When Next is clicked
+    // after reflection autosave, preserve the existing completion data
+    // instead of sending undefined and overwriting the row with `{}`.
+    const completionData = taskData ?? previous.completionData ?? {};
     try {
       const res = await fetch("/api/tasks/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ taskId, data: taskData }),
+        cache: "no-store",
+        body: JSON.stringify({ taskId, data: completionData }),
       });
       if (!res.ok) {
         // Rollback to the snapshot we captured before flipping.
@@ -153,6 +174,12 @@ export function ProgressClient({
           completed: previous.completed,
           completionData: previous.completionData,
         });
+      } else {
+        // Invalidate the dashboard cache so the activity calendar and radar
+        // chart reflect this completion the next time the home tab is visited.
+        void mutate(
+          (key) => typeof key === "string" && key.startsWith("/api/dashboard"),
+        );
       }
     } catch {
       applyTaskPatch(taskId, {
@@ -182,6 +209,10 @@ export function ProgressClient({
       });
       if (!res.ok) {
         applyTaskPatch(taskId, { completed: previous.completed });
+      } else {
+        void mutate(
+          (key) => typeof key === "string" && key.startsWith("/api/dashboard"),
+        );
       }
     } catch {
       applyTaskPatch(taskId, { completed: previous.completed });

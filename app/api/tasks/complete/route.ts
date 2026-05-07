@@ -1,12 +1,15 @@
+import { revalidateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
 import { db } from "@/src/db";
 import {
+  blockDayTasks,
   taskCompletions,
   memberBlockCompletions,
   badgeDefinitions,
   memberBadges,
 } from "@/src/db/schema";
 import { eq, and, sql } from "drizzle-orm";
+import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 
 export async function POST(request: Request) {
   const user = await getSessionUser();
@@ -35,26 +38,45 @@ export async function POST(request: Request) {
     .onConflictDoUpdate({
       target: [taskCompletions.userId, taskCompletions.taskId],
       set: {
-        data: data ?? {},
+        // Merge incoming fields into the existing JSONB rather than
+        // overwriting, so concurrent autosaves (practice + reflection) don't
+        // race and clobber each other.
+        data: sql`COALESCE(${taskCompletions.data}, '{}') || ${JSON.stringify(data ?? {})}::jsonb`,
         completedAt: new Date(),
       },
     });
 
-  // Check block completion: has user completed at least 1 task in each category?
-  const categoryCheck = await db.execute(sql`
-    SELECT COUNT(DISTINCT bdt.category)::int AS cat_count
-    FROM nhp.task_completions tc
-    JOIN nhp.block_day_tasks bdt ON tc.task_id = bdt.id
-    WHERE tc.user_id = ${user.id}
-      AND bdt.block_number = 1
-  `);
+  // Block completion check: ≥ 3 categories completed in block 1.
+  //
+  // The legacy SQL JOINed `task_completions.task_id` against
+  // `block_day_tasks.id` to look up a category. Now that some tasks live
+  // in the markdown registry (no DB row), we resolve the category in
+  // application code: load the user's completions, then look up each id
+  // in the registry first and the DB second.
+  const completions = await db
+    .select({ taskId: taskCompletions.taskId })
+    .from(taskCompletions)
+    .where(eq(taskCompletions.userId, user.id));
 
-  const catCount = Number(
-    (categoryCheck.rows[0] as { cat_count: number })?.cat_count ?? 0,
-  );
+  const dbTasks = await db
+    .select({ id: blockDayTasks.id, category: blockDayTasks.category })
+    .from(blockDayTasks)
+    .where(eq(blockDayTasks.blockNumber, 1));
+  const dbCategoryById = new Map(dbTasks.map((t) => [t.id, t.category]));
+
+  const completedCategories = new Set<string>();
+  for (const c of completions) {
+    const fromRegistry = getRegistryTaskById(c.taskId);
+    if (fromRegistry && fromRegistry.block === 1) {
+      completedCategories.add(fromRegistry.category);
+      continue;
+    }
+    const fromDb = dbCategoryById.get(c.taskId);
+    if (fromDb) completedCategories.add(fromDb);
+  }
 
   let blockCompleted = false;
-  if (catCount >= 3) {
+  if (completedCategories.size >= 3) {
     // Check if block completion already recorded
     const existing = await db
       .select()
@@ -94,6 +116,8 @@ export async function POST(request: Request) {
       blockCompleted = true;
     }
   }
+
+  revalidateTag("progress", { expire: 0 });
 
   return Response.json({ success: true, blockCompleted });
 }

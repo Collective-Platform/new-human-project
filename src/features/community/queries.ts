@@ -1,6 +1,8 @@
 import { db } from "@/src/db";
-import { friendRequests } from "@/src/db/schema";
+import { friendRequests, blockDayTasks } from "@/src/db/schema";
 import { eq, and, sql } from "drizzle-orm";
+import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
+import { getLocalizedString } from "@/src/features/content";
 
 // --- Friends list (accepted) ---
 
@@ -194,6 +196,8 @@ export async function getPeopleYouMayKnow(userId: number) {
 // --- Activity feed (friends' recent completions) ---
 
 export async function getActivityFeed(userId: number) {
+  // Fetch completions with user info but without the task JOIN — registry tasks
+  // (ULID ids) have no row in block_day_tasks so a direct JOIN drops them.
   const result = await db.execute(sql`
     WITH friend_ids AS (
       SELECT CASE
@@ -204,9 +208,8 @@ export async function getActivityFeed(userId: number) {
       WHERE status = 'accepted'
         AND (sender_id = ${userId} OR receiver_id = ${userId})
     )
-    SELECT u.display_name, u.search_handle, u.avatar_url, t.category, t.name AS activity, tc.completed_at
+    SELECT u.display_name, u.search_handle, u.avatar_url, tc.task_id, tc.completed_at
     FROM nhp.task_completions tc
-    JOIN nhp.block_day_tasks t ON tc.task_id = t.id
     JOIN nhp.users u ON tc.user_id = u.id
     WHERE (
         tc.user_id = ${userId}
@@ -219,12 +222,46 @@ export async function getActivityFeed(userId: number) {
     LIMIT 50
   `);
 
-  return result.rows as {
+  const rows = result.rows as {
     display_name: string | null;
     search_handle: string | null;
     avatar_url: string | null;
-    category: string;
-    activity: string;
+    task_id: string;
     completed_at: string;
   }[];
+
+  if (rows.length === 0) return [];
+
+  // Load all block 1 DB tasks for fallback lookup — same pattern as progress/queries.ts.
+  const dbTaskRows = await db
+    .select({ id: blockDayTasks.id, category: blockDayTasks.category, name: blockDayTasks.name })
+    .from(blockDayTasks)
+    .where(eq(blockDayTasks.blockNumber, 1));
+  const dbTaskMap = new Map(dbTaskRows.map((t) => [t.id, t]));
+
+  return rows.flatMap((row) => {
+    const fromRegistry = getRegistryTaskById(row.task_id);
+    if (fromRegistry) {
+      return [{
+        display_name: row.display_name,
+        search_handle: row.search_handle,
+        avatar_url: row.avatar_url,
+        category: fromRegistry.category,
+        activity: getLocalizedString(fromRegistry.name, "en"),
+        completed_at: row.completed_at,
+      }];
+    }
+    const fromDb = dbTaskMap.get(row.task_id);
+    if (fromDb) {
+      return [{
+        display_name: row.display_name,
+        search_handle: row.search_handle,
+        avatar_url: row.avatar_url,
+        category: fromDb.category,
+        activity: fromDb.name,
+        completed_at: row.completed_at,
+      }];
+    }
+    return [];
+  });
 }

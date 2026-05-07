@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
+import { getCurrentDay } from "@/src/features/dashboard";
 import { getProgressForUser } from "@/src/features/progress";
 
 export async function GET(request: Request) {
@@ -17,12 +18,17 @@ export async function GET(request: Request) {
   const cookieStore = await cookies();
   const locale = cookieStore.get("locale")?.value === "zh" ? "zh" : "en";
 
+  const currentDay = getCurrentDay(user.onboardedAt);
+
   const payload = await getProgressForUser(
     user.id,
     user.onboardedAt,
     requestedDayParam,
     locale,
+    currentDay,
   );
 
-  return Response.json(payload);
+  return Response.json(payload, {
+    headers: { "Cache-Control": "no-store" },
+  });
 }

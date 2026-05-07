@@ -1,7 +1,7 @@
 import { getSessionUser } from "@/src/features/auth";
 import { db } from "@/src/db";
 import { taskCompletions, blockDayTasks } from "@/src/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 export async function GET() {
   const user = await getSessionUser();
@@ -15,7 +15,10 @@ export async function GET() {
       data: taskCompletions.data,
     })
     .from(taskCompletions)
-    .innerJoin(blockDayTasks, eq(taskCompletions.taskId, blockDayTasks.id))
+    .innerJoin(
+      blockDayTasks,
+      sql`${taskCompletions.taskId} = ${blockDayTasks.id}::text`
+    )
     .where(
       and(
         eq(taskCompletions.userId, user.id),

@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { getLocalizedString } from "@/src/features/content";
+import type { ProgramTask } from "@/src/features/content/program";
 import { useNavVisibility } from "../nav-visibility";
 import { DevotionalRenderer } from "./renderers/devotional";
 import { MoodLogRenderer } from "./renderers/mood-log";
 import { BilingualPassage } from "./renderers/bilingual-passage";
+import { SectionedContentRenderer } from "./renderers/sectioned-content";
 
 interface TaskData {
   id: string;
@@ -16,6 +18,12 @@ interface TaskData {
   content: Record<string, unknown> | null;
   completed: boolean;
   completionData: Record<string, unknown> | null;
+  // Registry-only fields. When `body` is present the task came from the
+  // markdown program registry and is rendered with SectionedContentRenderer.
+  body?: string;
+  passageRef?: string;
+  scriptureRef?: string;
+  inputs?: string[];
 }
 
 const EMPTY_CONTENT: Record<string, unknown> = {};
@@ -107,7 +115,54 @@ export function TaskDetail({
     ],
   );
 
+  // Reflection-input autosave from SectionedContentRenderer. Merges the new
+  // section text into the existing completion data (so typing in
+  // "Reflection" doesn't clobber what the user typed in
+  // "Today's Practice") and forwards to the same /api/tasks/complete path
+  // as the Next button. The endpoint already does ON CONFLICT DO UPDATE on
+  // (user_id, task_id) so repeated saves are safe.
+  const handleSaveReflection = useCallback(
+    async (slug: string, text: string) => {
+      const merged = {
+        ...(task.completionData ?? {}),
+        [slug]: text,
+      };
+      await onComplete(task.id, merged);
+    },
+    [onComplete, task.id, task.completionData],
+  );
+
   const content = task.content ?? EMPTY_CONTENT;
+  // Feature switch: tasks loaded from the markdown program registry carry
+  // a `body` field. Those render through the generic
+  // SectionedContentRenderer; legacy DB tasks fall back to the
+  // type-specific renderers below.
+  const isRegistrySectioned =
+    typeof task.body === "string" &&
+    (task.taskType === "devotional" ||
+      task.taskType === "info" ||
+      task.taskType === "scripture_study");
+
+  // Reconstruct the minimal ProgramTask shape SectionedContentRenderer
+  // expects. The renderer only reads frontmatter-shaped fields plus body;
+  // we don't need the full filePath / category / etc. round-trip from the
+  // registry.
+  const programTask: ProgramTask | null = isRegistrySectioned
+    ? {
+        id: task.id,
+        block: blockNumber,
+        day: dayNumber,
+        order: 0,
+        category: task.category as ProgramTask["category"],
+        type: task.taskType as ProgramTask["type"],
+        name: task.name,
+        passageRef: task.passageRef,
+        scriptureRef: task.scriptureRef,
+        inputs: task.inputs,
+        body: task.body ?? "",
+        filePath: "",
+      }
+    : null;
 
   return (
     <div className="fixed inset-0 z-50 mx-auto flex max-w-93.75 flex-col bg-surface">
@@ -128,7 +183,16 @@ export function TaskDetail({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 pb-24">
-        {task.taskType === "devotional" && (
+        {isRegistrySectioned && programTask && (
+          <SectionedContentRenderer
+            task={programTask}
+            locale={locale}
+            completionData={task.completionData}
+            onSaveReflection={handleSaveReflection}
+          />
+        )}
+
+        {!isRegistrySectioned && task.taskType === "devotional" && (
           <DevotionalRenderer
             introMarkdown={getLocalizedString(content.intro_markdown, locale)}
             passageRef={(content.passage_ref as string) ?? ""}

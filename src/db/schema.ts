@@ -148,9 +148,13 @@ export const taskCompletions = nhp.table(
     userId: integer()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    taskId: uuid()
-      .notNull()
-      .references(() => blockDayTasks.id, { onDelete: "cascade" }),
+    // `task_id` is `text` to hold both legacy UUIDs (string-cast) and the
+    // ULID-prefixed IDs that come from the markdown program registry
+    // (`data/program/**/*.md`). The FK to `block_day_tasks(id)` is
+    // intentionally absent — registry tasks have no DB row, and we tolerate
+    // orphaned completions when content is retired.
+    // See docs/design/001-content-as-markdown.md.
+    taskId: text().notNull(),
     data: jsonb(),
     completedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },

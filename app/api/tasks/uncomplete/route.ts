@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
 import { db } from "@/src/db";
 import { taskCompletions } from "@/src/db/schema";
@@ -24,6 +25,8 @@ export async function POST(request: Request) {
         eq(taskCompletions.taskId, taskId),
       ),
     );
+
+  revalidateTag("progress", { expire: 0 });
 
   return Response.json({ success: true });
 }

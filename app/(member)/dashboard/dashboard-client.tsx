@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useSWR from "swr";
 import { useTranslations } from "next-intl";
 import { VerseCard } from "./verse-card";
 import { RadarChart } from "./radar-chart";
@@ -31,6 +32,12 @@ interface DashboardData {
   blockEndedWithoutCompletion: boolean;
 }
 
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error("dashboard fetch failed");
+    return r.json();
+  });
+
 export function DashboardClient({
   verse,
 }: {
@@ -39,44 +46,28 @@ export function DashboardClient({
   const t = useTranslations("dashboard");
   const tp = useTranslations("progress");
   const [timeRange, setTimeRange] = useState<"7" | "30">("7");
-  const [data, setData] = useState<DashboardData | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const { data } = useSWR<DashboardData>(
+    `/api/dashboard?days=${timeRange}`,
+    fetcher,
+    {
+      // Don't refetch just because the window regained focus.
+      revalidateOnFocus: false,
+      // Deduplicate rapid requests within 60s (e.g. quick tab switches
+      // with no mutations in between). Invalidated explicitly after task
+      // completion via mutate() in progress-client.tsx.
+      dedupingInterval: 60_000,
+    },
+  );
 
-    (async () => {
-      const res = await fetch(`/api/dashboard?days=${timeRange}`);
-      if (cancelled || !res.ok) return;
-
-      const json: DashboardData = await res.json();
-      if (cancelled) return;
-
-      setData(json);
-
-      // Badge system is on hold — celebration and encouragement overlays
-      // are temporarily disabled until the badge design is finalized.
-      // Code is preserved intentionally; do not delete.
-      // if (json.earnedBadge) {
-      //   const seenKey = `badge-seen-${json.earnedBadge.blockNumber}`;
-      //   if (!localStorage.getItem(seenKey)) {
-      //     setShowCelebration(true);
-      //   }
-      // }
-      //
-      // if (json.blockEndedWithoutCompletion && !json.earnedBadge) {
-      //   const dismissKey = "block-encourage-dismissed-1";
-      //   if (!localStorage.getItem(dismissKey)) {
-      //     setShowEncouragement(true);
-      //   }
-      // }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [timeRange]);
+  // Badge system is on hold — celebration and encouragement overlays
+  // are temporarily disabled until the badge design is finalized.
+  // Code is preserved intentionally; do not delete.
+  // To re-enable: add a useEffect([data]) here that checks
+  // data?.earnedBadge and data?.blockEndedWithoutCompletion,
+  // then calls setShowCelebration / setShowEncouragement accordingly.
 
   const now = new Date();
 

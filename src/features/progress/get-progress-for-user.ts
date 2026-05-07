@@ -1,4 +1,4 @@
-import { getCurrentDay } from "@/src/features/dashboard";
+import { unstable_cache } from "next/cache";
 import { getPassageForLocale } from "@/src/features/bible";
 import {
   getDayTasks,
@@ -15,6 +15,14 @@ export interface ProgressTask {
   content: Record<string, unknown> | null;
   completed: boolean;
   completionData: Record<string, unknown> | null;
+  // Registry-only fields. Set when the task came from the markdown program
+  // registry (`data/program/**/*.md`). The renderer uses presence of `body`
+  // as the feature switch to mount SectionedContentRenderer instead of the
+  // legacy DevotionalRenderer.
+  body?: string;
+  passageRef?: string;
+  scriptureRef?: string;
+  inputs?: string[];
 }
 
 export interface ProgressCarouselDay {
@@ -33,28 +41,21 @@ export interface ProgressPayload {
   tasks: ProgressTask[];
 }
 
-/**
- * Pure data-loading function for the member's progress view. Used by both
- * the GET /api/progress route handler and the (member)/progress Server
- * Component, so the page can server-render its initial paint without
- * making an HTTP round-trip to its own API.
- *
- * Mirrors the previous behavior of app/api/progress/route.ts exactly.
- */
-export async function getProgressForUser(
+async function getProgressForUserImpl(
   userId: number,
   onboardedAt: Date,
   requestedDayParam: number | null,
   locale: "en" | "zh",
+  currentDay: number,
 ): Promise<ProgressPayload> {
-  const currentDay = getCurrentDay(onboardedAt);
+
   const requestedDay = Math.min(
     Math.max(requestedDayParam ?? currentDay, 1),
     25,
   );
 
   const blockNumber = 1;
-  const tasks = await getDayTasks(blockNumber, requestedDay);
+  const tasks = await getDayTasks(blockNumber, requestedDay, locale);
   const taskIds = tasks.map((t) => t.id);
   const completedMap = await getUserCompletions(userId, taskIds);
 
@@ -80,20 +81,27 @@ export async function getProgressForUser(
   const enrichedTasks: ProgressTask[] = await Promise.all(
     tasks.map(async (t) => {
       let content = t.content as Record<string, unknown> | null;
+
+      // Resolve the scripture reference from either source: DB tasks store
+      // it in the `content` jsonb under `scripture_reference`; registry
+      // tasks declare it in frontmatter as `scriptureRef`.
+      const scriptureRef =
+        t.scriptureRef ??
+        (typeof content?.scripture_reference === "string"
+          ? (content.scripture_reference as string)
+          : undefined);
+
       if (
         (t.taskType === "scripture_reading" ||
           t.taskType === "scripture_study") &&
-        content &&
-        typeof content.scripture_reference === "string"
+        scriptureRef
       ) {
-        const ref = content.scripture_reference as string;
-        const passage = await getPassageForLocale(ref, locale);
-        if (passage) {
-          content = {
-            ...content,
-            prefetched_passage: passage,
-          };
-        }
+        const passage = await getPassageForLocale(scriptureRef, locale);
+        content = {
+          ...(content ?? {}),
+          scripture_reference: scriptureRef,
+          ...(passage ? { prefetched_passage: passage } : {}),
+        };
       }
       return {
         id: t.id,
@@ -103,6 +111,10 @@ export async function getProgressForUser(
         content,
         completed: completedMap.has(t.id),
         completionData: completedMap.get(t.id) ?? null,
+        body: t.body,
+        passageRef: t.passageRef,
+        scriptureRef: t.scriptureRef,
+        inputs: t.inputs,
       };
     }),
   );
@@ -117,3 +129,23 @@ export async function getProgressForUser(
     tasks: enrichedTasks,
   };
 }
+
+/**
+ * Cached wrapper for the member's progress view. Results are keyed by all
+ * arguments and tagged `progress:{userId}` for on-demand invalidation.
+ *
+ * Call `revalidateTag('progress:${userId}', { expire: 0 })` from any route
+ * handler that writes to `task_completions` for that user.
+ *
+ * `currentDay` must be computed by the caller (via `getCurrentDay`) and
+ * passed explicitly so the function stays deterministic inside the cache.
+ *
+ * Note: `unstable_cache` will be replaced by the `use cache` directive once
+ * the root layout is migrated to the PPR model (requires `cacheComponents:
+ * true` and Suspense-wrapped i18n setup).
+ */
+export const getProgressForUser = unstable_cache(
+  getProgressForUserImpl,
+  ["getProgressForUser"],
+  { tags: ["progress"], revalidate: 60 },
+) as typeof getProgressForUserImpl;
