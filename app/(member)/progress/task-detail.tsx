@@ -2,10 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { getLocalizedString } from "@/src/features/content";
 import type { ProgramTask } from "@/src/features/content/program";
 import { useNavVisibility } from "../nav-visibility";
-import { DevotionalRenderer } from "./renderers/devotional";
 import { MoodLogRenderer } from "./renderers/mood-log";
 import { BilingualPassage } from "./renderers/bilingual-passage";
 import { SectionedContentRenderer } from "./renderers/sectioned-content";
@@ -133,10 +131,6 @@ export function TaskDetail({
   );
 
   const content = task.content ?? EMPTY_CONTENT;
-  // Feature switch: tasks loaded from the markdown program registry carry
-  // a `body` field. Those render through the generic
-  // SectionedContentRenderer; legacy DB tasks fall back to the
-  // type-specific renderers below.
   const isRegistrySectioned =
     typeof task.body === "string" &&
     (task.taskType === "devotional" ||
@@ -189,18 +183,6 @@ export function TaskDetail({
             locale={locale}
             completionData={task.completionData}
             onSaveReflection={handleSaveReflection}
-          />
-        )}
-
-        {!isRegistrySectioned && task.taskType === "devotional" && (
-          <DevotionalRenderer
-            introMarkdown={getLocalizedString(content.intro_markdown, locale)}
-            passageRef={(content.passage_ref as string) ?? ""}
-            focus={getLocalizedString(content.focus, locale)}
-            readingNotes={getLocalizedString(content.reading_notes, locale)}
-            keyIdea={getLocalizedString(content.key_idea, locale)}
-            reflection={getLocalizedString(content.reflection, locale)}
-            practice={getLocalizedString(content.practice, locale)}
           />
         )}
 
