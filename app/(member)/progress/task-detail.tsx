@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { ProgramTask } from "@/src/features/content/program";
 import { useNavVisibility } from "../nav-visibility";
 import { MoodLogRenderer } from "./renderers/mood-log";
@@ -166,9 +167,7 @@ export function TaskDetail({
           onClick={onClose}
           className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-zinc-100"
         >
-          <span className="material-symbols-outlined text-[20px]">
-            arrow_back
-          </span>
+          <ArrowLeft size={20} />
         </button>
         <h2 className="flex-1 font-headline text-base font-semibold truncate">
           {task.name}
@@ -242,9 +241,7 @@ export function TaskDetail({
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 active:scale-95 transition-all"
               aria-label="Previous task"
             >
-              <span className="material-symbols-outlined text-[20px] text-foreground">
-                arrow_back
-              </span>
+              <ArrowLeft size={20} className="text-foreground" />
             </button>
           ) : (
             <div className="h-11 w-11 shrink-0" />
@@ -268,9 +265,7 @@ export function TaskDetail({
             {loading ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
-              <span className="material-symbols-outlined text-[20px]">
-                arrow_forward
-              </span>
+              <ArrowRight size={20} />
             )}
           </button>
         </div>

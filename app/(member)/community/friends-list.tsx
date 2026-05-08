@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { User } from "lucide-react";
 
 interface Friend {
   id: number;
@@ -32,9 +33,7 @@ function Avatar({
   }
   return (
     <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
-      <span className="material-symbols-outlined text-on-surface-variant">
-        person
-      </span>
+      <User size={24} className="text-on-surface-variant" />
     </div>
   );
 }

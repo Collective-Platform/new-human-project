@@ -3,15 +3,21 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import { RadarChart } from "./radar-chart";
 import { StreakBadge } from "./streak-badge";
 import { ActivityCalendar } from "./activity-calendar";
 import { RecentFeed } from "./recent-feed";
-import { TimeFilter } from "./time-filter";
-import { BlockCelebration } from "./block-celebration";
-import { BlockEncouragement } from "./block-encouragement";
-import { FoundationCard } from "./foundation-card";
 import type { DashboardData } from "@/src/features/dashboard";
+
+const BlockCelebration = dynamic(
+  () => import("./block-celebration").then((m) => m.BlockCelebration),
+  { ssr: false }
+);
+const BlockEncouragement = dynamic(
+  () => import("./block-encouragement").then((m) => m.BlockEncouragement),
+  { ssr: false }
+);
 
 const fetcher = (url: string) =>
   fetch(url).then((r) => {
@@ -21,17 +27,18 @@ const fetcher = (url: string) =>
 
 export function DashboardClient({
   initialData,
+  children,
 }: {
   initialData: DashboardData;
+  children?: React.ReactNode;
 }) {
   const t = useTranslations("dashboard");
   const tp = useTranslations("progress");
-  const [timeRange, setTimeRange] = useState<"7" | "30">("7");
   const [showCelebration, setShowCelebration] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
 
   const { data: swrData } = useSWR<DashboardData>(
-    `/api/dashboard?days=${timeRange}`,
+    `/api/dashboard`,
     fetcher,
     {
       fallbackData: initialData,
@@ -97,13 +104,7 @@ export function DashboardClient({
         />
       </div>
 
-      <FoundationCard />
-
-      <TimeFilter
-        value={timeRange}
-        onChange={setTimeRange}
-        labels={{ last7: t("last7Days"), last30: t("last30Days") }}
-      />
+      {children}
 
       <ActivityCalendar
         data={data.calendar}

@@ -1,4 +1,4 @@
-"use client";
+import { ChevronRight } from "lucide-react";
 
 function relativeTime(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -50,16 +50,11 @@ export function RecentFeed({
                 <p className="truncate font-bold text-on-surface">
                   {item.name}
                 </p>
-                <p className="truncate text-xs font-medium text-on-surface-variant">
+                <p className="truncate text-xs font-medium text-on-surface-variant" suppressHydrationWarning>
                   {item.category} · {relativeTime(item.completedAt)}
                 </p>
               </div>
-              <span
-                aria-hidden="true"
-                className="material-symbols-outlined shrink-0 text-[22px] text-outline-variant"
-              >
-                chevron_right
-              </span>
+              <ChevronRight size={22} className="shrink-0 text-outline-variant" aria-hidden="true" />
             </div>
           ))}
         </div>

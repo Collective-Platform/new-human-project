@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { getSessionUser } from "@/src/features/auth";
 import { getDayCompletions } from "@/src/features/dashboard";
 
@@ -39,9 +40,7 @@ export default async function CalendarDayPage({
           href="/"
           className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-zinc-100"
         >
-          <span className="material-symbols-outlined text-[20px] text-foreground">
-            arrow_back
-          </span>
+          <ArrowLeft size={20} className="text-foreground" />
         </Link>
         <h1 className="font-headline text-lg font-bold">{formatted}</h1>
       </div>

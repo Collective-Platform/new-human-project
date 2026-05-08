@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Search, User } from "lucide-react";
 
 interface SearchResult {
   id: number;
@@ -57,9 +58,7 @@ export function AddFriends({
     <div className="space-y-4">
       {/* Search input */}
       <div className="relative">
-        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-on-surface-variant">
-          search
-        </span>
+        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
         <input
           type="text"
           value={query}
@@ -97,9 +96,7 @@ export function AddFriends({
                 />
               ) : (
                 <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
-                  <span className="material-symbols-outlined text-on-surface-variant">
-                    person
-                  </span>
+                  <User size={24} className="text-on-surface-variant" />
                 </div>
               )}
               <div className="flex-1 min-w-0">

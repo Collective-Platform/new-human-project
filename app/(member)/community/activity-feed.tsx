@@ -1,6 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import {
+  BookOpenText,
+  Smile,
+  SportShoe,
+  CheckCircle,
+  User,
+  type LucideIcon,
+} from "lucide-react";
 
 interface FeedItem {
   displayName: string | null;
@@ -18,7 +26,7 @@ const categoryStyles: Record<
     badgeText: string;
     iconBg: string;
     accentText: string;
-    icon: string;
+    Icon: LucideIcon;
   }
 > = {
   Mental: {
@@ -26,21 +34,21 @@ const categoryStyles: Record<
     badgeText: "text-on-primary-container",
     iconBg: "bg-primary",
     accentText: "text-primary",
-    icon: "psychology",
+    Icon: BookOpenText,
   },
   Emotional: {
     badgeBg: "bg-secondary-container",
     badgeText: "text-on-secondary-container",
     iconBg: "bg-secondary",
     accentText: "text-secondary",
-    icon: "favorite",
+    Icon: Smile,
   },
   Physical: {
     badgeBg: "bg-tertiary-container",
     badgeText: "text-on-tertiary-fixed-variant",
     iconBg: "bg-tertiary",
     accentText: "text-tertiary",
-    icon: "fitness_center",
+    Icon: SportShoe,
   },
 };
 
@@ -49,7 +57,7 @@ const defaultStyle = {
   badgeText: "text-on-surface-variant",
   iconBg: "bg-on-surface",
   accentText: "text-on-surface",
-  icon: "check_circle",
+  Icon: CheckCircle,
 };
 
 function relativeTime(dateStr: string): string {
@@ -70,6 +78,7 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
     <div className="flex flex-col gap-4">
       {items.map((item, i) => {
         const style = categoryStyles[item.category] ?? defaultStyle;
+        const CategoryIcon = style.Icon;
         const name = item.searchHandle
           ? `@${item.searchHandle}`
           : item.displayName ?? "User";
@@ -90,17 +99,13 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
                 />
               ) : (
                 <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
-                  <span className="material-symbols-outlined text-on-surface-variant">
-                    person
-                  </span>
+                  <User size={24} className="text-on-surface-variant" />
                 </div>
               )}
               <div
                 className={`absolute -bottom-1 -right-1 ${style.iconBg} p-1.5 rounded-full border-4 border-white`}
               >
-                <span className="material-symbols-outlined text-[12px] text-white block">
-                  {style.icon}
-                </span>
+                <CategoryIcon size={12} className="text-white" />
               </div>
             </div>
             <div className="flex-1 min-w-0">

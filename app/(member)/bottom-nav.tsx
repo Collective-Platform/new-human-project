@@ -3,16 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Home, TrendingUp, Users, User, type LucideIcon } from "lucide-react";
 import { useNavVisibility } from "./nav-visibility";
 
-const tabs = [
-  { key: "home" as const, href: "/", icon: "home" },
-  { key: "progress" as const, href: "/progress", icon: "trending_up" },
-  { key: "community" as const, href: "/community", icon: "group" },
-  { key: "profile" as const, href: "/profile", icon: "person" },
+const tabs: { key: "home" | "progress" | "community" | "profile"; href: string; Icon: LucideIcon }[] = [
+  { key: "home", href: "/", Icon: Home },
+  { key: "progress", href: "/progress", Icon: TrendingUp },
+  { key: "community", href: "/community", Icon: Users },
+  { key: "profile", href: "/profile", Icon: User },
 ];
-
-const FILLED_ICON_STYLE = { fontVariationSettings: "'FILL' 1" };
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -31,6 +30,7 @@ export function BottomNav() {
       <div className="mx-auto flex max-w-93.75 items-center justify-around px-4 pt-2 pb-2">
         {tabs.map((tab) => {
           const active = isActive(tab.href);
+          const TabIcon = tab.Icon;
           return (
             <Link
               key={tab.key}
@@ -42,14 +42,10 @@ export function BottomNav() {
                   active ? "bg-primary" : ""
                 }`}
               >
-                <span
-                  className={`material-symbols-outlined text-[22px] ${
-                    active ? "text-white" : "text-zinc-500"
-                  }`}
-                  style={active ? FILLED_ICON_STYLE : undefined}
-                >
-                  {tab.icon}
-                </span>
+                <TabIcon
+                  size={22}
+                  className={active ? "text-white" : "text-zinc-500"}
+                />
               </span>
               <span
                 className={`text-[10px] font-medium ${

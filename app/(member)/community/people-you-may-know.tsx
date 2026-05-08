@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { X } from "lucide-react";
 
 interface Suggestion {
   id: number;
@@ -58,7 +59,7 @@ export function PeopleYouMayKnow({
               onClick={() => handleDismiss(s.id)}
               className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-surface-container-highest rounded-full text-on-surface-variant"
             >
-              <span className="material-symbols-outlined text-sm">close</span>
+              <X size={14} />
             </button>
             {s.avatarUrl ? (
               <Image

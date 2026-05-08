@@ -3,7 +3,7 @@ import { getSessionUser } from "@/src/features/auth";
 import { AppHeader } from "./app-header";
 import { BottomNav } from "./bottom-nav";
 import { NavVisibilityProvider } from "./nav-visibility";
-import { SwRegister } from "./sw-register";
+import { SwRegisterLoader } from "./sw-register-loader";
 
 export default async function MemberLayout({
   children,
@@ -21,7 +21,7 @@ export default async function MemberLayout({
         <main className="flex-1 overflow-y-auto pb-24">{children}</main>
         <BottomNav />
       </NavVisibilityProvider>
-      <SwRegister />
+      <SwRegisterLoader />
     </div>
   );
 }

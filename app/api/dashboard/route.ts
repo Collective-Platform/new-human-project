@@ -18,8 +18,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "Not onboarded" }, { status: 403 });
   }
 
-  const url = new URL(request.url);
-  const days = url.searchParams.get("days") === "30" ? 30 : 7;
+  const days = 30;
 
   const blockNumber = 1;
   const currentDay = getCurrentDay(user.onboardedAt);

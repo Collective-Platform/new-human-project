@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  BookOpenText,
+  Smile,
+  SportShoe,
+  CheckCircle,
+  Circle,
+  ChevronRight,
+  type LucideIcon,
+} from "lucide-react";
+
 interface TaskItem {
   id: string;
   category: string;
@@ -12,22 +22,22 @@ interface TaskItem {
 
 const categoryConfig: Record<
   string,
-  { iconBg: string; iconColor: string; icon: string }
+  { iconBg: string; iconColor: string; Icon: LucideIcon }
 > = {
   Mental: {
     iconBg: "bg-[#ffaca3]",
     iconColor: "text-[#c10014]",
-    icon: "auto_stories",
+    Icon: BookOpenText,
   },
   Emotional: {
     iconBg: "bg-[#d7e2ff]",
     iconColor: "text-[#135db9]",
-    icon: "mood",
+    Icon: Smile,
   },
   Physical: {
     iconBg: "bg-[#fef6e3]",
     iconColor: "text-[#645f50]",
-    icon: "fitness_center",
+    Icon: SportShoe,
   },
 };
 
@@ -54,6 +64,7 @@ export function TaskList({
       {categories.map((cat) => {
         const catTasks = tasks.filter((t) => t.category === cat);
         const config = categoryConfig[cat];
+        const CategoryIcon = config.Icon;
 
         return (
           <section key={cat} className="space-y-3">
@@ -61,11 +72,9 @@ export function TaskList({
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full ${config.iconBg} ${config.iconColor}`}
               >
-                <span className="material-symbols-outlined text-[20px]">
-                  {config.icon}
-                </span>
+                <CategoryIcon size={20} />
               </div>
-              <h3 className="text-xl font-bold font-['Plus_Jakarta_Sans'] text-foreground">
+              <h3 className="text-xl font-bold font-headline text-foreground">
                 {labelMap[cat]}
               </h3>
             </div>
@@ -98,16 +107,12 @@ export function TaskList({
                         }
                       >
                         {task.completed ? (
-                          <span
-                            className="material-symbols-outlined text-[20px] leading-none text-primary"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                          >
-                            check_circle
-                          </span>
+                          <CheckCircle size={20} className="text-primary" />
                         ) : (
-                          <span className="material-symbols-outlined text-[20px] leading-none text-zinc-300 hover:text-primary/80 transition-colors">
-                            circle
-                          </span>
+                          <Circle
+                            size={20}
+                            className="text-zinc-300 hover:text-primary/80 transition-colors"
+                          />
                         )}
                       </button>
                       {isExercise ? (
@@ -126,9 +131,7 @@ export function TaskList({
                           >
                             {task.name}
                           </span>
-                          <span className="material-symbols-outlined text-[18px] text-zinc-400">
-                            chevron_right
-                          </span>
+                          <ChevronRight size={18} className="text-zinc-400" />
                         </button>
                       )}
                     </div>

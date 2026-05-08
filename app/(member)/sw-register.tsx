@@ -10,27 +10,34 @@ export function SwRegister() {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
-    // Register service worker
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then(async (registration) => {
-        // Request notification permission
-        if ("Notification" in window && Notification.permission === "default") {
-          const permission = await Notification.requestPermission();
-          if (permission === "granted" && registration.pushManager) {
+    // Defer SW registration to idle time so it never competes with first paint.
+    const register = () => {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then(async (registration) => {
+          if ("Notification" in window && Notification.permission === "default") {
+            const permission = await Notification.requestPermission();
+            if (permission === "granted" && registration.pushManager) {
+              subscribeToPush(registration);
+            }
+          } else if (
+            "Notification" in window &&
+            Notification.permission === "granted" &&
+            registration.pushManager
+          ) {
             subscribeToPush(registration);
           }
-        } else if (
-          "Notification" in window &&
-          Notification.permission === "granted" &&
-          registration.pushManager
-        ) {
-          subscribeToPush(registration);
-        }
-      })
-      .catch(() => {});
+        })
+        .catch(() => {});
+    };
 
-    // Add to Home Screen prompt
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(register);
+    } else {
+      setTimeout(register, 1);
+    }
+
+    // Add to Home Screen prompt — listen immediately, not deferred.
     const handler = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e as BeforeInstallPromptEvent);

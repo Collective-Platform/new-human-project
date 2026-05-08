@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { User } from "lucide-react";
 
 interface FriendRequest {
   requestId: string;
@@ -61,9 +62,7 @@ export function FriendRequests({
               />
             ) : (
               <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
-                <span className="material-symbols-outlined text-on-surface-variant">
-                  person
-                </span>
+                <User size={24} className="text-on-surface-variant" />
               </div>
             )}
             <div className="flex-1 min-w-0">

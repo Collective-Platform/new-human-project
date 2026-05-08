@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { ChevronDown } from "lucide-react";
 import { DayEditor } from "./day-editor";
 
 interface TaskRow {
@@ -86,13 +87,12 @@ export function AdminClient() {
                       {dayTasks.length} tasks
                     </span>
                   </div>
-                  <span
-                    className={`material-symbols-outlined text-[18px] text-foreground/30 transition-transform ${
+                  <ChevronDown
+                    size={18}
+                    className={`text-foreground/30 transition-transform ${
                       isExpanded ? "rotate-180" : ""
                     }`}
-                  >
-                    expand_more
-                  </span>
+                  />
                 </button>
 
                 {isExpanded && (

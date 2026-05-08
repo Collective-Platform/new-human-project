@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { User, Camera, Pencil, Smile, Settings, ChevronRight } from "lucide-react";
 import { BadgeGrid } from "./badge-grid";
 import NextImage from "next/image";
 import type { ProfileData } from "@/src/features/profile/get-profile-for-user";
@@ -193,9 +194,7 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
               />
             ) : (
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-200">
-                <span className="material-symbols-outlined text-[28px] text-zinc-500">
-                  person
-                </span>
+                <User size={28} className="text-zinc-500" />
               </div>
             )}
             <button
@@ -209,9 +208,7 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
               {uploadingAvatar ? (
                 <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
-                <span className="material-symbols-outlined text-[16px]">
-                  photo_camera
-                </span>
+                <Camera size={16} />
               )}
             </button>
             <input
@@ -287,9 +284,7 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
                   title={t("editUsername")}
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-foreground/60 transition-colors hover:bg-zinc-200"
                 >
-                  <span className="material-symbols-outlined text-[16px]">
-                    edit
-                  </span>
+                  <Pencil size={16} />
                 </button>
               </div>
             )}
@@ -318,16 +313,12 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
               className="flex items-center justify-between px-4 py-3.5"
             >
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[20px] text-foreground/50">
-                  mood
-                </span>
+                <Smile size={20} className="text-foreground/50" />
                 <span className="text-sm font-medium text-foreground">
                   {t("moodHistory")}
                 </span>
               </div>
-              <span className="material-symbols-outlined text-[18px] text-foreground/30">
-                chevron_right
-              </span>
+              <ChevronRight size={18} className="text-foreground/30" />
             </Link>
 
             <Link
@@ -335,16 +326,12 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
               className="flex items-center justify-between px-4 py-3.5"
             >
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[20px] text-foreground/50">
-                  settings
-                </span>
+                <Settings size={20} className="text-foreground/50" />
                 <span className="text-sm font-medium text-foreground">
                   Settings
                 </span>
               </div>
-              <span className="material-symbols-outlined text-[18px] text-foreground/30">
-                chevron_right
-              </span>
+              <ChevronRight size={18} className="text-foreground/30" />
             </Link>
           </div>
         )}

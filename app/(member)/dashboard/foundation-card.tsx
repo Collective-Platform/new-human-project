@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 const foundationColors = [
   "bg-[#f8d7da]",
@@ -51,12 +50,7 @@ export function FoundationCard() {
         className="flex w-full items-center justify-center rounded-full bg-primary px-6 py-4 font-bold text-white shadow-lg shadow-red-200 transition-transform active:scale-95"
       >
         Start Journey
-        <span
-          aria-hidden="true"
-          className="material-symbols-outlined ml-2 text-[20px] transition-transform"
-        >
-          chevron_right
-        </span>
+        <ChevronRight size={20} className="ml-2" aria-hidden="true" />
       </Link>
     </section>
   );

@@ -4,6 +4,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
+import {
+  ArrowLeft,
+  Globe,
+  Bell,
+  Clock,
+  UserPlus,
+  Eye,
+  type LucideIcon,
+} from "lucide-react";
 
 interface NotificationPrefs {
   daily_reminder: boolean;
@@ -76,9 +85,7 @@ export function SettingsClient() {
           href="/profile"
           className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-zinc-100"
         >
-          <span className="material-symbols-outlined text-[20px] text-foreground/60">
-            arrow_back
-          </span>
+          <ArrowLeft size={20} className="text-foreground/60" />
         </Link>
         <h1 className="font-headline text-lg font-bold text-foreground">
           Settings
@@ -89,9 +96,7 @@ export function SettingsClient() {
       <div className="rounded-md bg-white shadow-card">
         <div className="flex items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-[20px] text-foreground/50">
-              language
-            </span>
+            <Globe size={20} className="text-foreground/50" />
             <span className="text-sm font-medium text-foreground">
               {t("language")}
             </span>
@@ -114,7 +119,7 @@ export function SettingsClient() {
         </div>
 
         <ToggleRow
-          icon="notifications"
+          Icon={Bell}
           label="Daily Reminders"
           checked={prefs.daily_reminder}
           onChange={(v) => updatePrefs({ ...prefs, daily_reminder: v })}
@@ -123,9 +128,7 @@ export function SettingsClient() {
         {prefs.daily_reminder && (
           <div className="flex items-center justify-between px-4 py-3.5">
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[20px] text-foreground/50">
-                schedule
-              </span>
+              <Clock size={20} className="text-foreground/50" />
               <span className="text-sm font-medium text-foreground">
                 Reminder Time
               </span>
@@ -142,7 +145,7 @@ export function SettingsClient() {
         )}
 
         <ToggleRow
-          icon="person_add"
+          Icon={UserPlus}
           label="Friend Requests"
           checked={prefs.friend_requests}
           onChange={(v) => updatePrefs({ ...prefs, friend_requests: v })}
@@ -157,7 +160,7 @@ export function SettingsClient() {
           </p>
         </div>
         <ToggleRow
-          icon="visibility"
+          Icon={Eye}
           label="Activity visible to friends"
           checked={privacyPublic}
           onChange={updatePrivacy}
@@ -168,12 +171,12 @@ export function SettingsClient() {
 }
 
 function ToggleRow({
-  icon,
+  Icon,
   label,
   checked,
   onChange,
 }: {
-  icon: string;
+  Icon: LucideIcon;
   label: string;
   checked: boolean;
   onChange: (value: boolean) => void;
@@ -181,9 +184,7 @@ function ToggleRow({
   return (
     <div className="flex items-center justify-between px-4 py-3.5">
       <div className="flex items-center gap-3">
-        <span className="material-symbols-outlined text-[20px] text-foreground/50">
-          {icon}
-        </span>
+        <Icon size={20} className="text-foreground/50" />
         <span className="text-sm font-medium text-foreground">{label}</span>
       </div>
       <button

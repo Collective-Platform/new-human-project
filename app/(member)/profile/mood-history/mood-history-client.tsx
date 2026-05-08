@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 interface MoodEntry {
   completedAt: string;
@@ -51,9 +52,7 @@ export function MoodHistoryClient() {
           href="/profile"
           className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-zinc-100"
         >
-          <span className="material-symbols-outlined text-[20px] text-foreground/60">
-            arrow_back
-          </span>
+          <ArrowLeft size={20} className="text-foreground/60" />
         </Link>
         <h1 className="font-headline text-lg font-bold text-foreground">
           {t("moodHistory")}

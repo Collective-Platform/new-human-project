@@ -1,5 +1,3 @@
-"use client";
-
 function pointOnAxis(
   angle: number,
   percentage: number,

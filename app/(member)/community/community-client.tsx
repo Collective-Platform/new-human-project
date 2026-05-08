@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { Users, UserPlus } from "lucide-react";
 import { AddFriends } from "./add-friends";
 import { FriendRequests } from "./friend-requests";
 import { PeopleYouMayKnow } from "./people-you-may-know";
@@ -76,7 +77,7 @@ export function CommunityClient({
               : "border border-outline-variant text-on-surface hover:bg-surface-container"
           }`}
         >
-          <span className="material-symbols-outlined text-xl">group</span>
+          <Users size={20} />
           <span>{t("friends")}</span>
         </button>
         <button
@@ -87,7 +88,7 @@ export function CommunityClient({
               : "border border-outline-variant text-on-surface hover:bg-surface-container"
           }`}
         >
-          <span className="material-symbols-outlined text-xl">person_add</span>
+          <UserPlus size={20} />
           <span>{t("addFriends")}</span>
         </button>
       </div>

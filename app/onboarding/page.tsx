@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { AtSign } from "lucide-react";
 
 const HANDLE_REGEX = /^[a-z0-9_]{3,30}$/;
 
@@ -49,9 +50,7 @@ export default function OnboardingPage() {
     <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
       <div className="space-y-6 max-w-sm w-full">
         <div className="flex items-center justify-center w-20 h-20 mx-auto rounded-full bg-primary/10">
-          <span className="material-symbols-outlined text-[40px] text-primary">
-            alternate_email
-          </span>
+          <AtSign size={40} className="text-primary" />
         </div>
         <h1 className="text-3xl font-bold font-headline text-foreground">
           {t("pickUsernameTitle")}
