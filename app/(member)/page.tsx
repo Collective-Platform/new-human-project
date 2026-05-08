@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
-import { getCurrentDay, getDashboardForUser } from "@/src/features/dashboard";
-import { DashboardClient } from "./dashboard/dashboard-client";
+import { getCurrentDay } from "@/src/features/dashboard";
 import { FoundationCard } from "./dashboard/foundation-card";
+import { DashboardSkeleton } from "./dashboard/dashboard-skeleton";
+import { DashboardData } from "./dashboard/dashboard-data";
 
 export default async function HomePage() {
   const user = await getSessionUser();
@@ -15,11 +17,16 @@ export default async function HomePage() {
     | "en"
     | "zh";
 
-  const initialData = await getDashboardForUser(user.id, user.onboardedAt, 30, locale, currentDay);
-
   return (
-    <DashboardClient initialData={initialData}>
-      <FoundationCard />
-    </DashboardClient>
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardData
+        userId={user.id}
+        onboardedAt={user.onboardedAt}
+        currentDay={currentDay}
+        locale={locale}
+      >
+        <FoundationCard />
+      </DashboardData>
+    </Suspense>
   );
 }

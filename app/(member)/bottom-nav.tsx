@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Home, TrendingUp, Users, User, type LucideIcon } from "lucide-react";
 import { useNavVisibility } from "./nav-visibility";
@@ -15,8 +16,23 @@ const tabs: { key: "home" | "progress" | "community" | "profile"; href: string; 
 
 export function BottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const t = useTranslations("nav");
   const { hidden } = useNavVisibility();
+
+  useEffect(() => {
+    const prefetch = () => {
+      router.prefetch("/progress");
+      router.prefetch("/community");
+      router.prefetch("/profile");
+    };
+    if (typeof requestIdleCallback !== "undefined") {
+      const id = requestIdleCallback(prefetch);
+      return () => cancelIdleCallback(id);
+    }
+    const id = setTimeout(prefetch, 200);
+    return () => clearTimeout(id);
+  }, [router]);
 
   if (hidden) return null;
 
