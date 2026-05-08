@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { db } from "@/src/db";
 import { sessions, users } from "@/src/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -21,7 +22,7 @@ export interface SessionUser {
   onboardedAt: Date | null;
 }
 
-export async function getSessionUser(): Promise<SessionUser | null> {
+async function _getSessionUser(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(SESSION_COOKIE);
 
@@ -37,22 +38,34 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 
   const tokenHash = hashToken(rawToken);
 
-  const sessionRows = await db
-    .select()
+  const rows = await db
+    .select({
+      sessionTokenHash: sessions.tokenHash,
+      sessionExpiresAt: sessions.expiresAt,
+      sessionUpdatedAt: sessions.updatedAt,
+      id: users.id,
+      email: users.email,
+      role: users.role,
+      status: users.status,
+      displayName: users.displayName,
+      searchHandle: users.searchHandle,
+      onboardedAt: users.onboardedAt,
+    })
     .from(sessions)
+    .innerJoin(users, eq(sessions.userId, users.id))
     .where(eq(sessions.id, sessionId))
     .limit(1);
 
-  if (sessionRows.length === 0) return null;
+  if (rows.length === 0) return null;
 
-  const session = sessionRows[0];
+  const row = rows[0];
 
-  if (session.tokenHash !== tokenHash) return null;
-  if (session.expiresAt < new Date()) return null;
+  if (row.sessionTokenHash !== tokenHash) return null;
+  if (row.sessionExpiresAt < new Date()) return null;
 
   const now = Date.now();
-  const timeUntilExpiry = session.expiresAt.getTime() - now;
-  const timeSinceLastWrite = now - session.updatedAt.getTime();
+  const timeUntilExpiry = row.sessionExpiresAt.getTime() - now;
+  const timeSinceLastWrite = now - row.sessionUpdatedAt.getTime();
   if (
     timeUntilExpiry < SLIDING_RENEWAL_MS &&
     timeSinceLastWrite > RENEWAL_WRITE_THROTTLE_MS
@@ -64,24 +77,18 @@ export async function getSessionUser(): Promise<SessionUser | null> {
       .where(eq(sessions.id, sessionId));
   }
 
-  const userRows = await db
-    .select({
-      id: users.id,
-      email: users.email,
-      role: users.role,
-      status: users.status,
-      displayName: users.displayName,
-      searchHandle: users.searchHandle,
-      onboardedAt: users.onboardedAt,
-    })
-    .from(users)
-    .where(eq(users.id, session.userId))
-    .limit(1);
-
-  if (userRows.length === 0) return null;
-
-  return userRows[0];
+  return {
+    id: row.id,
+    email: row.email,
+    role: row.role,
+    status: row.status,
+    displayName: row.displayName,
+    searchHandle: row.searchHandle,
+    onboardedAt: row.onboardedAt,
+  };
 }
+
+export const getSessionUser = cache(_getSessionUser);
 
 export async function createSession(userId: number): Promise<string> {
   const sessionId = generateSessionId();

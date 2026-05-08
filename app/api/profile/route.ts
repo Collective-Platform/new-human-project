@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
 import { db } from "@/src/db";
 import {
@@ -134,6 +135,7 @@ export async function PATCH(request: Request) {
 
   try {
     await db.update(users).set(updates).where(eq(users.id, sessionUser.id));
+    revalidateTag(`profile:${sessionUser.id}`, { expire: 0 });
   } catch (err: unknown) {
     // Postgres unique violation = 23505 (e.g. searchHandle conflict)
     const code =

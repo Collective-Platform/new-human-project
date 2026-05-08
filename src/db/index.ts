@@ -11,6 +11,9 @@ import * as schema from "./schema";
 // https://planetscale.com/docs/postgres/connecting/neon-serverless-driver
 neonConfig.fetchEndpoint = (host) => `https://${host}/sql`;
 neonConfig.useSecureWebSocket = true;
+// pipelineConnect controls WebSocket connection pipelining only — it has no
+// effect on HTTP batch requests (db.batch()). The Neon HTTP driver exposes
+// db.batch([...]) regardless of this setting.
 neonConfig.pipelineConnect = false;
 neonConfig.wsProxy = (host, port) => `${host}/v2?address=${host}:${port}`;
 
@@ -35,8 +38,28 @@ function createDb() {
   }
 
   // Neon HTTP (and any pooled endpoint): pass the URL through unchanged.
+  // The returned NeonHttpDatabase exposes db.batch([query, query, ...]) which
+  // sends all queries in a single HTTP round-trip — use batchOrAll() below.
   const sql = neon(env.DATABASE_URL);
   return drizzleNeonHttp(sql, { schema, casing: "snake_case" });
 }
 
 export const db = createDb();
+
+/**
+ * Send multiple Drizzle query builders in one HTTP call on Neon HTTP (production),
+ * or execute them in parallel via Promise.all on the local node-postgres driver
+ * (which has no batch API).
+ *
+ * Only pass lazy Drizzle query builders (not already-awaited Promises).
+ */
+export async function batchOrAll<T extends readonly PromiseLike<unknown>[]>(
+  queries: [...T]
+): Promise<{ [K in keyof T]: Awaited<T[K]> }> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const anyDb = db as any;
+  if (typeof anyDb.batch === "function") {
+    return anyDb.batch(queries);
+  }
+  return Promise.all(queries) as Promise<{ [K in keyof T]: Awaited<T[K]> }>;
+}

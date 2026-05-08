@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
-import { getCurrentDay, getVerseOfTheDay } from "@/src/features/dashboard";
+import { getCurrentDay, getVerseOfTheDay, getDashboardForUser } from "@/src/features/dashboard";
 import { getLocalizedString } from "@/src/features/content";
 import { DashboardClient } from "./dashboard/dashboard-client";
 
@@ -9,12 +9,16 @@ export default async function HomePage() {
   if (!user?.onboardedAt) return null;
 
   const currentDay = getCurrentDay(user.onboardedAt);
-  const verseTask = await getVerseOfTheDay(1, currentDay);
 
   const store = await cookies();
   const locale = (store.get("locale")?.value === "zh" ? "zh" : "en") as
     | "en"
     | "zh";
+
+  const [verseTask, initialData] = await Promise.all([
+    getVerseOfTheDay(1, currentDay),
+    getDashboardForUser(user.id, user.onboardedAt, 7, locale, currentDay),
+  ]);
 
   let verse: { reference: string; text: string } | null = null;
 
@@ -25,5 +29,5 @@ export default async function HomePage() {
     verse = { reference: ref, text };
   }
 
-  return <DashboardClient verse={verse} />;
+  return <DashboardClient verse={verse} initialData={initialData} />;
 }

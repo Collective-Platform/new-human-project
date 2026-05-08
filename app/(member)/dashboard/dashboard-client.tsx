@@ -12,25 +12,7 @@ import { TimeFilter } from "./time-filter";
 import { BlockCelebration } from "./block-celebration";
 import { BlockEncouragement } from "./block-encouragement";
 import { FoundationCard } from "./foundation-card";
-
-interface EarnedBadge {
-  name: string;
-  description: string | null;
-  iconUrl: string | null;
-  blockNumber: number;
-  earnedAt: string;
-}
-
-interface DashboardData {
-  currentDay: number;
-  radar: { mental: number; emotional: number; physical: number };
-  grid: { day: number; categoriesCompleted: number }[];
-  streak: number;
-  calendar: { date: string; categories: string[] }[];
-  recent: { category: string; name: string; completedAt: string }[];
-  earnedBadge: EarnedBadge | null;
-  blockEndedWithoutCompletion: boolean;
-}
+import type { DashboardData } from "@/src/features/dashboard";
 
 const fetcher = (url: string) =>
   fetch(url).then((r) => {
@@ -40,8 +22,10 @@ const fetcher = (url: string) =>
 
 export function DashboardClient({
   verse,
+  initialData,
 }: {
   verse: { reference: string; text: string } | null;
+  initialData: DashboardData;
 }) {
   const t = useTranslations("dashboard");
   const tp = useTranslations("progress");
@@ -49,10 +33,11 @@ export function DashboardClient({
   const [showCelebration, setShowCelebration] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
 
-  const { data } = useSWR<DashboardData>(
+  const { data: swrData } = useSWR<DashboardData>(
     `/api/dashboard?days=${timeRange}`,
     fetcher,
     {
+      fallbackData: initialData,
       // Don't refetch just because the window regained focus.
       revalidateOnFocus: false,
       // Deduplicate rapid requests within 60s (e.g. quick tab switches
@@ -61,6 +46,7 @@ export function DashboardClient({
       dedupingInterval: 60_000,
     },
   );
+  const data: DashboardData = swrData ?? initialData;
 
   // Badge system is on hold — celebration and encouragement overlays
   // are temporarily disabled until the badge design is finalized.
@@ -105,53 +91,43 @@ export function DashboardClient({
         />
       )}
 
-      {data && (
-        <>
-          <div className="relative">
-            <div className="absolute left-auto top-3 right-3">
-              <StreakBadge count={data.streak} />
-            </div>
-
-            <RadarChart
-              mental={data.radar.mental}
-              emotional={data.radar.emotional}
-              physical={data.radar.physical}
-              labels={{
-                mental: tp("mental"),
-                emotional: tp("emotional"),
-                physical: tp("physical"),
-              }}
-            />
-          </div>
-
-          <FoundationCard />
-
-          <TimeFilter
-            value={timeRange}
-            onChange={setTimeRange}
-            labels={{ last7: t("last7Days"), last30: t("last30Days") }}
-          />
-
-          <ActivityCalendar
-            data={data.calendar}
-            month={now.getMonth()}
-            year={now.getFullYear()}
-            title={t("activityCalendar")}
-          />
-
-          <RecentFeed
-            items={data.recent}
-            title={t("recentLogs")}
-            emptyLabel="No recent activity"
-          />
-        </>
-      )}
-
-      {!data && (
-        <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="relative">
+        <div className="absolute left-auto top-3 right-3">
+          <StreakBadge count={data.streak} />
         </div>
-      )}
+
+        <RadarChart
+          mental={data.radar.mental}
+          emotional={data.radar.emotional}
+          physical={data.radar.physical}
+          labels={{
+            mental: tp("mental"),
+            emotional: tp("emotional"),
+            physical: tp("physical"),
+          }}
+        />
+      </div>
+
+      <FoundationCard />
+
+      <TimeFilter
+        value={timeRange}
+        onChange={setTimeRange}
+        labels={{ last7: t("last7Days"), last30: t("last30Days") }}
+      />
+
+      <ActivityCalendar
+        data={data.calendar}
+        month={now.getMonth()}
+        year={now.getFullYear()}
+        title={t("activityCalendar")}
+      />
+
+      <RecentFeed
+        items={data.recent}
+        title={t("recentLogs")}
+        emptyLabel="No recent activity"
+      />
     </div>
   );
 }

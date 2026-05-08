@@ -37,7 +37,7 @@ export async function getVerseOfTheDay(
 
 // XP weight by task type — mirrors the `xp_weight` column in the legacy seed.
 // Used when resolving Mental XP for registry tasks that have no DB content JSON.
-const XP_WEIGHT_BY_TYPE: Record<string, number> = {
+export const XP_WEIGHT_BY_TYPE: Record<string, number> = {
   devotional: 2,
   scripture_study: 2,
   scripture_reading: 1,
@@ -186,10 +186,17 @@ export async function getActivityCalendar(
   endDate: Date,
   onboardedAt: Date
 ): Promise<{ date: string; categories: string[] }[]> {
+  // Pre-filter completions by completedAt to reduce rows transferred.
+  // JS-side verification still uses the task's assigned date (onboardedAt + dayNumber).
   const completionRows = await db
     .select({ taskId: taskCompletions.taskId })
     .from(taskCompletions)
-    .where(eq(taskCompletions.userId, userId));
+    .where(
+      and(
+        eq(taskCompletions.userId, userId),
+        gte(taskCompletions.completedAt, startDate)
+      )
+    );
 
   if (completionRows.length === 0) return [];
 

@@ -118,6 +118,7 @@ export async function POST(request: Request) {
   }
 
   revalidateTag("progress", { expire: 0 });
+  revalidateTag(`dashboard:${user.id}`, { expire: 0 });
 
   return Response.json({ success: true, blockCompleted });
 }

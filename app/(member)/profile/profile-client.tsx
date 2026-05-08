@@ -6,28 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { BadgeGrid } from "./badge-grid";
 import NextImage from "next/image";
-
-interface ProfileData {
-  user: {
-    email: string;
-    displayName: string | null;
-    searchHandle: string | null;
-    avatarUrl: string | null;
-    notificationPrefs: {
-      daily_reminder: boolean;
-      reminder_time: string;
-      friend_requests: boolean;
-    };
-    privacyPublic: boolean;
-  };
-  badges: {
-    name: string;
-    description: string | null;
-    iconUrl: string | null;
-    blockNumber: number;
-    earnedAt: string;
-  }[];
-}
+import type { ProfileData } from "@/src/features/profile/get-profile-for-user";
 
 const HANDLE_REGEX = /^[a-z0-9_]{3,30}$/;
 
@@ -66,10 +45,10 @@ async function fileToResizedDataUrl(file: File): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.85);
 }
 
-export function ProfileClient() {
+export function ProfileClient({ initialData }: { initialData: ProfileData }) {
   const t = useTranslations("profile");
   const router = useRouter();
-  const [data, setData] = useState<ProfileData | null>(null);
+  const [data, setData] = useState<ProfileData>(initialData);
   const [loggingOut, setLoggingOut] = useState(false);
   const [editingHandle, setEditingHandle] = useState(false);
   const [handleValue, setHandleValue] = useState("");
@@ -192,14 +171,6 @@ export function ProfileClient() {
     } finally {
       setUploadingAvatar(false);
     }
-  }
-
-  if (!data) {
-    return (
-      <div className="flex justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
   }
 
   const { user, badges } = data;

@@ -160,6 +160,8 @@ export const taskCompletions = nhp.table(
   },
   (t) => [
     uniqueIndex("task_completions_user_id_task_id_idx").on(t.userId, t.taskId),
+    // Supports ORDER BY completed_at DESC queries (recent feed, activity calendar pre-filter).
+    index("task_completions_user_completed_at_idx").on(t.userId, t.completedAt),
   ]
 );
 
