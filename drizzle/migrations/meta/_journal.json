@@ -15,6 +15,13 @@
       "when": 1778122514310,
       "tag": "0001_crazy_kat_farrell",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778225362879,
+      "tag": "0002_lethal_millenium_guard",
+      "breakpoints": true
     }
   ]
 }

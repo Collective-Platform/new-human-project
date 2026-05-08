@@ -1,5 +1,5 @@
 import { db } from "@/src/db";
-import { friendRequests, blockDayTasks } from "@/src/db/schema";
+import { friendRequests } from "@/src/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
@@ -232,36 +232,16 @@ export async function getActivityFeed(userId: number) {
 
   if (rows.length === 0) return [];
 
-  // Load all block 1 DB tasks for fallback lookup — same pattern as progress/queries.ts.
-  const dbTaskRows = await db
-    .select({ id: blockDayTasks.id, category: blockDayTasks.category, name: blockDayTasks.name })
-    .from(blockDayTasks)
-    .where(eq(blockDayTasks.blockNumber, 1));
-  const dbTaskMap = new Map(dbTaskRows.map((t) => [t.id, t]));
-
   return rows.flatMap((row) => {
-    const fromRegistry = getRegistryTaskById(row.task_id);
-    if (fromRegistry) {
-      return [{
-        display_name: row.display_name,
-        search_handle: row.search_handle,
-        avatar_url: row.avatar_url,
-        category: fromRegistry.category,
-        activity: getLocalizedString(fromRegistry.name, "en"),
-        completed_at: row.completed_at,
-      }];
-    }
-    const fromDb = dbTaskMap.get(row.task_id);
-    if (fromDb) {
-      return [{
-        display_name: row.display_name,
-        search_handle: row.search_handle,
-        avatar_url: row.avatar_url,
-        category: fromDb.category,
-        activity: fromDb.name,
-        completed_at: row.completed_at,
-      }];
-    }
-    return [];
+    const task = getRegistryTaskById(row.task_id);
+    if (!task) return [];
+    return [{
+      display_name: row.display_name,
+      search_handle: row.search_handle,
+      avatar_url: row.avatar_url,
+      category: task.category,
+      activity: getLocalizedString(task.name, "en"),
+      completed_at: row.completed_at,
+    }];
   });
 }

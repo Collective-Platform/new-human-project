@@ -2,7 +2,6 @@ import { revalidateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
 import { db } from "@/src/db";
 import {
-  blockDayTasks,
   taskCompletions,
   memberBlockCompletions,
   badgeDefinitions,
@@ -58,21 +57,10 @@ export async function POST(request: Request) {
     .from(taskCompletions)
     .where(eq(taskCompletions.userId, user.id));
 
-  const dbTasks = await db
-    .select({ id: blockDayTasks.id, category: blockDayTasks.category })
-    .from(blockDayTasks)
-    .where(eq(blockDayTasks.blockNumber, 1));
-  const dbCategoryById = new Map(dbTasks.map((t) => [t.id, t.category]));
-
   const completedCategories = new Set<string>();
   for (const c of completions) {
-    const fromRegistry = getRegistryTaskById(c.taskId);
-    if (fromRegistry && fromRegistry.block === 1) {
-      completedCategories.add(fromRegistry.category);
-      continue;
-    }
-    const fromDb = dbCategoryById.get(c.taskId);
-    if (fromDb) completedCategories.add(fromDb);
+    const task = getRegistryTaskById(c.taskId);
+    if (task && task.block === 1) completedCategories.add(task.category);
   }
 
   let blockCompleted = false;

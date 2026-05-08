@@ -1,5 +1,5 @@
 import { db } from "@/src/db";
-import { blockDayTasks, taskCompletions } from "@/src/db/schema";
+import { taskCompletions } from "@/src/db/schema";
 import { and, eq, sql, desc, gte } from "drizzle-orm";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
@@ -10,29 +10,6 @@ export function getCurrentDay(onboardedAt: Date): number {
     (Date.now() - onboardedAt.getTime()) / msPerDay
   );
   return Math.min(Math.max(daysElapsed + 1, 1), 25);
-}
-
-export async function getVerseOfTheDay(
-  blockNumber: number,
-  dayNumber: number
-) {
-  const rows = await db
-    .select({
-      id: blockDayTasks.id,
-      name: blockDayTasks.name,
-      content: blockDayTasks.content,
-    })
-    .from(blockDayTasks)
-    .where(
-      and(
-        eq(blockDayTasks.blockNumber, blockNumber),
-        eq(blockDayTasks.dayNumber, dayNumber),
-        eq(blockDayTasks.taskType, "scripture_memorise")
-      )
-    )
-    .limit(1);
-
-  return rows[0] ?? null;
 }
 
 // XP weight by task type — mirrors the `xp_weight` column in the legacy seed.
@@ -59,44 +36,19 @@ export async function getRadarChartData(
 
   if (completionRows.length === 0) return { mental: 0, emotional: 0, physical: 0 };
 
-  const dbTasks = await db
-    .select({
-      id: blockDayTasks.id,
-      category: blockDayTasks.category,
-      taskType: blockDayTasks.taskType,
-      content: blockDayTasks.content,
-    })
-    .from(blockDayTasks)
-    .where(eq(blockDayTasks.blockNumber, blockNumber));
-  const dbTaskMap = new Map(dbTasks.map((t) => [t.id, t]));
-
   let mentalXp = 0;
   let emotionalCount = 0;
   let physicalCount = 0;
 
   for (const row of completionRows) {
-    const fromRegistry = getRegistryTaskById(row.taskId);
-    if (fromRegistry && fromRegistry.block === blockNumber) {
-      if (fromRegistry.category === "Mental") {
-        mentalXp += XP_WEIGHT_BY_TYPE[fromRegistry.type] ?? 1;
-      } else if (fromRegistry.category === "Emotional") {
-        emotionalCount++;
-      } else if (fromRegistry.category === "Physical") {
-        physicalCount++;
-      }
-      continue;
-    }
-
-    const fromDb = dbTaskMap.get(row.taskId);
-    if (fromDb) {
-      if (fromDb.category === "Mental") {
-        const w = (fromDb.content as Record<string, unknown> | null)?.xp_weight;
-        mentalXp += typeof w === "number" ? w : 1;
-      } else if (fromDb.category === "Emotional") {
-        emotionalCount++;
-      } else if (fromDb.category === "Physical") {
-        physicalCount++;
-      }
+    const task = getRegistryTaskById(row.taskId);
+    if (!task || task.block !== blockNumber) continue;
+    if (task.category === "Mental") {
+      mentalXp += XP_WEIGHT_BY_TYPE[task.type] ?? 1;
+    } else if (task.category === "Emotional") {
+      emotionalCount++;
+    } else if (task.category === "Physical") {
+      physicalCount++;
     }
   }
 
@@ -117,36 +69,14 @@ export async function getBlockGrid(
     .from(taskCompletions)
     .where(eq(taskCompletions.userId, userId));
 
-  const dbTasks = await db
-    .select({
-      id: blockDayTasks.id,
-      dayNumber: blockDayTasks.dayNumber,
-      category: blockDayTasks.category,
-    })
-    .from(blockDayTasks)
-    .where(eq(blockDayTasks.blockNumber, blockNumber));
-  const dbTaskMap = new Map(dbTasks.map((t) => [t.id, t]));
-
   // day → distinct categories completed
   const dayCategoryMap = new Map<number, Set<string>>();
 
   for (const row of completionRows) {
-    let dayNumber: number | undefined;
-    let category: string | undefined;
-
-    const fromRegistry = getRegistryTaskById(row.taskId);
-    if (fromRegistry && fromRegistry.block === blockNumber) {
-      dayNumber = fromRegistry.day;
-      category = fromRegistry.category;
-    } else {
-      const fromDb = dbTaskMap.get(row.taskId);
-      if (fromDb) {
-        dayNumber = fromDb.dayNumber;
-        category = fromDb.category;
-      }
-    }
-
-    if (dayNumber === undefined || category === undefined) continue;
+    const task = getRegistryTaskById(row.taskId);
+    if (!task || task.block !== blockNumber) continue;
+    const dayNumber = task.day;
+    const category = task.category;
     const cats = dayCategoryMap.get(dayNumber) ?? new Set<string>();
     cats.add(category);
     dayCategoryMap.set(dayNumber, cats);
@@ -200,15 +130,6 @@ export async function getActivityCalendar(
 
   if (completionRows.length === 0) return [];
 
-  const dbTasks = await db
-    .select({
-      id: blockDayTasks.id,
-      dayNumber: blockDayTasks.dayNumber,
-      category: blockDayTasks.category,
-    })
-    .from(blockDayTasks);
-  const dbTaskMap = new Map(dbTasks.map((t) => [t.id, t]));
-
   const startMs = startDate.getTime();
   const endMs = endDate.getTime();
 
@@ -216,22 +137,10 @@ export async function getActivityCalendar(
   const dateCategories = new Map<string, Set<string>>();
 
   for (const row of completionRows) {
-    let dayNumber: number | undefined;
-    let category: string | undefined;
-
-    const fromRegistry = getRegistryTaskById(row.taskId);
-    if (fromRegistry) {
-      dayNumber = fromRegistry.day;
-      category = fromRegistry.category;
-    } else {
-      const fromDb = dbTaskMap.get(row.taskId);
-      if (fromDb) {
-        dayNumber = fromDb.dayNumber;
-        category = fromDb.category;
-      }
-    }
-
-    if (dayNumber === undefined || category === undefined) continue;
+    const task = getRegistryTaskById(row.taskId);
+    if (!task) continue;
+    const dayNumber = task.day;
+    const category = task.category;
 
     const assigned = new Date(onboardedAt);
     assigned.setDate(assigned.getDate() + dayNumber - 1);
@@ -273,38 +182,15 @@ export async function getRecentCompletions(
 
   if (rows.length === 0) return [];
 
-  // Load all block 1 DB tasks and look up in memory — same pattern as progress/queries.ts.
-  // Avoids the UUID/text array binding issue and is fine for the small task count.
-  const dbTaskRows = await db
-    .select({
-      id: blockDayTasks.id,
-      category: blockDayTasks.category,
-      name: blockDayTasks.name,
-      taskType: blockDayTasks.taskType,
-    })
-    .from(blockDayTasks)
-    .where(eq(blockDayTasks.blockNumber, 1));
-  const dbTaskMap = new Map(dbTaskRows.map((t) => [t.id, t]));
-
   const result: { completedAt: Date; category: string; name: string; taskType: string }[] = [];
   for (const row of rows) {
-    const fromRegistry = getRegistryTaskById(row.taskId);
-    if (fromRegistry) {
+    const task = getRegistryTaskById(row.taskId);
+    if (task) {
       result.push({
         completedAt: row.completedAt,
-        category: fromRegistry.category,
-        name: getLocalizedString(fromRegistry.name, "en"),
-        taskType: fromRegistry.type,
-      });
-      continue;
-    }
-    const fromDb = dbTaskMap.get(row.taskId);
-    if (fromDb) {
-      result.push({
-        completedAt: row.completedAt,
-        category: fromDb.category,
-        name: fromDb.name,
-        taskType: fromDb.taskType,
+        category: task.category,
+        name: getLocalizedString(task.name, "en"),
+        taskType: task.type,
       });
     }
   }
@@ -328,48 +214,18 @@ export async function getDayCompletions(
 
   if (completionRows.length === 0) return [];
 
-  const dbTasks = await db
-    .select({
-      id: blockDayTasks.id,
-      dayNumber: blockDayTasks.dayNumber,
-      category: blockDayTasks.category,
-      name: blockDayTasks.name,
-      taskType: blockDayTasks.taskType,
-      displayOrder: blockDayTasks.displayOrder,
-    })
-    .from(blockDayTasks);
-  const dbTaskMap = new Map(dbTasks.map((t) => [t.id, t]));
-
   const targetDateStr = new Date(date).toISOString().slice(0, 10);
 
   const matched: { completedAt: Date; category: string; name: string; taskType: string; data: unknown; displayOrder: number }[] = [];
 
   for (const row of completionRows) {
-    let dayNumber: number | undefined;
-    let category: string | undefined;
-    let name: string | undefined;
-    let taskType: string | undefined;
-    let displayOrder = 0;
-
-    const fromRegistry = getRegistryTaskById(row.taskId);
-    if (fromRegistry) {
-      dayNumber = fromRegistry.day;
-      category = fromRegistry.category;
-      name = getLocalizedString(fromRegistry.name, "en");
-      taskType = fromRegistry.type;
-      displayOrder = fromRegistry.order;
-    } else {
-      const fromDb = dbTaskMap.get(row.taskId);
-      if (fromDb) {
-        dayNumber = fromDb.dayNumber;
-        category = fromDb.category;
-        name = fromDb.name;
-        taskType = fromDb.taskType;
-        displayOrder = fromDb.displayOrder;
-      }
-    }
-
-    if (dayNumber === undefined || !category || !name || !taskType) continue;
+    const task = getRegistryTaskById(row.taskId);
+    if (!task) continue;
+    const dayNumber = task.day;
+    const category = task.category;
+    const name = getLocalizedString(task.name, "en");
+    const taskType = task.type;
+    const displayOrder = task.order;
 
     const assigned = new Date(onboardedAt);
     assigned.setDate(assigned.getDate() + dayNumber - 1);

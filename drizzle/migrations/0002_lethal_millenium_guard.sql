@@ -1,0 +1,1 @@
+CREATE INDEX "task_completions_user_completed_at_idx" ON "nhp"."task_completions" USING btree ("user_id","completed_at");

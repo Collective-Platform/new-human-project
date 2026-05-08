@@ -1,6 +1,5 @@
 export {
   getCurrentDay,
-  getVerseOfTheDay,
   getRadarChartData,
   getBlockGrid,
   getStreak,

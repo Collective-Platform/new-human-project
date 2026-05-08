@@ -3,7 +3,6 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { useTranslations } from "next-intl";
-import { VerseCard } from "./verse-card";
 import { RadarChart } from "./radar-chart";
 import { StreakBadge } from "./streak-badge";
 import { ActivityCalendar } from "./activity-calendar";
@@ -21,10 +20,8 @@ const fetcher = (url: string) =>
   });
 
 export function DashboardClient({
-  verse,
   initialData,
 }: {
-  verse: { reference: string; text: string } | null;
   initialData: DashboardData;
 }) {
   const t = useTranslations("dashboard");
@@ -70,14 +67,6 @@ export function DashboardClient({
             );
             setShowCelebration(false);
           }}
-        />
-      )}
-
-      {verse && (
-        <VerseCard
-          reference={verse.reference}
-          text={verse.text}
-          label={t("verseOfDay")}
         />
       )}
 

@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
-import { blockDayTasks, taskCompletions } from "@/src/db/schema";
-import { and, eq, asc } from "drizzle-orm";
+import { taskCompletions } from "@/src/db/schema";
+import { eq } from "drizzle-orm";
 import {
   getDayTasks as getRegistryDayTasks,
   getTaskById as getRegistryTaskById,
@@ -44,66 +44,19 @@ export async function getDayTasks(
   locale: "en" | "zh" = "en",
 ): Promise<DayTask[]> {
   const registryTasks = getRegistryDayTasks(blockNumber, dayNumber);
-  const registryTypes = new Set<string>(registryTasks.map((t) => t.type));
-  // The legacy DB uses 'exercise' for Physical tasks; the registry uses type:'info'
-  // with category:'Physical'. Bridge the naming gap during the migration window.
-  if (registryTasks.some((t) => t.type === "info" && t.category === "Physical")) {
-    registryTypes.add("exercise");
-  }
 
-  const dbTasks = await db
-    .select({
-      id: blockDayTasks.id,
-      category: blockDayTasks.category,
-      taskType: blockDayTasks.taskType,
-      name: blockDayTasks.name,
-      content: blockDayTasks.content,
-      displayOrder: blockDayTasks.displayOrder,
-    })
-    .from(blockDayTasks)
-    .where(
-      and(
-        eq(blockDayTasks.blockNumber, blockNumber),
-        eq(blockDayTasks.dayNumber, dayNumber),
-      ),
-    )
-    .orderBy(asc(blockDayTasks.displayOrder));
-
-  const merged: DayTask[] = [];
-
-  for (const t of registryTasks) {
-    merged.push({
-      id: t.id,
-      category: t.category,
-      taskType: t.type,
-      name: getLocalizedString(t.name, locale),
-      // Registry tasks carry their content in `body` + frontmatter; the
-      // legacy `content` jsonb is unused for them.
-      content: null,
-      displayOrder: t.order,
-      body: t.body,
-      passageRef: t.passageRef,
-      scriptureRef: t.scriptureRef,
-      inputs: t.inputs,
-    });
-  }
-
-  for (const t of dbTasks) {
-    // Registry-first: drop DB tasks whose type was already covered by the
-    // registry for this (block, day). Block 1 / Day 1 has unique types so
-    // dedupe-by-type is sufficient for the pilot. If a future day needs
-    // multiple tasks of the same type from mixed sources, switch this to
-    // dedupe by displayOrder.
-    if (registryTypes.has(t.taskType)) continue;
-    merged.push({
-      id: t.id,
-      category: t.category,
-      taskType: t.taskType,
-      name: t.name,
-      content: t.content as Record<string, unknown> | null,
-      displayOrder: t.displayOrder,
-    });
-  }
+  const merged: DayTask[] = registryTasks.map((t) => ({
+    id: t.id,
+    category: t.category,
+    taskType: t.type,
+    name: getLocalizedString(t.name, locale),
+    content: null,
+    displayOrder: t.order,
+    body: t.body,
+    passageRef: t.passageRef,
+    scriptureRef: t.scriptureRef,
+    inputs: t.inputs,
+  }));
 
   merged.sort((a, b) => a.displayOrder - b.displayOrder);
   return merged;
@@ -147,25 +100,7 @@ export async function getDayCompletionStates(
     .from(taskCompletions)
     .where(eq(taskCompletions.userId, userId));
 
-  // Legacy DB path: resolve completed ids against `block_day_tasks` in
-  // application code. `task_completions.task_id` is text now, while legacy
-  // `block_day_tasks.id` is uuid, so avoiding the SQL JOIN sidesteps
-  // UUID/text operator issues during the migration window.
-  const dbTasks = await db
-    .select({ id: blockDayTasks.id, dayNumber: blockDayTasks.dayNumber })
-    .from(blockDayTasks)
-    .where(eq(blockDayTasks.blockNumber, blockNumber));
-  const dbDayById = new Map(dbTasks.map((t) => [t.id, t.dayNumber]));
-
   for (const row of completionRows) {
-    const fromDb = dbDayById.get(row.taskId);
-    if (fromDb) {
-      map.set(fromDb, true);
-      continue;
-    }
-
-    // Registry path: registry IDs never appear in `block_day_tasks`, so
-    // resolve them through the in-memory map.
     const t = getRegistryTaskById(row.taskId);
     if (t && t.block === blockNumber) map.set(t.day, true);
   }
@@ -189,14 +124,7 @@ export async function getFullyCompletedDays(
     .where(eq(taskCompletions.userId, userId));
   const completedIds = new Set(completionRows.map((r) => r.taskId));
 
-  // Pull every (block, day) we know about from both sources.
-  const dbDays = await db
-    .selectDistinct({ dayNumber: blockDayTasks.dayNumber })
-    .from(blockDayTasks)
-    .where(eq(blockDayTasks.blockNumber, blockNumber));
-
-  const days = new Set<number>(dbDays.map((d) => d.dayNumber));
-  // Registry may know about days that aren't in the DB at all.
+  const days = new Set<number>();
   for (let day = 1; day <= 25; day++) {
     if (getRegistryDayTasks(blockNumber, day).length > 0) days.add(day);
   }

@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
-import { getCurrentDay, getVerseOfTheDay, getDashboardForUser } from "@/src/features/dashboard";
-import { getLocalizedString } from "@/src/features/content";
+import { getCurrentDay, getDashboardForUser } from "@/src/features/dashboard";
 import { DashboardClient } from "./dashboard/dashboard-client";
 
 export default async function HomePage() {
@@ -15,19 +14,7 @@ export default async function HomePage() {
     | "en"
     | "zh";
 
-  const [verseTask, initialData] = await Promise.all([
-    getVerseOfTheDay(1, currentDay),
-    getDashboardForUser(user.id, user.onboardedAt, 7, locale, currentDay),
-  ]);
+  const initialData = await getDashboardForUser(user.id, user.onboardedAt, 7, locale, currentDay);
 
-  let verse: { reference: string; text: string } | null = null;
-
-  if (verseTask?.content) {
-    const content = verseTask.content as Record<string, unknown>;
-    const ref = (content.memory_verse_reference as string) ?? "";
-    const text = getLocalizedString(content.memory_verse_text, locale);
-    verse = { reference: ref, text };
-  }
-
-  return <DashboardClient verse={verse} initialData={initialData} />;
+  return <DashboardClient initialData={initialData} />;
 }
