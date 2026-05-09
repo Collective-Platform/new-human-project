@@ -1,22 +1,17 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "@/src/i18n/navigation";
 import type { Locale } from "./locale";
 
-function setLocaleCookie(locale: Locale) {
-  document.cookie = `locale=${locale};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
-}
-
 export function LanguageToggle() {
-  const locale = useLocale();
+  const locale = useLocale() as Locale;
   const router = useRouter();
+  const pathname = usePathname();
 
   function handleToggle() {
-    const next = locale === "en" ? "zh" : "en";
-    localStorage.setItem("locale", next);
-    setLocaleCookie(next);
-    router.refresh();
+    const next: Locale = locale === "en" ? "zh" : "en";
+    router.replace(pathname, { locale: next });
   }
 
   return (

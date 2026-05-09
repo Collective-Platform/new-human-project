@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
   output: "standalone",
   allowedDevOrigins: process.env.DEV_ORIGIN
     ? process.env.DEV_ORIGIN.split(",")

@@ -30,7 +30,6 @@
     "swr": "^2.4.1",
     "ulid": "^3.0.2",
     "web-push": "^3.6.7",
-    "workbox-webpack-plugin": "^7.4.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
