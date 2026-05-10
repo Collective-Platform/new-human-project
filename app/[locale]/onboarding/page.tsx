@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AtSign } from "lucide-react";
+import { completeOnboarding } from "@/src/features/onboarding/actions";
 
 const HANDLE_REGEX = /^[a-z0-9_]{3,30}$/;
 
@@ -25,18 +26,13 @@ export default function OnboardingPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/onboarding/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ searchHandle: normalized }),
-      });
-      if (res.ok) {
+      const result = await completeOnboarding({ searchHandle: normalized });
+      if (!("error" in result)) {
         router.push("/");
         router.refresh();
         return;
       }
-      const data = await res.json().catch(() => ({}));
-      if (res.status === 409 || data?.error === "username_taken") {
+      if (result.error === "username_taken") {
         setError(t("usernameTaken"));
       } else {
         setError(t("usernameInvalid"));

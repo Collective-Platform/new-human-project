@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { mutate } from "swr";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
 import { TaskDetail } from "./task-detail";
 import type { ProgressPayload } from "@/src/features/progress";
+import { completeTask, uncompleteTask } from "@/src/features/tasks/actions";
 
 type TaskData = ProgressPayload["tasks"][number];
 type ProgressData = ProgressPayload;
@@ -18,6 +19,7 @@ export function ProgressClient({
   locale: string;
   initialData: ProgressData;
 }) {
+  const router = useRouter();
   const t = useTranslations("progress");
   // Seeded from server-rendered payload — first paint shows real content,
   // no initial-load spinner. (Task 2.0 of tasks-perf-improvements.md)
@@ -162,24 +164,14 @@ export function ProgressClient({
     // instead of sending undefined and overwriting the row with `{}`.
     const completionData = taskData ?? previous.completionData ?? {};
     try {
-      const res = await fetch("/api/tasks/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        cache: "no-store",
-        body: JSON.stringify({ taskId, data: completionData }),
-      });
-      if (!res.ok) {
-        // Rollback to the snapshot we captured before flipping.
+      const result = await completeTask({ taskId, data: completionData });
+      if ("error" in result) {
         applyTaskPatch(taskId, {
           completed: previous.completed,
           completionData: previous.completionData,
         });
       } else {
-        // Invalidate the dashboard cache so the activity calendar and radar
-        // chart reflect this completion the next time the home tab is visited.
-        void mutate(
-          (key) => typeof key === "string" && key.startsWith("/api/dashboard"),
-        );
+        router.refresh();
       }
     } catch {
       applyTaskPatch(taskId, {
@@ -194,25 +186,18 @@ export function ProgressClient({
     if (!previous) return;
 
     const nextCompleted = !previous.completed;
-    const url = previous.completed
-      ? "/api/tasks/uncomplete"
-      : "/api/tasks/complete";
 
     // Optimistic flip: checkbox updates within the same frame as the tap.
     applyTaskPatch(taskId, { completed: nextCompleted });
 
     try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ taskId }),
-      });
-      if (!res.ok) {
+      const result = previous.completed
+        ? await uncompleteTask({ taskId })
+        : await completeTask({ taskId });
+      if ("error" in result) {
         applyTaskPatch(taskId, { completed: previous.completed });
       } else {
-        void mutate(
-          (key) => typeof key === "string" && key.startsWith("/api/dashboard"),
-        );
+        router.refresh();
       }
     } catch {
       applyTaskPatch(taskId, { completed: previous.completed });

@@ -1,65 +1,89 @@
 import { getSessionUser } from "@/src/features/auth";
 import {
-  getActivityFeed,
-  getFriends,
-  getIncomingRequests,
-  getPeopleYouMayKnow,
+  getFriendIds,
+  getIncomingRequestIds,
+  getSuggestionIds,
+  getActivityFeedRows,
+  getPublicProfile,
 } from "@/src/features/community";
+import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
+import { getLocalizedString } from "@/src/features/content";
 import { CommunityClient } from "./community-client";
-
-function serializeDate(value: unknown) {
-  return value instanceof Date ? value.toISOString() : String(value);
-}
-
-function serializeNullableDate(value: unknown) {
-  if (!value) return null;
-  return serializeDate(value);
-}
 
 export async function CommunityData() {
   const user = await getSessionUser();
   if (!user) return null;
 
-  const [friends, requests, suggestions, feed] = await Promise.all([
-    getFriends(user.id),
-    getIncomingRequests(user.id),
-    getPeopleYouMayKnow(user.id),
-    getActivityFeed(user.id),
+  const [friendIds, requestIds, suggestionIds, feedRows] = await Promise.all([
+    getFriendIds(user.id),
+    getIncomingRequestIds(user.id),
+    getSuggestionIds(user.id),
+    getActivityFeedRows(user.id),
   ]);
+
+  const ids = new Set<number>();
+  for (const f of friendIds) ids.add(f.id);
+  for (const r of requestIds) ids.add(r.senderId);
+  for (const s of suggestionIds) ids.add(s.id);
+  for (const row of feedRows) ids.add(row.userId);
+
+  const profileEntries = await Promise.all(
+    [...ids].map(async (id) => [id, await getPublicProfile(id)] as const)
+  );
+  const profiles = new Map(profileEntries);
 
   return (
     <CommunityClient
       initialData={{
-        friends: friends.map((friend) => ({
-          id: friend.id,
-          displayName: friend.display_name,
-          searchHandle: friend.search_handle,
-          avatarUrl: friend.avatar_url,
-          lastActivity: serializeNullableDate(friend.last_activity),
-        })),
-        requests: requests.map((request) => ({
-          requestId: request.request_id,
-          userId: request.user_id,
-          displayName: request.display_name,
-          searchHandle: request.search_handle,
-          avatarUrl: request.avatar_url,
-          createdAt: serializeDate(request.created_at),
-        })),
-        suggestions: suggestions.map((suggestion) => ({
-          id: suggestion.id,
-          displayName: suggestion.display_name,
-          searchHandle: suggestion.search_handle,
-          avatarUrl: suggestion.avatar_url,
-          mutualCount: Number(suggestion.mutual_count),
-        })),
-        feed: feed.map((item) => ({
-          displayName: item.display_name,
-          searchHandle: item.search_handle,
-          avatarUrl: item.avatar_url,
-          category: item.category,
-          activity: item.activity,
-          completedAt: serializeDate(item.completed_at),
-        })),
+        friends: friendIds.map((f) => {
+          const profile = profiles.get(f.id);
+          return {
+            id: f.id,
+            displayName: profile?.displayName ?? null,
+            searchHandle: profile?.searchHandle ?? null,
+            avatarUrl: profile?.avatarUrl ?? null,
+            lastActivity:
+              f.lastActivityMs != null
+                ? new Date(f.lastActivityMs).toISOString()
+                : null,
+          };
+        }),
+        requests: requestIds.map((r) => {
+          const profile = profiles.get(r.senderId);
+          return {
+            requestId: r.requestId,
+            userId: r.senderId,
+            displayName: profile?.displayName ?? null,
+            searchHandle: profile?.searchHandle ?? null,
+            avatarUrl: profile?.avatarUrl ?? null,
+            createdAt: new Date(r.createdAtMs).toISOString(),
+          };
+        }),
+        suggestions: suggestionIds.map((s) => {
+          const profile = profiles.get(s.id);
+          return {
+            id: s.id,
+            displayName: profile?.displayName ?? null,
+            searchHandle: profile?.searchHandle ?? null,
+            avatarUrl: profile?.avatarUrl ?? null,
+            mutualCount: s.mutualCount,
+          };
+        }),
+        feed: feedRows.flatMap((row) => {
+          const task = getRegistryTaskById(row.taskId);
+          if (!task) return [];
+          const profile = profiles.get(row.userId);
+          return [
+            {
+              displayName: profile?.displayName ?? null,
+              searchHandle: profile?.searchHandle ?? null,
+              avatarUrl: profile?.avatarUrl ?? null,
+              category: task.category,
+              activity: getLocalizedString(task.name, "en"),
+              completedAt: new Date(row.completedAtMs).toISOString(),
+            },
+          ];
+        }),
       }}
     />
   );

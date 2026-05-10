@@ -12,6 +12,7 @@ import {
   Eye,
   type LucideIcon,
 } from "lucide-react";
+import { updateProfile } from "@/src/features/profile/actions";
 
 interface NotificationPrefs {
   daily_reminder: boolean;
@@ -47,20 +48,12 @@ export function SettingsClient() {
 
   async function updatePrefs(updated: NotificationPrefs) {
     setPrefs(updated);
-    await fetch("/api/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ notificationPrefs: updated }),
-    });
+    await updateProfile({ notificationPrefs: updated });
   }
 
   async function updatePrivacy(value: boolean) {
     setPrivacyPublic(value);
-    await fetch("/api/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ privacyPublic: value }),
-    });
+    await updateProfile({ privacyPublic: value });
   }
 
   function handleLanguageToggle() {

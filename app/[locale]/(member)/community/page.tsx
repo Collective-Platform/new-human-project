@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import Loading from "./loading";
 import { CommunityData } from "./community-data";
 
+
 export default async function CommunityPage({
   params,
 }: {

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/src/i18n/navigation";
 import { User, Camera, Pencil, Smile, Settings, ChevronRight } from "lucide-react";
 import { BadgeGrid } from "./badge-grid";
 import NextImage from "next/image";
 import type { ProfileData } from "@/src/features/profile/get-profile-for-user";
+import { updateProfile } from "@/src/features/profile/actions";
 
 const HANDLE_REGEX = /^[a-z0-9_]{3,30}$/;
 
@@ -48,7 +49,6 @@ async function fileToResizedDataUrl(file: File): Promise<string> {
 export function ProfileClient({ initialData }: { initialData: ProfileData }) {
   const t = useTranslations("profile");
   const router = useRouter();
-  const [data, setData] = useState<ProfileData>(initialData);
   const [loggingOut, setLoggingOut] = useState(false);
   const [editingHandle, setEditingHandle] = useState(false);
   const [handleValue, setHandleValue] = useState("");
@@ -57,17 +57,6 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleInputRef = useRef<HTMLInputElement>(null);
-
-  const fetchData = useCallback(async () => {
-    const res = await fetch("/api/profile");
-    if (res.ok) {
-      setData(await res.json());
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   useEffect(() => {
     if (editingHandle && handleInputRef.current) {
@@ -84,7 +73,7 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
   }
 
   function startEditingHandle() {
-    setHandleValue(data?.user.searchHandle ?? "");
+    setHandleValue(initialData?.user.searchHandle ?? "");
     setEditingHandle(true);
     setError(null);
   }
@@ -104,23 +93,18 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
       setError(t("usernameInvalid"));
       return;
     }
-    if (normalized === data?.user.searchHandle) {
+    if (normalized === initialData?.user.searchHandle) {
       setEditingHandle(false);
       return;
     }
     setSavingHandle(true);
     setError(null);
     try {
-      const res = await fetch("/api/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ searchHandle: normalized }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        if (res.status === 409 || body?.error === "username_taken") {
+      const result = await updateProfile({ searchHandle: normalized });
+      if ("error" in result) {
+        if (result.error === "username_taken") {
           setError(t("usernameTaken"));
-        } else if (body?.error === "invalid_username") {
+        } else if (result.error === "invalid_username") {
           setError(t("usernameInvalid"));
         } else {
           setError(t("usernameInvalid"));
@@ -128,7 +112,7 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
         return;
       }
       setEditingHandle(false);
-      await fetchData();
+      router.refresh();
     } finally {
       setSavingHandle(false);
     }
@@ -156,16 +140,11 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
     setError(null);
     try {
       const dataUrl = await fileToResizedDataUrl(file);
-      const res = await fetch("/api/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ avatarUrl: dataUrl }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to upload avatar");
+      const result = await updateProfile({ avatarUrl: dataUrl });
+      if ("error" in result) {
+        throw new Error(result.error ?? "Failed to upload avatar");
       }
-      await fetchData();
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload avatar");
     } finally {
@@ -173,7 +152,7 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
     }
   }
 
-  const { user, badges } = data;
+  const { user, badges } = initialData;
 
   return (
     <div className="flex min-h-full flex-col justify-between space-y-4 px-4 pt-4 pb-4">

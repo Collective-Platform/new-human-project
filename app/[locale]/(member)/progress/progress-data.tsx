@@ -10,7 +10,7 @@ export async function ProgressData({ locale }: { locale: "en" | "zh" }) {
   const currentDay = getCurrentDay(user.onboardedAt);
   const initialData = await getProgressForUser(
     user.id,
-    user.onboardedAt,
+    user.onboardedAt.getTime(),
     null,
     locale,
     currentDay,

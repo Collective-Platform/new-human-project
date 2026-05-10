@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     : [],
   experimental: {
     optimizePackageImports: ["next-intl", "swr"],
+    instantNavigationDevToolsToggle: true,
   },
 };
 

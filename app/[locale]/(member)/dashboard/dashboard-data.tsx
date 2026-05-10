@@ -14,7 +14,7 @@ export async function DashboardData({
   const currentDay = getCurrentDay(user.onboardedAt);
   const initialData = await getDashboardForUser(
     user.id,
-    user.onboardedAt,
+    user.onboardedAt.getTime(),
     30,
     locale,
     currentDay,

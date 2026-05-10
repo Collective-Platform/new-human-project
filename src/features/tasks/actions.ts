@@ -1,4 +1,6 @@
-import { revalidateTag } from "next/cache";
+'use server';
+
+import { updateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
 import { db } from "@/src/db";
 import {
@@ -9,22 +11,17 @@ import {
 } from "@/src/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
+import { getFriendIdsRaw } from "@/src/features/community/invalidation";
 
-export async function POST(request: Request) {
+export async function completeTask(input: {
+  taskId: string;
+  data?: Record<string, unknown>;
+}): Promise<{ success: true; blockCompleted: boolean } | { error: string }> {
   const user = await getSessionUser();
-  if (!user) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!user) return { error: "Unauthorized" };
 
-  const body = await request.json();
-  const { taskId, data } = body as {
-    taskId: string;
-    data?: Record<string, unknown>;
-  };
-
-  if (!taskId) {
-    return Response.json({ error: "taskId required" }, { status: 400 });
-  }
+  const { taskId, data } = input;
+  if (!taskId) return { error: "taskId required" };
 
   await db
     .insert(taskCompletions)
@@ -37,21 +34,11 @@ export async function POST(request: Request) {
     .onConflictDoUpdate({
       target: [taskCompletions.userId, taskCompletions.taskId],
       set: {
-        // Merge incoming fields into the existing JSONB rather than
-        // overwriting, so concurrent autosaves (practice + reflection) don't
-        // race and clobber each other.
         data: sql`COALESCE(${taskCompletions.data}, '{}') || ${JSON.stringify(data ?? {})}::jsonb`,
         completedAt: new Date(),
       },
     });
 
-  // Block completion check: ≥ 3 categories completed in block 1.
-  //
-  // The legacy SQL JOINed `task_completions.task_id` against
-  // `block_day_tasks.id` to look up a category. Now that some tasks live
-  // in the markdown registry (no DB row), we resolve the category in
-  // application code: load the user's completions, then look up each id
-  // in the registry first and the DB second.
   const completions = await db
     .select({ taskId: taskCompletions.taskId })
     .from(taskCompletions)
@@ -65,7 +52,6 @@ export async function POST(request: Request) {
 
   let blockCompleted = false;
   if (completedCategories.size >= 3) {
-    // Check if block completion already recorded
     const existing = await db
       .select()
       .from(memberBlockCompletions)
@@ -83,7 +69,6 @@ export async function POST(request: Request) {
         blockNumber: 1,
       });
 
-      // Award badge
       const badge = await db
         .select()
         .from(badgeDefinitions)
@@ -105,8 +90,38 @@ export async function POST(request: Request) {
     }
   }
 
-  revalidateTag("progress", { expire: 0 });
-  revalidateTag(`dashboard:${user.id}`, { expire: 0 });
+  const friendIds = await getFriendIdsRaw(user.id);
+  updateTag(`dashboard:${user.id}`);
+  updateTag(`progress:${user.id}`);
+  updateTag(`feed:${user.id}`);
+  for (const fid of friendIds) updateTag(`feed:${fid}`);
 
-  return Response.json({ success: true, blockCompleted });
+  return { success: true, blockCompleted };
+}
+
+export async function uncompleteTask(input: {
+  taskId: string;
+}): Promise<{ success: true } | { error: string }> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const { taskId } = input;
+  if (!taskId) return { error: "taskId required" };
+
+  await db
+    .delete(taskCompletions)
+    .where(
+      and(
+        eq(taskCompletions.userId, user.id),
+        eq(taskCompletions.taskId, taskId),
+      ),
+    );
+
+  const friendIds = await getFriendIdsRaw(user.id);
+  updateTag(`dashboard:${user.id}`);
+  updateTag(`progress:${user.id}`);
+  updateTag(`feed:${user.id}`);
+  for (const fid of friendIds) updateTag(`feed:${fid}`);
+
+  return { success: true };
 }

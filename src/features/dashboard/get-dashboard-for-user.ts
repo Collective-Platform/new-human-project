@@ -1,4 +1,4 @@
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { db, batchOrAll } from "@/src/db";
 import { taskCompletions } from "@/src/db/schema";
@@ -24,13 +24,18 @@ export interface DashboardData {
   blockEndedWithoutCompletion: boolean;
 }
 
-async function getDashboardForUserImpl(
+export async function getDashboardForUser(
   userId: number,
-  onboardedAt: Date,
+  onboardedAtMs: number,
   daysWindow: number,
   locale: "en" | "zh",
   currentDay: number
 ): Promise<DashboardData> {
+  'use cache';
+  cacheLife('minutes');
+  cacheTag(`dashboard:${userId}`);
+
+  const onboardedAt = new Date(onboardedAtMs);
   const blockNumber = 1;
   const daysElapsed = currentDay - 1;
 
@@ -170,23 +175,3 @@ async function getDashboardForUserImpl(
   };
 }
 
-/**
- * Server-side dashboard aggregate. Results are cached per user + window for
- * 60 seconds and tagged `dashboard:{userId}` for on-demand invalidation.
- * Call `revalidateTag('dashboard:'+userId)` from any route that writes
- * to `task_completions` for that user.
- */
-export function getDashboardForUser(
-  userId: number,
-  onboardedAt: Date,
-  daysWindow: number,
-  locale: "en" | "zh",
-  currentDay: number
-): Promise<DashboardData> {
-  const cached = unstable_cache(
-    getDashboardForUserImpl,
-    ["getDashboardForUser", String(userId)],
-    { tags: [`dashboard:${userId}`], revalidate: 60 }
-  );
-  return cached(userId, onboardedAt, daysWindow, locale, currentDay);
-}

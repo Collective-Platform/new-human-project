@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
+import { requestFriend } from "@/src/features/community/actions";
 
 interface Suggestion {
   id: number;
@@ -25,12 +26,8 @@ export function PeopleYouMayKnow({
   const [dismissedIds, setDismissedIds] = useState<Set<number>>(new Set());
 
   async function handleAdd(userId: number) {
-    const res = await fetch("/api/friends/request", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ receiverId: userId }),
-    });
-    if (res.ok) {
+    const result = await requestFriend({ receiverId: userId });
+    if (!("error" in result)) {
       setSentIds((prev) => new Set(prev).add(userId));
       onAdd();
     }

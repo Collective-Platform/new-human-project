@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Search, User } from "lucide-react";
+import { requestFriend } from "@/src/features/community/actions";
 
 interface SearchResult {
   id: number;
@@ -43,12 +44,8 @@ export function AddFriends({
   }
 
   async function handleAdd(userId: number) {
-    const res = await fetch("/api/friends/request", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ receiverId: userId }),
-    });
-    if (res.ok) {
+    const result = await requestFriend({ receiverId: userId });
+    if (!("error" in result)) {
       setSentIds((prev) => new Set(prev).add(userId));
       onRequestSent();
     }

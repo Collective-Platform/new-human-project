@@ -8,3 +8,10 @@ export {
   getPeopleYouMayKnow,
   getActivityFeed,
 } from "./queries";
+export {
+  getFriendIds,
+  getIncomingRequestIds,
+  getSuggestionIds,
+  getActivityFeedRows,
+  getPublicProfile,
+} from "./cached";

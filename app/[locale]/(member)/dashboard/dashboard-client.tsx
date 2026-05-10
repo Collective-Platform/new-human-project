@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import useSWR from "swr";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { RadarChart } from "./radar-chart";
@@ -19,12 +18,6 @@ const BlockEncouragement = dynamic(
   { ssr: false }
 );
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error("dashboard fetch failed");
-    return r.json();
-  });
-
 export function DashboardClient({
   initialData,
   children,
@@ -37,20 +30,7 @@ export function DashboardClient({
   const [showCelebration, setShowCelebration] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
 
-  const { data: swrData } = useSWR<DashboardData>(
-    `/api/dashboard`,
-    fetcher,
-    {
-      fallbackData: initialData,
-      // Don't refetch just because the window regained focus.
-      revalidateOnFocus: false,
-      // Deduplicate rapid requests within 60s (e.g. quick tab switches
-      // with no mutations in between). Invalidated explicitly after task
-      // completion via mutate() in progress-client.tsx.
-      dedupingInterval: 60_000,
-    },
-  );
-  const data: DashboardData = swrData ?? initialData;
+  const data: DashboardData = initialData;
 
   // Badge system is on hold — celebration and encouragement overlays
   // are temporarily disabled until the badge design is finalized.

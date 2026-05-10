@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { User } from "lucide-react";
+import { acceptFriend, rejectFriend } from "@/src/features/community/actions";
 
 interface FriendRequest {
   requestId: string;
@@ -25,12 +26,11 @@ export function FriendRequests({
   const [handledIds, setHandledIds] = useState<Set<string>>(new Set());
 
   async function handleAction(requestId: string, action: "accept" | "reject") {
-    const res = await fetch(`/api/friends/${action}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestId }),
-    });
-    if (res.ok) {
+    const result =
+      action === "accept"
+        ? await acceptFriend({ requestId })
+        : await rejectFriend({ requestId });
+    if (!("error" in result)) {
       setHandledIds((prev) => new Set(prev).add(requestId));
       onUpdate();
     }

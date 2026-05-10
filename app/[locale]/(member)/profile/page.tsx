@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import { ProfileData } from "./profile-data";
 import { ProfileSkeleton } from "./profile-skeleton";
 
+
 export default async function ProfilePage({
   params,
 }: {

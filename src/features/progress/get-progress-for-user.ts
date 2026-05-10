@@ -1,4 +1,4 @@
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { getPassageForLocale } from "@/src/features/bible";
 import {
   getDayTasks,
@@ -41,13 +41,16 @@ export interface ProgressPayload {
   tasks: ProgressTask[];
 }
 
-async function getProgressForUserImpl(
+export async function getProgressForUser(
   userId: number,
-  onboardedAt: Date,
+  onboardedAtMs: number,
   requestedDayParam: number | null,
   locale: "en" | "zh",
   currentDay: number,
 ): Promise<ProgressPayload> {
+  'use cache';
+  cacheLife('minutes');
+  cacheTag(`progress:${userId}`);
 
   const requestedDay = Math.min(
     Math.max(requestedDayParam ?? currentDay, 1),
@@ -123,29 +126,10 @@ async function getProgressForUserImpl(
     blockNumber,
     currentDay,
     selectedDay: requestedDay,
-    blockStartDate: onboardedAt.toISOString(),
+    blockStartDate: new Date(onboardedAtMs).toISOString(),
     missedDays,
     carousel,
     tasks: enrichedTasks,
   };
 }
 
-/**
- * Cached wrapper for the member's progress view. Results are keyed by all
- * arguments and tagged `progress:{userId}` for on-demand invalidation.
- *
- * Call `revalidateTag('progress:${userId}', { expire: 0 })` from any route
- * handler that writes to `task_completions` for that user.
- *
- * `currentDay` must be computed by the caller (via `getCurrentDay`) and
- * passed explicitly so the function stays deterministic inside the cache.
- *
- * Note: `unstable_cache` will be replaced by the `use cache` directive once
- * the root layout is migrated to the PPR model (requires `cacheComponents:
- * true` and Suspense-wrapped i18n setup).
- */
-export const getProgressForUser = unstable_cache(
-  getProgressForUserImpl,
-  ["getProgressForUser"],
-  { tags: ["progress"], revalidate: 60 },
-) as typeof getProgressForUserImpl;

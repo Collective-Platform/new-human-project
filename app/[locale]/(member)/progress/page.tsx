@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import Loading from "./loading";
 import { ProgressData } from "./progress-data";
 
+
 export default async function ProgressPage({
   params,
 }: {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Users, UserPlus } from "lucide-react";
 import { AddFriends } from "./add-friends";
@@ -54,16 +55,13 @@ export function CommunityClient({
 }: {
   initialData: CommunityData;
 }) {
+  const router = useRouter();
   const t = useTranslations("community");
   const [tab, setTab] = useState<"friends" | "add">("friends");
-  const [data, setData] = useState<CommunityData>(initialData);
 
-  const fetchData = useCallback(async () => {
-    const res = await fetch("/api/community");
-    if (res.ok) {
-      setData(await res.json());
-    }
-  }, []);
+  function fetchData() {
+    router.refresh();
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-6 pt-6 pb-8">
@@ -96,18 +94,18 @@ export function CommunityClient({
       {tab === "friends" && (
         <div className="space-y-4">
           {/* Incoming friend requests */}
-          {data.requests.length > 0 && (
-            <FriendRequests requests={data.requests} onUpdate={fetchData} />
+          {initialData.requests.length > 0 && (
+            <FriendRequests requests={initialData.requests} onUpdate={fetchData} />
           )}
 
           {/* People You May Know carousel */}
-          {data.suggestions.length > 0 && (
+          {initialData.suggestions.length > 0 && (
             <section className="mb-10">
               <h2 className="text-lg font-bold mb-4 font-headline text-on-surface">
                 {t("peopleYouMayKnow")}
               </h2>
               <PeopleYouMayKnow
-                suggestions={data.suggestions}
+                suggestions={initialData.suggestions}
                 onAdd={fetchData}
               />
             </section>
@@ -117,7 +115,7 @@ export function CommunityClient({
           {/* <FriendsList friends={data.friends} /> */}
 
           {/* Activity Feed */}
-          <ActivityFeed items={data.feed} />
+          <ActivityFeed items={initialData.feed} />
         </div>
       )}
 

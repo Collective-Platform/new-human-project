@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
   const payload = await getProgressForUser(
     user.id,
-    user.onboardedAt,
+    user.onboardedAt.getTime(),
     requestedDayParam,
     locale,
     currentDay,

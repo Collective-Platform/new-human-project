@@ -1,4 +1,4 @@
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/src/db";
 import { users, memberBadges, badgeDefinitions } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
@@ -25,9 +25,12 @@ export interface ProfileData {
   }[];
 }
 
-async function getProfileForUserImpl(
+export async function getProfileForUser(
   userId: number
 ): Promise<ProfileData | null> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(`profile:${userId}`);
   const userRows = await db
     .select({
       email: users.email,
@@ -81,17 +84,3 @@ async function getProfileForUserImpl(
   };
 }
 
-/**
- * Server-side profile aggregate. Results are cached per user for 5 minutes
- * and tagged `profile:{userId}` for on-demand invalidation.
- * Call `revalidateTag('profile:'+userId)` from any route that mutates
- * the user's profile fields.
- */
-export function getProfileForUser(userId: number): Promise<ProfileData | null> {
-  const cached = unstable_cache(
-    getProfileForUserImpl,
-    ["getProfileForUser", String(userId)],
-    { tags: [`profile:${userId}`], revalidate: 300 }
-  );
-  return cached(userId);
-}
