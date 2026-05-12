@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 19 — You Are Light — Live Like It"
-  zh: ""
+  zh: "第19天 — 你是光，活出光的样貌"
 passageRef: "Ephesians 5:8–14"
 inputs:
   - reflection

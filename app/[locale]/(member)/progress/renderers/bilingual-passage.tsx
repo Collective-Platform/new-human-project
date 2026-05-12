@@ -1,5 +1,3 @@
-"use client";
-
 interface PrefetchedPassage {
   reference: string;
   content: string;
@@ -20,7 +18,7 @@ export function BilingualPassage({
   if (passage?.content) {
     return (
       <div
-        className="text-sm leading-relaxed text-foreground/80 [&_p]:mb-2"
+        className="text-md leading-relaxed text-foreground [&_p]:mb-2 [&_.yv-vlbl]:text-[10px] [&_.yv-vlbl]:font-bold [&_.yv-vlbl]:align-super [&_.yv-vlbl]:text-foreground/40 [&_.yv-vlbl]:mr-0.5 [&_.yv-vlbl]:select-none"
         dangerouslySetInnerHTML={{ __html: passage.content }}
       />
     );
@@ -28,13 +26,15 @@ export function BilingualPassage({
 
   if (fallbackText) {
     return (
-      <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">
+      <p className="whitespace-pre-line text-md leading-relaxed text-foreground">
         {fallbackText}
       </p>
     );
   }
 
   return (
-    <p className="text-sm text-foreground/60">Read this passage in your Bible or Bible app.</p>
+    <p className="text-md text-foreground">
+      Read this passage in your Bible or Bible app.
+    </p>
   );
 }

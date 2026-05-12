@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 3 — The Spirit as God's Down Payment"
-  zh: ""
+  zh: "第3天 — 圣灵：神所赐的订金"
 passageRef: "Ephesians 1:7–14"
 inputs:
   - reflection

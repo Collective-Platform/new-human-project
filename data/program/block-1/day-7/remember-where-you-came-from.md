@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 7 — Remember Where You Came From"
-  zh: ""
+  zh: "第7天 — 记念你的过去"
 passageRef: "Ephesians 2:11–12"
 inputs:
   - reflection

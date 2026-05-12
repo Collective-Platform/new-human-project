@@ -39,7 +39,7 @@ async function fetchPassage(bibleId: string, usfm: string): Promise<PassageResul
   if (!env.YVP_APP_KEY) {
     throw new Error("YVP_APP_KEY is not configured");
   }
-  const url = `https://api.youversion.com/v1/bibles/${bibleId}/passages/${usfm}`;
+  const url = `https://api.youversion.com/v1/bibles/${bibleId}/passages/${usfm}?format=html`;
   const res = await fetch(url, {
     headers: { "X-YVP-App-Key": env.YVP_APP_KEY },
     next: { revalidate: 60 * 60 * 24 },
@@ -51,6 +51,7 @@ async function fetchPassage(bibleId: string, usfm: string): Promise<PassageResul
   }
   const data = (await res.json()) as { reference?: string; content?: string };
   if (typeof data.content !== "string") return null;
+  console.log(`[bible] raw content for ${usfm}:`, JSON.stringify(data.content));
   return {
     reference: data.reference ?? "",
     content: data.content,

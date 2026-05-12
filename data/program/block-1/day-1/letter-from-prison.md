@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 1 — A Letter Written from Prison"
-  zh: ""
+  zh: "第1天 — 来自监狱的一封书信"
 passageRef: "Ephesians 1:1–2 · Acts 19"
 inputs:
   - reflection

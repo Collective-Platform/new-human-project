@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import matter from "gray-matter";
-import { TaskFrontmatter, type ProgramTask } from "./schema";
+import { TaskFrontmatter, type ProgramTask, type LocalizedString } from "./schema";
 
 /**
  * Loads `data/program/**\/*.md` into an in-memory registry keyed by frontmatter
@@ -65,9 +65,24 @@ function build(): Registry {
         `[program] invalid frontmatter in ${filePath}\n${formatZodError(result.error)}`,
       );
     }
+    // Load a locale-variant sibling body if present (e.g. foo.zh.md next to foo.md).
+    // Sibling files contain only a markdown body — no frontmatter — so they are
+    // naturally skipped by the main loop's `---` check above.
+    let body: LocalizedString = parsed.content;
+    const zhPath = filePath.replace(/\.md$/, ".zh.md");
+    try {
+      const zhRaw = readFileSync(zhPath, "utf8");
+      const zhContent = matter(zhRaw).content;
+      if (zhContent.trim()) {
+        body = { en: parsed.content, zh: zhContent };
+      }
+    } catch {
+      // no sibling — expected for most files
+    }
+
     const task: ProgramTask = {
       ...result.data,
-      body: parsed.content,
+      body,
       filePath,
     };
 

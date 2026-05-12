@@ -1,6 +1,7 @@
 "use client";
 
 import type { ProgramTask } from "@/src/features/content/program";
+import { getLocalizedString } from "@/src/features/content";
 import { MarkdownContent } from "./markdown-content";
 import { ReflectionInput } from "./reflection-input";
 
@@ -43,7 +44,7 @@ export function SectionedContentRenderer({
   onSaveReflection: (slug: string, text: string) => void | Promise<void>;
 }) {
   const passageRef = task.passageRef ?? task.scriptureRef ?? "";
-  const sections = splitSections(task.body);
+  const sections = splitSections(getLocalizedString(task.body, locale));
   const inputs = new Set(task.inputs ?? []);
 
   return (

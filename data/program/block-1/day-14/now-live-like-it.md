@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 14 — Now Live Like It"
-  zh: ""
+  zh: "第14天 — 现在，活出你的身份"
 passageRef: "Ephesians 4:1"
 inputs:
   - reflection

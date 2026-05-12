@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 12 — Love Too Big to Measure"
-  zh: ""
+  zh: "第12天 — 无法测度的爱"
 passageRef: "Ephesians 3:14–19"
 inputs:
   - reflection

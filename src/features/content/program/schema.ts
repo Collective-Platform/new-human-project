@@ -81,8 +81,10 @@ export type TaskFrontmatter = z.infer<typeof TaskFrontmatter>;
 
 /**
  * A loaded task: validated frontmatter + raw markdown body + source path.
+ * `body` is a LocalizedString so the registry can attach locale-variant sibling
+ * bodies (e.g. `foo.zh.md`) without changing the frontmatter contract.
  */
 export interface ProgramTask extends TaskFrontmatter {
-  body: string;
+  body: LocalizedString;
   filePath: string;
 }

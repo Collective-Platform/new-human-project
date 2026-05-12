@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 25 — Grace, Peace — and a Life Forward"
-  zh: ""
+  zh: "第25天 — 恩典、平安，迈向未来的人生"
 passageRef: "Ephesians 6:21–24 · Full Letter"
 inputs:
   - reflection

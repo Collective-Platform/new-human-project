@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 2 — You Were Chosen Before the World Began"
-  zh: ""
+  zh: "第2天 — 在世界被造以前，你已经被拣选"
 passageRef: "Ephesians 1:3–6"
 inputs:
   - reflection

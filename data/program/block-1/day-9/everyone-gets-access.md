@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 9 — Everyone Gets Access"
-  zh: ""
+  zh: "第9天 — 每个人都可以进来"
 passageRef: "Ephesians 2:17–18"
 inputs:
   - reflection

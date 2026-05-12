@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 16 — Everyone Has a Part to Play"
-  zh: ""
+  zh: "第16天 — 每个人都有自己的角色"
 passageRef: "Ephesians 4:7–16"
 inputs:
   - reflection

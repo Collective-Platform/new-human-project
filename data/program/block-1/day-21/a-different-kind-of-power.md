@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 21 — A Different Kind of Power"
-  zh: ""
+  zh: "第21天 — 不一样的权力"
 passageRef: "Ephesians 5:21–33"
 inputs:
   - reflection

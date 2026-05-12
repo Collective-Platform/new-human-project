@@ -52,7 +52,7 @@ export async function getDayTasks(
     name: getLocalizedString(t.name, locale),
     content: null,
     displayOrder: t.order,
-    body: t.body,
+    body: getLocalizedString(t.body, locale),
     passageRef: t.passageRef,
     scriptureRef: t.scriptureRef,
     inputs: t.inputs,

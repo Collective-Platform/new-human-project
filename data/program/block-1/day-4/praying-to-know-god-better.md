@@ -7,7 +7,7 @@ category: Mental
 type: devotional
 name:
   en: "Day 4 — Praying to Know God Better"
-  zh: ""
+  zh: "第4天 — 在祷告中更深认识神"
 passageRef: "Ephesians 1:15–23"
 inputs:
   - reflection
