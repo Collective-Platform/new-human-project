@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/src/i18n/navigation";
-import { User, Camera, Pencil, Smile, Settings, ChevronRight } from "lucide-react";
-import { BadgeGrid } from "./badge-grid";
+import { useRouter } from "@/src/i18n/navigation";
+import { User, Camera, Pencil } from "lucide-react";
 import NextImage from "next/image";
 import type { ProfileData } from "@/src/features/profile/get-profile-for-user";
 import { updateProfile } from "@/src/features/profile/actions";
@@ -152,7 +151,7 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
     }
   }
 
-  const { user, badges } = initialData;
+  const { user } = initialData;
 
   return (
     <div className="flex min-h-full flex-col justify-between space-y-4 px-4 pt-4 pb-4">
@@ -280,39 +279,26 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
         )}
 
         {/* Badges — hidden while badge system/design is on hold.
-          Component and data flow preserved intentionally; do not delete. */}
-        {false && <BadgeGrid badges={badges} title={t("badges")} />}
+          <BadgeGrid badges={badges} title={t("badges")} /> */}
 
-        {/* Menu items */}
-        {false && (
+        {/* Menu items — hidden while not in use.
           <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
-            <Link
-              href="/profile/mood-history"
-              className="flex items-center justify-between px-4 py-3.5"
-            >
+            <Link href="/profile/mood-history" className="flex items-center justify-between px-4 py-3.5">
               <div className="flex items-center gap-3">
                 <Smile size={20} className="text-foreground/50" />
-                <span className="text-sm font-medium text-foreground">
-                  {t("moodHistory")}
-                </span>
+                <span className="text-sm font-medium text-foreground">{t("moodHistory")}</span>
               </div>
               <ChevronRight size={18} className="text-foreground/30" />
             </Link>
-
-            <Link
-              href="/profile/settings"
-              className="flex items-center justify-between px-4 py-3.5"
-            >
+            <Link href="/profile/settings" className="flex items-center justify-between px-4 py-3.5">
               <div className="flex items-center gap-3">
                 <Settings size={20} className="text-foreground/50" />
-                <span className="text-sm font-medium text-foreground">
-                  Settings
-                </span>
+                <span className="text-sm font-medium text-foreground">Settings</span>
               </div>
               <ChevronRight size={18} className="text-foreground/30" />
             </Link>
           </div>
-        )}
+        */}
       </div>
 
       {/* Log out */}

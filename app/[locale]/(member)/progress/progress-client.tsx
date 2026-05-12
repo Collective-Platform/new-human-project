@@ -125,7 +125,7 @@ export function ProgressClient({
         // so the second patch sees the first patch's output as `t.completionData`.
         const completionData =
           patch.completionData !== undefined
-            ? { ...(t.completionData ?? {}), ...patch.completionData }
+            ? { ...t.completionData, ...patch.completionData }
             : t.completionData;
         return { ...t, ...patch, completionData };
       }),
@@ -138,7 +138,7 @@ export function ProgressClient({
           if (t.id !== taskId) return t;
           const completionData =
             patch.completionData !== undefined
-              ? { ...(t.completionData ?? {}), ...patch.completionData }
+              ? { ...t.completionData, ...patch.completionData }
               : t.completionData;
           return { ...t, ...patch, completionData };
         }),

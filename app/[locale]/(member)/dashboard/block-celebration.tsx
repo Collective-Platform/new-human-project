@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 interface EarnedBadge {
@@ -52,9 +53,12 @@ export function BlockCelebration({
         {/* Badge icon / emoji */}
         <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
           {badge.iconUrl ? (
-            <img
+            <Image
               src={badge.iconUrl}
               alt={badge.name}
+              width={64}
+              height={64}
+              unoptimized
               className="h-16 w-16 object-contain"
             />
           ) : (

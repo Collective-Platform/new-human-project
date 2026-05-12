@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "oxlint .",
     "db:setup-local": "psql new_human_dev < scripts/setup-local-db.sql",
     "db:migrate": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
@@ -43,6 +43,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "oxlint": "^1.63.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"

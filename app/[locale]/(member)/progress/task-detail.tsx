@@ -123,7 +123,7 @@ export function TaskDetail({
   const handleSaveReflection = useCallback(
     async (slug: string, text: string) => {
       const merged = {
-        ...(task.completionData ?? {}),
+        ...task.completionData,
         [slug]: text,
       };
       await onComplete(task.id, merged);

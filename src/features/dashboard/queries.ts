@@ -235,5 +235,5 @@ export async function getDayCompletions(
   }
 
   matched.sort((a, b) => a.displayOrder - b.displayOrder);
-  return matched.map(({ displayOrder: _, ...rest }) => rest);
+  return matched.map(({ displayOrder: _displayOrder, ...rest }) => rest);
 }

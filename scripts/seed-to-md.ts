@@ -20,6 +20,7 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
@@ -132,7 +133,7 @@ function collectExistingUlids(): Map<string, string> {
         }
       } else {
         try {
-          const stat = require("node:fs").statSync(full);
+          const stat = statSync(full);
           if (stat.isDirectory()) walk(full);
         } catch {
           // ignore

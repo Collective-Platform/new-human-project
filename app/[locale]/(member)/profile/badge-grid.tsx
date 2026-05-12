@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 interface Badge {
   name: string;
   description: string | null;
@@ -30,9 +32,12 @@ export function BadgeGrid({
               className="flex flex-col items-center rounded-md bg-zinc-50 p-3"
             >
               {badge.iconUrl ? (
-                <img
+                <Image
                   src={badge.iconUrl}
                   alt={badge.name}
+                  width={48}
+                  height={48}
+                  unoptimized
                   className="mb-2 h-12 w-12 object-contain"
                 />
               ) : (

@@ -101,7 +101,7 @@ export async function getProgressForUser(
       ) {
         const passage = await getPassageForLocale(scriptureRef, locale);
         content = {
-          ...(content ?? {}),
+          ...content,
           scripture_reference: scriptureRef,
           ...(passage ? { prefetched_passage: passage } : {}),
         };

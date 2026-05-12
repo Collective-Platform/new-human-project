@@ -38,14 +38,6 @@ const DRY_RUN = process.argv.includes("--dry-run");
 // Registry loader (inline — no Next.js server context here)
 // ---------------------------------------------------------------------------
 
-interface RegistryTask {
-  id: string;
-  block: number;
-  day: number;
-  type: string;
-  category: string;
-}
-
 function loadRegistry(): Map<string, string> {
   // Returns: key `${block}:${day}:${dbTaskType}` → ulid
   const map = new Map<string, string>();
