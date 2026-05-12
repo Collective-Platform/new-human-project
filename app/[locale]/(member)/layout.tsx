@@ -36,7 +36,9 @@ export default async function MemberLayout({
           </Suspense>
           {children}
         </main>
-        <BottomNav />
+        <Suspense fallback={null}>
+          <BottomNav />
+        </Suspense>
       </NavVisibilityProvider>
       <SwRegisterLoader />
     </div>
