@@ -54,7 +54,7 @@ export const db = createDb();
  * Only pass lazy Drizzle query builders (not already-awaited Promises).
  */
 export async function batchOrAll<T extends readonly PromiseLike<unknown>[]>(
-  queries: [...T]
+  queries: [...T],
 ): Promise<{ [K in keyof T]: Awaited<T[K]> }> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const anyDb = db as any;

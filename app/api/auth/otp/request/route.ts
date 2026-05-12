@@ -1,11 +1,6 @@
 import { db } from "@/src/db";
 import { users, pendingAuth } from "@/src/db/schema";
-import {
-  generateOtp,
-  hashToken,
-  checkRateLimit,
-  sendOtp,
-} from "@/src/features/auth";
+import { generateOtp, hashToken, checkRateLimit, sendOtp } from "@/src/features/auth";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 
 type Mode = "login" | "signup";
@@ -18,10 +13,7 @@ export async function POST(request: Request) {
   const mode: Mode = body.mode === "signup" ? "signup" : "login";
 
   if (!email) {
-    return Response.json(
-      { success: false, error: "Email is required" },
-      { status: 400 }
-    );
+    return Response.json({ success: false, error: "Email is required" }, { status: 400 });
   }
 
   const { allowed } = await checkRateLimit({
@@ -34,7 +26,7 @@ export async function POST(request: Request) {
   if (!allowed) {
     return Response.json(
       { success: false, error: "Too many attempts. Please try again later." },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -57,7 +49,7 @@ export async function POST(request: Request) {
           code: "NOT_EXISTS",
           error: "No account found for this email. Please sign up instead.",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
   } else {
@@ -67,10 +59,9 @@ export async function POST(request: Request) {
         {
           success: false,
           code: "ALREADY_EXISTS",
-          error:
-            "An account with this email already exists. Please log in instead.",
+          error: "An account with this email already exists. Please log in instead.",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
   }
@@ -85,8 +76,8 @@ export async function POST(request: Request) {
         sql`lower(${pendingAuth.email}) = ${email}`,
         eq(pendingAuth.mode, mode),
         isNull(pendingAuth.consumedAt),
-        gt(pendingAuth.expiresAt, new Date())
-      )
+        gt(pendingAuth.expiresAt, new Date()),
+      ),
     );
 
   const otp = generateOtp();

@@ -13,13 +13,7 @@ interface TaskRow {
   displayOrder: number;
 }
 
-export function DayEditor({
-  tasks,
-  onSaved,
-}: {
-  tasks: TaskRow[];
-  onSaved: () => void;
-}) {
+export function DayEditor({ tasks, onSaved }: { tasks: TaskRow[]; onSaved: () => void }) {
   const mentalTasks = tasks.filter((t) => t.category === "Mental");
   const otherTasks = tasks.filter((t) => t.category !== "Mental");
 
@@ -33,21 +27,15 @@ export function DayEditor({
       {/* Other tasks (Emotional, Physical) — usually no editable content */}
       {otherTasks.map((task) => (
         <div key={task.id} className="text-xs text-foreground/40">
-          <span className="font-semibold">{task.category}</span> ·{" "}
-          {task.name} ({task.taskType}) — no editable content
+          <span className="font-semibold">{task.category}</span> · {task.name} ({task.taskType}) —
+          no editable content
         </div>
       ))}
     </div>
   );
 }
 
-function TaskEditor({
-  task,
-  onSaved,
-}: {
-  task: TaskRow;
-  onSaved: () => void;
-}) {
+function TaskEditor({ task, onSaved }: { task: TaskRow; onSaved: () => void }) {
   const content = task.content ?? {};
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -92,21 +80,15 @@ function TaskEditor({
         memory_verse_reference: formData.memory_verse_reference || null,
         memory_verse_text: buildLocaleObj(
           formData.memory_verse_text_en,
-          formData.memory_verse_text_zh
+          formData.memory_verse_text_zh,
         ),
         xp_weight: parseInt(formData.xp_weight ?? "1") || 1,
       };
     } else if (task.taskType === "scripture_study") {
       newContent = {
         scripture_reference: formData.scripture_reference || null,
-        scripture_text: buildLocaleObj(
-          formData.scripture_text_en,
-          formData.scripture_text_zh
-        ),
-        explanation: buildLocaleObj(
-          formData.explanation_en,
-          formData.explanation_zh
-        ),
+        scripture_text: buildLocaleObj(formData.scripture_text_en, formData.scripture_text_zh),
+        explanation: buildLocaleObj(formData.explanation_en, formData.explanation_zh),
         video_url: formData.video_url || null,
         xp_weight: parseInt(formData.xp_weight ?? "2") || 2,
       };
@@ -125,10 +107,7 @@ function TaskEditor({
     }
   }
 
-  const label =
-    task.taskType === "scripture_memorise"
-      ? "Level 1 — Memorise"
-      : "Level 2 — Study";
+  const label = task.taskType === "scripture_memorise" ? "Level 1 — Memorise" : "Level 2 — Study";
 
   return (
     <div className="space-y-3">
@@ -212,27 +191,17 @@ function TaskEditor({
           {saving ? "Saving…" : "Save"}
         </button>
         {saved && (
-          <span className="text-xs text-green-600 font-medium">
-            ✓ Saved — live immediately
-          </span>
+          <span className="text-xs text-green-600 font-medium">✓ Saved — live immediately</span>
         )}
       </div>
     </div>
   );
 }
 
-function FieldRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium text-foreground/50">
-        {label}
-      </label>
+      <label className="mb-1 block text-xs font-medium text-foreground/50">{label}</label>
       {children}
     </div>
   );
@@ -248,7 +217,7 @@ function getLocaleValue(field: unknown, locale: string): string {
 
 function buildLocaleObj(
   en: string | undefined,
-  zh: string | undefined
+  zh: string | undefined,
 ): Record<string, string> | null {
   const obj: Record<string, string> = {};
   if (en?.trim()) obj.en = en.trim();

@@ -15,9 +15,7 @@ const BOOK_TO_USFM: Record<string, string> = {
 export function referenceToUsfm(reference: string): string | null {
   const trimmed = reference.trim();
   // Capture: book name, chapter, start verse, optional end verse
-  const match = trimmed.match(
-    /^([1-3]?\s*[A-Za-z]+)\s+(\d+):(\d+)(?:\s*-\s*(\d+))?$/,
-  );
+  const match = trimmed.match(/^([1-3]?\s*[A-Za-z]+)\s+(\d+):(\d+)(?:\s*-\s*(\d+))?$/);
   if (!match) return null;
   const [, bookRaw, chapter, startVerse, endVerse] = match;
   const bookKey = bookRaw.replace(/\s+/g, "").toLowerCase();
@@ -37,10 +35,7 @@ export interface PassageResult {
  * Fetch a Bible passage from the YouVersion API.
  * Cached at the platform layer for 24h since scripture text is immutable.
  */
-async function fetchPassage(
-  bibleId: string,
-  usfm: string,
-): Promise<PassageResult | null> {
+async function fetchPassage(bibleId: string, usfm: string): Promise<PassageResult | null> {
   if (!env.YVP_APP_KEY) {
     throw new Error("YVP_APP_KEY is not configured");
   }
@@ -51,9 +46,7 @@ async function fetchPassage(
   });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    console.error(
-      `[bible] YouVersion ${res.status} for bible ${bibleId} passage ${usfm}: ${body}`,
-    );
+    console.error(`[bible] YouVersion ${res.status} for bible ${bibleId} passage ${usfm}: ${body}`);
     return null;
   }
   const data = (await res.json()) as { reference?: string; content?: string };
@@ -72,9 +65,7 @@ export interface BilingualPassage {
 /**
  * Fetch a passage in both English and Chinese for a human-readable reference.
  */
-export async function getBilingualPassage(
-  reference: string,
-): Promise<BilingualPassage | null> {
+export async function getBilingualPassage(reference: string): Promise<BilingualPassage | null> {
   const usfm = referenceToUsfm(reference);
   if (!usfm) return null;
   const [en, zh] = await Promise.all([

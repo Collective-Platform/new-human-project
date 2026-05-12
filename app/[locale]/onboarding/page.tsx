@@ -51,14 +51,10 @@ export default function OnboardingPage() {
         <h1 className="text-3xl font-bold font-headline text-foreground">
           {t("pickUsernameTitle")}
         </h1>
-        <p className="text-foreground/60 leading-relaxed">
-          {t("pickUsernameSubtitle")}
-        </p>
+        <p className="text-foreground/60 leading-relaxed">{t("pickUsernameSubtitle")}</p>
 
         <div className="relative text-left">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40">
-            @
-          </span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40">@</span>
           <input
             type="text"
             value={handle}
@@ -89,9 +85,7 @@ export default function OnboardingPage() {
             {error}
           </p>
         ) : (
-          <p className="text-xs text-foreground/40 text-left">
-            {t("usernameRules")}
-          </p>
+          <p className="text-xs text-foreground/40 text-left">{t("usernameRules")}</p>
         )}
       </div>
 

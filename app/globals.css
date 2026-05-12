@@ -53,10 +53,11 @@
   --shadow-card: 0 12px 32px rgba(53, 50, 47, 0.06);
 
   /* Font families with CJK fallbacks (CSS vars injected by next/font) */
-  --font-headline: var(--font-plus-jakarta-sans), var(--font-noto-sans-sc),
-    "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-body: var(--font-manrope), var(--font-noto-sans-sc), "PingFang SC",
-    "Microsoft YaHei", sans-serif;
+  --font-headline:
+    var(--font-plus-jakarta-sans), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  --font-body:
+    var(--font-manrope), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 html {

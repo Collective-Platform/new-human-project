@@ -6,8 +6,14 @@ import { getLocalizedString } from "@/src/features/content";
 
 export function getCurrentDay(onboardedAt: Date): number {
   const msPerDay = 86_400_000;
+  // Normalize both to UTC midnight so day boundaries align with calendar days,
+  // not rolling 24h windows from the onboarding timestamp.
+  const todayMidnight = new Date();
+  todayMidnight.setUTCHours(0, 0, 0, 0);
+  const onboardedMidnight = new Date(onboardedAt);
+  onboardedMidnight.setUTCHours(0, 0, 0, 0);
   const daysElapsed = Math.floor(
-    (Date.now() - onboardedAt.getTime()) / msPerDay
+    (todayMidnight.getTime() - onboardedMidnight.getTime()) / msPerDay,
   );
   return Math.min(Math.max(daysElapsed + 1, 1), 25);
 }
@@ -25,7 +31,7 @@ export const XP_WEIGHT_BY_TYPE: Record<string, number> = {
 export async function getRadarChartData(
   userId: number,
   blockNumber: number,
-  daysElapsed: number
+  daysElapsed: number,
 ): Promise<{ mental: number; emotional: number; physical: number }> {
   if (daysElapsed <= 0) return { mental: 0, emotional: 0, physical: 0 };
 
@@ -62,7 +68,7 @@ export async function getRadarChartData(
 export async function getBlockGrid(
   userId: number,
   blockNumber: number,
-  currentDay: number
+  currentDay: number,
 ): Promise<{ day: number; categoriesCompleted: number }[]> {
   const completionRows = await db
     .select({ taskId: taskCompletions.taskId })
@@ -114,19 +120,14 @@ export async function getActivityCalendar(
   userId: number,
   startDate: Date,
   endDate: Date,
-  onboardedAt: Date
+  onboardedAt: Date,
 ): Promise<{ date: string; categories: string[] }[]> {
   // Pre-filter completions by completedAt to reduce rows transferred.
   // JS-side verification still uses the task's assigned date (onboardedAt + dayNumber).
   const completionRows = await db
     .select({ taskId: taskCompletions.taskId })
     .from(taskCompletions)
-    .where(
-      and(
-        eq(taskCompletions.userId, userId),
-        gte(taskCompletions.completedAt, startDate)
-      )
-    );
+    .where(and(eq(taskCompletions.userId, userId), gte(taskCompletions.completedAt, startDate)));
 
   if (completionRows.length === 0) return [];
 
@@ -159,11 +160,7 @@ export async function getActivityCalendar(
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-export async function getRecentCompletions(
-  userId: number,
-  limit: number = 10,
-  startDate?: Date
-) {
+export async function getRecentCompletions(userId: number, limit: number = 10, startDate?: Date) {
   const conditions = [eq(taskCompletions.userId, userId)];
   if (startDate) {
     conditions.push(gte(taskCompletions.completedAt, startDate));
@@ -201,8 +198,10 @@ export async function getRecentCompletions(
 export async function getDayCompletions(
   userId: number,
   date: Date,
-  onboardedAt: Date
-): Promise<{ completedAt: Date; category: string; name: string; taskType: string; data: unknown }[]> {
+  onboardedAt: Date,
+): Promise<
+  { completedAt: Date; category: string; name: string; taskType: string; data: unknown }[]
+> {
   const completionRows = await db
     .select({
       taskId: taskCompletions.taskId,
@@ -216,7 +215,14 @@ export async function getDayCompletions(
 
   const targetDateStr = new Date(date).toISOString().slice(0, 10);
 
-  const matched: { completedAt: Date; category: string; name: string; taskType: string; data: unknown; displayOrder: number }[] = [];
+  const matched: {
+    completedAt: Date;
+    category: string;
+    name: string;
+    taskType: string;
+    data: unknown;
+    displayOrder: number;
+  }[] = [];
 
   for (const row of completionRows) {
     const task = getRegistryTaskById(row.taskId);
@@ -231,7 +237,14 @@ export async function getDayCompletions(
     assigned.setDate(assigned.getDate() + dayNumber - 1);
     if (assigned.toISOString().slice(0, 10) !== targetDateStr) continue;
 
-    matched.push({ completedAt: row.completedAt, category, name, taskType, data: row.data, displayOrder });
+    matched.push({
+      completedAt: row.completedAt,
+      category,
+      name,
+      taskType,
+      data: row.data,
+      displayOrder,
+    });
   }
 
   matched.sort((a, b) => a.displayOrder - b.displayOrder);

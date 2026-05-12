@@ -11,11 +11,11 @@ import type { DashboardData } from "@/src/features/dashboard";
 
 const BlockCelebration = dynamic(
   () => import("./block-celebration").then((m) => m.BlockCelebration),
-  { ssr: false }
+  { ssr: false },
 );
 const BlockEncouragement = dynamic(
   () => import("./block-encouragement").then((m) => m.BlockEncouragement),
-  { ssr: false }
+  { ssr: false },
 );
 
 export function DashboardClient({
@@ -48,10 +48,7 @@ export function DashboardClient({
         <BlockCelebration
           badge={data.earnedBadge}
           onDismiss={() => {
-            localStorage.setItem(
-              `badge-seen-${data.earnedBadge!.blockNumber}`,
-              "1",
-            );
+            localStorage.setItem(`badge-seen-${data.earnedBadge!.blockNumber}`, "1");
             setShowCelebration(false);
           }}
         />
@@ -93,11 +90,7 @@ export function DashboardClient({
         title={t("activityCalendar")}
       />
 
-      <RecentFeed
-        items={data.recent}
-        title={t("recentLogs")}
-        emptyLabel="No recent activity"
-      />
+      <RecentFeed items={data.recent} title={t("recentLogs")} emptyLabel="No recent activity" />
     </div>
   );
 }

@@ -28,7 +28,7 @@ export async function CommunityData() {
   for (const row of feedRows) ids.add(row.userId);
 
   const profileEntries = await Promise.all(
-    [...ids].map(async (id) => [id, await getPublicProfile(id)] as const)
+    [...ids].map(async (id) => [id, await getPublicProfile(id)] as const),
   );
   const profiles = new Map(profileEntries);
 
@@ -43,9 +43,7 @@ export async function CommunityData() {
             searchHandle: profile?.searchHandle ?? null,
             avatarUrl: profile?.avatarUrl ?? null,
             lastActivity:
-              f.lastActivityMs != null
-                ? new Date(f.lastActivityMs).toISOString()
-                : null,
+              f.lastActivityMs != null ? new Date(f.lastActivityMs).toISOString() : null,
           };
         }),
         requests: requestIds.map((r) => {

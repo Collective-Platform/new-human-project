@@ -47,9 +47,7 @@ if (!typeParsed.success) {
 }
 const categoryParsed = TaskCategory.safeParse(categoryArg);
 if (!categoryParsed.success) {
-  fail(
-    `Invalid category: "${categoryArg}". Expected one of: ${TaskCategory.options.join(", ")}`,
-  );
+  fail(`Invalid category: "${categoryArg}". Expected one of: ${TaskCategory.options.join(", ")}`);
 }
 
 if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) {

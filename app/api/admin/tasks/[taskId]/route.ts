@@ -3,10 +3,7 @@ import { db } from "@/src/db";
 import { blockDayTasks } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ taskId: string }> }
-) {
+export async function PUT(request: Request, { params }: { params: Promise<{ taskId: string }> }) {
   const user = await getSessionUser();
   if (!user || !isAdmin(user)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });

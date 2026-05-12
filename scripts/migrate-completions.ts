@@ -27,8 +27,7 @@ import { join, resolve } from "node:path";
 import matter from "gray-matter";
 import { TaskFrontmatter } from "../src/features/content/program/schema";
 
-const DATABASE_URL =
-  process.env.DATABASE_URL ?? "postgres://localhost:5432/new_human_dev";
+const DATABASE_URL = process.env.DATABASE_URL ?? "postgres://localhost:5432/new_human_dev";
 const PG_OPTIONS = "-c search_path=nhp,public";
 
 const PROGRAM_ROOT = resolve(process.cwd(), "data", "program");
@@ -68,8 +67,7 @@ function loadRegistry(): Map<string, string> {
     if (!fm.success) continue;
     const { id, block, day, type, category } = fm.data;
     // Bridge: registry uses type='info' for what the DB calls 'exercise'
-    const dbType =
-      type === "info" && category === "Physical" ? "exercise" : type;
+    const dbType = type === "info" && category === "Physical" ? "exercise" : type;
     const key = `${block}:${day}:${dbType}`;
     if (map.has(key)) {
       console.warn(`⚠  Duplicate registry key ${key} — skipping ${filePath}`);
@@ -107,9 +105,7 @@ async function main() {
       day_number: number;
       task_type: string;
       category: string;
-    }>(
-      "SELECT id, block_number, day_number, task_type, category FROM block_day_tasks"
-    );
+    }>("SELECT id, block_number, day_number, task_type, category FROM block_day_tasks");
     console.log(`🗄  Found ${dbTasks.length} rows in block_day_tasks`);
 
     // Build old_uuid → new_ulid mapping
@@ -123,7 +119,7 @@ async function main() {
         uuidToUlid.set(t.id, newId);
       } else {
         unmatchedDbTasks.push(
-          `  block=${t.block_number} day=${t.day_number} type=${t.task_type} uuid=${t.id}`
+          `  block=${t.block_number} day=${t.day_number} type=${t.task_type} uuid=${t.id}`,
         );
       }
     }
@@ -131,7 +127,7 @@ async function main() {
     console.log(`🔗 Mapped ${uuidToUlid.size} DB tasks to registry ULIDs`);
     if (unmatchedDbTasks.length > 0) {
       console.log(
-        `⚠  ${unmatchedDbTasks.length} DB tasks had no registry match (will not be migrated):`
+        `⚠  ${unmatchedDbTasks.length} DB tasks had no registry match (will not be migrated):`,
       );
       unmatchedDbTasks.forEach((l) => console.log(l));
     }
@@ -143,11 +139,9 @@ async function main() {
       task_id: string;
     }>(
       // task_ids starting with 't_' are already in ULID format — skip them
-      "SELECT id, user_id, task_id FROM task_completions WHERE task_id NOT LIKE 't_%'"
+      "SELECT id, user_id, task_id FROM task_completions WHERE task_id NOT LIKE 't_%'",
     );
-    console.log(
-      `\n📋 Found ${completions.length} completion rows with legacy UUID task_ids`
-    );
+    console.log(`\n📋 Found ${completions.length} completion rows with legacy UUID task_ids`);
 
     if (completions.length === 0) {
       console.log("✅ Nothing to migrate.");
@@ -161,9 +155,7 @@ async function main() {
       user_id: number;
       task_id: string;
     }>("SELECT user_id, task_id FROM task_completions WHERE task_id LIKE 't_%'");
-    const existingUlidKeys = new Set(
-      existingUlidRows.map((r) => `${r.user_id}:${r.task_id}`)
-    );
+    const existingUlidKeys = new Set(existingUlidRows.map((r) => `${r.user_id}:${r.task_id}`));
 
     let migrated = 0;
     let deduped = 0;
@@ -184,30 +176,25 @@ async function main() {
       if (DRY_RUN) {
         if (hasConflict) {
           console.log(
-            `  [dry-run] DELETE (duplicate) user=${row.user_id} ${row.task_id} — ULID row ${newId} already exists`
+            `  [dry-run] DELETE (duplicate) user=${row.user_id} ${row.task_id} — ULID row ${newId} already exists`,
           );
         } else {
-          console.log(
-            `  [dry-run] UPDATE user=${row.user_id} ${row.task_id} → ${newId}`
-          );
+          console.log(`  [dry-run] UPDATE user=${row.user_id} ${row.task_id} → ${newId}`);
         }
       } else if (hasConflict) {
         // A ULID completion for this user+task already exists (user completed
         // the task via the new registry path after the registry was deployed).
         // The UUID row is a duplicate — delete it, keeping the ULID row.
-        await client.query(
-          "DELETE FROM task_completions WHERE id = $1",
-          [row.id]
-        );
+        await client.query("DELETE FROM task_completions WHERE id = $1", [row.id]);
         console.log(
-          `  🗑  DELETE duplicate user=${row.user_id} ${row.task_id} (ULID ${newId} already exists)`
+          `  🗑  DELETE duplicate user=${row.user_id} ${row.task_id} (ULID ${newId} already exists)`,
         );
         deduped++;
       } else {
-        await client.query(
-          "UPDATE task_completions SET task_id = $1 WHERE id = $2",
-          [newId, row.id]
-        );
+        await client.query("UPDATE task_completions SET task_id = $1 WHERE id = $2", [
+          newId,
+          row.id,
+        ]);
         console.log(`  ✓ UPDATE user=${row.user_id} ${row.task_id} → ${newId}`);
         migrated++;
       }
@@ -215,13 +202,10 @@ async function main() {
 
     console.log(`\n${DRY_RUN ? "[dry-run] Would run" : "✅ Done"}:`);
     console.log(`  ${migrated} rows updated (UUID → ULID)`);
-    if (deduped > 0)
-      console.log(`  ${deduped} duplicate UUID rows deleted (ULID already existed)`);
+    if (deduped > 0) console.log(`  ${deduped} duplicate UUID rows deleted (ULID already existed)`);
 
     if (noMapping > 0) {
-      console.log(
-        `⚠  ${noMapping} completion rows had UUIDs with no registry match (orphaned)`
-      );
+      console.log(`⚠  ${noMapping} completion rows had UUIDs with no registry match (orphaned)`);
       noMappingIds.forEach((id) => console.log(`  ${id}`));
       if (noMapping > noMappingIds.length)
         console.log(`  … and ${noMapping - noMappingIds.length} more`);
@@ -230,17 +214,13 @@ async function main() {
     if (!DRY_RUN) {
       // Verification query
       const { rows: remaining } = await client.query<{ count: string }>(
-        "SELECT COUNT(*) AS count FROM task_completions WHERE task_id NOT LIKE 't_%'"
+        "SELECT COUNT(*) AS count FROM task_completions WHERE task_id NOT LIKE 't_%'",
       );
       const leftover = parseInt(remaining[0].count);
       if (leftover === 0) {
-        console.log(
-          "\n✅ Verification passed — 0 legacy UUID task_ids remain in task_completions"
-        );
+        console.log("\n✅ Verification passed — 0 legacy UUID task_ids remain in task_completions");
       } else {
-        console.log(
-          `\n⚠  Verification: ${leftover} rows still have legacy UUID task_ids`
-        );
+        console.log(`\n⚠  Verification: ${leftover} rows still have legacy UUID task_ids`);
       }
     }
   } finally {

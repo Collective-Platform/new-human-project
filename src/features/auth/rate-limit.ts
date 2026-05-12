@@ -12,7 +12,7 @@ interface RateLimitConfig {
 }
 
 export async function checkRateLimit(
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ): Promise<{ allowed: boolean; remaining: number }> {
   const { identifier, action, maxAttempts, windowMinutes } = config;
   const now = new Date();
@@ -21,12 +21,7 @@ export async function checkRateLimit(
   const existing = await db
     .select()
     .from(rateLimitAttempts)
-    .where(
-      and(
-        eq(rateLimitAttempts.identifier, identifier),
-        eq(rateLimitAttempts.action, action)
-      )
-    )
+    .where(and(eq(rateLimitAttempts.identifier, identifier), eq(rateLimitAttempts.action, action)))
     .limit(1);
 
   if (existing.length === 0) {
@@ -47,10 +42,7 @@ export async function checkRateLimit(
       .update(rateLimitAttempts)
       .set({ attemptCount: 1, windowStartedAt: now, lastAttemptAt: now })
       .where(
-        and(
-          eq(rateLimitAttempts.identifier, identifier),
-          eq(rateLimitAttempts.action, action)
-        )
+        and(eq(rateLimitAttempts.identifier, identifier), eq(rateLimitAttempts.action, action)),
       );
     return { allowed: true, remaining: maxAttempts - 1 };
   }
@@ -65,12 +57,7 @@ export async function checkRateLimit(
       attemptCount: record.attemptCount + 1,
       lastAttemptAt: now,
     })
-    .where(
-      and(
-        eq(rateLimitAttempts.identifier, identifier),
-        eq(rateLimitAttempts.action, action)
-      )
-    );
+    .where(and(eq(rateLimitAttempts.identifier, identifier), eq(rateLimitAttempts.action, action)));
 
   return { allowed: true, remaining: maxAttempts - record.attemptCount - 1 };
 }

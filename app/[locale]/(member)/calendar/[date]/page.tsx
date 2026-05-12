@@ -21,11 +21,7 @@ export default async function CalendarDayPage({
         >
           <ArrowLeft size={20} className="text-foreground" />
         </Link>
-        <Suspense
-          fallback={
-            <div className="h-6 w-48 rounded bg-zinc-100 animate-pulse" />
-          }
-        >
+        <Suspense fallback={<div className="h-6 w-48 rounded bg-zinc-100 animate-pulse" />}>
           <CalendarDayData locale={locale} dateStr={dateStr} />
         </Suspense>
       </div>

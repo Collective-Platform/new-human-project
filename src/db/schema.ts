@@ -50,7 +50,7 @@ export const users = nhp.table(
         friend_requests: boolean;
       }>()
       .default(
-        sql`'{"daily_reminder": true, "reminder_time": "08:00", "friend_requests": true}'::jsonb`
+        sql`'{"daily_reminder": true, "reminder_time": "08:00", "friend_requests": true}'::jsonb`,
       ),
     privacyPublic: boolean().notNull().default(true),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -60,7 +60,7 @@ export const users = nhp.table(
     uniqueIndex("users_email_idx").on(sql`lower(${t.email})`),
     uniqueIndex("users_search_handle_idx").on(t.searchHandle),
     index("users_display_name_lower_idx").on(sql`lower(${t.displayName})`),
-  ]
+  ],
 );
 
 // --- Sessions ---------------------------------------------------------------
@@ -77,7 +77,7 @@ export const sessions = nhp.table(
     expiresAt: timestamp({ withTimezone: true }).notNull(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [uniqueIndex("sessions_token_hash_idx").on(t.tokenHash)]
+  (t) => [uniqueIndex("sessions_token_hash_idx").on(t.tokenHash)],
 );
 
 // --- Pending auth (OTPs not yet associated with a verified user) ------------
@@ -101,7 +101,7 @@ export const pendingAuth = nhp.table(
     uniqueIndex("pending_auth_token_hash_idx").on(t.tokenHash),
     index("pending_auth_email_idx").on(sql`lower(${t.email})`),
     index("pending_auth_expires_at_idx").on(t.expiresAt),
-  ]
+  ],
 );
 
 // --- Rate limit attempts ----------------------------------------------------
@@ -116,12 +116,7 @@ export const rateLimitAttempts = nhp.table(
     windowStartedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     lastAttemptAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [
-    uniqueIndex("rate_limit_attempts_identifier_action_idx").on(
-      t.identifier,
-      t.action
-    ),
-  ]
+  (t) => [uniqueIndex("rate_limit_attempts_identifier_action_idx").on(t.identifier, t.action)],
 );
 
 // --- Block Day Tasks --------------------------------------------------------
@@ -162,7 +157,7 @@ export const taskCompletions = nhp.table(
     uniqueIndex("task_completions_user_id_task_id_idx").on(t.userId, t.taskId),
     // Supports ORDER BY completed_at DESC queries (recent feed, activity calendar pre-filter).
     index("task_completions_user_completed_at_idx").on(t.userId, t.completedAt),
-  ]
+  ],
 );
 
 // --- Member Block Completions ----------------------------------------------
@@ -178,11 +173,8 @@ export const memberBlockCompletions = nhp.table(
     completedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
-    uniqueIndex("member_block_completions_user_id_block_number_idx").on(
-      t.userId,
-      t.blockNumber
-    ),
-  ]
+    uniqueIndex("member_block_completions_user_id_block_number_idx").on(t.userId, t.blockNumber),
+  ],
 );
 
 // --- Badge Definitions -----------------------------------------------------
@@ -198,7 +190,7 @@ export const badgeDefinitions = nhp.table(
     isMilestone: boolean(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [uniqueIndex("badge_definitions_block_number_idx").on(t.blockNumber)]
+  (t) => [uniqueIndex("badge_definitions_block_number_idx").on(t.blockNumber)],
 );
 
 // --- Member Badges ---------------------------------------------------------
@@ -215,9 +207,7 @@ export const memberBadges = nhp.table(
       .references(() => badgeDefinitions.id),
     earnedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [
-    uniqueIndex("member_badges_user_id_badge_id_idx").on(t.userId, t.badgeId),
-  ]
+  (t) => [uniqueIndex("member_badges_user_id_badge_id_idx").on(t.userId, t.badgeId)],
 );
 
 // --- Friend Requests -------------------------------------------------------
@@ -236,12 +226,7 @@ export const friendRequests = nhp.table(
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [
-    uniqueIndex("friend_requests_sender_id_receiver_id_idx").on(
-      t.senderId,
-      t.receiverId
-    ),
-  ]
+  (t) => [uniqueIndex("friend_requests_sender_id_receiver_id_idx").on(t.senderId, t.receiverId)],
 );
 
 // --- Push Subscriptions ----------------------------------------------------
@@ -264,7 +249,7 @@ export const pushSubscriptions = nhp.table(
   (t) => [
     uniqueIndex("push_subscriptions_endpoint_idx").on(t.endpoint),
     index("push_subscriptions_user_id_idx").on(t.userId),
-  ]
+  ],
 );
 
 // --- Notification Log ------------------------------------------------------

@@ -33,10 +33,10 @@ export async function getDashboardForUser(
   onboardedAtMs: number,
   daysWindow: number,
   locale: "en" | "zh",
-  currentDay: number
+  currentDay: number,
 ): Promise<DashboardData> {
-  'use cache';
-  cacheLife('minutes');
+  "use cache";
+  cacheLife("minutes");
   cacheTag(`dashboard:${userId}`);
 
   const onboardedAt = new Date(onboardedAtMs);
@@ -64,12 +64,7 @@ export async function getDashboardForUser(
       completedAt: taskCompletions.completedAt,
     })
     .from(taskCompletions)
-    .where(
-      and(
-        eq(taskCompletions.userId, userId),
-        gte(taskCompletions.completedAt, startDate)
-      )
-    )
+    .where(and(eq(taskCompletions.userId, userId), gte(taskCompletions.completedAt, startDate)))
     .orderBy(desc(taskCompletions.completedAt))
     .limit(10);
 
@@ -100,12 +95,7 @@ export async function getDashboardForUser(
     })
     .from(memberBadges)
     .innerJoin(badgeDefinitions, eq(memberBadges.badgeId, badgeDefinitions.id))
-    .where(
-      and(
-        eq(memberBadges.userId, userId),
-        eq(badgeDefinitions.blockNumber, blockNumber)
-      )
-    )
+    .where(and(eq(memberBadges.userId, userId), eq(badgeDefinitions.blockNumber, blockNumber)))
     .limit(1);
 
   const blockDoneQ = db
@@ -114,22 +104,20 @@ export async function getDashboardForUser(
     .where(
       and(
         eq(memberBlockCompletions.userId, userId),
-        eq(memberBlockCompletions.blockNumber, blockNumber)
-      )
+        eq(memberBlockCompletions.blockNumber, blockNumber),
+      ),
     )
     .limit(1);
 
-  const [allCompletions, recentRows, streakResult, badgeRows, blockDoneRows] =
-    await batchOrAll([
-      allCompletionsQ,
-      recentQ,
-      streakQ,
-      badgeQ,
-      blockDoneQ,
-    ]);
+  const [allCompletions, recentRows, streakResult, badgeRows, blockDoneRows] = await batchOrAll([
+    allCompletionsQ,
+    recentQ,
+    streakQ,
+    badgeQ,
+    blockDoneQ,
+  ]);
 
-  const streakRow = (streakResult as unknown as { rows: { streak: number }[] })
-    .rows[0];
+  const streakRow = (streakResult as unknown as { rows: { streak: number }[] }).rows[0];
   const streak = streakRow ? Number(streakRow.streak) : 0;
   const earnedBadge = badgeRows[0] ?? null;
   const blockDone = blockDoneRows.length > 0;
@@ -231,4 +219,3 @@ export async function getDashboardForUser(
     blockEndedWithoutCompletion,
   };
 }
-

@@ -12,9 +12,7 @@ function optional(key: string, fallback: string): string {
 
 export const env = {
   DATABASE_URL: required("DATABASE_URL"),
-  DATABASE_PROVIDER: optional("DATABASE_PROVIDER", "local") as
-    | "local"
-    | "neon",
+  DATABASE_PROVIDER: optional("DATABASE_PROVIDER", "local") as "local" | "neon",
   SESSION_SECRET: required("SESSION_SECRET"),
   VAPID_PUBLIC_KEY: optional("VAPID_PUBLIC_KEY", ""),
   VAPID_PRIVATE_KEY: optional("VAPID_PRIVATE_KEY", ""),

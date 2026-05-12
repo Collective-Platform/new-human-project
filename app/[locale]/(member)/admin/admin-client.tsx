@@ -46,12 +46,8 @@ export function AdminClient() {
 
   return (
     <div className="px-4 pt-4 pb-4 space-y-4">
-      <h1 className="font-headline text-xl font-bold text-foreground">
-        Content Manager
-      </h1>
-      <p className="text-sm text-foreground/60">
-        Block 1 — 25 Days · Edit content below
-      </p>
+      <h1 className="font-headline text-xl font-bold text-foreground">Content Manager</h1>
+      <p className="text-sm text-foreground/60">Block 1 — 25 Days · Edit content below</p>
 
       {loading && (
         <div className="flex justify-center py-12">
@@ -66,26 +62,17 @@ export function AdminClient() {
             const isExpanded = expandedDay === day;
 
             return (
-              <div
-                key={day}
-                className="rounded-md bg-white shadow-card overflow-hidden"
-              >
+              <div key={day} className="rounded-md bg-white shadow-card overflow-hidden">
                 <button
-                  onClick={() =>
-                    setExpandedDay(isExpanded ? null : day)
-                  }
+                  onClick={() => setExpandedDay(isExpanded ? null : day)}
                   className="flex w-full items-center justify-between px-4 py-3.5"
                 >
                   <div className="flex items-center gap-3">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                       {day}
                     </span>
-                    <span className="text-sm font-semibold text-foreground">
-                      Day {day}
-                    </span>
-                    <span className="text-xs text-foreground/40">
-                      {dayTasks.length} tasks
-                    </span>
+                    <span className="text-sm font-semibold text-foreground">Day {day}</span>
+                    <span className="text-xs text-foreground/40">{dayTasks.length} tasks</span>
                   </div>
                   <ChevronDown
                     size={18}
@@ -95,9 +82,7 @@ export function AdminClient() {
                   />
                 </button>
 
-                {isExpanded && (
-                  <DayEditor tasks={dayTasks} onSaved={fetchTasks} />
-                )}
+                {isExpanded && <DayEditor tasks={dayTasks} onSaved={fetchTasks} />}
               </div>
             );
           })}

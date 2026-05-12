@@ -15,16 +15,8 @@ export async function GET() {
       data: taskCompletions.data,
     })
     .from(taskCompletions)
-    .innerJoin(
-      blockDayTasks,
-      sql`${taskCompletions.taskId} = ${blockDayTasks.id}::text`
-    )
-    .where(
-      and(
-        eq(taskCompletions.userId, user.id),
-        eq(blockDayTasks.taskType, "mood_log")
-      )
-    )
+    .innerJoin(blockDayTasks, sql`${taskCompletions.taskId} = ${blockDayTasks.id}::text`)
+    .where(and(eq(taskCompletions.userId, user.id), eq(blockDayTasks.taskType, "mood_log")))
     .orderBy(desc(taskCompletions.completedAt))
     .limit(100);
 

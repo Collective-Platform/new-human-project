@@ -12,6 +12,7 @@ interface SearchResult {
   displayName: string | null;
   avatarUrl: string | null;
   searchHandle: string | null;
+  connectionStatus: "none" | "sent" | "friends";
 }
 
 const fetcher = (url: string) =>
@@ -29,14 +30,11 @@ function useDebounced<T>(value: T, ms = 250): T {
   return debounced;
 }
 
-export function AddFriends({
-  onRequestSent,
-}: {
-  onRequestSent: () => void;
-}) {
+export function AddFriends({ onRequestSent }: { onRequestSent: () => void }) {
   const t = useTranslations("community");
   const [query, setQuery] = useState("");
   const [sentIds, setSentIds] = useState<Set<number>>(new Set());
+  const [friendIds, setFriendIds] = useState<Set<number>>(new Set());
 
   // Strip a leading "@" so users can paste "@alice" or type "alice"
   const normalized = query.trim().replace(/^@+/, "");
@@ -44,14 +42,20 @@ export function AddFriends({
   const shouldSearch = debounced.length >= 2;
 
   const { data, error, isLoading } = useSWR(
-    shouldSearch
-      ? `/api/friends/search?q=${encodeURIComponent(debounced)}`
-      : null,
+    shouldSearch ? `/api/friends/search?q=${encodeURIComponent(debounced)}` : null,
     fetcher,
     { keepPreviousData: true },
   );
 
   const results = data?.results ?? [];
+
+  useEffect(() => {
+    if (!data) return;
+    setSentIds(new Set(data.results.filter((r) => r.connectionStatus === "sent").map((r) => r.id)));
+    setFriendIds(
+      new Set(data.results.filter((r) => r.connectionStatus === "friends").map((r) => r.id)),
+    );
+  }, [data]);
 
   async function handleAdd(userId: number) {
     const result = await requestFriend({ receiverId: userId });
@@ -65,7 +69,10 @@ export function AddFriends({
     <div className="space-y-4">
       {/* Search input */}
       <div className="relative">
-        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+        <Search
+          size={20}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
+        />
         <input
           type="text"
           value={query}
@@ -85,9 +92,7 @@ export function AddFriends({
       )}
 
       {error && !isLoading && (
-        <p className="text-center text-sm text-error py-6">
-          Search failed. Try again.
-        </p>
+        <p className="text-center text-sm text-error py-6">Search failed. Try again.</p>
       )}
 
       {/* Results */}
@@ -117,21 +122,23 @@ export function AddFriends({
                   {user.displayName ?? "User"}
                 </p>
                 {user.searchHandle && (
-                  <p className="text-xs text-on-surface-variant mt-0.5">
-                    @{user.searchHandle}
-                  </p>
+                  <p className="text-xs text-on-surface-variant mt-0.5">@{user.searchHandle}</p>
                 )}
               </div>
               <button
                 onClick={() => handleAdd(user.id)}
-                disabled={sentIds.has(user.id)}
+                disabled={sentIds.has(user.id) || friendIds.has(user.id)}
                 className={`rounded-full px-4 py-1.5 text-xs font-bold transition-opacity shrink-0 ${
-                  sentIds.has(user.id)
+                  sentIds.has(user.id) || friendIds.has(user.id)
                     ? "bg-surface-container-highest text-on-surface-variant"
                     : "bg-on-surface text-surface hover:opacity-90"
                 }`}
               >
-                {sentIds.has(user.id) ? "Sent" : t("addFriend")}
+                {friendIds.has(user.id)
+                  ? t("friends")
+                  : sentIds.has(user.id)
+                    ? t("requestSent")
+                    : t("addFriend")}
               </button>
             </div>
           ))}
@@ -139,9 +146,7 @@ export function AddFriends({
       )}
 
       {!isLoading && shouldSearch && !error && results.length === 0 && (
-        <p className="text-center text-sm text-on-surface-variant py-6">
-          No users found
-        </p>
+        <p className="text-center text-sm text-on-surface-variant py-6">No users found</p>
       )}
     </div>
   );

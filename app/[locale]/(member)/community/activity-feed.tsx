@@ -1,14 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import {
-  BookOpenText,
-  Smile,
-  SportShoe,
-  CheckCircle,
-  User,
-  type LucideIcon,
-} from "lucide-react";
+import { BookOpenText, Smile, SportShoe, CheckCircle, User, type LucideIcon } from "lucide-react";
 
 interface FeedItem {
   displayName: string | null;
@@ -79,9 +72,7 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
       {items.map((item, i) => {
         const style = categoryStyles[item.category] ?? defaultStyle;
         const CategoryIcon = style.Icon;
-        const name = item.searchHandle
-          ? `@${item.searchHandle}`
-          : item.displayName ?? "User";
+        const name = item.searchHandle ? `@${item.searchHandle}` : (item.displayName ?? "User");
         return (
           <div
             key={i}
@@ -113,9 +104,7 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
                 <p className="text-on-surface text-sm">
                   <span className="font-bold">{name}</span>{" "}
                   <span className="text-on-surface-variant">completed</span>{" "}
-                  <span className={`font-semibold ${style.accentText}`}>
-                    {item.activity}
-                  </span>
+                  <span className={`font-semibold ${style.accentText}`}>{item.activity}</span>
                 </p>
                 <span className="text-[10px] font-bold text-outline uppercase tracking-tighter shrink-0 ml-2">
                   {relativeTime(item.completedAt)}

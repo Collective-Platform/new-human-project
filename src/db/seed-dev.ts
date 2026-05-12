@@ -11,14 +11,12 @@ config({ path: ".env.local" });
 import { randomBytes, createHmac } from "node:crypto";
 import pg from "pg";
 
-const DATABASE_URL =
-  process.env.DATABASE_URL ?? "postgres://localhost:5432/new_human_dev";
+const DATABASE_URL = process.env.DATABASE_URL ?? "postgres://localhost:5432/new_human_dev";
 const SESSION_SECRET = process.env.SESSION_SECRET ?? "dev-secret-change-me";
 
 function generateSessionId(): string {
   // 21-char nanoid-style ID matching giving-platform session IDs
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
   const bytes = randomBytes(21);
   let id = "";
   for (let i = 0; i < 21; i++) {
@@ -68,12 +66,8 @@ async function seed() {
     const testUser = userResult.rows[0];
     const adminUser = adminResult.rows[0];
 
-    console.log(
-      `  ✅ User:  id=${testUser.id}  ${testUser.email}  (${testUser.role})`,
-    );
-    console.log(
-      `  ✅ Admin: id=${adminUser.id}  ${adminUser.email}  (${adminUser.role})`,
-    );
+    console.log(`  ✅ User:  id=${testUser.id}  ${testUser.email}  (${testUser.role})`);
+    console.log(`  ✅ Admin: id=${adminUser.id}  ${adminUser.email}  (${adminUser.role})`);
 
     // Create sessions for both users
     const sessions: { email: string; cookie: string }[] = [];

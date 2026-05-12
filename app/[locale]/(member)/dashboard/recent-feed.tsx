@@ -29,9 +29,7 @@ export function RecentFeed({
 }) {
   return (
     <section className="space-y-4">
-      <h3 className="px-2 font-headline text-xl font-bold text-on-surface">
-        {title}
-      </h3>
+      <h3 className="px-2 font-headline text-xl font-bold text-on-surface">{title}</h3>
       {items.length === 0 ? (
         <p className="rounded-md bg-white p-5 text-center text-sm text-on-surface-variant shadow-[0_4px_16px_rgba(53,50,47,0.03)]">
           {emptyLabel}
@@ -47,14 +45,19 @@ export function RecentFeed({
                 className={`h-10 w-1.5 shrink-0 rounded-full ${categoryBarColor[item.category] ?? "bg-zinc-300"}`}
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate font-bold text-on-surface">
-                  {item.name}
-                </p>
-                <p className="truncate text-xs font-medium text-on-surface-variant" suppressHydrationWarning>
+                <p className="truncate font-bold text-on-surface">{item.name}</p>
+                <p
+                  className="truncate text-xs font-medium text-on-surface-variant"
+                  suppressHydrationWarning
+                >
                   {item.category} · {relativeTime(item.completedAt)}
                 </p>
               </div>
-              <ChevronRight size={22} className="shrink-0 text-outline-variant" aria-hidden="true" />
+              <ChevronRight
+                size={22}
+                className="shrink-0 text-outline-variant"
+                aria-hidden="true"
+              />
             </div>
           ))}
         </div>

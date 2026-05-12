@@ -9,11 +9,7 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   // Strip leading "@" so "@alice" matches handles stored as "alice"
-  const q =
-    url.searchParams
-      .get("q")
-      ?.trim()
-      .replace(/^@+/, "") ?? "";
+  const q = url.searchParams.get("q")?.trim().replace(/^@+/, "") ?? "";
 
   if (q.length < 2) {
     return Response.json({ results: [] });
@@ -27,6 +23,7 @@ export async function GET(request: Request) {
       displayName: r.display_name,
       avatarUrl: r.avatar_url,
       searchHandle: r.search_handle,
+      connectionStatus: r.connection_status,
     })),
   });
 }

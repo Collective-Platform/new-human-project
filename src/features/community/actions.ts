@@ -1,12 +1,8 @@
-'use server';
+"use server";
 
 import { updateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
-import {
-  sendFriendRequest,
-  acceptFriendRequest,
-  rejectFriendRequest,
-} from "./queries";
+import { sendFriendRequest, acceptFriendRequest, rejectFriendRequest } from "./queries";
 import { sendPushToUser } from "@/src/features/notifications";
 
 export async function requestFriend(input: {
@@ -23,7 +19,7 @@ export async function requestFriend(input: {
   if (result) {
     const senderName = user.searchHandle
       ? `@${user.searchHandle}`
-      : user.displayName ?? "Someone";
+      : (user.displayName ?? "Someone");
     sendPushToUser(
       receiverId,
       {
@@ -31,7 +27,7 @@ export async function requestFriend(input: {
         body: `${senderName} sent you a friend request`,
         url: "/community",
       },
-      "friend_request"
+      "friend_request",
     ).catch(() => {});
   }
 

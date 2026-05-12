@@ -10,19 +10,13 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const reference = url.searchParams.get("reference");
   if (!reference) {
-    return Response.json(
-      { error: "Missing 'reference' query parameter" },
-      { status: 400 },
-    );
+    return Response.json({ error: "Missing 'reference' query parameter" }, { status: 400 });
   }
 
   try {
     const result = await getBilingualPassage(reference);
     if (!result) {
-      return Response.json(
-        { error: `Could not parse reference: ${reference}` },
-        { status: 400 },
-      );
+      return Response.json({ error: `Could not parse reference: ${reference}` }, { status: 400 });
     }
     return Response.json(result);
   } catch (err) {

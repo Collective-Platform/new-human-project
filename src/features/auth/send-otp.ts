@@ -23,7 +23,7 @@ export async function sendOtp(email: string, otp: string): Promise<void> {
   if (!response.ok) {
     const body = await response.text();
     throw new Error(
-      `Failed to send OTP email: ${response.status} ${response.statusText} — ${body}`
+      `Failed to send OTP email: ${response.status} ${response.statusText} — ${body}`,
     );
   }
 }

@@ -10,14 +10,7 @@ const moods = [
   { key: "excellent", emoji: "😆" },
 ] as const;
 
-const influenceKeys = [
-  "family",
-  "friends",
-  "love",
-  "work",
-  "school",
-  "health",
-] as const;
+const influenceKeys = ["family", "friends", "love", "work", "school", "health"] as const;
 
 export function MoodLogRenderer({
   completed,
@@ -92,9 +85,7 @@ export function MoodLogRenderer({
   };
 
   function toggleInfluence(key: string) {
-    setInfluences((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
-    );
+    setInfluences((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
   }
 
   function toggleMood(key: string) {
@@ -111,8 +102,7 @@ export function MoodLogRenderer({
     });
   }
 
-  const canSubmit =
-    !loading && selectedMoods.length > 0 && (!completed || hasChanges);
+  const canSubmit = !loading && selectedMoods.length > 0 && (!completed || hasChanges);
 
   let buttonLabel = labels.submit;
   if (completed && hasChanges) {

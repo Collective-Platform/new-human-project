@@ -58,13 +58,14 @@ progress views.
 
 ```yaml
 ---
-id: t_01HXYZK4N9P7QF3M2A8B1C9D0E   # ULID, IMMUTABLE
+id: t_01HXYZK4N9P7QF3M2A8B1C9D0E # ULID, IMMUTABLE
 block: 1
 day: 1
-order: 40                           # sort key within (block, day)
-category: Mental                    # Mental | Emotional | Physical
-type: devotional                    # devotional | scripture_reading
-                                    #  | scripture_study | mood_log | info
+order: 40 # sort key within (block, day)
+category: Mental # Mental | Emotional | Physical
+type:
+  devotional # devotional | scripture_reading
+  #  | scripture_study | mood_log | info
 name:
   en: "Day 1 — A Letter Written from Prison"
   zh: "..."

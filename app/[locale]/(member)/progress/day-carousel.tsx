@@ -105,11 +105,7 @@ export function DayCarousel({
                 </span>
                 <span
                   className={`text-lg font-bold leading-none ${
-                    isSelected
-                      ? "text-white"
-                      : d.fullyCompleted
-                        ? "text-primary"
-                        : "text-zinc-600"
+                    isSelected ? "text-white" : d.fullyCompleted ? "text-primary" : "text-zinc-600"
                   }`}
                 >
                   {d.day}

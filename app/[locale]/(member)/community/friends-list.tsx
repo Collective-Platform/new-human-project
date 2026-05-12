@@ -12,13 +12,7 @@ interface Friend {
   lastActivity: string | null;
 }
 
-function Avatar({
-  url,
-  name,
-}: {
-  url: string | null;
-  name: string | null;
-}) {
+function Avatar({ url, name }: { url: string | null; name: string | null }) {
   if (url) {
     return (
       <Image
@@ -65,7 +59,7 @@ export function FriendsList({ friends }: { friends: Friend[] }) {
       {friends.map((friend) => {
         const friendName = friend.searchHandle
           ? `@${friend.searchHandle}`
-          : friend.displayName ?? "User";
+          : (friend.displayName ?? "User");
 
         return (
           <div

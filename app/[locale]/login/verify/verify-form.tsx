@@ -77,10 +77,7 @@ export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mo
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
       <div>
-        <label
-          htmlFor="otp"
-          className="block text-sm font-medium text-foreground/70 mb-1"
-        >
+        <label htmlFor="otp" className="block text-sm font-medium text-foreground/70 mb-1">
           Verification code
         </label>
         <input
@@ -98,9 +95,7 @@ export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mo
       </div>
 
       {error && <p className="text-sm text-primary">{error}</p>}
-      {resent && (
-        <p className="text-sm text-secondary">A new code has been sent.</p>
-      )}
+      {resent && <p className="text-sm text-secondary">A new code has been sent.</p>}
 
       <button
         type="submit"

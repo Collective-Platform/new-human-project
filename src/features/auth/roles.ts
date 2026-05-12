@@ -9,10 +9,7 @@ export function hasRole(user: SessionUser, requiredRole: UserRole): boolean {
     admin: 1,
     su: 2,
   };
-  return (
-    (roleHierarchy[user.role as UserRole] ?? -1) >=
-    roleHierarchy[requiredRole]
-  );
+  return (roleHierarchy[user.role as UserRole] ?? -1) >= roleHierarchy[requiredRole];
 }
 
 export function isAdmin(user: SessionUser): boolean {

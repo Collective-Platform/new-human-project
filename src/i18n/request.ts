@@ -8,9 +8,7 @@ type AppLocale = keyof typeof messages;
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
-  const locale: AppLocale = (routing.locales as readonly string[]).includes(
-    requested ?? ""
-  )
+  const locale: AppLocale = (routing.locales as readonly string[]).includes(requested ?? "")
     ? (requested as AppLocale)
     : routing.defaultLocale;
 

@@ -55,10 +55,7 @@ const TASK_ID_PATTERN = /^t_[0-9A-HJKMNP-TV-Z]{26}$/;
 export const TaskFrontmatter = z.looseObject({
   id: z
     .string()
-    .regex(
-      TASK_ID_PATTERN,
-      "id must be 't_' followed by a 26-char ULID (use `pnpm content:new`)",
-    ),
+    .regex(TASK_ID_PATTERN, "id must be 't_' followed by a 26-char ULID (use `pnpm content:new`)"),
   block: z.number().int().positive(),
   day: z.number().int().positive(),
   order: z.number().int().nonnegative(),

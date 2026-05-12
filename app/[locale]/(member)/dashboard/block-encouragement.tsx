@@ -13,9 +13,7 @@ export function BlockEncouragement({ onDismiss }: { onDismiss: () => void }) {
           <p className="font-headline text-sm font-semibold text-foreground">
             {t("encourageMessage")}
           </p>
-          <p className="mt-1 text-xs text-foreground/60">
-            {t("keepGoing")}
-          </p>
+          <p className="mt-1 text-xs text-foreground/60">{t("keepGoing")}</p>
         </div>
         <button
           onClick={onDismiss}

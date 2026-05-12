@@ -34,24 +34,25 @@ The app targets church members who don't know where to start in becoming more li
 
 ## 3. Programme Structure (Developer Context)
 
-| Concept | Detail |
-|---|---|
-| **Block** | A 25-day period of formation activity |
-| **Phase 1 scope** | **Block 1 only** (25 days) |
-| **Future blocks** | Up to 15 blocks (375 days) — Phase 2+ |
-| **Components** | 3 per day: Mental Capacity, Emotional Health, Physical Well-Being |
-| **Mental** | Scripture study through the book of Ephesians — **two levels per day**: Level 1 (memorise the verse) and Level 2 (read the explanation + read a chunk of Ephesians). Level 2 carries more weight on the radar chart. |
-| **Emotional** | Daily mood log — emoji rating, mood influences, free-text context |
-| **Physical** | Simple exercise tick-box — did you exercise today? (honour system) |
-| **Block completion** | User has engaged with all 3 categories at least once within the 25-day block |
-| **Virtual badge** | Awarded on block completion |
-| **Open to** | Anyone — not restricted to church members |
+| Concept              | Detail                                                                                                                                                                                                               |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Block**            | A 25-day period of formation activity                                                                                                                                                                                |
+| **Phase 1 scope**    | **Block 1 only** (25 days)                                                                                                                                                                                           |
+| **Future blocks**    | Up to 15 blocks (375 days) — Phase 2+                                                                                                                                                                                |
+| **Components**       | 3 per day: Mental Capacity, Emotional Health, Physical Well-Being                                                                                                                                                    |
+| **Mental**           | Scripture study through the book of Ephesians — **two levels per day**: Level 1 (memorise the verse) and Level 2 (read the explanation + read a chunk of Ephesians). Level 2 carries more weight on the radar chart. |
+| **Emotional**        | Daily mood log — emoji rating, mood influences, free-text context                                                                                                                                                    |
+| **Physical**         | Simple exercise tick-box — did you exercise today? (honour system)                                                                                                                                                   |
+| **Block completion** | User has engaged with all 3 categories at least once within the 25-day block                                                                                                                                         |
+| **Virtual badge**    | Awarded on block completion                                                                                                                                                                                          |
+| **Open to**          | Anyone — not restricted to church members                                                                                                                                                                            |
 
 ---
 
 ## 4. User Stories
 
 **As a new believer:**
+
 - I want to see which day I'm on in the 25-day block so I know where I am in the journey.
 - I want to see today's content grouped by Mental, Emotional, and Physical so I know what to do.
 - I want to read the assigned Ephesians passage and watch an explanation video for today's Mental task.
@@ -64,17 +65,20 @@ The app targets church members who don't know where to start in becoming more li
 - I want to log in with the same email OTP I use for the church giving platform.
 
 **As a community member:**
+
 - I want to see my friends' recent activity so we can encourage each other.
 - I want to add friends by searching their handle or name.
 - I want to see "people you may know" suggestions based on mutual friends.
 - I want to receive a push notification when someone sends me a friend request.
 
 **As a Chinese-speaking member:**
+
 - I want to toggle the app language to Chinese (中文) so I can navigate and read content in my preferred language.
 - I want my language preference to persist so I don't have to switch every time I open the app.
 - I want Scripture passages, explanations, and all UI text available in Chinese.
 
 **As a church admin/leader:**
+
 - I want to assign the daily Mental content (Ephesians passages, explanations, videos) for each of the 25 days in both English and Chinese.
 - I want to manage content without a code deployment.
 
@@ -181,15 +185,15 @@ The app targets church members who don't know where to start in becoming more li
 
 #### 5.8.1 Radar Chart — Scoring & Behaviour
 
-> **Design rationale:** The radar chart uses **percentage-based scoring (0–100%)** per axis, normalised against days elapsed so far in the block. This follows the industry standard approach (Hevy, Garmin, balanced scorecards) where radar charts show relative balance, not raw counts. Each axis uses the same 0–100% scale so the triangle shape reflects engagement *balance* across the three dimensions.
+> **Design rationale:** The radar chart uses **percentage-based scoring (0–100%)** per axis, normalised against days elapsed so far in the block. This follows the industry standard approach (Hevy, Garmin, balanced scorecards) where radar charts show relative balance, not raw counts. Each axis uses the same 0–100% scale so the triangle shape reflects engagement _balance_ across the three dimensions.
 
 37a. Each axis is scored as a **percentage (0–100%)** representing engagement relative to maximum possible for the days elapsed so far in the current block:
 
-| Axis | Formula | Max per day |
-|---|---|---|
-| **Mental** | `SUM(xp_weight of completed mental tasks) / (days_elapsed × 3) × 100%` | 3 XP (Level 1 = 1, Level 2 = 2) |
-| **Emotional** | `COUNT(mood logs completed) / days_elapsed × 100%` | 1 (one mood log per day) |
-| **Physical** | `COUNT(exercise ticks completed) / days_elapsed × 100%` | 1 (one exercise tick per day) |
+| Axis          | Formula                                                                | Max per day                     |
+| ------------- | ---------------------------------------------------------------------- | ------------------------------- |
+| **Mental**    | `SUM(xp_weight of completed mental tasks) / (days_elapsed × 3) × 100%` | 3 XP (Level 1 = 1, Level 2 = 2) |
+| **Emotional** | `COUNT(mood logs completed) / days_elapsed × 100%`                     | 1 (one mood log per day)        |
+| **Physical**  | `COUNT(exercise ticks completed) / days_elapsed × 100%`                | 1 (one exercise tick per day)   |
 
 37b. **Example:** On Day 10, a member who completed Mental Level 1 on 5 days and Level 1+2 on 3 days, mood logged 8 days, and exercised 6 days would see: Mental = `(5×1 + 3×3) / (10×3) = 46.7%`, Emotional = `8/10 = 80%`, Physical = `6/10 = 60%`.
 
@@ -198,9 +202,10 @@ The app targets church members who don't know where to start in becoming more li
 37d. **Ghost overlay (Phase 2):** In Phase 2, when multiple blocks exist, the previous block's final radar shape is shown as a faint grey triangle behind the current block's active triangle. This lets users compare their engagement balance block-over-block (similar to Hevy's period comparison where current period is blue and previous period is grey).
 
 37e. **Lifetime progress is shown elsewhere**, not on the radar chart:
-  - **Badge collection** — one badge per completed block (already in Req 60–64)
-  - **Streak counter** — persists across blocks, only resets on missed days (already in Req 32–36)
-  - **Block completion history** — stored in `member_block_completions` table
+
+- **Badge collection** — one badge per completed block (already in Req 60–64)
+- **Streak counter** — persists across blocks, only resets on missed days (already in Req 32–36)
+- **Block completion history** — stored in `member_block_completions` table
 
 37f. The radar chart is **computed on read** from `task_completions` joined with `block_day_tasks`, not stored. The query filters by the user's current `block_number` and calculates the percentage for each category.
 
@@ -264,7 +269,7 @@ The app targets church members who don't know where to start in becoming more li
 71. **Notification preferences** — toggle daily reminders and friend request notifications; set reminder time.
 72. **Privacy toggle** — control whether completions are visible to friends.
 73. **Language preference** — shows current language ("English" / "中文") with a toggle to switch (see Req 102).
-73a. Log out button.
+    73a. Log out button.
 
 ### 5.15 Internationalisation (i18n) — English / Chinese
 
@@ -412,6 +417,7 @@ The app targets church members who don't know where to start in becoming more li
 #### Content Translations (Database — Scripture, Explanations)
 
 89. Admin-curated content in `block_day_tasks.content` (Scripture text, memory verses, explanations) must be stored in **both languages** using locale-keyed nested objects inside the existing JSONB column. The structure nests translatable text fields under `"en"` and `"zh"` keys:
+
     ```json
     // task_type: 'scripture_memorise'
     {
@@ -438,6 +444,7 @@ The app targets church members who don't know where to start in becoming more li
       "xp_weight": 2
     }
     ```
+
 90. **Non-translatable fields** (`memory_verse_reference`, `scripture_reference`, `video_url`, `xp_weight`, mood options, influence options) remain as flat values — they are the same in both languages or are already handled by UI string translations.
 91. The `name` column on `block_day_tasks` stores the **English name** as a key identifier. The display name shown to users is resolved via `next-intl` message keys (e.g., `progress.memorise` with the reference interpolated), not from the `name` column directly.
 92. The frontend reads the current locale from `localStorage` and extracts the matching language value from the JSONB content: `content.scripture_text[locale]`.
@@ -455,10 +462,10 @@ The app targets church members who don't know where to start in becoming more li
 
 95. The Google Sheet for content seeding must include bilingual columns:
 
-    | block | day | order | category | task_type | name | memory_verse_ref | memory_verse_text_en | memory_verse_text_zh | scripture_reference | scripture_text_en | scripture_text_zh | explanation_en | explanation_zh | video_url | xp_weight |
-    |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-    | 1 | 1 | 1 | Mental | scripture_memorise | Memorise Ephesians 1:3 | Ephesians 1:3 | Praise be to the God... | 愿颂赞归与我们主耶稣基督的父神… | | | | | | | 1 |
-    | 1 | 1 | 2 | Mental | scripture_study | Study Ephesians 1:1-14 | | | | Ephesians 1:1-14 | Paul, an apostle... | 奉神旨意… | This opening... | 这段开篇… | https://youtube.com/... | 2 |
+    | block | day | order | category | task_type          | name                   | memory_verse_ref | memory_verse_text_en    | memory_verse_text_zh            | scripture_reference | scripture_text_en   | scripture_text_zh | explanation_en  | explanation_zh | video_url               | xp_weight |
+    | ----- | --- | ----- | -------- | ------------------ | ---------------------- | ---------------- | ----------------------- | ------------------------------- | ------------------- | ------------------- | ----------------- | --------------- | -------------- | ----------------------- | --------- |
+    | 1     | 1   | 1     | Mental   | scripture_memorise | Memorise Ephesians 1:3 | Ephesians 1:3    | Praise be to the God... | 愿颂赞归与我们主耶稣基督的父神… |                     |                     |                   |                 |                |                         | 1         |
+    | 1     | 1   | 2     | Mental   | scripture_study    | Study Ephesians 1:1-14 |                  |                         |                                 | Ephesians 1:1-14    | Paul, an apostle... | 奉神旨意…         | This opening... | 这段开篇…      | https://youtube.com/... | 2         |
 
 96. The seed script must pack the `_en` and `_zh` columns into the locale-keyed JSONB structure when inserting into `block_day_tasks.content`.
 
@@ -469,6 +476,7 @@ The app targets church members who don't know where to start in becoming more li
     headline: ['Plus Jakarta Sans', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif]
     body:     ['Manrope', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif]
     ```
+
     - **Noto Sans SC** (Google Fonts, free) provides full Simplified Chinese coverage and matches the clean, modern aesthetic of Plus Jakarta Sans and Manrope.
     - **PingFang SC** is the system font on Apple devices (macOS/iOS) — no download required.
     - **Microsoft YaHei** is the system font on Windows — no download required.
@@ -479,6 +487,7 @@ The app targets church members who don't know where to start in becoming more li
 98. The i18n implementation must follow the **`next-intl` client-side locale** pattern (no URL-based locale routing like `/en/dashboard` or `/zh/dashboard`). The locale is determined by `localStorage`, not the URL path. This avoids URL complexity and keeps the toggle instant.
 
 99. Project structure for i18n:
+
     ```
     /src
       /i18n
@@ -493,16 +502,17 @@ The app targets church members who don't know where to start in becoming more li
       zh.json
     ```
 
-100. The `next-intl` provider must wrap the app layout and receive the locale from a client-side hook that reads `localStorage`:
-     ```tsx
-     // Simplified flow:
-     // 1. Client reads localStorage.getItem('locale') ?? 'en'
-     // 2. Passes locale to NextIntlClientProvider
-     // 3. All components use useTranslations('namespace') to get translated strings
-     // 4. Language toggle updates localStorage and triggers re-render
-     ```
+100.  The `next-intl` provider must wrap the app layout and receive the locale from a client-side hook that reads `localStorage`:
 
-101. Push notification text (Req 56) must be sent in the user's preferred language. Since `localStorage` is client-only, the user's locale preference must also be stored in a **cookie** (`locale`, value `"en"` or `"zh"`) so the server can read it when composing push notification payloads. The cookie is set alongside `localStorage` whenever the user toggles language.
+      ```tsx
+      // Simplified flow:
+      // 1. Client reads localStorage.getItem('locale') ?? 'en'
+      // 2. Passes locale to NextIntlClientProvider
+      // 3. All components use useTranslations('namespace') to get translated strings
+      // 4. Language toggle updates localStorage and triggers re-render
+      ```
+
+101.  Push notification text (Req 56) must be sent in the user's preferred language. Since `localStorage` is client-only, the user's locale preference must also be stored in a **cookie** (`locale`, value `"en"` or `"zh"`) so the server can read it when composing push notification payloads. The cookie is set alongside `localStorage` whenever the user toggles language.
 
 #### Profile Settings — Language Preference
 
@@ -520,43 +530,45 @@ The app targets church members who don't know where to start in becoming more li
 
 ## 6. Non-Goals (Out of Scope for Phase 1)
 
-| Feature | Target Phase |
-|---|---|
-| Multiple blocks (Blocks 2–15) | Phase 2 |
-| Block progress indicator (block X of 15) | Phase 2 |
-| Predefined activity library (~100 activities with guides) | Phase 2 |
-| Custom user-created activities | Phase 2 |
-| Ad-hoc activity logging (outside daily tasks) | Phase 2 |
-| Personal target frequency for activities | Phase 2 |
-| Resource library (browsable guides) | Phase 2 |
-| Spiritual Health Assessment (9-spoke wheel) | Phase 2 |
-| Friend activity push notifications | Phase 2 |
-| Physical badge purchasing | Phase 2 |
-| Pop-up event announcements and registration | Phase 2 |
-| Congregation aggregate assessment wheel | Phase 2 |
-| Buddy system / member pairing | Phase 3 |
-| Individual member progress visible to leaders | Phase 3 (with consent model) |
-| Multi-church support | Future (schema ready via `church_id`) |
-| Public-facing activity sharing outside app | Future |
+| Feature                                                   | Target Phase                          |
+| --------------------------------------------------------- | ------------------------------------- |
+| Multiple blocks (Blocks 2–15)                             | Phase 2                               |
+| Block progress indicator (block X of 15)                  | Phase 2                               |
+| Predefined activity library (~100 activities with guides) | Phase 2                               |
+| Custom user-created activities                            | Phase 2                               |
+| Ad-hoc activity logging (outside daily tasks)             | Phase 2                               |
+| Personal target frequency for activities                  | Phase 2                               |
+| Resource library (browsable guides)                       | Phase 2                               |
+| Spiritual Health Assessment (9-spoke wheel)               | Phase 2                               |
+| Friend activity push notifications                        | Phase 2                               |
+| Physical badge purchasing                                 | Phase 2                               |
+| Pop-up event announcements and registration               | Phase 2                               |
+| Congregation aggregate assessment wheel                   | Phase 2                               |
+| Buddy system / member pairing                             | Phase 3                               |
+| Individual member progress visible to leaders             | Phase 3 (with consent model)          |
+| Multi-church support                                      | Future (schema ready via `church_id`) |
+| Public-facing activity sharing outside app                | Future                                |
 
 ---
 
 ## 7. Design Considerations
 
 ### Visual Language
+
 - **Warm, human, and encouraging** — not clinical, gamified, or performance-pressured. Think: journal meets wellness app.
 - Missed days carry **no negative framing**. Progress is celebrated, not penalised.
 - Soft, earthy tones. Category colours are the primary accent system.
 
 ### Category Colour Coding (consistent across all views)
 
-| Category | Colour | Hex | Note |
-|---|---|---|---|
-| Physical | Warm Cream / Gold | `#fff7e4` | Very light — always display with a visible border or on a contrasting bg. WCAG AA compliant. |
-| Mental | Red | `#ee1c24` | Primary brand accent |
-| Emotional | Sky Blue | `#679fff` | |
+| Category  | Colour            | Hex       | Note                                                                                         |
+| --------- | ----------------- | --------- | -------------------------------------------------------------------------------------------- |
+| Physical  | Warm Cream / Gold | `#fff7e4` | Very light — always display with a visible border or on a contrasting bg. WCAG AA compliant. |
+| Mental    | Red               | `#ee1c24` | Primary brand accent                                                                         |
+| Emotional | Sky Blue          | `#679fff` |                                                                                              |
 
 ### Design System (from wireframes)
+
 - **Fonts**: Plus Jakarta Sans (headlines), Manrope (body/labels). Chinese fallbacks: Noto Sans SC → PingFang SC → Microsoft YaHei (see Req 97).
 - **Primary colour**: `#c10014` (brand red)
 - **Secondary colour**: `#135db9` (blue)
@@ -570,11 +582,13 @@ The app targets church members who don't know where to start in becoming more li
 ### Wireframe Reference
 
 The Google Stitch wireframe code is located at:
+
 ```
 /google-stitch.rtf
 ```
 
 This file contains HTML/Tailwind mockups for the following screens that developers should reference during implementation:
+
 1. **Dashboard** — radar chart, 25-day block grid, activity calendar, recent logs, bottom nav
 2. **Community Feed** — friends/add friends buttons, people you may know carousel, activity feed cards
 3. **Practice Detail (Video)** — "Memorise a Verse" page with embedded video, editorial text, mastery progress
@@ -585,33 +599,33 @@ This file contains HTML/Tailwind mockups for the following screens that develope
 
 #### Member-Facing
 
-| # | Page | Nav State | Description |
-|---|---|---|---|
-| 1 | Splash / Loading | — | App launch screen with logo |
-| 2 | Sign Up (email input) | — | Email entry to receive OTP |
-| 3 | OTP Verification | — | 6-digit code entry |
-| 4 | Onboarding — Welcome | — | Explains 3 components and 25-day block |
-| 5 | **Dashboard (Home)** | Home ✦ | Scripture verse, radar chart, 25-day grid, streak, calendar, recent logs. Header: profile photo (left), language toggle pill (left of settings), settings icon (right). |
-| 6 | Calendar Day View | Home | All completions for a tapped day |
-| 7 | **Progress — Day View** | Progress ✦ | Day selector carousel + tasks by category |
-| 8 | Progress — Past Day | Progress | View a previous day's tasks and completions |
-| 9 | Mental — Scripture View | Progress | Ephesians passage + explanation + video for today |
-| 10 | Emotional — Mood Log | Progress | Emoji picker → influence tags → free-text input |
-| 11 | Physical — Exercise Tick | Progress | Simple "Did you exercise?" confirmation |
-| 12 | Block Completion Celebration | — (overlay) | "You've completed Block 1! 🎉" + badge award |
-| 13 | **Community — Feed** | Community ✦ | Friends/add buttons, people you may know, activity feed |
-| 14 | Community — Friends List | Community | Accepted friends with recent activity |
-| 15 | Community — Add Friends | Community | Search by handle/name |
-| 16 | Community — Friend Requests | Community | Accept/reject incoming requests |
-| 17 | **Profile** | Profile ✦ | Name, handle, avatar, badge, mood history, language, settings |
-| 18 | Profile — Settings | Profile | Language toggle, notification preferences, reminder time, privacy toggle |
-| 19 | Profile — Mood Log History | Profile | Past mood entries chronologically |
+| #   | Page                         | Nav State   | Description                                                                                                                                                             |
+| --- | ---------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Splash / Loading             | —           | App launch screen with logo                                                                                                                                             |
+| 2   | Sign Up (email input)        | —           | Email entry to receive OTP                                                                                                                                              |
+| 3   | OTP Verification             | —           | 6-digit code entry                                                                                                                                                      |
+| 4   | Onboarding — Welcome         | —           | Explains 3 components and 25-day block                                                                                                                                  |
+| 5   | **Dashboard (Home)**         | Home ✦      | Scripture verse, radar chart, 25-day grid, streak, calendar, recent logs. Header: profile photo (left), language toggle pill (left of settings), settings icon (right). |
+| 6   | Calendar Day View            | Home        | All completions for a tapped day                                                                                                                                        |
+| 7   | **Progress — Day View**      | Progress ✦  | Day selector carousel + tasks by category                                                                                                                               |
+| 8   | Progress — Past Day          | Progress    | View a previous day's tasks and completions                                                                                                                             |
+| 9   | Mental — Scripture View      | Progress    | Ephesians passage + explanation + video for today                                                                                                                       |
+| 10  | Emotional — Mood Log         | Progress    | Emoji picker → influence tags → free-text input                                                                                                                         |
+| 11  | Physical — Exercise Tick     | Progress    | Simple "Did you exercise?" confirmation                                                                                                                                 |
+| 12  | Block Completion Celebration | — (overlay) | "You've completed Block 1! 🎉" + badge award                                                                                                                            |
+| 13  | **Community — Feed**         | Community ✦ | Friends/add buttons, people you may know, activity feed                                                                                                                 |
+| 14  | Community — Friends List     | Community   | Accepted friends with recent activity                                                                                                                                   |
+| 15  | Community — Add Friends      | Community   | Search by handle/name                                                                                                                                                   |
+| 16  | Community — Friend Requests  | Community   | Accept/reject incoming requests                                                                                                                                         |
+| 17  | **Profile**                  | Profile ✦   | Name, handle, avatar, badge, mood history, language, settings                                                                                                           |
+| 18  | Profile — Settings           | Profile     | Language toggle, notification preferences, reminder time, privacy toggle                                                                                                |
+| 19  | Profile — Mood Log History   | Profile     | Past mood entries chronologically                                                                                                                                       |
 
 #### Admin-Facing
 
-| # | Page | Description |
-|---|---|---|
-| 20 | Admin — Daily Content Manager | Manage Mental content for all 25 days in EN + ZH (scripture, explanation, video) |
+| #   | Page                          | Description                                                                      |
+| --- | ----------------------------- | -------------------------------------------------------------------------------- |
+| 20  | Admin — Daily Content Manager | Manage Mental content for all 25 days in EN + ZH (scripture, explanation, video) |
 
 ---
 
@@ -619,20 +633,20 @@ This file contains HTML/Tailwind mockups for the following screens that develope
 
 ### Tech Stack
 
-| Concern | Technology | Rationale |
-|---|---|---|
-| **Frontend** | **Next.js 14+** (App Router) | Industry standard for React PWAs. SSR + API routes. |
-| **Package Manager** | **pnpm** | Faster installs, strict dependency resolution. |
-| **Database** | **PlanetScale** (Postgres-compatible) via **`@neondatabase/serverless`** driver | Shares the same DB instance as the giving platform for unified auth. The Neon driver is the connection client, not the hosting provider. |
-| **ORM** | **Drizzle ORM** (with `snake_case` casing strategy) | Same ORM as the giving platform — shared schema definitions. Uses `drizzle-orm/neon-http` for HTTP and `drizzle-orm/neon-serverless` for WebSocket connections. |
-| **Auth** | **Custom email OTP** (matching giving platform) | 6-digit OTP, HMAC-SHA256 hashed tokens, server-side sessions. Shared `users`, `sessions`, `tokens`, `rate_limit_attempts` tables. |
-| **Push Notifications** | **Web Push API** + **web-push** npm | Service worker-based push notifications. |
-| **i18n** | **`next-intl`** | App Router–native, supports RSC, client components, and message namespaces. Industry standard for Next.js i18n. |
-| **Styling** | **Tailwind CSS** | Matches wireframe implementation. Material Design 3 colour tokens. |
-| **CJK Fonts** | **Noto Sans SC** (Google Fonts) | Simplified Chinese fallback for Plus Jakarta Sans / Manrope. System fallbacks: PingFang SC (Apple), Microsoft YaHei (Windows). |
-| **Offline** | **Service Worker** + **IndexedDB** | Workbox for caching; IndexedDB for offline completion queue. |
-| **Deployment** | **Vercel** | Native Next.js support. |
-| **Email** | **MailerSend** | Same provider as giving platform for OTP delivery. |
+| Concern                | Technology                                                                      | Rationale                                                                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend**           | **Next.js 14+** (App Router)                                                    | Industry standard for React PWAs. SSR + API routes.                                                                                                             |
+| **Package Manager**    | **pnpm**                                                                        | Faster installs, strict dependency resolution.                                                                                                                  |
+| **Database**           | **PlanetScale** (Postgres-compatible) via **`@neondatabase/serverless`** driver | Shares the same DB instance as the giving platform for unified auth. The Neon driver is the connection client, not the hosting provider.                        |
+| **ORM**                | **Drizzle ORM** (with `snake_case` casing strategy)                             | Same ORM as the giving platform — shared schema definitions. Uses `drizzle-orm/neon-http` for HTTP and `drizzle-orm/neon-serverless` for WebSocket connections. |
+| **Auth**               | **Custom email OTP** (matching giving platform)                                 | 6-digit OTP, HMAC-SHA256 hashed tokens, server-side sessions. Shared `users`, `sessions`, `tokens`, `rate_limit_attempts` tables.                               |
+| **Push Notifications** | **Web Push API** + **web-push** npm                                             | Service worker-based push notifications.                                                                                                                        |
+| **i18n**               | **`next-intl`**                                                                 | App Router–native, supports RSC, client components, and message namespaces. Industry standard for Next.js i18n.                                                 |
+| **Styling**            | **Tailwind CSS**                                                                | Matches wireframe implementation. Material Design 3 colour tokens.                                                                                              |
+| **CJK Fonts**          | **Noto Sans SC** (Google Fonts)                                                 | Simplified Chinese fallback for Plus Jakarta Sans / Manrope. System fallbacks: PingFang SC (Apple), Microsoft YaHei (Windows).                                  |
+| **Offline**            | **Service Worker** + **IndexedDB**                                              | Workbox for caching; IndexedDB for offline completion queue.                                                                                                    |
+| **Deployment**         | **Vercel**                                                                      | Native Next.js support.                                                                                                                                         |
+| **Email**              | **MailerSend**                                                                  | Same provider as giving platform for OTP delivery.                                                                                                              |
 
 ### Architecture (Modular Feature-Based)
 
@@ -700,6 +714,7 @@ The giving platform and The New Human Project share authentication at the **data
 ```
 
 Both apps must:
+
 1. Use the same `SESSION_SECRET` environment variable
 2. Use the same cookie name (`__session`) and format (`{sessionId}.{rawToken}`)
 3. Be deployed on sibling subdomains with cookie `Domain=.yourdomain.com`
@@ -772,6 +787,7 @@ CREATE TABLE block_day_tasks (
 ```
 
 **Phase 1 seed example** — each day has 4 tasks (Mental Level 1 + Level 2, Emotional, Physical):
+
 ```sql
 -- Day 1, Block 1
 INSERT INTO block_day_tasks (block_number, day_number, category, task_type, name, display_order, content) VALUES
@@ -887,6 +903,7 @@ CREATE TABLE friend_requests (
 ```
 
 **Activity Feed Query (fan-out on read):**
+
 ```sql
 WITH friend_ids AS (
   SELECT CASE
@@ -908,6 +925,7 @@ LIMIT 50;
 ```
 
 **Mutual Friend Suggestions:**
+
 ```sql
 SELECT potential.id, potential.display_name, potential.avatar_url,
        COUNT(*) AS mutual_count
@@ -996,12 +1014,12 @@ The streak is **never stored** — it is always computed on read. This avoids st
 
 1. Content team prepares Block 1's 25 days of content in a **Google Sheet** with bilingual columns (see Req 95 for full column list):
 
-   | block | day | order | category | task_type | name | memory_verse_ref | memory_verse_text_en | memory_verse_text_zh | scripture_reference | scripture_text_en | scripture_text_zh | explanation_en | explanation_zh | video_url | xp_weight |
-   |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-   | 1 | 1 | 1 | Mental | scripture_memorise | Memorise Ephesians 1:3 | Ephesians 1:3 | Praise be to the God... | 愿颂赞归与我们主耶稣基督的父神… | | | | | | | 1 |
-   | 1 | 1 | 2 | Mental | scripture_study | Study Ephesians 1:1-14 | | | | Ephesians 1:1-14 | Paul, an apostle... | 奉神旨意… | This opening... | 这段开篇… | https://youtube.com/... | 2 |
-   | 1 | 1 | 3 | Emotional | mood_log | Mood Log | | | | | | | | | | |
-   | 1 | 1 | 4 | Physical | exercise | Exercise | | | | | | | | | | |
+   | block | day | order | category  | task_type          | name                   | memory_verse_ref | memory_verse_text_en    | memory_verse_text_zh            | scripture_reference | scripture_text_en   | scripture_text_zh | explanation_en  | explanation_zh | video_url               | xp_weight |
+   | ----- | --- | ----- | --------- | ------------------ | ---------------------- | ---------------- | ----------------------- | ------------------------------- | ------------------- | ------------------- | ----------------- | --------------- | -------------- | ----------------------- | --------- |
+   | 1     | 1   | 1     | Mental    | scripture_memorise | Memorise Ephesians 1:3 | Ephesians 1:3    | Praise be to the God... | 愿颂赞归与我们主耶稣基督的父神… |                     |                     |                   |                 |                |                         | 1         |
+   | 1     | 1   | 2     | Mental    | scripture_study    | Study Ephesians 1:1-14 |                  |                         |                                 | Ephesians 1:1-14    | Paul, an apostle... | 奉神旨意…         | This opening... | 这段开篇…      | https://youtube.com/... | 2         |
+   | 1     | 1   | 3     | Emotional | mood_log           | Mood Log               |                  |                         |                                 |                     |                     |                   |                 |                |                         |           |
+   | 1     | 1   | 4     | Physical  | exercise           | Exercise               |                  |                         |                                 |                     |                     |                   |                 |                |                         |           |
 
 2. Developer runs a **seed script** that reads the CSV and inserts rows into `block_day_tasks`, packing the `_en`/`_zh` columns into locale-keyed JSONB objects in the `content` column (see Req 89, 96).
 3. After launch, admin uses the **Admin Daily Content Manager** (page 20) for bilingual edits.
@@ -1010,54 +1028,54 @@ The streak is **never stored** — it is always computed on read. This avoids st
 
 ## 9. Success Metrics
 
-| Metric | Target |
-|---|---|
-| Activation | ≥70% of registered members complete at least 1 activity within 7 days |
-| Weekly retention | ≥50% of active members complete ≥1 activity per week over first month |
-| Category balance | ≥40% of active members complete all 3 categories within the 25-day block |
-| Streak engagement | ≥30% of active members maintain a streak of ≥5 days |
-| Community engagement | ≥30% of members add at least 1 friend within first 2 weeks |
-| Push notification opt-in | ≥50% of members enable daily reminders |
-| Block 1 completion | ≥40% of registered members complete Block 1 |
-| Qualitative | Positive feedback from ≥5 participants that the app feels encouraging |
-| Performance | App loads under 3 seconds on mobile on standard connection |
+| Metric                   | Target                                                                   |
+| ------------------------ | ------------------------------------------------------------------------ |
+| Activation               | ≥70% of registered members complete at least 1 activity within 7 days    |
+| Weekly retention         | ≥50% of active members complete ≥1 activity per week over first month    |
+| Category balance         | ≥40% of active members complete all 3 categories within the 25-day block |
+| Streak engagement        | ≥30% of active members maintain a streak of ≥5 days                      |
+| Community engagement     | ≥30% of members add at least 1 friend within first 2 weeks               |
+| Push notification opt-in | ≥50% of members enable daily reminders                                   |
+| Block 1 completion       | ≥40% of registered members complete Block 1                              |
+| Qualitative              | Positive feedback from ≥5 participants that the app feels encouraging    |
+| Performance              | App loads under 3 seconds on mobile on standard connection               |
 
 ---
 
 ## 10. Decisions Log
 
-| # | Question | Status | Decision |
-|---|---|---|---|
-| 1 | App name | ✅ Decided | The New Human Project |
-| 2 | Auth strategy | ✅ Decided | Custom email OTP — shared DB with giving-platform (PlanetScale + Neon driver + Drizzle). No Supabase. |
-| 3 | Framework | ✅ Decided | Next.js (App Router) + pnpm. Giving platform uses TanStack Start; apps share DB, not framework. |
-| 4 | Phase 1 scope | ✅ Decided | Block 1 only (25 days). Multiple blocks deferred to Phase 2. |
-| 5 | Mental component | ✅ Decided | Ephesians scripture study — **two levels per day**: Level 1 (memorise the verse, 1 XP) and Level 2 (read explanation + Ephesians passage, 2 XP). Deeper engagement grows the Mental axis on the radar chart. |
-| 6 | Emotional component | ✅ Decided | Daily mood log — emoji (5 levels) → influence tags (6 options) → optional free-text. |
-| 7 | Physical component | ✅ Decided | Simple exercise tick-box. Honour system — no exercise type required. |
-| 8 | Community scope | ✅ Decided | Full community in Phase 1: friends, feed, add friend, friend requests, people you may know. |
-| 9 | Push notifications | ✅ Decided | Phase 1: daily reminders + friend requests only. Friend activity notifications deferred to Phase 2. |
-| 10 | Badge system | ✅ Decided | Full badge UI for Block 1 completion in Phase 1. |
-| 11 | Streak logic | ✅ Decided | Complete ≥1 activity/day to maintain streak. Miss a full day → streak resets to 0. Computed on read. |
-| 12 | Activity library | ✅ Decided | Deferred to Phase 2. Phase 1 users complete predefined daily content only. |
-| 13 | Spiritual Health Assessment | ✅ Decided | Deferred to Phase 2. |
-| 14 | Resource library | ✅ Decided | Deferred to Phase 2. Guides live within the daily task content for Phase 1. |
-| 15 | Content pipeline | ✅ Decided | Google Sheet for initial seed → seed script → Admin UI for ongoing edits. |
-| 21 | Schema extensibility | ✅ Decided | Generic `block_day_tasks` + `task_completions` schema with JSONB `content`/`data` columns. New task types for Block 2+ require no schema migration — just new rows and a new frontend renderer component. |
-| 22 | Radar chart scoring | ✅ Decided | Percentage-based (0–100%) per axis, normalised against days elapsed. Mental uses weighted XP (Level 1 = 1, Level 2 = 2, max 3/day). Resets per block. Ghost overlay of previous block deferred to Phase 2. |
-| 23 | i18n approach | ✅ Decided | `next-intl` for UI strings (JSON message files). Database JSONB locale-keyed objects for content (Scripture, explanations). Client-side locale via `localStorage` + cookie. No URL-based routing. Two languages: EN + ZH. |
-| 24 | Chinese font support | ✅ Decided | Noto Sans SC (Google Fonts) as primary CJK fallback, with PingFang SC (Apple) and Microsoft YaHei (Windows) system fallbacks. |
-| 16 | Content ownership | 🟡 Pending | Content team must prepare 25 days of Ephesians content (passages, explanations, videos) **in both English and Chinese**. Must be ready before dev completes the Mental feature. |
-| 17 | Domain structure | 🟡 Pending | Both apps need sibling subdomains for shared cookie auth. Needs DevOps decision. |
-| 18 | Privacy policy | 🟡 Pending | Must be drafted before launch — mood log data is sensitive. |
-| 19 | iOS web push | 🟡 Pending | iOS Safari web push requires specific handling. Is iOS required at launch? |
-| 20 | Giving platform coordination | 🟡 Pending | Adding columns to shared `users` table requires alignment with giving-platform team. |
-| 25 | Database hosting | ✅ Decided | PlanetScale (Postgres-compatible), not Neon-hosted. The `@neondatabase/serverless` package is the connection driver only. Drizzle uses `snake_case` DB casing. Giving platform user roles are `user`/`admin`/`su` (not `member`); user status lifecycle is `guest` → `active` → `suspended`/`deleted`. |
+| #   | Question                     | Status     | Decision                                                                                                                                                                                                                                                                                               |
+| --- | ---------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | App name                     | ✅ Decided | The New Human Project                                                                                                                                                                                                                                                                                  |
+| 2   | Auth strategy                | ✅ Decided | Custom email OTP — shared DB with giving-platform (PlanetScale + Neon driver + Drizzle). No Supabase.                                                                                                                                                                                                  |
+| 3   | Framework                    | ✅ Decided | Next.js (App Router) + pnpm. Giving platform uses TanStack Start; apps share DB, not framework.                                                                                                                                                                                                        |
+| 4   | Phase 1 scope                | ✅ Decided | Block 1 only (25 days). Multiple blocks deferred to Phase 2.                                                                                                                                                                                                                                           |
+| 5   | Mental component             | ✅ Decided | Ephesians scripture study — **two levels per day**: Level 1 (memorise the verse, 1 XP) and Level 2 (read explanation + Ephesians passage, 2 XP). Deeper engagement grows the Mental axis on the radar chart.                                                                                           |
+| 6   | Emotional component          | ✅ Decided | Daily mood log — emoji (5 levels) → influence tags (6 options) → optional free-text.                                                                                                                                                                                                                   |
+| 7   | Physical component           | ✅ Decided | Simple exercise tick-box. Honour system — no exercise type required.                                                                                                                                                                                                                                   |
+| 8   | Community scope              | ✅ Decided | Full community in Phase 1: friends, feed, add friend, friend requests, people you may know.                                                                                                                                                                                                            |
+| 9   | Push notifications           | ✅ Decided | Phase 1: daily reminders + friend requests only. Friend activity notifications deferred to Phase 2.                                                                                                                                                                                                    |
+| 10  | Badge system                 | ✅ Decided | Full badge UI for Block 1 completion in Phase 1.                                                                                                                                                                                                                                                       |
+| 11  | Streak logic                 | ✅ Decided | Complete ≥1 activity/day to maintain streak. Miss a full day → streak resets to 0. Computed on read.                                                                                                                                                                                                   |
+| 12  | Activity library             | ✅ Decided | Deferred to Phase 2. Phase 1 users complete predefined daily content only.                                                                                                                                                                                                                             |
+| 13  | Spiritual Health Assessment  | ✅ Decided | Deferred to Phase 2.                                                                                                                                                                                                                                                                                   |
+| 14  | Resource library             | ✅ Decided | Deferred to Phase 2. Guides live within the daily task content for Phase 1.                                                                                                                                                                                                                            |
+| 15  | Content pipeline             | ✅ Decided | Google Sheet for initial seed → seed script → Admin UI for ongoing edits.                                                                                                                                                                                                                              |
+| 21  | Schema extensibility         | ✅ Decided | Generic `block_day_tasks` + `task_completions` schema with JSONB `content`/`data` columns. New task types for Block 2+ require no schema migration — just new rows and a new frontend renderer component.                                                                                              |
+| 22  | Radar chart scoring          | ✅ Decided | Percentage-based (0–100%) per axis, normalised against days elapsed. Mental uses weighted XP (Level 1 = 1, Level 2 = 2, max 3/day). Resets per block. Ghost overlay of previous block deferred to Phase 2.                                                                                             |
+| 23  | i18n approach                | ✅ Decided | `next-intl` for UI strings (JSON message files). Database JSONB locale-keyed objects for content (Scripture, explanations). Client-side locale via `localStorage` + cookie. No URL-based routing. Two languages: EN + ZH.                                                                              |
+| 24  | Chinese font support         | ✅ Decided | Noto Sans SC (Google Fonts) as primary CJK fallback, with PingFang SC (Apple) and Microsoft YaHei (Windows) system fallbacks.                                                                                                                                                                          |
+| 16  | Content ownership            | 🟡 Pending | Content team must prepare 25 days of Ephesians content (passages, explanations, videos) **in both English and Chinese**. Must be ready before dev completes the Mental feature.                                                                                                                        |
+| 17  | Domain structure             | 🟡 Pending | Both apps need sibling subdomains for shared cookie auth. Needs DevOps decision.                                                                                                                                                                                                                       |
+| 18  | Privacy policy               | 🟡 Pending | Must be drafted before launch — mood log data is sensitive.                                                                                                                                                                                                                                            |
+| 19  | iOS web push                 | 🟡 Pending | iOS Safari web push requires specific handling. Is iOS required at launch?                                                                                                                                                                                                                             |
+| 20  | Giving platform coordination | 🟡 Pending | Adding columns to shared `users` table requires alignment with giving-platform team.                                                                                                                                                                                                                   |
+| 25  | Database hosting             | ✅ Decided | PlanetScale (Postgres-compatible), not Neon-hosted. The `@neondatabase/serverless` package is the connection driver only. Drizzle uses `snake_case` DB casing. Giving platform user roles are `user`/`admin`/`su` (not `member`); user status lifecycle is `guest` → `active` → `suspended`/`deleted`. |
 
 ---
 
-*PRD v2.4 — Corrected database hosting: PlanetScale (Postgres-compatible), not Neon-hosted. `@neondatabase/serverless` is the connection driver only. Documented actual giving-platform user schema: `role` enum is `user`/`admin`/`su` (not `member`), `status` enum is `guest`/`active`/`suspended`/`deleted`, includes `journey` field. Added `snake_case` Drizzle casing strategy. Documented dual connection modes (HTTP + WebSocket via `drizzle-orm/neon-http` and `drizzle-orm/neon-serverless`). Listed all giving-platform tables for reference.*
+_PRD v2.4 — Corrected database hosting: PlanetScale (Postgres-compatible), not Neon-hosted. `@neondatabase/serverless` is the connection driver only. Documented actual giving-platform user schema: `role` enum is `user`/`admin`/`su` (not `member`), `status` enum is `guest`/`active`/`suspended`/`deleted`, includes `journey` field. Added `snake_case` Drizzle casing strategy. Documented dual connection modes (HTTP + WebSocket via `drizzle-orm/neon-http` and `drizzle-orm/neon-serverless`). Listed all giving-platform tables for reference._
 
-*PRD v2.3 — Added internationalisation (i18n) specification: English/Chinese bilingual support via `next-intl` for UI strings and locale-keyed JSONB for database content. Language toggle in header (compact pill showing inactive language) + Profile settings. Locale persisted in `localStorage` + cookie (for server-side push notification text). Chinese font fallback chain: Noto Sans SC → PingFang SC → Microsoft YaHei. Updated content seeding workflow with bilingual columns. Updated admin content manager for side-by-side EN/ZH input. No schema migration required — uses existing JSONB `content` column with nested locale keys.*
+_PRD v2.3 — Added internationalisation (i18n) specification: English/Chinese bilingual support via `next-intl` for UI strings and locale-keyed JSONB for database content. Language toggle in header (compact pill showing inactive language) + Profile settings. Locale persisted in `localStorage` + cookie (for server-side push notification text). Chinese font fallback chain: Noto Sans SC → PingFang SC → Microsoft YaHei. Updated content seeding workflow with bilingual columns. Updated admin content manager for side-by-side EN/ZH input. No schema migration required — uses existing JSONB `content` column with nested locale keys._
 
-*PRD v2.2 — Added radar chart scoring specification (percentage-based, 0–100% per axis, resets per block, ghost overlay deferred to Phase 2). Split Mental into two levels: Level 1 (memorise verse, 1 XP) and Level 2 (study passage + explanation + video, 2 XP). Updated schema task types from `scripture` to `scripture_memorise` + `scripture_study`. Updated seed examples, content seeding workflow, admin content management, and task renderer architecture to reflect the two-level Mental structure.*
+_PRD v2.2 — Added radar chart scoring specification (percentage-based, 0–100% per axis, resets per block, ghost overlay deferred to Phase 2). Split Mental into two levels: Level 1 (memorise verse, 1 XP) and Level 2 (study passage + explanation + video, 2 XP). Updated schema task types from `scripture` to `scripture_memorise` + `scripture_study`. Updated seed examples, content seeding workflow, admin content management, and task renderer architecture to reflect the two-level Mental structure._

@@ -64,7 +64,7 @@ export async function getDayTasks(
 
 export async function getUserCompletions(
   userId: number,
-  taskIds: string[]
+  taskIds: string[],
 ): Promise<Map<string, Record<string, unknown> | null>> {
   if (taskIds.length === 0) return new Map();
 
@@ -91,7 +91,7 @@ export async function getUserCompletions(
  */
 export async function getDayCompletionStates(
   userId: number,
-  blockNumber: number
+  blockNumber: number,
 ): Promise<Map<number, boolean>> {
   const map = new Map<number, boolean>();
 
@@ -116,7 +116,7 @@ export async function getDayCompletionStates(
  */
 export async function getFullyCompletedDays(
   userId: number,
-  blockNumber: number
+  blockNumber: number,
 ): Promise<Set<number>> {
   const completionRows = await db
     .select({ taskId: taskCompletions.taskId })

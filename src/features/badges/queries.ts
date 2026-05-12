@@ -1,9 +1,5 @@
 import { db } from "@/src/db";
-import {
-  memberBadges,
-  badgeDefinitions,
-  memberBlockCompletions,
-} from "@/src/db/schema";
+import { memberBadges, badgeDefinitions, memberBlockCompletions } from "@/src/db/schema";
 import { eq, and } from "drizzle-orm";
 
 /**
@@ -27,12 +23,7 @@ export async function getNewlyEarnedBadge(userId: number, blockNumber: number) {
     })
     .from(memberBadges)
     .innerJoin(badgeDefinitions, eq(memberBadges.badgeId, badgeDefinitions.id))
-    .where(
-      and(
-        eq(memberBadges.userId, userId),
-        eq(badgeDefinitions.blockNumber, blockNumber)
-      )
-    )
+    .where(and(eq(memberBadges.userId, userId), eq(badgeDefinitions.blockNumber, blockNumber)))
     .limit(1);
 
   return rows[0] ?? null;
@@ -41,18 +32,15 @@ export async function getNewlyEarnedBadge(userId: number, blockNumber: number) {
 /**
  * Check whether the user has completed the given block.
  */
-export async function hasCompletedBlock(
-  userId: number,
-  blockNumber: number
-): Promise<boolean> {
+export async function hasCompletedBlock(userId: number, blockNumber: number): Promise<boolean> {
   const rows = await db
     .select({ id: memberBlockCompletions.id })
     .from(memberBlockCompletions)
     .where(
       and(
         eq(memberBlockCompletions.userId, userId),
-        eq(memberBlockCompletions.blockNumber, blockNumber)
-      )
+        eq(memberBlockCompletions.blockNumber, blockNumber),
+      ),
     )
     .limit(1);
 

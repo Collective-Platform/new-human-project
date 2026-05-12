@@ -66,10 +66,7 @@ async function _getSessionUser(): Promise<SessionUser | null> {
   const now = Date.now();
   const timeUntilExpiry = row.sessionExpiresAt.getTime() - now;
   const timeSinceLastWrite = now - row.sessionUpdatedAt.getTime();
-  if (
-    timeUntilExpiry < SLIDING_RENEWAL_MS &&
-    timeSinceLastWrite > RENEWAL_WRITE_THROTTLE_MS
-  ) {
+  if (timeUntilExpiry < SLIDING_RENEWAL_MS && timeSinceLastWrite > RENEWAL_WRITE_THROTTLE_MS) {
     const newExpiry = new Date(now + SESSION_DURATION_MS);
     await db
       .update(sessions)

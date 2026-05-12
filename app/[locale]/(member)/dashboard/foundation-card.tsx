@@ -26,14 +26,11 @@ export function FoundationCard() {
         <p className="mb-2 text-[10px] font-extrabold uppercase tracking-widest text-primary">
           The Foundation
         </p>
-        <h3 className="mb-4 font-headline text-2xl font-bold text-on-surface">
-          The 25-Day Block
-        </h3>
+        <h3 className="mb-4 font-headline text-2xl font-bold text-on-surface">The 25-Day Block</h3>
         <p className="mb-6 text-sm leading-relaxed text-on-surface-variant">
-          Inspired by the life Jesus has won for us, this project guides you
-          through a series of 25-day blocks covering mental, emotional, and
-          physical growth. Each cycle brings you closer to making these
-          practices a natural way of life.
+          Inspired by the life Jesus has won for us, this project guides you through a series of
+          25-day blocks covering mental, emotional, and physical growth. Each cycle brings you
+          closer to making these practices a natural way of life.
         </p>
         <div className="mb-8 grid grid-cols-5 gap-2">
           {foundationColors.map((color, index) => (

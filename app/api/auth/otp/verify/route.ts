@@ -1,11 +1,6 @@
 import { db } from "@/src/db";
 import { users, pendingAuth } from "@/src/db/schema";
-import {
-  hashToken,
-  checkRateLimit,
-  createSession,
-  setSessionCookie,
-} from "@/src/features/auth";
+import { hashToken, checkRateLimit, createSession, setSessionCookie } from "@/src/features/auth";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 
 type Mode = "login" | "signup";
@@ -17,10 +12,7 @@ export async function POST(request: Request) {
   const mode: Mode = body.mode === "signup" ? "signup" : "login";
 
   if (!email || !otp) {
-    return Response.json(
-      { success: false, error: "Email and OTP are required" },
-      { status: 400 }
-    );
+    return Response.json({ success: false, error: "Email and OTP are required" }, { status: 400 });
   }
 
   const { allowed } = await checkRateLimit({
@@ -33,7 +25,7 @@ export async function POST(request: Request) {
   if (!allowed) {
     return Response.json(
       { success: false, error: "Too many attempts. Please try again later." },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -51,16 +43,13 @@ export async function POST(request: Request) {
         sql`lower(${pendingAuth.email}) = ${email}`,
         eq(pendingAuth.mode, mode),
         gt(pendingAuth.expiresAt, new Date()),
-        isNull(pendingAuth.consumedAt)
-      )
+        isNull(pendingAuth.consumedAt),
+      ),
     )
     .limit(1);
 
   if (pendingRows.length === 0) {
-    return Response.json(
-      { success: false, error: "Invalid or expired code" },
-      { status: 401 }
-    );
+    return Response.json({ success: false, error: "Invalid or expired code" }, { status: 401 });
   }
 
   const pending = pendingRows[0];
@@ -117,10 +106,7 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (found.length === 0) {
-      return Response.json(
-        { success: false, error: "Invalid or expired code" },
-        { status: 401 }
-      );
+      return Response.json({ success: false, error: "Invalid or expired code" }, { status: 401 });
     }
 
     userId = found[0].id;

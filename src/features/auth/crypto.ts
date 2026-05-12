@@ -15,8 +15,7 @@ export function generateRawToken(): string {
 }
 
 export function generateSessionId(): string {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
   const bytes = randomBytes(21);
   let id = "";
   for (let i = 0; i < 21; i++) {

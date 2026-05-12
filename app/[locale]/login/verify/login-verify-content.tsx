@@ -19,8 +19,7 @@ export function LoginVerifyContent() {
   return (
     <>
       <p className="text-sm text-foreground/60">
-        We sent a 6-digit code to{" "}
-        <span className="font-medium text-foreground">{email}</span>
+        We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>
       </p>
       <VerifyForm email={email} />
     </>

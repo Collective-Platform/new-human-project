@@ -3,15 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, useRouter, usePathname } from "@/src/i18n/navigation";
-import {
-  ArrowLeft,
-  Globe,
-  Bell,
-  Clock,
-  UserPlus,
-  Eye,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowLeft, Globe, Bell, Clock, UserPlus, Eye, type LucideIcon } from "lucide-react";
 import { updateProfile } from "@/src/features/profile/actions";
 
 interface NotificationPrefs {
@@ -78,9 +70,7 @@ export function SettingsClient() {
         >
           <ArrowLeft size={20} className="text-foreground/60" />
         </Link>
-        <h1 className="font-headline text-lg font-bold text-foreground">
-          Settings
-        </h1>
+        <h1 className="font-headline text-lg font-bold text-foreground">Settings</h1>
       </div>
 
       {/* Language */}
@@ -88,9 +78,7 @@ export function SettingsClient() {
         <div className="flex items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-3">
             <Globe size={20} className="text-foreground/50" />
-            <span className="text-sm font-medium text-foreground">
-              {t("language")}
-            </span>
+            <span className="text-sm font-medium text-foreground">{t("language")}</span>
           </div>
           <button
             onClick={handleLanguageToggle}
@@ -120,16 +108,12 @@ export function SettingsClient() {
           <div className="flex items-center justify-between px-4 py-3.5">
             <div className="flex items-center gap-3">
               <Clock size={20} className="text-foreground/50" />
-              <span className="text-sm font-medium text-foreground">
-                Reminder Time
-              </span>
+              <span className="text-sm font-medium text-foreground">Reminder Time</span>
             </div>
             <input
               type="time"
               value={prefs.reminder_time}
-              onChange={(e) =>
-                updatePrefs({ ...prefs, reminder_time: e.target.value })
-              }
+              onChange={(e) => updatePrefs({ ...prefs, reminder_time: e.target.value })}
               className="rounded-md bg-zinc-100 px-2 py-1 text-xs text-foreground"
             />
           </div>

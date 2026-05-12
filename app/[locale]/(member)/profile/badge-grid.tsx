@@ -10,13 +10,7 @@ interface Badge {
   earnedAt: string;
 }
 
-export function BadgeGrid({
-  badges,
-  title,
-}: {
-  badges: Badge[];
-  title: string;
-}) {
+export function BadgeGrid({ badges, title }: { badges: Badge[]; title: string }) {
   return (
     <div className="rounded-md bg-white p-5 shadow-card">
       <p className="mb-3 text-xs font-medium uppercase tracking-wider text-foreground/50">
@@ -43,9 +37,7 @@ export function BadgeGrid({
               ) : (
                 <span className="mb-2 text-3xl">🏆</span>
               )}
-              <p className="text-center text-xs font-semibold text-foreground">
-                {badge.name}
-              </p>
+              <p className="text-center text-xs font-semibold text-foreground">{badge.name}</p>
               <p className="text-center text-[10px] text-foreground/40">
                 {new Date(badge.earnedAt).toLocaleDateString()}
               </p>

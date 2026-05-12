@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 
 export function SwRegister() {
-  const [installPrompt, setInstallPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showA2HS, setShowA2HS] = useState(false);
 
   useEffect(() => {
@@ -72,12 +71,8 @@ export function SwRegister() {
       <div className="flex items-center gap-3">
         <span className="text-2xl">📱</span>
         <div className="flex-1">
-          <p className="font-headline text-sm font-semibold text-foreground">
-            Add to Home Screen
-          </p>
-          <p className="text-xs text-foreground/60">
-            Install for the best experience
-          </p>
+          <p className="font-headline text-sm font-semibold text-foreground">Add to Home Screen</p>
+          <p className="text-xs text-foreground/60">Install for the best experience</p>
         </div>
         <button
           onClick={handleInstall}

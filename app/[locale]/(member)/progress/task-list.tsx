@@ -20,10 +20,7 @@ interface TaskItem {
   completionData: Record<string, unknown> | null;
 }
 
-const categoryConfig: Record<
-  string,
-  { iconBg: string; iconColor: string; Icon: LucideIcon }
-> = {
+const categoryConfig: Record<string, { iconBg: string; iconColor: string; Icon: LucideIcon }> = {
   Mental: {
     iconBg: "bg-[#ffaca3]",
     iconColor: "text-[#c10014]",
@@ -74,9 +71,7 @@ export function TaskList({
               >
                 <CategoryIcon size={20} />
               </div>
-              <h3 className="text-xl font-bold font-headline text-foreground">
-                {labelMap[cat]}
-              </h3>
+              <h3 className="text-xl font-bold font-headline text-foreground">{labelMap[cat]}</h3>
             </div>
             <div className="rounded-3xl bg-white shadow-card">
               <div className="divide-y divide-zinc-50">

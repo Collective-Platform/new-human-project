@@ -22,8 +22,7 @@ const notoSansSC = Noto_Sans_SC({
 
 export const metadata: Metadata = {
   title: "The New Human Project",
-  description:
-    "A spiritual formation journey across Mental, Emotional, and Physical dimensions",
+  description: "A spiritual formation journey across Mental, Emotional, and Physical dimensions",
   manifest: "/manifest.json",
 };
 
@@ -39,9 +38,7 @@ export default function RootLayout({
     >
       <head />
       <body className="min-h-full">
-        <div className="mx-auto flex min-h-screen max-w-93.75 flex-col">
-          {children}
-        </div>
+        <div className="flex min-h-screen flex-col">{children}</div>
       </body>
     </html>
   );

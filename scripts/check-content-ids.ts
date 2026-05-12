@@ -60,9 +60,7 @@ for (const file of headFiles) {
 }
 
 if (violations.length > 0) {
-  console.error(
-    `✗ Frontmatter \`id\` is immutable. ${violations.length} violation(s):\n`,
-  );
+  console.error(`✗ Frontmatter \`id\` is immutable. ${violations.length} violation(s):\n`);
   for (const v of violations) console.error("  " + v + "\n");
   console.error(
     "If you really need a new id (e.g. retiring content), add a NEW file " +

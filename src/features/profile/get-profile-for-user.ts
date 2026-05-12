@@ -25,11 +25,9 @@ export interface ProfileData {
   }[];
 }
 
-export async function getProfileForUser(
-  userId: number
-): Promise<ProfileData | null> {
-  'use cache';
-  cacheLife('hours');
+export async function getProfileForUser(userId: number): Promise<ProfileData | null> {
+  "use cache";
+  cacheLife("hours");
   cacheTag(`profile:${userId}`);
   const userRows = await db
     .select({
@@ -83,4 +81,3 @@ export async function getProfileForUser(
     })),
   };
 }
-

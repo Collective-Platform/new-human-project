@@ -104,10 +104,7 @@ export async function sendFriendRequest(senderId: number, receiverId: number) {
 
 // --- Accept friend request ---
 
-export async function acceptFriendRequest(
-  requestId: string,
-  receiverId: number
-) {
+export async function acceptFriendRequest(requestId: string, receiverId: number) {
   const rows = await db
     .update(friendRequests)
     .set({ status: "accepted", updatedAt: new Date() })
@@ -115,8 +112,8 @@ export async function acceptFriendRequest(
       and(
         eq(friendRequests.id, requestId),
         eq(friendRequests.receiverId, receiverId),
-        eq(friendRequests.status, "pending")
-      )
+        eq(friendRequests.status, "pending"),
+      ),
     )
     .returning();
   return rows[0] ?? null;
@@ -124,10 +121,7 @@ export async function acceptFriendRequest(
 
 // --- Reject friend request ---
 
-export async function rejectFriendRequest(
-  requestId: string,
-  receiverId: number
-) {
+export async function rejectFriendRequest(requestId: string, receiverId: number) {
   const rows = await db
     .update(friendRequests)
     .set({ status: "rejected", updatedAt: new Date() })
@@ -135,8 +129,8 @@ export async function rejectFriendRequest(
       and(
         eq(friendRequests.id, requestId),
         eq(friendRequests.receiverId, receiverId),
-        eq(friendRequests.status, "pending")
-      )
+        eq(friendRequests.status, "pending"),
+      ),
     )
     .returning();
   return rows[0] ?? null;
@@ -147,14 +141,33 @@ export async function rejectFriendRequest(
 export async function searchUsers(query: string, currentUserId: number) {
   const pattern = `%${query}%`;
   const result = await db.execute(sql`
-    SELECT id, display_name, avatar_url, search_handle
-    FROM nhp.users
-    WHERE id != ${currentUserId}
+    SELECT
+      u.id,
+      u.display_name,
+      u.avatar_url,
+      u.search_handle,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 FROM nhp.friend_requests fr
+          WHERE fr.status = 'accepted'
+            AND ((fr.sender_id = ${currentUserId} AND fr.receiver_id = u.id)
+              OR (fr.sender_id = u.id AND fr.receiver_id = ${currentUserId}))
+        ) THEN 'friends'
+        WHEN EXISTS (
+          SELECT 1 FROM nhp.friend_requests fr
+          WHERE fr.sender_id = ${currentUserId}
+            AND fr.receiver_id = u.id
+            AND fr.status = 'pending'
+        ) THEN 'sent'
+        ELSE 'none'
+      END AS connection_status
+    FROM nhp.users u
+    WHERE u.id != ${currentUserId}
       AND (
-        search_handle ILIKE ${pattern}
-        OR display_name ILIKE ${pattern}
+        u.search_handle ILIKE ${pattern}
+        OR u.display_name ILIKE ${pattern}
       )
-    ORDER BY display_name
+    ORDER BY u.display_name
     LIMIT 20
   `);
 
@@ -163,6 +176,7 @@ export async function searchUsers(query: string, currentUserId: number) {
     display_name: string | null;
     avatar_url: string | null;
     search_handle: string | null;
+    connection_status: "none" | "sent" | "friends";
   }[];
 }
 
@@ -248,13 +262,15 @@ export async function getActivityFeed(userId: number) {
   return rows.flatMap((row) => {
     const task = getRegistryTaskById(row.task_id);
     if (!task) return [];
-    return [{
-      display_name: row.display_name,
-      search_handle: row.search_handle,
-      avatar_url: row.avatar_url,
-      category: task.category,
-      activity: getLocalizedString(task.name, "en"),
-      completed_at: row.completed_at,
-    }];
+    return [
+      {
+        display_name: row.display_name,
+        search_handle: row.search_handle,
+        avatar_url: row.avatar_url,
+        category: task.category,
+        activity: getLocalizedString(task.name, "en"),
+        completed_at: row.completed_at,
+      },
+    ];
   });
 }

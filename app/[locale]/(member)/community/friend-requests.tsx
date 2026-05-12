@@ -27,9 +27,7 @@ export function FriendRequests({
 
   async function handleAction(requestId: string, action: "accept" | "reject") {
     const result =
-      action === "accept"
-        ? await acceptFriend({ requestId })
-        : await rejectFriend({ requestId });
+      action === "accept" ? await acceptFriend({ requestId }) : await rejectFriend({ requestId });
     if (!("error" in result)) {
       setHandledIds((prev) => new Set(prev).add(requestId));
       onUpdate();
@@ -44,7 +42,7 @@ export function FriendRequests({
       {visible.map((req) => {
         const requesterName = req.searchHandle
           ? `@${req.searchHandle}`
-          : req.displayName ?? "User";
+          : (req.displayName ?? "User");
 
         return (
           <div
@@ -69,9 +67,7 @@ export function FriendRequests({
               <p className="truncate font-headline text-sm font-bold text-on-surface">
                 {requesterName}
               </p>
-              <p className="text-xs text-on-surface-variant mt-0.5">
-                {t("sentFriendRequest")}
-              </p>
+              <p className="text-xs text-on-surface-variant mt-0.5">{t("sentFriendRequest")}</p>
             </div>
             <div className="flex gap-2 shrink-0">
               <button

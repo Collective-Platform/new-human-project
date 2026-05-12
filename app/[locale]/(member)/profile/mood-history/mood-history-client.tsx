@@ -54,9 +54,7 @@ export function MoodHistoryClient() {
         >
           <ArrowLeft size={20} className="text-foreground/60" />
         </Link>
-        <h1 className="font-headline text-lg font-bold text-foreground">
-          {t("moodHistory")}
-        </h1>
+        <h1 className="font-headline text-lg font-bold text-foreground">{t("moodHistory")}</h1>
       </div>
 
       {loading && (
@@ -66,9 +64,7 @@ export function MoodHistoryClient() {
       )}
 
       {!loading && entries.length === 0 && (
-        <p className="text-center text-sm text-foreground/50 py-12">
-          No mood entries yet
-        </p>
+        <p className="text-center text-sm text-foreground/50 py-12">No mood entries yet</p>
       )}
 
       {!loading && entries.length > 0 && (
@@ -79,12 +75,9 @@ export function MoodHistoryClient() {
               data?.moods
                 ?.map((mood) => moodEmojiMap[mood])
                 .filter(Boolean)
-                .join("") ??
-              (data?.mood ? moodEmojiMap[data.mood] : undefined);
+                .join("") ?? (data?.mood ? moodEmojiMap[data.mood] : undefined);
             const emoji =
-              moodEmojis ??
-              data?.emoji ??
-              (data?.rating ? emojiMap[data.rating] : "😐");
+              moodEmojis ?? data?.emoji ?? (data?.rating ? emojiMap[data.rating] : "😐");
             const date = new Date(entry.completedAt);
 
             return (
@@ -105,9 +98,7 @@ export function MoodHistoryClient() {
                       </div>
                     )}
                     {data?.context && (
-                      <p className="text-xs text-foreground/60 line-clamp-2">
-                        {data.context}
-                      </p>
+                      <p className="text-xs text-foreground/60 line-clamp-2">{data.context}</p>
                     )}
                   </div>
                   <p className="text-[10px] text-foreground/40 whitespace-nowrap">

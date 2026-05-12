@@ -70,35 +70,32 @@ comes from frontmatter `order:`. Folders may be restructured at any time.
 
 ```yaml
 ---
-id: t_01HXYZK4N9P7QF3M2A8B1C9D0E   # ULID, prefixed "t_" — IMMUTABLE
+id: t_01HXYZK4N9P7QF3M2A8B1C9D0E # ULID, prefixed "t_" — IMMUTABLE
 block: 1
 day: 1
-order: 40                           # sparse (10, 20, 30...) for easy inserts
-category: Mental                    # Mental | Emotional | Physical
-type: devotional                    # devotional | scripture_reading | mood_log
-                                    #  | info | (extensible)
+order: 40 # sparse (10, 20, 30...) for easy inserts
+category: Mental # Mental | Emotional | Physical
+type:
+  devotional # devotional | scripture_reading | mood_log
+  #  | info | (extensible)
 name:
   en: "Day 1 — A Letter Written from Prison"
   zh: "..."
 
 # Optional, type-specific:
-passageRef: "Ephesians 1:1–2 · Acts 19"   # devotional
-scriptureRef: "Ephesians 1:1-2"           # scripture_reading
-videoUrl: "https://..."                   # any
-inputs:                                   # which sections capture user text
+passageRef: "Ephesians 1:1–2 · Acts 19" # devotional
+scriptureRef: "Ephesians 1:1-2" # scripture_reading
+videoUrl: "https://..." # any
+inputs: # which sections capture user text
   - reflection
   - practice
 ---
-
 ## Reading Notes
 ...
-
 ## Key Idea
 ...
-
 ## Reflection
 ...
-
 ## Today's Practice
 ...
 ```
@@ -122,7 +119,7 @@ At server start (and in dev on file change):
 1. Glob `data/program/**/*.md`.
 2. Parse frontmatter (`gray-matter`), validate with Zod.
 3. Build `Map<id, Task>` keyed by frontmatter ID.
-4. Build a per-day index `Map<\`${block}:${day}\`, Task[]>` sorted by `order`.
+4. Build a per-day index `Map<\`${block}:${day}\`, Task[]>`sorted by`order`.
 5. On duplicate ID or schema violation, throw at boot (fail loud).
 
 Body markdown is parsed lazily (on render) into sections by H2.
@@ -199,14 +196,14 @@ door.
 User-facing behavior does **not** change:
 
 - A task is "done" iff a row exists in `task_completions` for `(user_id, task_id)`.
-  Same model before and after; only the ID *format* changes (UUID → ULID text).
+  Same model before and after; only the ID _format_ changes (UUID → ULID text).
 - The "Next" button in `task-detail.tsx` still calls
   `onComplete(task.id)` then navigates. The optimistic patch in
   `progress-client.tsx` keys off `task.id` as a string and is unaffected.
 - There is no "uncomplete" today (`POST /api/tasks/complete` does
   `ON CONFLICT DO UPDATE`). Migration does not add or remove undo.
 - `POST /api/tasks/complete` request/response shape is unchanged: the client
-  still sends `{ taskId, data }`. Only the *value* of `taskId` differs.
+  still sends `{ taskId, data }`. Only the _value_ of `taskId` differs.
 
 Three queries currently SQL-JOIN `task_completions` against `block_day_tasks`
 and must be rewritten to resolve task IDs through the in-memory program
@@ -252,7 +249,7 @@ registry-resolution pattern.
   map). Every new task must be added in two places.
 - **B: Add `slug` + UPSERT seed + sparse `display_order`.** Cheapest fix, but
   doesn't address renderer rigidity or the upcoming content-variety problem.
-  Worth doing if we decided *not* to migrate; we are migrating, so skipped.
+  Worth doing if we decided _not_ to migrate; we are migrating, so skipped.
 - **D: Hybrid (DB rows for task list, MD for body).** Useful only if we
   planned an admin UI for task ordering. We don't.
 - **MDX instead of MD.** More power (custom React components inside content),

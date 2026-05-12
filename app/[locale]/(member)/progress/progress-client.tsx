@@ -24,9 +24,7 @@ export function ProgressClient({
   // Seeded from server-rendered payload — first paint shows real content,
   // no initial-load spinner. (Task 2.0 of tasks-perf-improvements.md)
   const [data, setData] = useState<ProgressData>(initialData);
-  const [selectedDay, setSelectedDay] = useState<number>(
-    initialData.selectedDay,
-  );
+  const [selectedDay, setSelectedDay] = useState<number>(initialData.selectedDay);
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
 
   // Intent-based prefetch cache for day data. (Task 3.0)
@@ -37,9 +35,7 @@ export function ProgressClient({
   const dayCacheRef = useRef<Map<number, ProgressData>>(
     new Map([[initialData.selectedDay, initialData]]),
   );
-  const inFlightRef = useRef<Map<number, Promise<ProgressData | null>>>(
-    new Map(),
-  );
+  const inFlightRef = useRef<Map<number, Promise<ProgressData | null>>>(new Map());
 
   async function loadDay(day: number): Promise<ProgressData | null> {
     const cached = dayCacheRef.current.get(day);
@@ -81,14 +77,12 @@ export function ProgressClient({
   // hydration via requestIdleCallback so it doesn't compete with paint.
   // Bounded to [1, 25] and skips the already-cached current day. (Task 3.0)
   useEffect(() => {
-    const neighbors = [
-      initialData.currentDay - 1,
-      initialData.currentDay + 1,
-    ].filter((d) => d >= 1 && d <= 25);
+    const neighbors = [initialData.currentDay - 1, initialData.currentDay + 1].filter(
+      (d) => d >= 1 && d <= 25,
+    );
 
     const idle =
-      typeof window !== "undefined" &&
-      "requestIdleCallback" in window
+      typeof window !== "undefined" && "requestIdleCallback" in window
         ? (window as Window).requestIdleCallback
         : null;
 
@@ -146,10 +140,7 @@ export function ProgressClient({
     }
   }
 
-  async function handleComplete(
-    taskId: string,
-    taskData?: Record<string, unknown>,
-  ) {
+  async function handleComplete(taskId: string, taskData?: Record<string, unknown>) {
     const previous = data.tasks.find((t) => t.id === taskId);
     if (!previous) return;
 
@@ -212,11 +203,8 @@ export function ProgressClient({
 
   if (activeTask) {
     // Find the latest version of the task from data (with updated completed state)
-    const current =
-      data.tasks.find((t) => t.id === activeTask.id) ?? activeTask;
-    const categoryTasks = data.tasks.filter(
-      (t) => t.category === current.category,
-    );
+    const current = data.tasks.find((t) => t.id === activeTask.id) ?? activeTask;
+    const categoryTasks = data.tasks.filter((t) => t.category === current.category);
     return (
       <TaskDetail
         task={current}

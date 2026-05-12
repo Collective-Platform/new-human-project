@@ -39,7 +39,7 @@ export async function sendDailyReminders(currentHour: string) {
       await sendPushToUser(
         Number(row.id),
         { title: msg.title, body: msg.body, url: "/" },
-        "daily_reminder"
+        "daily_reminder",
       );
     } catch {
       // Continue sending to other users

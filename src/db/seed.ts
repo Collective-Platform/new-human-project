@@ -15,8 +15,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import pg from "pg";
 
-const DATABASE_URL =
-  process.env.DATABASE_URL ?? "postgres://localhost:5432/new_human_dev";
+const DATABASE_URL = process.env.DATABASE_URL ?? "postgres://localhost:5432/new_human_dev";
 
 // All NHP tables live in the `nhp` Postgres schema. Set search_path so
 // unqualified INSERT statements resolve into nhp.
@@ -91,10 +90,7 @@ function buildContent(row: Record<string, string>): Record<string, unknown> {
   if (taskType === "scripture_study") {
     return withIntroMarkdown(row, {
       scripture_reference: row.scripture_reference || null,
-      scripture_text: buildLocaleObj(
-        row.scripture_text_en,
-        row.scripture_text_zh
-      ),
+      scripture_text: buildLocaleObj(row.scripture_text_en, row.scripture_text_zh),
       explanation: buildLocaleObj(row.explanation_en, row.explanation_zh),
       video_url: row.video_url || null,
       xp_weight: parseInt(row.xp_weight) || 2,
@@ -107,11 +103,11 @@ function buildContent(row: Record<string, string>): Record<string, unknown> {
 
 function withIntroMarkdown(
   row: Record<string, string>,
-  content: Record<string, unknown>
+  content: Record<string, unknown>,
 ): Record<string, unknown> {
   const intro = buildLocaleObj(
     readOptionalTaskContent(row, "intro", "en"),
-    readOptionalTaskContent(row, "intro", "zh")
+    readOptionalTaskContent(row, "intro", "zh"),
   );
 
   if (!intro) return content;
@@ -125,14 +121,14 @@ function withIntroMarkdown(
 function readOptionalTaskContent(
   row: Record<string, string>,
   name: string,
-  locale: "en" | "zh"
+  locale: "en" | "zh",
 ): string {
   const filePath = resolve(
     "data/task-content-overrides",
     `block-${row.block}`,
     `day-${row.day}`,
     `order-${row.order}`,
-    `${name}.${locale}.md`
+    `${name}.${locale}.md`,
   );
 
   if (!existsSync(filePath)) return "";
@@ -141,7 +137,7 @@ function readOptionalTaskContent(
 
 function buildLocaleObj(
   en: string | undefined,
-  zh: string | undefined
+  zh: string | undefined,
 ): Record<string, string> | null {
   const obj: Record<string, string> = {};
   if (en?.trim()) obj.en = en.trim();
@@ -150,9 +146,7 @@ function buildLocaleObj(
 }
 
 async function seed() {
-  const csvPath = resolve(
-    process.argv[2] ?? "data/block1-seed.csv"
-  );
+  const csvPath = resolve(process.argv[2] ?? "data/block1-seed.csv");
   const raw = readFileSync(csvPath, "utf-8");
   const rows = parseCSV(raw);
 
@@ -187,7 +181,7 @@ async function seed() {
            AND category = $3
            AND task_type = $4
            AND display_order = $7`,
-        params
+        params,
       );
 
       if (updateResult.rowCount && updateResult.rowCount > 0) {
@@ -198,26 +192,19 @@ async function seed() {
       await client.query(
         `INSERT INTO block_day_tasks (id, block_number, day_number, category, task_type, name, content, display_order)
          VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7)`,
-        params
+        params,
       );
       inserted++;
     }
 
-    console.log(
-      `  ✅ Synced block_day_tasks (${inserted} inserted, ${updated} updated)`
-    );
+    console.log(`  ✅ Synced block_day_tasks (${inserted} inserted, ${updated} updated)`);
 
     // 2.15: Seed Block 1 badge definition
     await client.query(
       `INSERT INTO badge_definitions (id, name, description, block_number, is_milestone)
        VALUES (gen_random_uuid(), $1, $2, $3, $4)
        ON CONFLICT DO NOTHING`,
-      [
-        "Block 1 Complete",
-        "Completed the first 25-day formation block — The Foundation",
-        1,
-        true,
-      ]
+      ["Block 1 Complete", "Completed the first 25-day formation block — The Foundation", 1, true],
     );
     console.log("  ✅ Seeded Block 1 badge definition");
 

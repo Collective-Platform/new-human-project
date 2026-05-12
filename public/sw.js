@@ -7,22 +7,20 @@ const OFFLINE_QUEUE_STORE = "offline-completions";
 
 // ---------- Install ----------
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)));
   self.skipWaiting();
 });
 
 // ---------- Activate ----------
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((k) => k !== CACHE_NAME && k !== API_CACHE_NAME)
-          .map((k) => caches.delete(k))
-      )
-    )
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys.filter((k) => k !== CACHE_NAME && k !== API_CACHE_NAME).map((k) => caches.delete(k)),
+        ),
+      ),
   );
   self.clients.claim();
 });
@@ -42,10 +40,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Offline task completion queue (Background Sync)
-  if (
-    url.pathname === "/api/tasks/complete" &&
-    event.request.method === "POST"
-  ) {
+  if (url.pathname === "/api/tasks/complete" && event.request.method === "POST") {
     event.respondWith(handleTaskComplete(event));
     return;
   }
@@ -109,13 +104,10 @@ async function handleTaskComplete(event) {
       await self.registration.sync.register("replay-completions");
     }
 
-    return new Response(
-      JSON.stringify({ success: true, queued: true }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ success: true, queued: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
 
@@ -206,7 +198,7 @@ self.addEventListener("push", (event) => {
       icon: "/icons/icon-192x192.png",
       badge: "/icons/icon-192x192.png",
       data: { url: data.url || "/" },
-    })
+    }),
   );
 });
 
@@ -216,18 +208,16 @@ self.addEventListener("notificationclick", (event) => {
   const url = event.notification.data?.url || "/";
 
   event.waitUntil(
-    self.clients
-      .matchAll({ type: "window", includeUncontrolled: true })
-      .then((clients) => {
-        // Focus existing window if available
-        for (const client of clients) {
-          if (client.url.includes(self.location.origin) && "focus" in client) {
-            client.navigate(url);
-            return client.focus();
-          }
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      // Focus existing window if available
+      for (const client of clients) {
+        if (client.url.includes(self.location.origin) && "focus" in client) {
+          client.navigate(url);
+          return client.focus();
         }
-        // Open new window
-        return self.clients.openWindow(url);
-      })
+      }
+      // Open new window
+      return self.clients.openWindow(url);
+    }),
   );
 });

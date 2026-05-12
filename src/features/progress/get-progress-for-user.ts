@@ -48,14 +48,11 @@ export async function getProgressForUser(
   locale: "en" | "zh",
   currentDay: number,
 ): Promise<ProgressPayload> {
-  'use cache';
-  cacheLife('minutes');
+  "use cache";
+  cacheLife("minutes");
   cacheTag(`progress:${userId}`);
 
-  const requestedDay = Math.min(
-    Math.max(requestedDayParam ?? currentDay, 1),
-    25,
-  );
+  const requestedDay = Math.min(Math.max(requestedDayParam ?? currentDay, 1), 25);
 
   const blockNumber = 1;
   const tasks = await getDayTasks(blockNumber, requestedDay, locale);
@@ -95,8 +92,7 @@ export async function getProgressForUser(
           : undefined);
 
       if (
-        (t.taskType === "scripture_reading" ||
-          t.taskType === "scripture_study") &&
+        (t.taskType === "scripture_reading" || t.taskType === "scripture_study") &&
         scriptureRef
       ) {
         const passage = await getPassageForLocale(scriptureRef, locale);
@@ -132,4 +128,3 @@ export async function getProgressForUser(
     tasks: enrichedTasks,
   };
 }
-

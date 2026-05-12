@@ -15,14 +15,7 @@
  *   pnpm tsx scripts/seed-to-md.ts
  */
 
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import matter from "gray-matter";
 import { ulid } from "ulid";
@@ -123,10 +116,7 @@ function collectExistingUlids(): Map<string, string> {
           if (!fm.success) continue;
           const { block, day, type } = fm.data;
           // For Physical/info tasks the DB used 'exercise'; map that.
-          const dbType =
-            type === "info" && fm.data.category === "Physical"
-              ? "exercise"
-              : type;
+          const dbType = type === "info" && fm.data.category === "Physical" ? "exercise" : type;
           map.set(`${block}:${day}:${dbType}`, fm.data.id);
         } catch {
           // ignore

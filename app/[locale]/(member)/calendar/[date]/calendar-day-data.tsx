@@ -8,13 +8,7 @@ const categoryDotColor: Record<string, string> = {
   Physical: "bg-category-physical border border-[#d4c8a0]",
 };
 
-export async function CalendarDayData({
-  locale,
-  dateStr,
-}: {
-  locale: string;
-  dateStr: string;
-}) {
+export async function CalendarDayData({ locale, dateStr }: { locale: string; dateStr: string }) {
   const user = await getSessionUser();
   if (!user) redirect(`/${locale}/login`);
   if (!user.onboardedAt) redirect(`/${locale}`);
@@ -47,9 +41,7 @@ export async function CalendarDayData({
                 className={`h-3 w-3 shrink-0 rounded-full ${categoryDotColor[item.category] ?? "bg-zinc-300"}`}
               />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground">
-                  {item.name}
-                </p>
+                <p className="text-sm font-medium text-foreground">{item.name}</p>
                 <p className="text-xs text-foreground/50">{item.category}</p>
               </div>
               <span className="text-xs text-foreground/40">

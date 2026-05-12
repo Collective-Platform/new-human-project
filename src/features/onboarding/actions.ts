@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { updateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
@@ -30,9 +30,7 @@ export async function completeOnboarding(input: {
       .where(eq(users.id, user.id));
   } catch (err: unknown) {
     const code =
-      err && typeof err === "object" && "code" in err
-        ? (err as { code?: string }).code
-        : undefined;
+      err && typeof err === "object" && "code" in err ? (err as { code?: string }).code : undefined;
     if (code === "23505") return { error: "username_taken" };
     throw err;
   }

@@ -11,7 +11,7 @@ function ensureVapid() {
   webpush.setVapidDetails(
     "mailto:noreply@thenewhumanproject.app",
     env.VAPID_PUBLIC_KEY,
-    env.VAPID_PRIVATE_KEY
+    env.VAPID_PRIVATE_KEY,
   );
   return true;
 }
@@ -19,7 +19,7 @@ function ensureVapid() {
 export async function sendPushToUser(
   userId: number,
   payload: { title: string; body: string; url?: string },
-  type: string
+  type: string,
 ) {
   if (!ensureVapid()) return;
 
@@ -42,13 +42,10 @@ export async function sendPushToUser(
       await webpush.sendNotification(sub, JSON.stringify(payload));
       anyDelivered = true;
     } catch (err: unknown) {
-      const statusCode =
-        err instanceof webpush.WebPushError ? err.statusCode : 0;
+      const statusCode = err instanceof webpush.WebPushError ? err.statusCode : 0;
       // Subscription expired or invalid — clean up just this device's row.
       if (statusCode === 410 || statusCode === 404) {
-        await db
-          .delete(pushSubscriptions)
-          .where(eq(pushSubscriptions.endpoint, row.endpoint));
+        await db.delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, row.endpoint));
       }
       // Other errors: continue to the next subscription.
     }

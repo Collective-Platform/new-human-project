@@ -39,10 +39,7 @@ export function BlockCelebration({
       }`}
     >
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={handleDismiss}
-      />
+      <div className="absolute inset-0 bg-black/50" onClick={handleDismiss} />
 
       {/* Content */}
       <div
@@ -73,9 +70,7 @@ export function BlockCelebration({
               key={i}
               className="absolute block h-2 w-2 rounded-full"
               style={{
-                backgroundColor: ["#c10014", "#135db9", "#f59e0b", "#10b981"][
-                  i % 4
-                ],
+                backgroundColor: ["#c10014", "#135db9", "#f59e0b", "#10b981"][i % 4],
                 left: `${15 + (i * 70) / 12}%`,
                 top: `${10 + ((i * 37) % 60)}%`,
                 animation: `celebrationFloat ${1.5 + (i % 3) * 0.5}s ease-in-out infinite alternate`,
@@ -98,9 +93,7 @@ export function BlockCelebration({
 
         {/* Description */}
         {badge.description && (
-          <p className="mb-6 text-center text-sm text-foreground/60">
-            {badge.description}
-          </p>
+          <p className="mb-6 text-center text-sm text-foreground/60">{badge.description}</p>
         )}
 
         {/* Dismiss button */}

@@ -29,10 +29,7 @@ async function fileToResizedDataUrl(file: File): Promise<string> {
     image.src = dataUrl;
   });
 
-  const scale = Math.min(
-    1,
-    MAX_AVATAR_DIMENSION / Math.max(img.width, img.height),
-  );
+  const scale = Math.min(1, MAX_AVATAR_DIMENSION / Math.max(img.width, img.height));
   const targetW = Math.round(img.width * scale);
   const targetH = Math.round(img.height * scale);
 
@@ -209,9 +206,7 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
                     ref={handleInputRef}
                     type="text"
                     value={handleValue}
-                    onChange={(e) =>
-                      setHandleValue(e.target.value.toLowerCase())
-                    }
+                    onChange={(e) => setHandleValue(e.target.value.toLowerCase())}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
@@ -270,10 +265,7 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
         </div>
 
         {error && (
-          <div
-            role="alert"
-            className="rounded-md bg-red-50 px-4 py-2 text-sm text-red-700"
-          >
+          <div role="alert" className="rounded-md bg-red-50 px-4 py-2 text-sm text-red-700">
             {error}
           </div>
         )}

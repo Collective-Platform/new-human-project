@@ -5,14 +5,7 @@ import { routing } from "@/src/i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
-const MEMBER_SEGMENTS = [
-  "dashboard",
-  "progress",
-  "profile",
-  "community",
-  "calendar",
-  "admin",
-];
+const MEMBER_SEGMENTS = ["dashboard", "progress", "profile", "community", "calendar", "admin"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

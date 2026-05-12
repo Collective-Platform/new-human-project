@@ -3,10 +3,10 @@ import { db } from "@/src/db";
 import { sql } from "drizzle-orm";
 
 export async function getFriendIds(
-  userId: number
+  userId: number,
 ): Promise<{ id: number; lastActivityMs: number | null }[]> {
-  'use cache';
-  cacheLife('hours');
+  "use cache";
+  cacheLife("hours");
   cacheTag(`friends:${userId}`);
 
   const result = await db.execute(sql`
@@ -29,20 +29,17 @@ export async function getFriendIds(
     ORDER BY u.search_handle, u.display_name
   `);
 
-  return (
-    result.rows as { id: number; last_activity: string | null }[]
-  ).map((row) => ({
+  return (result.rows as { id: number; last_activity: string | null }[]).map((row) => ({
     id: row.id,
-    lastActivityMs:
-      row.last_activity != null ? new Date(row.last_activity).getTime() : null,
+    lastActivityMs: row.last_activity != null ? new Date(row.last_activity).getTime() : null,
   }));
 }
 
 export async function getIncomingRequestIds(
-  userId: number
+  userId: number,
 ): Promise<{ requestId: string; senderId: number; createdAtMs: number }[]> {
-  'use cache';
-  cacheLife('minutes');
+  "use cache";
+  cacheLife("minutes");
   cacheTag(`requests:${userId}`);
 
   const result = await db.execute(sql`
@@ -53,9 +50,7 @@ export async function getIncomingRequestIds(
     ORDER BY fr.created_at DESC
   `);
 
-  return (
-    result.rows as { id: string; sender_id: number; created_at: string }[]
-  ).map((row) => ({
+  return (result.rows as { id: string; sender_id: number; created_at: string }[]).map((row) => ({
     requestId: row.id,
     senderId: row.sender_id,
     createdAtMs: new Date(row.created_at).getTime(),
@@ -63,10 +58,10 @@ export async function getIncomingRequestIds(
 }
 
 export async function getSuggestionIds(
-  userId: number
+  userId: number,
 ): Promise<{ id: number; mutualCount: number }[]> {
-  'use cache';
-  cacheLife('hours');
+  "use cache";
+  cacheLife("hours");
   cacheTag(`suggestions:${userId}`);
 
   const result = await db.execute(sql`
@@ -95,19 +90,17 @@ export async function getSuggestionIds(
     LIMIT 10
   `);
 
-  return (
-    result.rows as { id: number; mutual_count: number | string }[]
-  ).map((row) => ({
+  return (result.rows as { id: number; mutual_count: number | string }[]).map((row) => ({
     id: row.id,
     mutualCount: Number(row.mutual_count),
   }));
 }
 
 export async function getActivityFeedRows(
-  userId: number
+  userId: number,
 ): Promise<{ userId: number; taskId: string; completedAtMs: number }[]> {
-  'use cache';
-  cacheLife('minutes');
+  "use cache";
+  cacheLife("minutes");
   cacheTag(`feed:${userId}`);
 
   const result = await db.execute(sql`
@@ -134,25 +127,23 @@ export async function getActivityFeedRows(
     LIMIT 50
   `);
 
-  return (
-    result.rows as { user_id: number; task_id: string; completed_at: string }[]
-  ).map((row) => ({
-    userId: row.user_id,
-    taskId: row.task_id,
-    completedAtMs: new Date(row.completed_at).getTime(),
-  }));
+  return (result.rows as { user_id: number; task_id: string; completed_at: string }[]).map(
+    (row) => ({
+      userId: row.user_id,
+      taskId: row.task_id,
+      completedAtMs: new Date(row.completed_at).getTime(),
+    }),
+  );
 }
 
-export async function getPublicProfile(
-  userId: number
-): Promise<{
+export async function getPublicProfile(userId: number): Promise<{
   id: number;
   displayName: string | null;
   searchHandle: string | null;
   avatarUrl: string | null;
 } | null> {
-  'use cache';
-  cacheLife('hours');
+  "use cache";
+  cacheLife("hours");
   cacheTag(`profile:${userId}`);
 
   const result = await db.execute(sql`

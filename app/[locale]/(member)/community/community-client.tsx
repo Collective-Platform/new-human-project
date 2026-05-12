@@ -50,11 +50,7 @@ interface CommunityData {
   feed: FeedItem[];
 }
 
-export function CommunityClient({
-  initialData,
-}: {
-  initialData: CommunityData;
-}) {
+export function CommunityClient({ initialData }: { initialData: CommunityData }) {
   const router = useRouter();
   const t = useTranslations("community");
   const [tab, setTab] = useState<"friends" | "add">("friends");
@@ -104,10 +100,7 @@ export function CommunityClient({
               <h2 className="text-lg font-bold mb-4 font-headline text-on-surface">
                 {t("peopleYouMayKnow")}
               </h2>
-              <PeopleYouMayKnow
-                suggestions={initialData.suggestions}
-                onAdd={fetchData}
-              />
+              <PeopleYouMayKnow suggestions={initialData.suggestions} onAdd={fetchData} />
             </section>
           )}
 

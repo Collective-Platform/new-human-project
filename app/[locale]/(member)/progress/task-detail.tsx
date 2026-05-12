@@ -73,15 +73,7 @@ export function TaskDetail({
     } else {
       onClose();
     }
-  }, [
-    onComplete,
-    task.id,
-    hasNext,
-    categoryTasks,
-    currentIndex,
-    onNavigate,
-    onClose,
-  ]);
+  }, [onComplete, task.id, hasNext, categoryTasks, currentIndex, onNavigate, onClose]);
 
   const handlePrev = useCallback(() => {
     if (hasPrev) {
@@ -103,15 +95,7 @@ export function TaskDetail({
         setLoading(false);
       }
     },
-    [
-      onComplete,
-      task.id,
-      hasNext,
-      categoryTasks,
-      currentIndex,
-      onNavigate,
-      onClose,
-    ],
+    [onComplete, task.id, hasNext, categoryTasks, currentIndex, onNavigate, onClose],
   );
 
   // Reflection-input autosave from SectionedContentRenderer. Merges the new
@@ -169,9 +153,7 @@ export function TaskDetail({
         >
           <ArrowLeft size={20} />
         </button>
-        <h2 className="flex-1 font-headline text-base font-semibold truncate">
-          {task.name}
-        </h2>
+        <h2 className="flex-1 font-headline text-base font-semibold truncate">{task.name}</h2>
       </div>
 
       {/* Content */}
@@ -248,12 +230,10 @@ export function TaskDetail({
           )}
           <div className="flex flex-1 flex-col items-center justify-center text-center leading-tight">
             <span className="text-xs font-semibold text-foreground">
-              {t("blockLabel", { block: blockNumber })} |{" "}
-              {t(task.category.toLowerCase())}
+              {t("blockLabel", { block: blockNumber })} | {t(task.category.toLowerCase())}
             </span>
             <span className="text-[11px] text-foreground/60">
-              {t("dayLabel", { day: dayNumber })} | {currentIndex + 1} of{" "}
-              {categoryTasks.length}
+              {t("dayLabel", { day: dayNumber })} | {currentIndex + 1} of {categoryTasks.length}
             </span>
           </div>
           <button

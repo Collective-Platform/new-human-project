@@ -21,7 +21,7 @@ export default async function MemberLayout({
       <NavVisibilityProvider>
         <Suspense
           fallback={
-            <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl">
+            <header className="sticky top-0 z-40 bg-white">
               <div className="mx-auto flex max-w-93.75 items-center justify-between px-4 py-3">
                 <div className="flex items-center font-bold text-xl">Rhythm</div>
               </div>
@@ -30,19 +30,13 @@ export default async function MemberLayout({
         >
           <AppHeader />
         </Suspense>
-        <main className="flex-1 overflow-y-auto pb-24">
+        <main className="flex-1 overflow-y-auto pb-24 mx-auto w-full max-w-93.75">
           <Suspense fallback={null}>
             <AuthGate locale={locale} />
           </Suspense>
           {children}
         </main>
-        <Suspense
-          fallback={
-            <div className="fixed bottom-0 inset-x-0 z-50 h-16 border-t border-white/20 bg-white/70 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]" />
-          }
-        >
-          <BottomNav />
-        </Suspense>
+        <BottomNav />
       </NavVisibilityProvider>
       <SwRegisterLoader />
     </div>

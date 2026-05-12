@@ -35,8 +35,6 @@ export function BilingualPassage({
   }
 
   return (
-    <p className="text-sm text-foreground/60">
-      Read this passage in your Bible or Bible app.
-    </p>
+    <p className="text-sm text-foreground/60">Read this passage in your Bible or Bible app.</p>
   );
 }

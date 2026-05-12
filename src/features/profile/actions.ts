@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { updateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
@@ -71,9 +71,7 @@ export async function updateProfile(input: {
     updateTag(`profile:${user.id}`);
   } catch (err: unknown) {
     const code =
-      err && typeof err === "object" && "code" in err
-        ? (err as { code?: string }).code
-        : undefined;
+      err && typeof err === "object" && "code" in err ? (err as { code?: string }).code : undefined;
     if (code === "23505" && updates.searchHandle !== undefined) {
       return { error: "username_taken" };
     }

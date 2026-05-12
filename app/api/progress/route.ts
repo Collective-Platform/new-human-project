@@ -11,9 +11,7 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const dayParam = Number(url.searchParams.get("day"));
-  const requestedDayParam = Number.isFinite(dayParam) && dayParam > 0
-    ? dayParam
-    : null;
+  const requestedDayParam = Number.isFinite(dayParam) && dayParam > 0 ? dayParam : null;
 
   const cookieStore = await cookies();
   const locale = cookieStore.get("locale")?.value === "zh" ? "zh" : "en";

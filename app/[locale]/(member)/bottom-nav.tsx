@@ -6,7 +6,11 @@ import { Link, usePathname, useRouter } from "@/src/i18n/navigation";
 import { Home, TrendingUp, Users, User, type LucideIcon } from "lucide-react";
 import { useNavVisibility } from "./nav-visibility";
 
-const tabs: { key: "home" | "progress" | "community" | "profile"; href: string; Icon: LucideIcon }[] = [
+const tabs: {
+  key: "home" | "progress" | "community" | "profile";
+  href: string;
+  Icon: LucideIcon;
+}[] = [
   { key: "home", href: "/", Icon: Home },
   { key: "progress", href: "/progress", Icon: TrendingUp },
   { key: "community", href: "/community", Icon: Users },
@@ -41,7 +45,7 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-white/20 bg-white/70 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 inset-x-0 z-50 bg-white pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto flex max-w-93.75 items-center justify-around px-4 pt-2 pb-2">
         {tabs.map((tab) => {
           const active = isActive(tab.href);
@@ -57,15 +61,10 @@ export function BottomNav() {
                   active ? "bg-primary" : ""
                 }`}
               >
-                <TabIcon
-                  size={22}
-                  className={active ? "text-white" : "text-zinc-500"}
-                />
+                <TabIcon size={22} className={active ? "text-white" : "text-zinc-500"} />
               </span>
               <span
-                className={`text-[10px] font-medium ${
-                  active ? "text-primary" : "text-zinc-500"
-                }`}
+                className={`text-[10px] font-medium ${active ? "text-primary" : "text-zinc-500"}`}
               >
                 {t(tab.key)}
               </span>

@@ -32,10 +32,7 @@ export function ActivityCalendar({
 
       <div className="mb-2 grid grid-cols-7 gap-1">
         {dayLabels.map((label, i) => (
-          <div
-            key={i}
-            className="text-center text-[10px] font-medium text-foreground/40"
-          >
+          <div key={i} className="text-center text-[10px] font-medium text-foreground/40">
             {label}
           </div>
         ))}

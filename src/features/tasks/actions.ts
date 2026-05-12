@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { updateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
@@ -56,10 +56,7 @@ export async function completeTask(input: {
       .select()
       .from(memberBlockCompletions)
       .where(
-        and(
-          eq(memberBlockCompletions.userId, user.id),
-          eq(memberBlockCompletions.blockNumber, 1),
-        ),
+        and(eq(memberBlockCompletions.userId, user.id), eq(memberBlockCompletions.blockNumber, 1)),
       )
       .limit(1);
 
@@ -110,12 +107,7 @@ export async function uncompleteTask(input: {
 
   await db
     .delete(taskCompletions)
-    .where(
-      and(
-        eq(taskCompletions.userId, user.id),
-        eq(taskCompletions.taskId, taskId),
-      ),
-    );
+    .where(and(eq(taskCompletions.userId, user.id), eq(taskCompletions.taskId, taskId)));
 
   const friendIds = await getFriendIdsRaw(user.id);
   updateTag(`dashboard:${user.id}`);

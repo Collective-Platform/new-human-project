@@ -49,9 +49,7 @@ export function SectionedContentRenderer({
   return (
     <div className="space-y-6">
       {passageRef && (
-        <p className="font-headline text-lg font-bold text-foreground">
-          {passageRef}
-        </p>
+        <p className="font-headline text-lg font-bold text-foreground">{passageRef}</p>
       )}
 
       {sections.map((section, index) => (
@@ -100,9 +98,7 @@ function Section({
   if (slug === "key-idea") {
     return (
       <blockquote className="border-l-4 border-primary bg-primary/10 p-4 text-foreground">
-        <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">
-          {heading}
-        </p>
+        <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">{heading}</p>
         <div className="text-md leading-relaxed">
           <MarkdownContent>{markdown}</MarkdownContent>
         </div>
@@ -117,9 +113,7 @@ function Section({
 
   return (
     <div className="space-y-3">
-      <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">
-        {heading}
-      </p>
+      <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">{heading}</p>
       {markdown && (
         <div className="space-y-2 text-md leading-relaxed text-foreground">
           <MarkdownContent>{markdown}</MarkdownContent>
@@ -130,9 +124,7 @@ function Section({
           initialValue={readInitialValue(completionData, inputSlug)}
           onSave={(text) => onSaveReflection(inputSlug, text)}
           ariaLabel={heading}
-          placeholder={
-            locale === "zh" ? "在此处输入你的回应…" : "Write your response…"
-          }
+          placeholder={locale === "zh" ? "在此处输入你的回应…" : "Write your response…"}
         />
       )}
     </div>
@@ -202,10 +194,7 @@ function inputSlugFor(slug: string): string | null {
   return null;
 }
 
-function readInitialValue(
-  completionData: Record<string, unknown> | null,
-  key: string,
-): string {
+function readInitialValue(completionData: Record<string, unknown> | null, key: string): string {
   const v = completionData?.[key];
   return typeof v === "string" ? v : "";
 }

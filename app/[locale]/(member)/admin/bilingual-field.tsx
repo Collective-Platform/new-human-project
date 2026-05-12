@@ -27,17 +27,13 @@ export function BilingualField({
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <label className="text-xs font-medium text-foreground/50">
-          {label}
-        </label>
+        <label className="text-xs font-medium text-foreground/50">{label}</label>
         <div className="flex gap-1">
           <button
             type="button"
             onClick={() => setTab("en")}
             className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition-colors ${
-              tab === "en"
-                ? "bg-primary text-white"
-                : "bg-zinc-100 text-foreground/50"
+              tab === "en" ? "bg-primary text-white" : "bg-zinc-100 text-foreground/50"
             }`}
           >
             EN
@@ -46,9 +42,7 @@ export function BilingualField({
             type="button"
             onClick={() => setTab("zh")}
             className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition-colors ${
-              tab === "zh"
-                ? "bg-primary text-white"
-                : "bg-zinc-100 text-foreground/50"
+              tab === "zh" ? "bg-primary text-white" : "bg-zinc-100 text-foreground/50"
             }`}
           >
             中文
