@@ -70,22 +70,28 @@ export async function getSuggestionIds(
   cacheTag(`suggestions:${userId}`);
 
   const result = await db.execute(sql`
-    SELECT potential.id, COUNT(*) AS mutual_count
-    FROM nhp.users potential
-    JOIN nhp.friend_requests fr1 ON (potential.id = fr1.sender_id OR potential.id = fr1.receiver_id)
-      AND fr1.status = 'accepted'
-    JOIN nhp.friend_requests fr2 ON (fr2.sender_id = ${userId} OR fr2.receiver_id = ${userId})
-      AND fr2.status = 'accepted'
-    WHERE potential.id != ${userId}
-      AND potential.id NOT IN (
-        SELECT CASE WHEN sender_id = ${userId} THEN receiver_id ELSE sender_id END
-        FROM nhp.friend_requests
-        WHERE status = 'accepted'
-          AND (sender_id = ${userId} OR receiver_id = ${userId})
-      )
-    GROUP BY potential.id
-    HAVING COUNT(*) >= 1
-    ORDER BY mutual_count DESC, potential.id
+    WITH user_friends AS (
+      SELECT CASE WHEN sender_id = ${userId} THEN receiver_id ELSE sender_id END AS friend_id
+      FROM nhp.friend_requests
+      WHERE status = 'accepted'
+        AND (sender_id = ${userId} OR receiver_id = ${userId})
+    ),
+    friends_of_friends AS (
+      SELECT
+        CASE WHEN fr.sender_id = uf.friend_id THEN fr.receiver_id ELSE fr.sender_id END AS potential_id,
+        uf.friend_id AS via_friend_id
+      FROM user_friends uf
+      JOIN nhp.friend_requests fr
+        ON fr.status = 'accepted'
+        AND (fr.sender_id = uf.friend_id OR fr.receiver_id = uf.friend_id)
+    )
+    SELECT fof.potential_id AS id, COUNT(DISTINCT fof.via_friend_id) AS mutual_count
+    FROM friends_of_friends fof
+    WHERE fof.potential_id != ${userId}
+      AND fof.potential_id NOT IN (SELECT friend_id FROM user_friends)
+    GROUP BY fof.potential_id
+    HAVING COUNT(DISTINCT fof.via_friend_id) >= 1
+    ORDER BY mutual_count DESC, fof.potential_id
     LIMIT 10
   `);
 

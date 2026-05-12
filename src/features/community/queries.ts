@@ -85,10 +85,16 @@ export async function sendFriendRequest(senderId: number, receiverId: number) {
     return rows[0];
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "";
+    const cause = err instanceof Error ? (err as { cause?: unknown }).cause : null;
+    const causeCode = (cause as { code?: string } | null)?.code ?? "";
+    const causeMessage = cause instanceof Error ? cause.message : "";
     if (
       message.includes("unique") ||
       message.includes("duplicate") ||
-      message.includes("23505")
+      message.includes("23505") ||
+      causeCode === "23505" ||
+      causeMessage.includes("unique") ||
+      causeMessage.includes("duplicate")
     ) {
       return null; // Already exists
     }
@@ -164,23 +170,30 @@ export async function searchUsers(query: string, currentUserId: number) {
 
 export async function getPeopleYouMayKnow(userId: number) {
   const result = await db.execute(sql`
-    SELECT potential.id, potential.display_name, potential.search_handle, potential.avatar_url,
-           COUNT(*) AS mutual_count
-    FROM nhp.users potential
-    JOIN nhp.friend_requests fr1 ON (potential.id = fr1.sender_id OR potential.id = fr1.receiver_id)
-      AND fr1.status = 'accepted'
-    JOIN nhp.friend_requests fr2 ON (fr2.sender_id = ${userId} OR fr2.receiver_id = ${userId})
-      AND fr2.status = 'accepted'
-    WHERE potential.id != ${userId}
-      AND potential.id NOT IN (
-        SELECT CASE WHEN sender_id = ${userId} THEN receiver_id ELSE sender_id END
-        FROM nhp.friend_requests
-        WHERE status = 'accepted'
-          AND (sender_id = ${userId} OR receiver_id = ${userId})
-      )
-    GROUP BY potential.id, potential.display_name, potential.search_handle, potential.avatar_url
-    HAVING COUNT(*) >= 1
-    ORDER BY mutual_count DESC, potential.search_handle
+    WITH user_friends AS (
+      SELECT CASE WHEN sender_id = ${userId} THEN receiver_id ELSE sender_id END AS friend_id
+      FROM nhp.friend_requests
+      WHERE status = 'accepted'
+        AND (sender_id = ${userId} OR receiver_id = ${userId})
+    ),
+    friends_of_friends AS (
+      SELECT
+        CASE WHEN fr.sender_id = uf.friend_id THEN fr.receiver_id ELSE fr.sender_id END AS potential_id,
+        uf.friend_id AS via_friend_id
+      FROM user_friends uf
+      JOIN nhp.friend_requests fr
+        ON fr.status = 'accepted'
+        AND (fr.sender_id = uf.friend_id OR fr.receiver_id = uf.friend_id)
+    )
+    SELECT u.id, u.display_name, u.search_handle, u.avatar_url,
+           COUNT(DISTINCT fof.via_friend_id) AS mutual_count
+    FROM friends_of_friends fof
+    JOIN nhp.users u ON u.id = fof.potential_id
+    WHERE fof.potential_id != ${userId}
+      AND fof.potential_id NOT IN (SELECT friend_id FROM user_friends)
+    GROUP BY u.id, u.display_name, u.search_handle, u.avatar_url
+    HAVING COUNT(DISTINCT fof.via_friend_id) >= 1
+    ORDER BY mutual_count DESC, u.search_handle
     LIMIT 10
   `);
 
