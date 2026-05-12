@@ -1,11 +1,15 @@
 import { cacheLife, cacheTag } from "next/cache";
-import { and, desc, eq, gte } from "drizzle-orm";
+import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { db, batchOrAll } from "@/src/db";
-import { taskCompletions } from "@/src/db/schema";
+import {
+  taskCompletions,
+  memberBadges,
+  badgeDefinitions,
+  memberBlockCompletions,
+} from "@/src/db/schema";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
-import { getNewlyEarnedBadge, hasCompletedBlock } from "@/src/features/badges";
-import { getStreak, XP_WEIGHT_BY_TYPE } from "./queries";
+import { XP_WEIGHT_BY_TYPE } from "./queries";
 
 export interface DashboardData {
   currentDay: number;
@@ -46,8 +50,9 @@ export async function getDashboardForUser(
   endDate.setDate(endDate.getDate() + 1);
   endDate.setHours(0, 0, 0, 0);
 
-  // Two lazy query builders for task_completions — sent as one HTTP round-trip
-  // on Neon HTTP via batchOrAll; fall back to parallel execution locally.
+  // Five lazy query builders sent as ONE HTTP round-trip on the Neon-protocol
+  // batch endpoint (PlanetScale Postgres in prod). Local node-postgres falls
+  // back to Promise.all in batchOrAll().
   const allCompletionsQ = db
     .select({ taskId: taskCompletions.taskId })
     .from(taskCompletions)
@@ -68,14 +73,66 @@ export async function getDashboardForUser(
     .orderBy(desc(taskCompletions.completedAt))
     .limit(10);
 
-  // Batch the two completions queries while concurrently fetching streak + badges.
-  const [[allCompletions, recentRows], streak, earnedBadge, blockDone] =
-    await Promise.all([
-      batchOrAll([allCompletionsQ, recentQ]),
-      getStreak(userId),
-      getNewlyEarnedBadge(userId, blockNumber),
-      hasCompletedBlock(userId, blockNumber),
+  const streakQ = db.execute<{ streak: number }>(sql`
+    WITH completion_dates AS (
+      SELECT DISTINCT tc.completed_at::date AS d
+      FROM nhp.task_completions tc
+      WHERE tc.user_id = ${userId}
+    ),
+    numbered AS (
+      SELECT d, d - (ROW_NUMBER() OVER (ORDER BY d DESC))::int AS grp
+      FROM completion_dates
+      WHERE d <= CURRENT_DATE
+    )
+    SELECT COUNT(*)::int AS streak
+    FROM numbered
+    WHERE grp = (SELECT grp FROM numbered WHERE d = CURRENT_DATE LIMIT 1)
+  `);
+
+  const badgeQ = db
+    .select({
+      badgeId: memberBadges.badgeId,
+      earnedAt: memberBadges.earnedAt,
+      name: badgeDefinitions.name,
+      description: badgeDefinitions.description,
+      iconUrl: badgeDefinitions.iconUrl,
+      blockNumber: badgeDefinitions.blockNumber,
+    })
+    .from(memberBadges)
+    .innerJoin(badgeDefinitions, eq(memberBadges.badgeId, badgeDefinitions.id))
+    .where(
+      and(
+        eq(memberBadges.userId, userId),
+        eq(badgeDefinitions.blockNumber, blockNumber)
+      )
+    )
+    .limit(1);
+
+  const blockDoneQ = db
+    .select({ id: memberBlockCompletions.id })
+    .from(memberBlockCompletions)
+    .where(
+      and(
+        eq(memberBlockCompletions.userId, userId),
+        eq(memberBlockCompletions.blockNumber, blockNumber)
+      )
+    )
+    .limit(1);
+
+  const [allCompletions, recentRows, streakResult, badgeRows, blockDoneRows] =
+    await batchOrAll([
+      allCompletionsQ,
+      recentQ,
+      streakQ,
+      badgeQ,
+      blockDoneQ,
     ]);
+
+  const streakRow = (streakResult as unknown as { rows: { streak: number }[] })
+    .rows[0];
+  const streak = streakRow ? Number(streakRow.streak) : 0;
+  const earnedBadge = badgeRows[0] ?? null;
+  const blockDone = blockDoneRows.length > 0;
 
   // Single pass over allCompletions builds radar, grid, and calendar together.
   // All task resolution is via the registry — block_day_tasks is legacy/empty.

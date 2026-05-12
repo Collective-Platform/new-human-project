@@ -3,7 +3,7 @@ export function DashboardSkeleton() {
     <div className="animate-pulse space-y-4 px-4 pt-4 pb-4">
       {/* Radar chart card */}
       <div className="rounded-md bg-white p-5 shadow-card">
-        <div className="mx-auto aspect-[200/210] w-full max-w-60 rounded-full bg-zinc-100" />
+        <div className="mx-auto aspect-200/210 w-full max-w-60 rounded-full bg-zinc-100" />
         <div className="mt-3 flex justify-between">
           <div className="h-3 w-16 rounded bg-zinc-100" />
           <div className="h-3 w-16 rounded bg-zinc-100" />
