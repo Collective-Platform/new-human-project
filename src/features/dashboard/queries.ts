@@ -101,15 +101,20 @@ export async function getStreak(userId: number): Promise<number> {
       SELECT DISTINCT tc.completed_at::date AS d
       FROM nhp.task_completions tc
       WHERE tc.user_id = ${userId}
+        AND tc.completed_at::date <= CURRENT_DATE
     ),
     numbered AS (
-      SELECT d, d - (ROW_NUMBER() OVER (ORDER BY d DESC))::int AS grp
+      SELECT d, d - (ROW_NUMBER() OVER (ORDER BY d ASC))::int AS grp
       FROM completion_dates
-      WHERE d <= CURRENT_DATE
     )
     SELECT COUNT(*)::int AS streak
     FROM numbered
-    WHERE grp = (SELECT grp FROM numbered WHERE d = CURRENT_DATE LIMIT 1)
+    WHERE grp = (
+      SELECT grp FROM numbered
+      WHERE d >= CURRENT_DATE - 1
+      ORDER BY d DESC
+      LIMIT 1
+    )
   `);
 
   const row = result.rows[0] as { streak: number } | undefined;

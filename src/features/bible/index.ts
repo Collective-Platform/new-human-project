@@ -51,7 +51,6 @@ async function fetchPassage(bibleId: string, usfm: string): Promise<PassageResul
   }
   const data = (await res.json()) as { reference?: string; content?: string };
   if (typeof data.content !== "string") return null;
-  console.log(`[bible] raw content for ${usfm}:`, JSON.stringify(data.content));
   return {
     reference: data.reference ?? "",
     content: data.content,

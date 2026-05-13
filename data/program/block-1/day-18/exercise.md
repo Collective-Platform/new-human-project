@@ -6,7 +6,7 @@ order: 40
 category: Physical
 type: info
 name:
-  en: "Exercise"
+  en: "Rest"
   zh: ""
 ---
 

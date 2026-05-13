@@ -69,7 +69,7 @@ export function ProgressClient({
 
   async function fetchDay(day: number) {
     const d = await loadDay(day);
-    if (d) setData(d);
+    if (d) setData((prev) => ({ ...d, currentDay: prev.currentDay }));
   }
 
   // Warm the immediate neighbors of the current day on mount so the most
@@ -109,9 +109,8 @@ export function ProgressClient({
   // Also patches the prefetch cache (Task 3.0) so navigating away and back
   // doesn't restore stale completion state from the cache.
   function applyTaskPatch(taskId: string, patch: Partial<TaskData>) {
-    setData((prev) => ({
-      ...prev,
-      tasks: prev.tasks.map((t) => {
+    setData((prev) => {
+      const newTasks = prev.tasks.map((t) => {
         if (t.id !== taskId) return t;
         // Merge completionData rather than overwrite so concurrent autosaves
         // (practice + reflection firing in the same debounce window) accumulate
@@ -122,21 +121,43 @@ export function ProgressClient({
             ? { ...t.completionData, ...patch.completionData }
             : t.completionData;
         return { ...t, ...patch, completionData };
-      }),
-    }));
+      });
+      const allDone = newTasks.every((t) => t.completed);
+      return {
+        ...prev,
+        tasks: newTasks,
+        carousel: prev.carousel.map((c) =>
+          c.day === selectedDay ? { ...c, fullyCompleted: allDone } : c,
+        ),
+      };
+    });
     const cached = dayCacheRef.current.get(selectedDay);
     if (cached) {
+      const newCachedTasks = cached.tasks.map((t) => {
+        if (t.id !== taskId) return t;
+        const completionData =
+          patch.completionData !== undefined
+            ? { ...t.completionData, ...patch.completionData }
+            : t.completionData;
+        return { ...t, ...patch, completionData };
+      });
+      const allDone = newCachedTasks.every((t) => t.completed);
       dayCacheRef.current.set(selectedDay, {
         ...cached,
-        tasks: cached.tasks.map((t) => {
-          if (t.id !== taskId) return t;
-          const completionData =
-            patch.completionData !== undefined
-              ? { ...t.completionData, ...patch.completionData }
-              : t.completionData;
-          return { ...t, ...patch, completionData };
-        }),
+        tasks: newCachedTasks,
+        carousel: cached.carousel.map((c) =>
+          c.day === selectedDay ? { ...c, fullyCompleted: allDone } : c,
+        ),
       });
+    }
+  }
+
+  // After a successful completion mutation, all other days' cached payloads
+  // have a stale carousel (their fullyCompleted snapshot predates this change).
+  // Drop them so the next navigation fetches a fresh payload from the server.
+  function evictOtherDayCache() {
+    for (const day of Array.from(dayCacheRef.current.keys())) {
+      if (day !== selectedDay) dayCacheRef.current.delete(day);
     }
   }
 
@@ -162,6 +183,7 @@ export function ProgressClient({
           completionData: previous.completionData,
         });
       } else {
+        evictOtherDayCache();
         router.refresh();
       }
     } catch {
@@ -188,6 +210,7 @@ export function ProgressClient({
       if ("error" in result) {
         applyTaskPatch(taskId, { completed: previous.completed });
       } else {
+        evictOtherDayCache();
         router.refresh();
       }
     } catch {
