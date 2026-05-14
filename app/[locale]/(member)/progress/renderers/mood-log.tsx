@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const moods = [
   { key: "terrible", emoji: "😡" },
@@ -59,6 +59,14 @@ export function MoodLogRenderer({
   const [selectedMoods, setSelectedMoods] = useState<string[]>(savedMoods);
   const [influences, setInfluences] = useState<string[]>(savedInfluences);
   const [context, setContext] = useState(savedContext);
+  const contextRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = contextRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [context]);
 
   const hasChanges =
     selectedMoods.length !== savedMoods.length ||
@@ -174,10 +182,11 @@ export function MoodLogRenderer({
           {labels.moreContext}
         </p>
         <textarea
+          ref={contextRef}
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          rows={3}
-          className="w-full resize-none rounded-md border-0 bg-surface-container-low px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
+          style={{ minHeight: "4.5rem" }}
+          className="w-full resize-none overflow-hidden rounded-md border-0 bg-surface-container-low px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
         />
       </section>
 
