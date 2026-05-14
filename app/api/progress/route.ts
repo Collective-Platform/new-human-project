@@ -13,8 +13,10 @@ export async function GET(request: Request) {
   const dayParam = Number(url.searchParams.get("day"));
   const requestedDayParam = Number.isFinite(dayParam) && dayParam > 0 ? dayParam : null;
 
+  const localeParam = url.searchParams.get("locale");
   const cookieStore = await cookies();
-  const locale = cookieStore.get("locale")?.value === "zh" ? "zh" : "en";
+  const localeCookie = cookieStore.get("locale")?.value;
+  const locale = (localeParam ?? localeCookie) === "zh" ? "zh" : "en";
 
   const currentDay = getCurrentDay(user.onboardedAt);
 

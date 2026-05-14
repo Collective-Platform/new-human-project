@@ -46,7 +46,7 @@ export function ProgressClient({
 
     const promise = (async () => {
       try {
-        const res = await fetch(`/api/progress?day=${day}`, {
+        const res = await fetch(`/api/progress?day=${day}&locale=${locale}`, {
           cache: "no-store",
         });
         if (!res.ok) return null;

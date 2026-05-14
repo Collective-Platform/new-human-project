@@ -7,13 +7,16 @@ category: Emotional
 type: devotional
 name:
   en: "Day 1 — The Gift of Awareness"
-  zh: ""
+  zh: "第1天 — 感知的礼物"
+inputs:
+  - question
 ---
 
 ## Day 1 — The Gift of Awareness
 
-**Scripture:**
-Psalm 139:23–24 (NIV) \- Search me, God, and know my heart; test me and know my anxious thoughts. See if there is any offensive way in me, and lead me in the way everlasting.
+## Scripture:
+
+_Search me, God, and know my heart; test me and know my anxious thoughts. See if there is any offensive way in me, and lead me in the way everlasting._ \- **Psalm 139:23–24**
 
 Most people don’t struggle because they feel too much— they struggle because they **don’t know what they’re feeling at all**.
 
@@ -26,5 +29,10 @@ Transformation begins when we allow God to uncover what is hidden deep within. W
 
 God is not intimidated by what He will find in you. The question is—are you willing to see it with Him?
 
-**Practice:** Pause 3 times today and name your emotion.  
-**Question:** What emotion have I been avoiding?
+## Practice:
+
+Pause 3 times today and name your emotion.
+
+## Question:
+
+What emotion have I been avoiding?

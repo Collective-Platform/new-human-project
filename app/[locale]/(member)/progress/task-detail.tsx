@@ -163,7 +163,7 @@ export function TaskDetail({
             task={programTask}
             locale={locale}
             completionData={task.completionData}
-            onSaveReflection={handleSaveReflection}
+            onSaveReflectionAction={handleSaveReflection}
           />
         )}
 
@@ -180,6 +180,7 @@ export function TaskDetail({
                     content: string;
                   } | null) ?? null
                 }
+                locale={locale}
               />
             </div>
           </div>

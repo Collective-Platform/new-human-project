@@ -7,12 +7,16 @@ category: Emotional
 type: devotional
 name:
   en: "Day 25 - A New Way of Living"
-  zh: ""
+  zh: "第25天 — 一种新的生活方式"
+inputs:
+  - question
 ---
 
 ## Day 25 - A New Way of Living
 
-**Scripture:** John 15:4 (NIV) \- Remain in me, as I also remain in you. No branch can bear fruit by itself; it must remain in the vine. Neither can you bear fruit unless you remain in me.
+## Scripture:
+
+_Remain in me, as I also remain in you. No branch can bear fruit by itself; it must remain in the vine. Neither can you bear fruit unless you remain in me._ \- **John 15:4**
 
 This journey was never about fixing your emotions.
 
@@ -27,5 +31,6 @@ You don’t avoid your emotions. You bring them to God.
 
 And over time, your emotions become not a barrier—but a bridge to deeper intimacy with Him.
 
-**Final Reflection:**  
+## Final Reflection:
+
 What has changed in me over these 25 days?

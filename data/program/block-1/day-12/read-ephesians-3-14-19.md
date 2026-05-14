@@ -7,6 +7,6 @@ category: Mental
 type: scripture_reading
 name:
   en: "Read Ephesians 3:14-19"
-  zh: ""
+  zh: "读以弗所书 3:14-19"
 scriptureRef: "Ephesians 3:14-19"
 ---

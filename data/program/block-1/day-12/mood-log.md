@@ -7,5 +7,5 @@ category: Emotional
 type: mood_log
 name:
   en: "Mood Log"
-  zh: ""
+  zh: "心情记录"
 ---

@@ -26,7 +26,14 @@ neonConfig.wsProxy = (host, port) => `${host}/v2?address=${host}:${port}`;
 // parameter with `08P01 unsupported startup parameter in options: search_path`.
 const SEARCH_PATH = "nhp,public";
 
-function createDb() {
+type DbInstance = ReturnType<typeof drizzleNode> | ReturnType<typeof drizzleNeonHttp>;
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __db: DbInstance | undefined;
+}
+
+function createDb(): DbInstance {
   if (env.DATABASE_PROVIDER === "local") {
     // Local Postgres allows the `options` startup parameter, so we set
     // search_path for developer convenience (raw SQL still uses `nhp.`).
@@ -44,7 +51,10 @@ function createDb() {
   return drizzleNeonHttp(sql, { schema, casing: "snake_case" });
 }
 
-export const db = createDb();
+// In dev, Next.js hot-reloads modules. Without a global singleton each reload
+// creates a new pg.Pool; the old pool's connections are GC-killed mid-query,
+// causing "Connection terminated unexpectedly". globalThis persists across HMR.
+export const db = (globalThis.__db ??= createDb());
 
 /**
  * Send multiple Drizzle query builders in one HTTP call on Neon HTTP (production),

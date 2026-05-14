@@ -7,6 +7,6 @@ category: Mental
 type: scripture_reading
 name:
   en: "Read Ephesians 6:21-24"
-  zh: ""
+  zh: "读以弗所书 6:21-24"
 scriptureRef: "Ephesians 6:21-24"
 ---

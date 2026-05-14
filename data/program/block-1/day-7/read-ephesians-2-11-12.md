@@ -7,6 +7,6 @@ category: Mental
 type: scripture_reading
 name:
   en: "Read Ephesians 2:11-12"
-  zh: ""
+  zh: "读以弗所书 2:11-12"
 scriptureRef: "Ephesians 2:11-12"
 ---

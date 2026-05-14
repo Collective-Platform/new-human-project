@@ -7,6 +7,6 @@ category: Mental
 type: scripture_reading
 name:
   en: "Read Ephesians 5:1-7"
-  zh: ""
+  zh: "读以弗所书 5:1-7"
 scriptureRef: "Ephesians 5:1-7"
 ---

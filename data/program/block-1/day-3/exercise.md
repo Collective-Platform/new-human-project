@@ -7,7 +7,7 @@ category: Physical
 type: info
 name:
   en: "Exercise"
-  zh: ""
+  zh: "运动"
 ---
 
 ## Section

@@ -7,7 +7,7 @@ category: Mental
 type: info
 name:
   en: "Introduction"
-  zh: ""
+  zh: "介绍"
 ---
 
 ## 1st 25-Day Block — Mental Capacity

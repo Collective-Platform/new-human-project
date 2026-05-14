@@ -36,12 +36,12 @@ export function SectionedContentRenderer({
   task,
   locale,
   completionData,
-  onSaveReflection,
+  onSaveReflectionAction,
 }: {
   task: ProgramTask;
   locale: string;
   completionData: Record<string, unknown> | null;
-  onSaveReflection: (slug: string, text: string) => void | Promise<void>;
+  onSaveReflectionAction: (slug: string, text: string) => void | Promise<void>;
 }) {
   const passageRef = task.passageRef ?? task.scriptureRef ?? "";
   const sections = splitSections(getLocalizedString(task.body, locale));
@@ -61,7 +61,7 @@ export function SectionedContentRenderer({
           inputs={inputs}
           completionData={completionData}
           locale={locale}
-          onSaveReflection={onSaveReflection}
+          onSaveReflectionAction={onSaveReflectionAction}
         />
       ))}
     </div>
@@ -74,20 +74,20 @@ function Section({
   inputs,
   completionData,
   locale,
-  onSaveReflection,
+  onSaveReflectionAction,
 }: {
   heading: string | null;
   markdown: string;
   inputs: Set<string>;
   completionData: Record<string, unknown> | null;
   locale: string;
-  onSaveReflection: (slug: string, text: string) => void | Promise<void>;
+  onSaveReflectionAction: (slug: string, text: string) => void | Promise<void>;
 }) {
   // Preamble (no heading) → plain markdown.
   if (heading === null) {
     if (!markdown) return null;
     return (
-      <div className="space-y-2 text-md leading-relaxed text-foreground">
+      <div className="space-y-2 text-base leading-relaxed text-foreground">
         <MarkdownContent>{markdown}</MarkdownContent>
       </div>
     );
@@ -100,7 +100,7 @@ function Section({
     return (
       <blockquote className="border-l-4 border-primary bg-primary/10 p-4 text-foreground">
         <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">{heading}</p>
-        <div className="text-md leading-relaxed">
+        <div className="text-base leading-relaxed">
           <MarkdownContent>{markdown}</MarkdownContent>
         </div>
       </blockquote>
@@ -116,14 +116,14 @@ function Section({
     <div className="space-y-3">
       <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">{heading}</p>
       {markdown && (
-        <div className="space-y-2 text-md leading-relaxed text-foreground">
+        <div className="space-y-2 text-base leading-relaxed text-foreground">
           <MarkdownContent>{markdown}</MarkdownContent>
         </div>
       )}
       {showInput && inputSlug && (
         <ReflectionInput
           initialValue={readInitialValue(completionData, inputSlug)}
-          onSave={(text) => onSaveReflection(inputSlug, text)}
+          onSave={(text) => onSaveReflectionAction(inputSlug, text)}
           ariaLabel={heading}
           placeholder={locale === "zh" ? "在此处输入你的回应…" : "Write your response…"}
         />
@@ -171,10 +171,21 @@ function splitSections(body: string): ParsedSection[] {
   return sections;
 }
 
+const CHINESE_HEADING_SLUGS: Record<string, string> = {
+  "今日焦点": "today-s-focus",
+  "阅读笔记": "reading-notes",
+  "核心信息": "key-idea",
+  "反思时刻": "reflection",
+  "今日操练": "today-s-practice",
+  "反思问题：": "question",
+  "最后反思：": "final-reflection",
+};
+
 function headingSlug(heading: string): string {
-  return heading
+  const normalized = heading.trim();
+  if (CHINESE_HEADING_SLUGS[normalized]) return CHINESE_HEADING_SLUGS[normalized];
+  return normalized
     .toLowerCase()
-    .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
@@ -192,6 +203,7 @@ function inputSlugFor(slug: string): string | null {
   if (slug === "today-s-practice" || slug === "todays-practice") {
     return "practice";
   }
+  if (slug === "question" || slug === "final-reflection") return "question";
   return null;
 }
 

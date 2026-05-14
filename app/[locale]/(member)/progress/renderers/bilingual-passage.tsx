@@ -11,9 +11,11 @@ interface PrefetchedPassage {
 export function BilingualPassage({
   passage,
   fallbackText,
+  locale,
 }: {
   passage: PrefetchedPassage | null;
   fallbackText?: string;
+  locale?: string;
 }) {
   if (passage?.content) {
     return (
@@ -34,7 +36,7 @@ export function BilingualPassage({
 
   return (
     <p className="text-md text-foreground">
-      Read this passage in your Bible or Bible app.
+      {locale === "zh" ? "请在圣经或圣经应用程序中阅读这段经文。" : "Read this passage in your Bible or Bible app."}
     </p>
   );
 }
