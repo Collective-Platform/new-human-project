@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { ProgramTask } from "@/src/features/content/program";
 import { useNavVisibility } from "../nav-visibility";
 import { MoodLogRenderer } from "./renderers/mood-log";
+import { ExerciseLogRenderer } from "./renderers/exercise-log";
 import { BilingualPassage } from "./renderers/bilingual-passage";
 import { SectionedContentRenderer } from "./renderers/sectioned-content";
 
@@ -48,6 +49,7 @@ export function TaskDetail({
 }) {
   const t = useTranslations("progress");
   const tm = useTranslations("mood");
+  const te = useTranslations("exercise");
   const [loading, setLoading] = useState(false);
   const { setHidden } = useNavVisibility();
 
@@ -80,6 +82,23 @@ export function TaskDetail({
       onNavigate(categoryTasks[currentIndex - 1]);
     }
   }, [hasPrev, categoryTasks, currentIndex, onNavigate]);
+
+  const handleExerciseSubmit = useCallback(
+    async (data: Record<string, unknown>) => {
+      setLoading(true);
+      try {
+        await onComplete(task.id, data);
+        if (hasNext) {
+          onNavigate(categoryTasks[currentIndex + 1]);
+        } else {
+          onClose();
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [onComplete, task.id, hasNext, categoryTasks, currentIndex, onNavigate, onClose],
+  );
 
   const handleMoodSubmit = useCallback(
     async (data: Record<string, unknown>) => {
@@ -186,6 +205,36 @@ export function TaskDetail({
           </div>
         )}
 
+        {task.taskType === "exercise" && (
+          <ExerciseLogRenderer
+            completed={task.completed}
+            initialData={task.completionData}
+            onSubmitAction={handleExerciseSubmit}
+            loading={loading}
+            isRestDay={((dayNumber - 1) % 7) + 1 === 4 || ((dayNumber - 1) % 7) + 1 === 7}
+            labels={{
+              selectActivity: te("selectActivity"),
+              badminton: te("badminton"),
+              run: te("run"),
+              pickleball: te("pickleball"),
+              swimming: te("swimming"),
+              pilates: te("pilates"),
+              others: te("others"),
+              customActivityPlaceholder: te("customActivityPlaceholder"),
+              duration: te("duration"),
+              hours: te("hours"),
+              minutes: te("minutes"),
+              logActivity: te("logActivity"),
+              updateActivity: te("updateActivity"),
+              completed: t("completed"),
+              restDay: te("restDay"),
+              restMessage: te("restMessage"),
+              takeRest: te("takeRest"),
+              rested: te("rested"),
+            }}
+          />
+        )}
+
         {task.taskType === "mood_log" && (
           <MoodLogRenderer
             completed={task.completed}
@@ -216,7 +265,7 @@ export function TaskDetail({
       </div>
 
       {/* Footer nav – sits where the bottom nav was, with divider and meta */}
-      {task.taskType !== "mood_log" && (
+      {task.taskType !== "mood_log" && task.taskType !== "exercise" && (
         <div className="fixed bottom-0 inset-x-0 z-50 mx-auto flex max-w-93.75 items-center justify-between gap-3 border-t border-zinc-200 bg-white px-6 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
           {hasPrev ? (
             <button

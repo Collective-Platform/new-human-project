@@ -31,6 +31,7 @@ export const TaskType = z.enum([
   "scripture_study",
   "mood_log",
   "info",
+  "exercise",
 ]);
 export type TaskType = z.infer<typeof TaskType>;
 

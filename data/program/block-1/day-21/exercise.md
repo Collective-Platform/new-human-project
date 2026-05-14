@@ -4,7 +4,7 @@ block: 1
 day: 21
 order: 40
 category: Physical
-type: info
+type: exercise
 name:
   en: "Rest"
   zh: "运动"

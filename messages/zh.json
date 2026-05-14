@@ -44,6 +44,25 @@
     "submit": "提交",
     "updateMood": "更新心情"
   },
+  "exercise": {
+    "selectActivity": "你做了什么运动？",
+    "badminton": "羽毛球",
+    "run": "跑步",
+    "pickleball": "匹克球",
+    "swimming": "游泳",
+    "pilates": "普拉提",
+    "others": "其他",
+    "customActivityPlaceholder": "例如：瑜伽、网球…",
+    "duration": "多长时间？（可选）",
+    "hours": "小时",
+    "minutes": "分钟",
+    "logActivity": "记录运动",
+    "updateActivity": "更新运动",
+    "restDay": "休息日",
+    "restMessage": "今天放松一下，休息也是旅程的一部分。",
+    "takeRest": "去休息",
+    "rested": "已休息"
+  },
   "community": {
     "friends": "朋友",
     "addFriends": "添加朋友",

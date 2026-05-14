@@ -96,9 +96,16 @@ export async function getSuggestionIds(
   }));
 }
 
-export async function getActivityFeedRows(
-  userId: number,
-): Promise<{ userId: number; taskId: string; completedAtMs: number }[]> {
+export async function getActivityFeedRows(userId: number): Promise<
+  {
+    userId: number;
+    taskId: string;
+    completedAtMs: number;
+    completionData: Record<string, unknown> | null;
+    dbTaskType: string | null;
+    dbCategory: string | null;
+  }[]
+> {
   "use cache";
   cacheLife("minutes");
   cacheTag(`feed:${userId}`);
@@ -113,9 +120,11 @@ export async function getActivityFeedRows(
       WHERE status = 'accepted'
         AND (sender_id = ${userId} OR receiver_id = ${userId})
     )
-    SELECT tc.user_id, tc.task_id, tc.completed_at
+    SELECT tc.user_id, tc.task_id, tc.completed_at, tc.data,
+           bdt.task_type, bdt.category
     FROM nhp.task_completions tc
     JOIN nhp.users u ON tc.user_id = u.id
+    LEFT JOIN nhp.block_day_tasks bdt ON bdt.id::text = tc.task_id
     WHERE (
         tc.user_id = ${userId}
         OR (
@@ -127,13 +136,23 @@ export async function getActivityFeedRows(
     LIMIT 50
   `);
 
-  return (result.rows as { user_id: number; task_id: string; completed_at: string }[]).map(
-    (row) => ({
-      userId: row.user_id,
-      taskId: row.task_id,
-      completedAtMs: new Date(row.completed_at).getTime(),
-    }),
-  );
+  return (
+    result.rows as {
+      user_id: number;
+      task_id: string;
+      completed_at: string;
+      data: Record<string, unknown> | null;
+      task_type: string | null;
+      category: string | null;
+    }[]
+  ).map((row) => ({
+    userId: row.user_id,
+    taskId: row.task_id,
+    completedAtMs: new Date(row.completed_at).getTime(),
+    completionData: row.data ?? null,
+    dbTaskType: row.task_type ?? null,
+    dbCategory: row.category ?? null,
+  }));
 }
 
 export async function getPublicProfile(userId: number): Promise<{

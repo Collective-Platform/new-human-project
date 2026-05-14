@@ -44,6 +44,25 @@
     "submit": "Submit",
     "updateMood": "Update Mood"
   },
+  "exercise": {
+    "selectActivity": "What activity did you do?",
+    "badminton": "Badminton",
+    "run": "Run",
+    "pickleball": "Pickleball",
+    "swimming": "Swimming",
+    "pilates": "Pilates",
+    "others": "Others",
+    "customActivityPlaceholder": "e.g. Yoga, Tennis…",
+    "duration": "How long? (optional)",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "logActivity": "Log Activity",
+    "updateActivity": "Update Activity",
+    "restDay": "Rest Day",
+    "restMessage": "Take it easy today. Rest is part of the journey.",
+    "takeRest": "Take a Rest",
+    "rested": "Rested"
+  },
   "community": {
     "friends": "Friends",
     "addFriends": "Add friends",

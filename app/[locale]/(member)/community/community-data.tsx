@@ -10,6 +10,30 @@ import { getTaskById as getRegistryTaskById } from "@/src/features/content/progr
 import { getLocalizedString } from "@/src/features/content";
 import { CommunityClient } from "./community-client";
 
+function formatDuration(hours: number, minutes: number): string {
+  if (hours === 0 && minutes === 0) return "";
+  if (hours === 0) return `${minutes}m`;
+  if (minutes === 0) return `${hours}h`;
+  return `${hours}h ${minutes}m`;
+}
+
+const sportLabels: Record<string, string> = {
+  badminton: "Badminton",
+  run: "Run",
+  pickleball: "Pickleball",
+  swimming: "Swimming",
+  pilates: "Pilates",
+};
+
+function getExerciseActivityLabel(data: Record<string, unknown> | null): string {
+  if (!data) return "Exercise";
+  const sportKey = data.sportKey as string | undefined;
+  if (!sportKey) return "Exercise";
+  if (sportKey === "rest") return "Rest";
+  if (sportKey === "others") return (data.customSport as string | undefined) ?? "Exercise";
+  return sportLabels[sportKey] ?? "Exercise";
+}
+
 export async function CommunityData() {
   const user = await getSessionUser();
   if (!user) return null;
@@ -68,19 +92,35 @@ export async function CommunityData() {
           };
         }),
         feed: feedRows.flatMap((row) => {
-          const task = getRegistryTaskById(row.taskId);
-          if (!task) return [];
           const profile = profiles.get(row.userId);
-          return [
-            {
-              displayName: profile?.displayName ?? null,
-              searchHandle: profile?.searchHandle ?? null,
-              avatarUrl: profile?.avatarUrl ?? null,
-              category: task.category,
-              activity: getLocalizedString(task.name, "en"),
-              completedAt: new Date(row.completedAtMs).toISOString(),
-            },
-          ];
+          const base = {
+            displayName: profile?.displayName ?? null,
+            searchHandle: profile?.searchHandle ?? null,
+            avatarUrl: profile?.avatarUrl ?? null,
+            completedAt: new Date(row.completedAtMs).toISOString(),
+          };
+
+          const registryTask = getRegistryTaskById(row.taskId);
+          if (registryTask) {
+            if (registryTask.type === "exercise") {
+              const sport = getExerciseActivityLabel(row.completionData);
+              const h = (row.completionData?.hours as number | undefined) ?? 0;
+              const m = (row.completionData?.minutes as number | undefined) ?? 0;
+              const dur = formatDuration(h, m);
+              return [{ ...base, category: registryTask.category, activity: dur ? `${sport} for ${dur}` : sport }];
+            }
+            return [{ ...base, category: registryTask.category, activity: getLocalizedString(registryTask.name, "en") }];
+          }
+
+          if (row.dbTaskType === "exercise") {
+            const sport = getExerciseActivityLabel(row.completionData);
+            const h = (row.completionData?.hours as number | undefined) ?? 0;
+            const m = (row.completionData?.minutes as number | undefined) ?? 0;
+            const dur = formatDuration(h, m);
+            return [{ ...base, category: row.dbCategory ?? "Physical", activity: dur ? `${sport} for ${dur}` : sport }];
+          }
+
+          return [];
         }),
       }}
     />

@@ -86,7 +86,7 @@ export function TaskList({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (isMoodLog) {
+                          if (isMoodLog || isExercise) {
                             onTaskTap(task);
                           } else {
                             onToggleComplete(task.id);
@@ -94,8 +94,8 @@ export function TaskList({
                         }}
                         className="shrink-0 flex items-center justify-center transition-transform active:scale-90"
                         aria-label={
-                          isMoodLog
-                            ? "Open mood log"
+                          isMoodLog || isExercise
+                            ? `Open ${isMoodLog ? "mood log" : "exercise log"}`
                             : task.completed
                               ? "Mark incomplete"
                               : "Mark complete"
@@ -110,25 +110,17 @@ export function TaskList({
                           />
                         )}
                       </button>
-                      {isExercise ? (
+                      <button
+                        onClick={() => onTaskTap(task)}
+                        className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
+                      >
                         <span
                           className={`flex-1 text-sm font-medium ${task.completed ? "text-foreground/50" : "text-foreground"}`}
                         >
                           {task.name}
                         </span>
-                      ) : (
-                        <button
-                          onClick={() => onTaskTap(task)}
-                          className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
-                        >
-                          <span
-                            className={`flex-1 text-sm font-medium ${task.completed ? "text-foreground/50" : "text-foreground"}`}
-                          >
-                            {task.name}
-                          </span>
-                          <ChevronRight size={18} className="text-zinc-400" />
-                        </button>
-                      )}
+                        <ChevronRight size={18} className="text-zinc-400" />
+                      </button>
                     </div>
                   );
                 })}

@@ -17,7 +17,7 @@ export interface DashboardData {
   grid: { day: number; categoriesCompleted: number }[];
   streak: number;
   calendar: { date: string; categories: string[] }[];
-  recent: { category: string; name: string; completedAt: string }[];
+  recent: { category: string; name: string; completedAt: string; completionData?: Record<string, unknown> | null }[];
   earnedBadge: {
     name: string;
     description: string | null;
@@ -62,6 +62,7 @@ export async function getDashboardForUser(
     .select({
       taskId: taskCompletions.taskId,
       completedAt: taskCompletions.completedAt,
+      data: taskCompletions.data,
     })
     .from(taskCompletions)
     .where(and(eq(taskCompletions.userId, userId), gte(taskCompletions.completedAt, startDate)))
@@ -192,7 +193,7 @@ export async function getDashboardForUser(
     .sort((a, b) => a.date.localeCompare(b.date));
 
   // Process recent completions (date-filtered, ordered recentRows).
-  const recent: { completedAt: string; category: string; name: string }[] = [];
+  const recent: { completedAt: string; category: string; name: string; completionData?: Record<string, unknown> | null }[] = [];
   for (const row of recentRows) {
     const fromRegistry = getRegistryTaskById(row.taskId);
     if (!fromRegistry) continue;
@@ -200,6 +201,7 @@ export async function getDashboardForUser(
       completedAt: row.completedAt.toISOString(),
       category: fromRegistry.category,
       name: getLocalizedString(fromRegistry.name, locale),
+      completionData: fromRegistry.type === "exercise" ? (row.data as Record<string, unknown> | null) : undefined,
     });
   }
 
