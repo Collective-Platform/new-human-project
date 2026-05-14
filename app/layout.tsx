@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Manrope, Noto_Sans_SC } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -39,6 +40,7 @@ export default function RootLayout({
       <head />
       <body className="min-h-full">
         <div className="flex min-h-screen flex-col">{children}</div>
+        <Analytics />
       </body>
     </html>
   );
