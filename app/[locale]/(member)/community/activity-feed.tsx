@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import {
   BookOpenText,
   Smile,
@@ -60,15 +63,17 @@ const defaultStyle = {
   Icon: CheckCircle,
 };
 
-function relativeTime(dateStr: string): string {
+type TFn = ReturnType<typeof useTranslations>;
+
+function relativeTime(dateStr: string, t: TFn): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const minutes = Math.floor(diff / 60_000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 1) return t("justNow");
+  if (minutes < 60) return t("minutesAgo", { minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return t("hoursAgo", { hours });
   const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return t("daysAgo", { days });
 }
 
 export function ActivityFeed({
@@ -78,6 +83,15 @@ export function ActivityFeed({
   items: FeedItem[];
   selfUserId?: number;
 }) {
+  const t = useTranslations("community");
+  const tProgress = useTranslations("progress");
+
+  const categoryLabels: Record<string, string> = {
+    Mental: tProgress("mental"),
+    Emotional: tProgress("emotional"),
+    Physical: tProgress("physical"),
+  };
+
   if (items.length === 0) return null;
 
   return (
@@ -129,26 +143,26 @@ export function ActivityFeed({
               <div className="flex justify-between items-start">
                 <p className="text-on-surface text-sm">
                   {isSelf ? (
-                    <span className="font-bold">You</span>
+                    <span className="font-bold">{t("you")}</span>
                   ) : (
                     <Link href={href} className="font-bold hover:underline">
                       {name}
                     </Link>
                   )}{" "}
-                  <span className="text-on-surface-variant">completed</span>{" "}
+                  <span className="text-on-surface-variant">{t("completedActivity")}</span>{" "}
                   <span className={`font-semibold ${style.accentText}`}>
                     {item.activity}
                   </span>
                 </p>
                 <span className="text-[10px] font-bold text-outline uppercase tracking-tighter shrink-0 ml-2">
-                  {relativeTime(item.completedAt)}
+                  {relativeTime(item.completedAt, t)}
                 </span>
               </div>
               <div className="mt-2 flex gap-2">
                 <span
                   className={`px-3 py-1 ${style.badgeBg} rounded-full text-[10px] font-bold ${style.badgeText} uppercase tracking-widest`}
                 >
-                  {item.category}
+                  {categoryLabels[item.category] ?? item.category}
                 </span>
               </div>
             </div>

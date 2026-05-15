@@ -81,7 +81,7 @@ export function AddFriends({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search username (e.g. alice)…"
+            placeholder={t("searchPlaceholder")}
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck={false}
@@ -94,7 +94,7 @@ export function AddFriends({
             onClick={onCancel}
             className="shrink-0 text-primary font-bold font-headline active:scale-95 transition-transform"
           >
-            Cancel
+            {t("cancel")}
           </button>
         )}
       </div>
@@ -106,7 +106,7 @@ export function AddFriends({
       )}
 
       {error && !isLoading && (
-        <p className="text-center text-sm text-error py-6">Search failed. Try again.</p>
+        <p className="text-center text-sm text-error py-6">{t("searchFailed")}</p>
       )}
 
       {/* Results */}
@@ -165,7 +165,7 @@ export function AddFriends({
       )}
 
       {!isLoading && shouldSearch && !error && results.length === 0 && (
-        <p className="text-center text-sm text-on-surface-variant py-6">No users found</p>
+        <p className="text-center text-sm text-on-surface-variant py-6">{t("noUsersFound")}</p>
       )}
     </div>
   );

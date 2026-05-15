@@ -10,6 +10,7 @@
     "streakLabel": "Day Streak",
     "activityCalendar": "Activity Calendar",
     "recentLogs": "Recent Logs",
+    "noRecentActivity": "No recent activity",
     "last7Days": "Last 7 days",
     "last30Days": "Last 30 days"
   },
@@ -73,7 +74,32 @@
     "completed": "completed",
     "sentFriendRequest": "sent you a friend request",
     "accept": "Accept",
-    "reject": "Reject"
+    "reject": "Reject",
+    "friendsCount": "{count} Friends",
+    "justNow": "just now",
+    "yesterday": "yesterday",
+    "minutesAgo": "{minutes}m ago",
+    "hoursAgo": "{hours}h ago",
+    "daysAgo": "{days}d ago",
+    "you": "You",
+    "completedActivity": "completed",
+    "edit": "Edit",
+    "done": "Done",
+    "noFriendsYet": "No friends yet",
+    "unfriendTitle": "Unfriend?",
+    "unfriendConfirm": "Are you sure you want to unfriend {name}?",
+    "cancel": "Cancel",
+    "unfriend": "Unfriend",
+    "friend": "Friend",
+    "withdrawRequest": "Withdraw Request",
+    "activities": "Activities",
+    "noActivitiesYet": "No activities yet",
+    "add": "Add",
+    "noUsersFound": "No users found",
+    "searchFailed": "Search failed. Try again.",
+    "searchPlaceholder": "Search username (e.g. alice)…",
+    "dismissSuggestions": "Dismiss suggestions",
+    "removeAriaLabel": "Remove {name}"
   },
   "block": {
     "theFoundation": "The Foundation",
@@ -82,7 +108,8 @@
     "blockComplete": "You've completed Block {block}! 🎉",
     "encourageMessage": "Great effort! Every step counts on your journey.",
     "continue": "Continue",
-    "keepGoing": "There's no rush — pick up where you left off whenever you're ready."
+    "keepGoing": "There's no rush — pick up where you left off whenever you're ready.",
+    "foundationDescription": "Inspired by the life Jesus has won for us, this project guides you through a series of 25-day blocks covering mental, emotional, and physical growth. Each cycle brings you closer to making these practices a natural way of life."
   },
   "profile": {
     "badges": "Badges",

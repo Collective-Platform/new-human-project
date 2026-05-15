@@ -11,6 +11,40 @@ import { getTaskById as getRegistryTaskById } from "@/src/features/content/progr
 import { getLocalizedString } from "@/src/features/content";
 import { XP_WEIGHT_BY_TYPE } from "./queries";
 
+const sportLabels: Record<string, Record<string, string>> = {
+  en: { badminton: "Badminton", run: "Run", pickleball: "Pickleball", swimming: "Swimming", pilates: "Pilates" },
+  zh: { badminton: "羽毛球", run: "跑步", pickleball: "匹克球", swimming: "游泳", pilates: "普拉提" },
+};
+const exerciseFallback: Record<string, string> = { en: "Exercise", zh: "运动" };
+const restLabel: Record<string, string> = { en: "Rest", zh: "休息日" };
+
+function formatDuration(hours: number, minutes: number, locale: string): string {
+  if (hours === 0 && minutes === 0) return "";
+  if (locale === "zh") {
+    if (hours === 0) return `${minutes}分钟`;
+    if (minutes === 0) return `${hours}小时`;
+    return `${hours}小时${minutes}分钟`;
+  }
+  if (hours === 0) return `${minutes}m`;
+  if (minutes === 0) return `${hours}h`;
+  return `${hours}h ${minutes}m`;
+}
+
+function getExerciseLabel(data: Record<string, unknown> | null, locale: string): string {
+  const labels = sportLabels[locale] ?? sportLabels.en;
+  const fallback = exerciseFallback[locale] ?? exerciseFallback.en;
+  if (!data) return fallback;
+  const sportKey = data.sportKey as string | undefined;
+  if (!sportKey) return fallback;
+  if (sportKey === "rest") return restLabel[locale] ?? restLabel.en;
+  if (sportKey === "others") return (data.customSport as string | undefined) ?? fallback;
+  const sport = labels[sportKey] ?? fallback;
+  const h = (data.hours as number | undefined) ?? 0;
+  const m = (data.minutes as number | undefined) ?? 0;
+  const dur = formatDuration(h, m, locale);
+  return dur ? (locale === "zh" ? `${sport} ${dur}` : `${sport} for ${dur}`) : sport;
+}
+
 export interface DashboardData {
   currentDay: number;
   radar: { mental: number; emotional: number; physical: number };
@@ -21,7 +55,6 @@ export interface DashboardData {
     category: string;
     name: string;
     completedAt: string;
-    completionData?: Record<string, unknown> | null;
   }[];
   earnedBadge: {
     name: string;
@@ -198,21 +231,18 @@ export async function getDashboardForUser(
     .sort((a, b) => a.date.localeCompare(b.date));
 
   // Process recent completions (date-filtered, ordered recentRows).
-  const recent: {
-    completedAt: string;
-    category: string;
-    name: string;
-    completionData?: Record<string, unknown> | null;
-  }[] = [];
+  const recent: { completedAt: string; category: string; name: string }[] = [];
   for (const row of recentRows) {
     const fromRegistry = getRegistryTaskById(row.taskId);
     if (!fromRegistry) continue;
+    const name =
+      fromRegistry.type === "exercise"
+        ? getExerciseLabel(row.data as Record<string, unknown> | null, locale)
+        : getLocalizedString(fromRegistry.name, locale);
     recent.push({
       completedAt: row.completedAt.toISOString(),
       category: fromRegistry.category,
-      name: getLocalizedString(fromRegistry.name, locale),
-      completionData:
-        fromRegistry.type === "exercise" ? (row.data as Record<string, unknown> | null) : undefined,
+      name,
     });
   }
 

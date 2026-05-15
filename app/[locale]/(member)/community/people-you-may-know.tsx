@@ -93,7 +93,7 @@ export function PeopleYouMayKnow({
                   : "bg-on-surface text-surface hover:opacity-90"
               }`}
             >
-              {sentIds.has(s.id) ? "Sent" : t("addFriend")}
+              {sentIds.has(s.id) ? t("requestSent") : t("addFriend")}
             </button>
           </div>
         );

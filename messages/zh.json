@@ -10,6 +10,7 @@
     "streakLabel": "连续天数",
     "activityCalendar": "活动日历",
     "recentLogs": "最近记录",
+    "noRecentActivity": "暂无近期活动",
     "last7Days": "最近 7 天",
     "last30Days": "最近 30 天"
   },
@@ -73,7 +74,32 @@
     "completed": "已完成",
     "sentFriendRequest": "向你发送了好友请求",
     "accept": "接受",
-    "reject": "拒绝"
+    "reject": "拒绝",
+    "friendsCount": "{count} 位好友",
+    "justNow": "刚刚",
+    "yesterday": "昨天",
+    "minutesAgo": "{minutes} 分钟前",
+    "hoursAgo": "{hours} 小时前",
+    "daysAgo": "{days} 天前",
+    "you": "你",
+    "completedActivity": "完成了",
+    "edit": "编辑",
+    "done": "完成",
+    "noFriendsYet": "暂无好友",
+    "unfriendTitle": "删除好友？",
+    "unfriendConfirm": "确定要删除 {name} 吗？",
+    "cancel": "取消",
+    "unfriend": "删除好友",
+    "friend": "好友",
+    "withdrawRequest": "撤回请求",
+    "activities": "动态",
+    "noActivitiesYet": "暂无动态",
+    "add": "添加",
+    "noUsersFound": "未找到用户",
+    "searchFailed": "搜索失败，请重试。",
+    "searchPlaceholder": "搜索用户名（例如：alice）…",
+    "dismissSuggestions": "关闭推荐",
+    "removeAriaLabel": "删除 {name}"
   },
   "block": {
     "theFoundation": "根基",
@@ -82,7 +108,8 @@
     "blockComplete": "你已完成第 {block} 阶段！🎉",
     "encourageMessage": "做得好！每一步都在塑造你的旅程。",
     "continue": "继续",
-    "keepGoing": "不用着急——准备好了随时可以继续。"
+    "keepGoing": "不用着急——准备好了随时可以继续。",
+    "foundationDescription": "受耶稣为我们赢得的生命启发，这个计划将引导你完成一系列 25 天的挑战，涵盖心智、情绪和身体的成长。每一轮循环都让这些习惯更自然地融入你的生活。"
   },
   "profile": {
     "badges": "徽章",

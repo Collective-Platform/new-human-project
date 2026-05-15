@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/src/i18n/navigation";
 import { ChevronRight } from "lucide-react";
 
@@ -20,17 +21,16 @@ const foundationColors = [
 ];
 
 export function FoundationCard() {
+  const t = useTranslations("block");
   return (
     <section className="flex flex-col justify-between rounded-md border border-surface-container bg-white p-8 shadow-card">
       <div>
         <p className="mb-2 text-[10px] font-extrabold uppercase tracking-widest text-primary">
-          The Foundation
+          {t("theFoundation")}
         </p>
-        <h3 className="mb-4 font-headline text-2xl font-bold text-on-surface">The 25-Day Block</h3>
+        <h3 className="mb-4 font-headline text-2xl font-bold text-on-surface">{t("the25DayBlock")}</h3>
         <p className="mb-6 text-sm leading-relaxed text-on-surface-variant">
-          Inspired by the life Jesus has won for us, this project guides you through a series of
-          25-day blocks covering mental, emotional, and physical growth. Each cycle brings you
-          closer to making these practices a natural way of life.
+          {t("foundationDescription")}
         </p>
         <div className="mb-8 grid grid-cols-5 gap-2">
           {foundationColors.map((color, index) => (
@@ -47,7 +47,7 @@ export function FoundationCard() {
         prefetch
         className="flex w-full items-center justify-center rounded-full bg-primary px-6 py-4 font-bold text-white shadow-lg shadow-red-200 transition-transform active:scale-95"
       >
-        Start Journey
+        {t("startJourney")}
         <ChevronRight size={20} className="ml-2" aria-hidden="true" />
       </Link>
     </section>

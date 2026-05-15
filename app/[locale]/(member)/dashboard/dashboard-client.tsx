@@ -92,7 +92,7 @@ export function DashboardClient({
         title={t("activityCalendar")}
       />
 
-      <RecentFeed items={data.recent} title={t("recentLogs")} emptyLabel="No recent activity" />
+      <RecentFeed items={data.recent} title={t("recentLogs")} emptyLabel={t("noRecentActivity")} />
     </div>
   );
 }

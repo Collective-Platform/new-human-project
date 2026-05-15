@@ -2,12 +2,19 @@
 
 import { useState } from "react";
 
-const sportKeys = ["run", "badminton", "pickleball", "swimming", "pilates", "others"] as const;
+const sportKeys = [
+  "run",
+  "badminton",
+  "pickleball",
+  "swimming",
+  "pilates",
+  "others",
+] as const;
 
 const sportEmojis: Record<string, string> = {
   run: "🏃",
   badminton: "🏸",
-  pickleball: "🏓",
+  pickleball: "🥒",
   swimming: "🏊",
   pilates: "🧘",
   others: "✏️",
@@ -70,9 +77,11 @@ export function ExerciseLogRenderer({
   };
 }) {
   const savedSportKey = (initialData?.sportKey as SportKey | undefined) ?? null;
-  const savedCustomSport = (initialData?.customSport as string | undefined) ?? "";
+  const savedCustomSport =
+    (initialData?.customSport as string | undefined) ?? "";
   const savedHours = (initialData?.hours as number | undefined) ?? undefined;
-  const savedMinutes = (initialData?.minutes as number | undefined) ?? undefined;
+  const savedMinutes =
+    (initialData?.minutes as number | undefined) ?? undefined;
 
   // Lazy initializers run client-side only (this component is never SSR'd since
   // it mounts inside an activeTask modal triggered by user interaction).
@@ -88,7 +97,9 @@ export function ExerciseLogRenderer({
     return ls?.sportKey === "others" ? (ls.customSport ?? "") : "";
   });
 
-  const [hours, setHours] = useState<string>(savedHours !== undefined ? String(savedHours) : "");
+  const [hours, setHours] = useState<string>(
+    savedHours !== undefined ? String(savedHours) : "",
+  );
   const [minutes, setMinutes] = useState<string>(
     savedMinutes !== undefined ? String(savedMinutes) : "",
   );
@@ -151,8 +162,12 @@ export function ExerciseLogRenderer({
       <div className="space-y-6 rounded-lg bg-white p-6 shadow-card text-center">
         <div className="space-y-3">
           <p className="text-5xl">🛌</p>
-          <p className="text-lg font-bold font-headline text-foreground">{labels.restDay}</p>
-          <p className="text-sm text-on-surface-variant">{labels.restMessage}</p>
+          <p className="text-lg font-bold font-headline text-foreground">
+            {labels.restDay}
+          </p>
+          <p className="text-sm text-on-surface-variant">
+            {labels.restMessage}
+          </p>
         </div>
         <button
           type="button"
@@ -208,7 +223,9 @@ export function ExerciseLogRenderer({
         </p>
         <div className="flex gap-3">
           <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-xs font-semibold text-on-surface-variant">{labels.hours}</span>
+            <span className="text-xs font-semibold text-on-surface-variant">
+              {labels.hours}
+            </span>
             <input
               type="number"
               min="0"
@@ -220,7 +237,9 @@ export function ExerciseLogRenderer({
             />
           </label>
           <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-xs font-semibold text-on-surface-variant">{labels.minutes}</span>
+            <span className="text-xs font-semibold text-on-surface-variant">
+              {labels.minutes}
+            </span>
             <input
               type="number"
               min="0"

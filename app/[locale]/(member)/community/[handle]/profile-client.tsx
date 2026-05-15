@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { CheckCircle, User, ChevronRight, X } from "lucide-react";
 import { ActivityFeed, type FeedItem } from "../activity-feed";
 import { Link, useRouter } from "@/src/i18n/navigation";
@@ -62,6 +63,7 @@ export function ProfileClient({
   connectionStatus: "friends" | "sent" | "none";
 }) {
   const router = useRouter();
+  const t = useTranslations("community");
   const [friendsOpen, setFriendsOpen] = useState(false);
   const [unfriendOpen, setUnfriendOpen] = useState(false);
   const [sentIds, setSentIds] = useState<Set<number>>(new Set());
@@ -103,7 +105,7 @@ export function ProfileClient({
                   >
                     <User size={14} />
                     <span className="text-xs font-bold font-headline">
-                      {friends.length} Friends
+                      {t("friendsCount", { count: friends.length })}
                     </span>
                   </button>
                 )}
@@ -114,7 +116,7 @@ export function ProfileClient({
                   className="self-start flex items-center gap-2 mt-4 px-5 py-2 rounded-full border border-outline-variant text-on-surface-variant text-xs font-bold font-headline active:scale-95 transition-transform"
                 >
                   <CheckCircle size={16} className="text-primary" />
-                  Friend
+                  {t("friend")}
                 </button>
               ) : localStatus === "sent" ? (
                 <button
@@ -124,7 +126,7 @@ export function ProfileClient({
                   }}
                   className="self-start flex items-center gap-2 px-5 py-2 rounded-full border border-outline-variant text-on-surface-variant text-xs font-bold font-headline active:scale-95 transition-transform"
                 >
-                  Withdraw Request
+                  {t("withdrawRequest")}
                 </button>
               ) : (
                 <button
@@ -134,7 +136,7 @@ export function ProfileClient({
                   }}
                   className="self-start flex items-center justify-center px-5 py-2.5 rounded-full bg-primary text-surface text-sm font-bold font-headline active:scale-95 transition-transform"
                 >
-                  Add Friend
+                  {t("addFriend")}
                 </button>
               )}
             </div>
@@ -153,16 +155,16 @@ export function ProfileClient({
           ) : activities.length === 0 ? (
             <>
               <h3 className="font-headline text-xl font-bold text-on-surface mb-4 px-1">
-                Activities
+                {t("activities")}
               </h3>
               <div className="bg-white p-5 rounded-2xl text-center text-sm text-on-surface-variant">
-                No activities yet
+                {t("noActivitiesYet")}
               </div>
             </>
           ) : (
             <>
               <h3 className="font-headline text-xl font-bold text-on-surface mb-4 px-1">
-                Activities
+                {t("activities")}
               </h3>
               <ActivityFeed items={activities} />
             </>
@@ -175,10 +177,9 @@ export function ProfileClient({
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5">
             <div>
-              <h3 className="font-headline font-bold text-lg text-primary">Unfriend?</h3>
+              <h3 className="font-headline font-bold text-lg text-primary">{t("unfriendTitle")}</h3>
               <p className="text-sm text-on-surface-variant mt-1">
-                Are you sure you want to unfriend{" "}
-                <span className="font-bold text-on-surface">{displayName}</span>?
+                {t("unfriendConfirm", { name: displayName })}
               </p>
             </div>
             <div className="flex gap-3">
@@ -186,7 +187,7 @@ export function ProfileClient({
                 onClick={() => setUnfriendOpen(false)}
                 className="flex-1 py-3 rounded-2xl border border-outline-variant font-bold font-headline text-on-surface active:scale-95 transition-transform"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 onClick={async () => {
@@ -196,7 +197,7 @@ export function ProfileClient({
                 }}
                 className="flex-1 py-3 rounded-2xl bg-primary text-surface font-bold font-headline active:scale-95 transition-transform"
               >
-                Unfriend
+                {t("unfriend")}
               </button>
             </div>
           </div>
@@ -215,7 +216,7 @@ export function ProfileClient({
           >
             <div className="flex items-center justify-between px-5 pt-5 pb-3">
               <h3 className="font-headline font-bold text-lg text-on-surface">
-                {friends.length} Friends
+                {t("friendsCount", { count: friends.length })}
               </h3>
               <button
                 onClick={() => setFriendsOpen(false)}
@@ -227,7 +228,7 @@ export function ProfileClient({
 
             {friends.length === 0 ? (
               <div className="px-5 pb-6 text-sm text-on-surface-variant text-center">
-                No friends yet
+                {t("noFriendsYet")}
               </div>
             ) : (
               <div className="overflow-y-auto max-h-96 px-4 pb-5 space-y-3">
@@ -248,11 +249,11 @@ export function ProfileClient({
                       </Link>
                       {popupStatus === "friends" ? (
                         <span className="text-xs font-bold text-on-surface-variant px-3 py-1 rounded-full border border-outline-variant shrink-0">
-                          Friends
+                          {t("friend")}
                         </span>
                       ) : popupStatus === "sent" ? (
                         <span className="text-xs font-bold text-on-surface-variant px-3 py-1 rounded-full border border-outline-variant shrink-0">
-                          Sent
+                          {t("requestSent")}
                         </span>
                       ) : (
                         <button
@@ -262,7 +263,7 @@ export function ProfileClient({
                           }}
                           className="text-xs font-bold text-primary px-3 py-1 rounded-full border border-primary active:scale-95 transition-transform shrink-0"
                         >
-                          Add
+                          {t("add")}
                         </button>
                       )}
                     </div>

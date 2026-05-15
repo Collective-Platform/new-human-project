@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { User, Minus, ChevronRight } from "lucide-react";
 import { Link, useRouter } from "@/src/i18n/navigation";
 import { removeFriend } from "@/src/features/community/actions";
@@ -36,6 +37,7 @@ function Avatar({ url, name }: { url: string | null; name: string }) {
 
 export function FriendsListClient({ friends: initialFriends }: { friends: Friend[] }) {
   const router = useRouter();
+  const t = useTranslations("community");
   const [editing, setEditing] = useState(false);
   const [removed, setRemoved] = useState<Set<number>>(new Set());
   const [isPending, startTransition] = useTransition();
@@ -77,7 +79,7 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
             </button>
           )}
 
-          <h2 className="font-headline font-bold text-on-surface">{visible.length} Friends</h2>
+          <h2 className="font-headline font-bold text-on-surface">{t("friendsCount", { count: visible.length })}</h2>
 
           <div className="flex justify-end">
             {editing ? (
@@ -86,14 +88,14 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
                 disabled={isPending}
                 className="text-primary font-bold font-headline active:scale-95 transition-transform disabled:opacity-50"
               >
-                Done
+                {t("done")}
               </button>
             ) : (
               <button
                 onClick={() => setEditing(true)}
                 className="text-on-surface-variant font-semibold font-headline hover:text-primary transition-colors active:scale-95"
               >
-                Edit
+                {t("edit")}
               </button>
             )}
           </div>
@@ -104,7 +106,7 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
         {visible.length === 0 ? (
           <div className="mt-12 flex flex-col items-center text-center text-on-surface-variant">
             <User size={40} className="mb-3 opacity-30" />
-            <p className="font-headline font-medium">No friends yet</p>
+            <p className="font-headline font-medium">{t("noFriendsYet")}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -121,7 +123,7 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
                   {editing && (
                     <button
                       onClick={() => setPendingRemove({ id: friend.id, name })}
-                      aria-label={`Remove ${name}`}
+                      aria-label={t("removeAriaLabel", { name })}
                       className="w-7 h-7 flex items-center justify-center bg-primary rounded-full text-surface shrink-0 active:scale-90 transition-transform"
                     >
                       <Minus size={14} />
@@ -162,10 +164,9 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
         >
           <div className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5" onClick={(e) => e.stopPropagation()}>
             <div>
-              <h3 className="font-headline font-bold text-lg text-primary">Unfriend?</h3>
+              <h3 className="font-headline font-bold text-lg text-primary">{t("unfriendTitle")}</h3>
               <p className="text-sm text-on-surface-variant mt-1">
-                Are you sure you want to unfriend{" "}
-                <span className="font-bold text-on-surface">{pendingRemove.name}</span>?
+                {t("unfriendConfirm", { name: pendingRemove.name })}
               </p>
             </div>
             <div className="flex gap-3">
@@ -173,14 +174,14 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
                 onClick={() => setPendingRemove(null)}
                 className="flex-1 py-3 rounded-2xl border border-outline-variant font-bold font-headline text-on-surface active:scale-95 transition-transform"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 onClick={confirmRemove}
                 disabled={isPending}
                 className="flex-1 py-3 rounded-2xl bg-primary text-on-primary font-bold font-headline active:scale-95 transition-transform disabled:opacity-50"
               >
-                Unfriend
+                {t("unfriend")}
               </button>
             </div>
           </div>

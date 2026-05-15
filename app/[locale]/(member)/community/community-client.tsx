@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Users, UserPlus, X } from "lucide-react";
 import { Link } from "@/src/i18n/navigation";
 import { AddFriends } from "./add-friends";
@@ -56,6 +56,7 @@ interface CommunityData {
 export function CommunityClient({ initialData }: { initialData: CommunityData }) {
   const router = useRouter();
   const t = useTranslations("community");
+  const locale = useLocale();
   const [searching, setSearching] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
 
@@ -84,7 +85,7 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
     isLoadingRef.current = true;
     setIsLoadingMore(true);
     try {
-      const res = await fetch(`/api/feed?cursor=${encodeURIComponent(cursorRef.current)}`);
+      const res = await fetch(`/api/feed?cursor=${encodeURIComponent(cursorRef.current)}&locale=${locale}`);
       if (!res.ok) return;
       const data: { items: FeedItem[]; nextCursor: string | null } = await res.json();
       setFeedItems((prev) => [...prev, ...data.items]);
@@ -135,7 +136,7 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
         >
           <Users size={18} className="text-primary" />
           <span className="font-headline font-bold text-on-surface">
-            {initialData.friends.length} Friends
+            {t("friendsCount", { count: initialData.friends.length })}
           </span>
         </Link>
         <button
@@ -143,7 +144,7 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
           className="flex items-center gap-2 w-full justify-center px-4 py-2.5 bg-white rounded-2xl shadow-[0_4px_12px_rgba(53,50,47,0.03)] font-headline font-bold text-on-surface hover:shadow-card transition-all"
         >
           <UserPlus size={18} className="text-primary" />
-          <span>Add Friend</span>
+          <span>{t("addFriend")}</span>
         </button>
       </div>
 
@@ -163,7 +164,7 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
               <button
                 onClick={() => setShowSuggestions(false)}
                 className="w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-colors"
-                aria-label="Dismiss suggestions"
+                aria-label={t("dismissSuggestions")}
               >
                 <X size={16} />
               </button>
