@@ -1,10 +1,14 @@
 import { getSessionUser } from "@/src/features/auth";
-import { getProfileForUser } from "@/src/features/profile/get-profile-for-user";
-import { getFriendIds, getUserActivitiesCached } from "@/src/features/community";
+import {
+  getPublicProfile,
+  getPublicProfileByHandleCached,
+  getFriendIds,
+  getUserActivitiesCached,
+  getSentRequestIdsCached,
+} from "@/src/features/community";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
 import { ProfileClient } from "./profile-client";
-import type { FeedItem } from "../community/activity-feed";
 
 function formatDuration(hours: number, minutes: number): string {
   if (hours === 0 && minutes === 0) return "";
@@ -30,27 +34,48 @@ function getExerciseActivityLabel(data: Record<string, unknown> | null): string 
   return sportLabels[sportKey] ?? "Exercise";
 }
 
-export async function ProfileData() {
+export async function ProfileData({ handle }: { handle: string }) {
   const user = await getSessionUser();
   if (!user) return null;
 
-  const [initialData, friendIds, activityRows] = await Promise.all([
-    getProfileForUser(user.id),
-    getFriendIds(user.id),
-    getUserActivitiesCached(user.id, user.id),
-  ]);
-  if (!initialData) return null;
+  const isNumericId = /^\d+$/.test(handle);
+  const profile = await (isNumericId
+    ? getPublicProfile(Number(handle))
+    : getPublicProfileByHandleCached(handle));
 
-  const activities: FeedItem[] = activityRows.flatMap((row) => {
+  if (!profile) return null;
+
+  const targetUserId = profile.id;
+
+  const [activityRows, friendIds, viewerFriendIds, sentRequestIds] = await Promise.all([
+    getUserActivitiesCached(user.id, targetUserId),
+    getFriendIds(targetUserId),
+    getFriendIds(user.id),
+    getSentRequestIdsCached(user.id),
+  ]);
+
+  const viewerFriendSet = new Set(viewerFriendIds.map((f) => f.id));
+  const sentSet = new Set(sentRequestIds);
+
+  const connectionStatus: "friends" | "sent" | "none" = viewerFriendSet.has(targetUserId)
+    ? "friends"
+    : sentSet.has(targetUserId)
+      ? "sent"
+      : "none";
+
+  const friendProfiles = await Promise.all(friendIds.map((f) => getPublicProfile(f.id)));
+  const profileMap = new Map(friendIds.map((f, i) => [f.id, friendProfiles[i]]));
+
+  const activities = activityRows.flatMap((row) => {
+    const registryTask = getRegistryTaskById(row.taskId);
     const base = {
-      userId: user.id,
-      displayName: initialData.user.displayName,
-      searchHandle: initialData.user.searchHandle,
-      avatarUrl: initialData.user.avatarUrl,
+      userId: profile.id,
+      displayName: profile.displayName,
+      searchHandle: profile.searchHandle,
+      avatarUrl: profile.avatarUrl,
       completedAt: new Date(row.completedAtMs).toISOString(),
     };
 
-    const registryTask = getRegistryTaskById(row.taskId);
     if (registryTask) {
       if (registryTask.type === "exercise") {
         const sport = getExerciseActivityLabel(row.completionData);
@@ -91,12 +116,32 @@ export async function ProfileData() {
     return [];
   });
 
+  const friends = friendIds
+    .filter((f) => f.id !== user.id)
+    .map((f) => {
+      const p = profileMap.get(f.id);
+      const friendStatus: "friends" | "sent" | "none" = viewerFriendSet.has(f.id)
+        ? "friends"
+        : sentSet.has(f.id)
+          ? "sent"
+          : "none";
+      return {
+        id: f.id,
+        displayName: p?.displayName ?? null,
+        searchHandle: p?.searchHandle ?? null,
+        avatarUrl: p?.avatarUrl ?? null,
+        connectionStatus: friendStatus,
+      };
+    });
+
+  const isPrivate = connectionStatus !== "friends";
+
   return (
     <ProfileClient
-      initialData={initialData}
-      friendCount={friendIds.length}
-      activities={activities}
-      selfUserId={user.id}
+      profile={profile}
+      activities={isPrivate ? [] : activities}
+      friends={isPrivate ? [] : friends}
+      connectionStatus={connectionStatus}
     />
   );
 }

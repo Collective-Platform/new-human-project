@@ -472,6 +472,7 @@ The app targets church members who don't know where to start in becoming more li
 #### Typography — Chinese Font Support
 
 97. The design system must include **Chinese-appropriate font fallbacks**. Plus Jakarta Sans and Manrope do not contain CJK glyphs. The Tailwind font stacks must be:
+
     ```
     headline: ['Plus Jakarta Sans', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif]
     body:     ['Manrope', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif]

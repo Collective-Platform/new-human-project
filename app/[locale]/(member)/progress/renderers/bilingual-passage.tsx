@@ -28,15 +28,15 @@ export function BilingualPassage({
 
   if (fallbackText) {
     return (
-      <p className="whitespace-pre-line text-md leading-relaxed text-foreground">
-        {fallbackText}
-      </p>
+      <p className="whitespace-pre-line text-md leading-relaxed text-foreground">{fallbackText}</p>
     );
   }
 
   return (
     <p className="text-md text-foreground">
-      {locale === "zh" ? "请在圣经或圣经应用程序中阅读这段经文。" : "Read this passage in your Bible or Bible app."}
+      {locale === "zh"
+        ? "请在圣经或圣经应用程序中阅读这段经文。"
+        : "Read this passage in your Bible or Bible app."}
     </p>
   );
 }

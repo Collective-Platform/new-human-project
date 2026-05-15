@@ -2,7 +2,13 @@
 
 import { updateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
-import { sendFriendRequest, acceptFriendRequest, rejectFriendRequest } from "./queries";
+import {
+  sendFriendRequest,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  removeFriendInDb,
+  cancelFriendRequest,
+} from "./queries";
 import { sendPushToUser } from "@/src/features/notifications";
 
 export async function requestFriend(input: {
@@ -32,6 +38,7 @@ export async function requestFriend(input: {
   }
 
   updateTag(`requests:${receiverId}`);
+  updateTag(`sent-requests:${user.id}`);
   return { success: true, alreadyExists: result === null };
 }
 
@@ -68,5 +75,38 @@ export async function rejectFriend(input: {
   if (!result) return { error: "Request not found" };
 
   updateTag(`requests:${user.id}`);
+  return { success: true };
+}
+
+export async function withdrawFriendRequest(input: {
+  receiverId: number;
+}): Promise<{ success: true } | { error: string }> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Unauthorized" };
+
+  await cancelFriendRequest(user.id, input.receiverId);
+
+  updateTag(`sent-requests:${user.id}`);
+  updateTag(`requests:${input.receiverId}`);
+
+  return { success: true };
+}
+
+export async function removeFriend(input: {
+  friendId: number;
+}): Promise<{ success: true } | { error: string }> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const { friendId } = input;
+  await removeFriendInDb(user.id, friendId);
+
+  updateTag(`friends:${user.id}`);
+  updateTag(`friends:${friendId}`);
+  updateTag(`feed:${user.id}`);
+  updateTag(`feed:${friendId}`);
+  updateTag(`suggestions:${user.id}`);
+  updateTag(`suggestions:${friendId}`);
+
   return { success: true };
 }

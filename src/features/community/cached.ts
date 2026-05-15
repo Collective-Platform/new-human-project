@@ -1,6 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/src/db";
 import { sql } from "drizzle-orm";
+import { getUserActivities, getPublicProfileByHandle, getSentRequestIds } from "./queries";
 
 export async function getFriendIds(
   userId: number,
@@ -125,15 +126,10 @@ export async function getActivityFeedRows(userId: number): Promise<
     FROM nhp.task_completions tc
     JOIN nhp.users u ON tc.user_id = u.id
     LEFT JOIN nhp.block_day_tasks bdt ON bdt.id::text = tc.task_id
-    WHERE (
-        tc.user_id = ${userId}
-        OR (
-          tc.user_id IN (SELECT friend_id FROM friend_ids)
-          AND u.privacy_public = true
-        )
-      )
+    WHERE tc.user_id IN (SELECT friend_id FROM friend_ids)
+      AND u.privacy_public = true
     ORDER BY tc.completed_at DESC
-    LIMIT 50
+    LIMIT 10
   `);
 
   return (
@@ -153,6 +149,27 @@ export async function getActivityFeedRows(userId: number): Promise<
     dbTaskType: row.task_type ?? null,
     dbCategory: row.category ?? null,
   }));
+}
+
+export async function getPublicProfileByHandleCached(handle: string) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(`profile-handle:${handle}`);
+  return getPublicProfileByHandle(handle);
+}
+
+export async function getSentRequestIdsCached(userId: number): Promise<number[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(`sent-requests:${userId}`);
+  return getSentRequestIds(userId);
+}
+
+export async function getUserActivitiesCached(viewerUserId: number, targetUserId: number) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(`feed:${targetUserId}`);
+  return getUserActivities(viewerUserId, targetUserId);
 }
 
 export async function getPublicProfile(userId: number): Promise<{

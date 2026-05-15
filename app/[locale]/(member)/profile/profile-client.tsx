@@ -3,15 +3,17 @@
 import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/src/i18n/navigation";
+import { Link } from "@/src/i18n/navigation";
 import { User, Camera, Pencil } from "lucide-react";
 import NextImage from "next/image";
 import type { ProfileData } from "@/src/features/profile/get-profile-for-user";
 import { updateProfile } from "@/src/features/profile/actions";
+import { ActivityFeed, type FeedItem } from "../community/activity-feed";
 
 const HANDLE_REGEX = /^[a-z0-9_]{3,30}$/;
 
 const MAX_AVATAR_DIMENSION = 256;
-const MAX_AVATAR_FILE_BYTES = 5 * 1024 * 1024; // 5 MB — standard for profile photos
+const MAX_AVATAR_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_AVATAR_FILE_MB = 5;
 
 async function fileToResizedDataUrl(file: File): Promise<string> {
@@ -42,7 +44,17 @@ async function fileToResizedDataUrl(file: File): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.85);
 }
 
-export function ProfileClient({ initialData }: { initialData: ProfileData }) {
+export function ProfileClient({
+  initialData,
+  friendCount,
+  activities,
+  selfUserId,
+}: {
+  initialData: ProfileData;
+  friendCount: number;
+  activities: FeedItem[];
+  selfUserId: number;
+}) {
   const t = useTranslations("profile");
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -100,8 +112,6 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
       if ("error" in result) {
         if (result.error === "username_taken") {
           setError(t("usernameTaken"));
-        } else if (result.error === "invalid_username") {
-          setError(t("usernameInvalid"));
         } else {
           setError(t("usernameInvalid"));
         }
@@ -120,7 +130,7 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    e.target.value = ""; // allow re-selecting same file later
+    e.target.value = "";
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
@@ -151,156 +161,158 @@ export function ProfileClient({ initialData }: { initialData: ProfileData }) {
   const { user } = initialData;
 
   return (
-    <div className="flex min-h-full flex-col justify-between space-y-4 px-4 pt-4 pb-4">
-      <div>
-        {/* User info card */}
-        <div className="flex items-center gap-4 rounded-md bg-white p-5 shadow-card">
-          {/* Avatar with camera button */}
-          <div className="relative shrink-0">
-            {user.avatarUrl ? (
-              <NextImage
-                src={user.avatarUrl}
-                alt={user.displayName ?? ""}
-                width={64}
-                height={64}
-                unoptimized
-                className="h-16 w-16 rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-200">
-                <User size={28} className="text-zinc-500" />
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={triggerFileSelect}
-              disabled={uploadingAvatar}
-              aria-label={t("changePhoto")}
-              title={t("changePhoto")}
-              className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-white shadow ring-2 ring-white transition-colors active:bg-primary/90 disabled:opacity-60"
-            >
-              {uploadingAvatar ? (
-                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+    <div className="min-h-screen bg-surface antialiased">
+      <main className="max-w-2xl mx-auto px-6 pt-8 pb-8">
+        {/* Profile header */}
+        <section className="mb-10">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-4">
+              {editingHandle ? (
+                <div className="space-y-2">
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 font-headline text-lg font-bold text-on-surface/40">
+                      @
+                    </span>
+                    <input
+                      ref={handleInputRef}
+                      type="text"
+                      value={handleValue}
+                      onChange={(e) => setHandleValue(e.target.value.toLowerCase())}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          saveHandle();
+                        } else if (e.key === "Escape") {
+                          e.preventDefault();
+                          cancelEditingHandle();
+                        }
+                      }}
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      maxLength={30}
+                      disabled={savingHandle}
+                      aria-label={t("username")}
+                      className="w-full rounded-md border border-outline-variant bg-surface pl-6 pr-2 py-1 font-headline text-lg font-bold text-on-surface focus:border-primary focus:outline-none disabled:opacity-60"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={saveHandle}
+                      disabled={savingHandle}
+                      className="rounded-md bg-primary px-3 py-1 text-xs font-semibold text-surface disabled:opacity-60"
+                    >
+                      {savingHandle ? t("saving") : t("save")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEditingHandle}
+                      disabled={savingHandle}
+                      className="rounded-md bg-surface-container px-3 py-1 text-xs font-semibold text-on-surface-variant disabled:opacity-60"
+                    >
+                      {t("cancel")}
+                    </button>
+                  </div>
+                </div>
               ) : (
-                <Camera size={16} />
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-2">
+                    <h2 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface">
+                      {user.searchHandle ? `@${user.searchHandle}` : t("username")}
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={startEditingHandle}
+                      aria-label={t("editUsername")}
+                      title={t("editUsername")}
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  </div>
+                  <Link
+                    href="/community/friends"
+                    className="self-start mt-4 inline-flex items-center gap-1.5 px-3 py-1 border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container hover:border-primary/30 hover:text-primary transition-all active:scale-95"
+                  >
+                    <User size={14} />
+                    <span className="text-xs font-bold font-headline">{friendCount} Friends</span>
+                  </Link>
+                </div>
               )}
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarChange}
-            />
-          </div>
+            </div>
 
-          {/* Username + edit */}
-          <div className="flex-1 min-w-0">
-            {editingHandle ? (
-              <div className="space-y-2">
-                <div className="relative">
-                  <span className="absolute left-2 top-1/2 -translate-y-1/2 font-headline text-lg font-bold text-foreground/40">
-                    @
-                  </span>
-                  <input
-                    ref={handleInputRef}
-                    type="text"
-                    value={handleValue}
-                    onChange={(e) => setHandleValue(e.target.value.toLowerCase())}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        saveHandle();
-                      } else if (e.key === "Escape") {
-                        e.preventDefault();
-                        cancelEditingHandle();
-                      }
-                    }}
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
-                    maxLength={30}
-                    disabled={savingHandle}
-                    aria-label={t("username")}
-                    className="w-full rounded-md border border-zinc-200 bg-white pl-6 pr-2 py-1 font-headline text-lg font-bold text-foreground focus:border-primary focus:outline-none disabled:opacity-60"
+            {/* Avatar with camera button */}
+            <div className="relative shrink-0">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-surface shadow-xl flex items-center justify-center">
+                {user.avatarUrl ? (
+                  <NextImage
+                    src={user.avatarUrl}
+                    alt={user.displayName ?? ""}
+                    width={96}
+                    height={96}
+                    unoptimized
+                    className="rounded-full object-cover"
+                    style={{ width: 96, height: 96 }}
                   />
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={saveHandle}
-                    disabled={savingHandle}
-                    className="rounded-md bg-primary px-3 py-1 text-xs font-semibold text-white disabled:opacity-60"
-                  >
-                    {savingHandle ? t("saving") : t("save")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelEditingHandle}
-                    disabled={savingHandle}
-                    className="rounded-md bg-zinc-100 px-3 py-1 text-xs font-semibold text-foreground/70 disabled:opacity-60"
-                  >
-                    {t("cancel")}
-                  </button>
-                </div>
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-surface-container-highest flex items-center justify-center">
+                    <User size={38} className="text-on-surface-variant" />
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <p className="truncate font-headline text-lg font-bold text-foreground">
-                  {user.searchHandle ? `@${user.searchHandle}` : t("username")}
-                </p>
-                <button
-                  type="button"
-                  onClick={startEditingHandle}
-                  aria-label={t("editUsername")}
-                  title={t("editUsername")}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-foreground/60 transition-colors hover:bg-zinc-200"
-                >
-                  <Pencil size={16} />
-                </button>
-              </div>
-            )}
-            <p className="truncate text-sm text-foreground/60">{user.email}</p>
+              <button
+                type="button"
+                onClick={triggerFileSelect}
+                disabled={uploadingAvatar}
+                aria-label={t("changePhoto")}
+                title={t("changePhoto")}
+                className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-surface shadow ring-2 ring-white transition-colors active:bg-primary/90 disabled:opacity-60"
+              >
+                {uploadingAvatar ? (
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-surface border-t-transparent" />
+                ) : (
+                  <Camera size={16} />
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
+            </div>
           </div>
-        </div>
 
-        {error && (
-          <div role="alert" className="rounded-md bg-red-50 px-4 py-2 text-sm text-red-700">
-            {error}
-          </div>
+          {error && (
+            <div role="alert" className="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+        </section>
+
+        {/* Activities */}
+        {activities.length > 0 && (
+          <section className="mb-8">
+            <h3 className="font-headline text-xl font-bold text-on-surface mb-4 px-1">
+              Activities
+            </h3>
+            <ActivityFeed items={activities} selfUserId={selfUserId} />
+          </section>
         )}
+      </main>
 
-        {/* Badges — hidden while badge system/design is on hold.
-          <BadgeGrid badges={badges} title={t("badges")} /> */}
-
-        {/* Menu items — hidden while not in use.
-          <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
-            <Link href="/profile/mood-history" className="flex items-center justify-between px-4 py-3.5">
-              <div className="flex items-center gap-3">
-                <Smile size={20} className="text-foreground/50" />
-                <span className="text-sm font-medium text-foreground">{t("moodHistory")}</span>
-              </div>
-              <ChevronRight size={18} className="text-foreground/30" />
-            </Link>
-            <Link href="/profile/settings" className="flex items-center justify-between px-4 py-3.5">
-              <div className="flex items-center gap-3">
-                <Settings size={20} className="text-foreground/50" />
-                <span className="text-sm font-medium text-foreground">Settings</span>
-              </div>
-              <ChevronRight size={18} className="text-foreground/30" />
-            </Link>
-          </div>
-        */}
+      {/* Logout */}
+      <div className="max-w-2xl mx-auto px-6 pb-8">
+        <button
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="w-full rounded-2xl bg-white py-3.5 text-sm font-semibold text-primary shadow-[0_4px_20px_rgba(53,50,47,0.04)] transition-colors active:bg-surface-container disabled:opacity-50"
+        >
+          {loggingOut ? "Logging out…" : t("logOut")}
+        </button>
       </div>
-
-      {/* Log out */}
-      <button
-        onClick={handleLogout}
-        disabled={loggingOut}
-        className="w-full rounded-md bg-white py-3.5 text-sm font-semibold text-primary shadow-card transition-colors active:bg-zinc-50 disabled:opacity-50"
-      >
-        {loggingOut ? "Logging out…" : t("logOut")}
-      </button>
     </div>
   );
 }

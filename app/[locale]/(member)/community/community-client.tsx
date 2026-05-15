@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Users, UserPlus } from "lucide-react";
+import { Users, UserPlus, X } from "lucide-react";
+import { Link } from "@/src/i18n/navigation";
 import { AddFriends } from "./add-friends";
 import { FriendRequests } from "./friend-requests";
 import { PeopleYouMayKnow } from "./people-you-may-know";
@@ -32,9 +33,11 @@ interface Suggestion {
   searchHandle: string | null;
   avatarUrl: string | null;
   mutualCount: number;
+  connectionStatus: "sent" | "none";
 }
 
 interface FeedItem {
+  userId: number;
   displayName: string | null;
   searchHandle: string | null;
   avatarUrl: string | null;
@@ -53,66 +56,132 @@ interface CommunityData {
 export function CommunityClient({ initialData }: { initialData: CommunityData }) {
   const router = useRouter();
   const t = useTranslations("community");
-  const [tab, setTab] = useState<"friends" | "add">("friends");
+  const [searching, setSearching] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+
+  // Feed state
+  const [feedItems, setFeedItems] = useState<FeedItem[]>(initialData.feed);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const cursorRef = useRef<string | null>(
+    initialData.feed.length > 0 ? initialData.feed[initialData.feed.length - 1].completedAt : null,
+  );
+  const hasMoreRef = useRef(initialData.feed.length >= 10);
+  const isLoadingRef = useRef(false);
+
+  // Sync feed when server data refreshes (e.g. after accepting a friend request)
+  useEffect(() => {
+    setFeedItems(initialData.feed);
+    cursorRef.current =
+      initialData.feed.length > 0
+        ? initialData.feed[initialData.feed.length - 1].completedAt
+        : null;
+    hasMoreRef.current = initialData.feed.length >= 10;
+  }, [initialData.feed]);
+
+  const loadMore = useCallback(async () => {
+    if (!cursorRef.current || isLoadingRef.current || !hasMoreRef.current) return;
+    isLoadingRef.current = true;
+    setIsLoadingMore(true);
+    try {
+      const res = await fetch(`/api/feed?cursor=${encodeURIComponent(cursorRef.current)}`);
+      if (!res.ok) return;
+      const data: { items: FeedItem[]; nextCursor: string | null } = await res.json();
+      setFeedItems((prev) => [...prev, ...data.items]);
+      if (data.nextCursor) {
+        cursorRef.current = data.nextCursor;
+        hasMoreRef.current = true;
+      } else {
+        hasMoreRef.current = false;
+      }
+    } finally {
+      isLoadingRef.current = false;
+      setIsLoadingMore(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) loadMore();
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   function fetchData() {
     router.refresh();
   }
 
+  if (searching) {
+    return (
+      <div className="max-w-2xl mx-auto px-6 pt-6 pb-8">
+        <AddFriends onRequestSent={fetchData} onCancel={() => setSearching(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-6 pt-6 pb-8">
-      {/* Action Buttons */}
-      <div className="flex gap-3 mb-6">
-        <button
-          onClick={() => setTab("friends")}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-headline font-semibold transition-colors ${
-            tab === "friends"
-              ? "bg-on-surface text-surface border border-on-surface"
-              : "border border-outline-variant text-on-surface hover:bg-surface-container"
-          }`}
+      {/* Friends link + Add Friend button */}
+      <div className="flex items-center justify-between gap-2 mb-6">
+        <Link
+          href="/community/friends"
+          className="flex items-center w-full gap-2 justify-center px-4 py-2.5 bg-white rounded-2xl shadow-[0_4px_12px_rgba(53,50,47,0.03)] hover:shadow-card transition-all"
         >
-          <Users size={20} />
-          <span>{t("friends")}</span>
-        </button>
+          <Users size={18} className="text-primary" />
+          <span className="font-headline font-bold text-on-surface">
+            {initialData.friends.length} Friends
+          </span>
+        </Link>
         <button
-          onClick={() => setTab("add")}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-headline font-semibold transition-colors ${
-            tab === "add"
-              ? "bg-on-surface text-surface border border-on-surface"
-              : "border border-outline-variant text-on-surface hover:bg-surface-container"
-          }`}
+          onClick={() => setSearching(true)}
+          className="flex items-center gap-2 w-full justify-center px-4 py-2.5 bg-white rounded-2xl shadow-[0_4px_12px_rgba(53,50,47,0.03)] font-headline font-bold text-on-surface hover:shadow-card transition-all"
         >
-          <UserPlus size={20} />
-          <span>{t("addFriends")}</span>
+          <UserPlus size={18} className="text-primary" />
+          <span>Add Friend</span>
         </button>
       </div>
 
-      {tab === "friends" && (
-        <div className="space-y-4">
-          {/* Incoming friend requests */}
-          {initialData.requests.length > 0 && (
-            <FriendRequests requests={initialData.requests} onUpdate={fetchData} />
-          )}
+      <div className="space-y-4">
+        {/* Incoming friend requests */}
+        {initialData.requests.length > 0 && (
+          <FriendRequests requests={initialData.requests} onUpdate={fetchData} />
+        )}
 
-          {/* People You May Know carousel */}
-          {initialData.suggestions.length > 0 && (
-            <section className="mb-10">
-              <h2 className="text-lg font-bold mb-4 font-headline text-on-surface">
+        {/* People You May Know carousel */}
+        {initialData.suggestions.length > 0 && showSuggestions && (
+          <section className="mb-10">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold font-headline text-on-surface">
                 {t("peopleYouMayKnow")}
               </h2>
-              <PeopleYouMayKnow suggestions={initialData.suggestions} onAdd={fetchData} />
-            </section>
+              <button
+                onClick={() => setShowSuggestions(false)}
+                className="w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-colors"
+                aria-label="Dismiss suggestions"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <PeopleYouMayKnow suggestions={initialData.suggestions} onAdd={fetchData} />
+          </section>
+        )}
+
+        {/* Activity Feed */}
+        <ActivityFeed items={feedItems} />
+
+        {/* Infinite scroll sentinel */}
+        <div ref={sentinelRef} className="flex justify-center py-2">
+          {isLoadingMore && (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           )}
-
-          {/* Friends list */}
-          {/* <FriendsList friends={data.friends} /> */}
-
-          {/* Activity Feed */}
-          <ActivityFeed items={initialData.feed} />
         </div>
-      )}
-
-      {tab === "add" && <AddFriends onRequestSent={fetchData} />}
+      </div>
     </div>
   );
 }

@@ -119,6 +119,38 @@ export async function acceptFriendRequest(requestId: string, receiverId: number)
   return rows[0] ?? null;
 }
 
+// --- Get IDs of users to whom userId has sent a pending request ---
+
+export async function getSentRequestIds(userId: number): Promise<number[]> {
+  const result = await db.execute(sql`
+    SELECT receiver_id AS id FROM nhp.friend_requests
+    WHERE sender_id = ${userId} AND status = 'pending'
+  `);
+  return (result.rows as { id: number }[]).map((r) => Number(r.id));
+}
+
+// --- Cancel (withdraw) a pending outgoing friend request ---
+
+export async function cancelFriendRequest(senderId: number, receiverId: number) {
+  await db.execute(sql`
+    DELETE FROM nhp.friend_requests
+    WHERE sender_id = ${senderId} AND receiver_id = ${receiverId} AND status = 'pending'
+  `);
+}
+
+// --- Remove friend (delete accepted relationship) ---
+
+export async function removeFriendInDb(userId: number, friendId: number) {
+  await db.execute(sql`
+    DELETE FROM nhp.friend_requests
+    WHERE status = 'accepted'
+      AND (
+        (sender_id = ${userId} AND receiver_id = ${friendId})
+        OR (sender_id = ${friendId} AND receiver_id = ${userId})
+      )
+  `);
+}
+
 // --- Reject friend request ---
 
 export async function rejectFriendRequest(requestId: string, receiverId: number) {
@@ -134,6 +166,38 @@ export async function rejectFriendRequest(requestId: string, receiverId: number)
     )
     .returning();
   return rows[0] ?? null;
+}
+
+// --- Lookup profile by searchHandle ---
+
+export async function getPublicProfileByHandle(handle: string): Promise<{
+  id: number;
+  displayName: string | null;
+  searchHandle: string | null;
+  avatarUrl: string | null;
+} | null> {
+  const result = await db.execute(sql`
+    SELECT id, display_name, search_handle, avatar_url
+    FROM nhp.users
+    WHERE search_handle = ${handle}
+  `);
+
+  const row = (
+    result.rows as {
+      id: number;
+      display_name: string | null;
+      search_handle: string | null;
+      avatar_url: string | null;
+    }[]
+  )[0];
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    displayName: row.display_name,
+    searchHandle: row.search_handle,
+    avatarUrl: row.avatar_url,
+  };
 }
 
 // --- Search users by handle or display name ---
@@ -218,6 +282,119 @@ export async function getPeopleYouMayKnow(userId: number) {
     avatar_url: string | null;
     mutual_count: number;
   }[];
+}
+
+// --- Single user's recent activities (for profile page) ---
+
+export async function getUserActivities(
+  viewerUserId: number,
+  targetUserId: number,
+): Promise<
+  {
+    userId: number;
+    taskId: string;
+    completedAtMs: number;
+    completionData: Record<string, unknown> | null;
+    dbTaskType: string | null;
+    dbCategory: string | null;
+  }[]
+> {
+  const result = await db.execute(sql`
+    SELECT tc.user_id, tc.task_id, tc.completed_at, tc.data,
+           bdt.task_type, bdt.category
+    FROM nhp.task_completions tc
+    JOIN nhp.users u ON tc.user_id = u.id
+    LEFT JOIN nhp.block_day_tasks bdt ON bdt.id::text = tc.task_id
+    WHERE tc.user_id = ${targetUserId}
+      AND (
+        ${viewerUserId} = ${targetUserId}
+        OR u.privacy_public = true
+        OR EXISTS (
+          SELECT 1 FROM nhp.friend_requests fr
+          WHERE fr.status = 'accepted'
+            AND (
+              (fr.sender_id = ${viewerUserId} AND fr.receiver_id = ${targetUserId})
+              OR (fr.sender_id = ${targetUserId} AND fr.receiver_id = ${viewerUserId})
+            )
+        )
+      )
+    ORDER BY tc.completed_at DESC
+    LIMIT 20
+  `);
+
+  return (
+    result.rows as {
+      user_id: number;
+      task_id: string;
+      completed_at: string;
+      data: Record<string, unknown> | null;
+      task_type: string | null;
+      category: string | null;
+    }[]
+  ).map((row) => ({
+    userId: row.user_id,
+    taskId: row.task_id,
+    completedAtMs: new Date(row.completed_at).getTime(),
+    completionData: row.data ?? null,
+    dbTaskType: row.task_type ?? null,
+    dbCategory: row.category ?? null,
+  }));
+}
+
+// --- Paginated activity feed (friends only, cursor-based) ---
+
+export async function getActivityFeedPaged(
+  userId: number,
+  { limit, cursor }: { limit: number; cursor?: string },
+) {
+  const cursorClause = cursor ? sql`AND tc.completed_at < ${cursor}` : sql``;
+
+  const result = await db.execute(sql`
+    WITH friend_ids AS (
+      SELECT CASE
+        WHEN sender_id = ${userId} THEN receiver_id
+        ELSE sender_id
+      END AS friend_id
+      FROM nhp.friend_requests
+      WHERE status = 'accepted'
+        AND (sender_id = ${userId} OR receiver_id = ${userId})
+    )
+    SELECT tc.user_id, u.display_name, u.search_handle, u.avatar_url,
+           tc.task_id, tc.completed_at, tc.data, bdt.task_type, bdt.category
+    FROM nhp.task_completions tc
+    JOIN nhp.users u ON tc.user_id = u.id
+    LEFT JOIN nhp.block_day_tasks bdt ON bdt.id::text = tc.task_id
+    WHERE tc.user_id IN (SELECT friend_id FROM friend_ids)
+      AND u.privacy_public = true
+      ${cursorClause}
+    ORDER BY tc.completed_at DESC
+    LIMIT ${limit}
+  `);
+
+  return (
+    result.rows as {
+      user_id: number;
+      display_name: string | null;
+      search_handle: string | null;
+      avatar_url: string | null;
+      task_id: string;
+      completed_at: string;
+      data: Record<string, unknown> | null;
+      task_type: string | null;
+      category: string | null;
+    }[]
+  ).map((row) => ({
+    userId: row.user_id,
+    displayName: row.display_name,
+    searchHandle: row.search_handle,
+    avatarUrl: row.avatar_url,
+    taskId: row.task_id,
+    completedAt: row.completed_at,
+    completedAtMs: new Date(row.completed_at).getTime(),
+    completionData: row.data ?? null,
+    dbTaskType: row.task_type ?? null,
+    dbCategory: row.category ?? null,
+  }));
 }
 
 // --- Activity feed (friends' recent completions) ---

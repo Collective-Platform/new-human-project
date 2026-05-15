@@ -2,14 +2,7 @@
 
 import { useState } from "react";
 
-const sportKeys = [
-  "run",
-  "badminton",
-  "pickleball",
-  "swimming",
-  "pilates",
-  "others",
-] as const;
+const sportKeys = ["run", "badminton", "pickleball", "swimming", "pilates", "others"] as const;
 
 const sportEmojis: Record<string, string> = {
   run: "🏃",
@@ -77,11 +70,9 @@ export function ExerciseLogRenderer({
   };
 }) {
   const savedSportKey = (initialData?.sportKey as SportKey | undefined) ?? null;
-  const savedCustomSport =
-    (initialData?.customSport as string | undefined) ?? "";
+  const savedCustomSport = (initialData?.customSport as string | undefined) ?? "";
   const savedHours = (initialData?.hours as number | undefined) ?? undefined;
-  const savedMinutes =
-    (initialData?.minutes as number | undefined) ?? undefined;
+  const savedMinutes = (initialData?.minutes as number | undefined) ?? undefined;
 
   // Lazy initializers run client-side only (this component is never SSR'd since
   // it mounts inside an activeTask modal triggered by user interaction).
@@ -97,9 +88,7 @@ export function ExerciseLogRenderer({
     return ls?.sportKey === "others" ? (ls.customSport ?? "") : "";
   });
 
-  const [hours, setHours] = useState<string>(
-    savedHours !== undefined ? String(savedHours) : "",
-  );
+  const [hours, setHours] = useState<string>(savedHours !== undefined ? String(savedHours) : "");
   const [minutes, setMinutes] = useState<string>(
     savedMinutes !== undefined ? String(savedMinutes) : "",
   );
@@ -168,7 +157,7 @@ export function ExerciseLogRenderer({
         <button
           type="button"
           onClick={() => onSubmitAction({ sportKey: "rest" })}
-          disabled={loading || (completed)}
+          disabled={loading || completed}
           className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-200 transition-all hover:opacity-90 active:scale-[0.99] disabled:cursor-default disabled:opacity-50 disabled:shadow-none"
         >
           {loading ? "…" : completed ? labels.rested : labels.takeRest}
@@ -196,7 +185,8 @@ export function ExerciseLogRenderer({
                   : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
               }`}
             >
-              <span className="mr-1.5">{sportEmojis[key]}</span>{sportLabels[key]}
+              <span className="mr-1.5">{sportEmojis[key]}</span>
+              {sportLabels[key]}
             </button>
           ))}
         </div>
@@ -218,9 +208,7 @@ export function ExerciseLogRenderer({
         </p>
         <div className="flex gap-3">
           <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-xs font-semibold text-on-surface-variant">
-              {labels.hours}
-            </span>
+            <span className="text-xs font-semibold text-on-surface-variant">{labels.hours}</span>
             <input
               type="number"
               min="0"
@@ -232,9 +220,7 @@ export function ExerciseLogRenderer({
             />
           </label>
           <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-xs font-semibold text-on-surface-variant">
-              {labels.minutes}
-            </span>
+            <span className="text-xs font-semibold text-on-surface-variant">{labels.minutes}</span>
             <input
               type="number"
               min="0"

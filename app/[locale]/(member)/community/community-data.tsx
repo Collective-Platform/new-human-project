@@ -3,6 +3,7 @@ import {
   getFriendIds,
   getIncomingRequestIds,
   getSuggestionIds,
+  getSentRequestIdsCached,
   getActivityFeedRows,
   getPublicProfile,
 } from "@/src/features/community";
@@ -38,12 +39,15 @@ export async function CommunityData() {
   const user = await getSessionUser();
   if (!user) return null;
 
-  const [friendIds, requestIds, suggestionIds, feedRows] = await Promise.all([
+  const [friendIds, requestIds, suggestionIds, sentRequestIds, feedRows] = await Promise.all([
     getFriendIds(user.id),
     getIncomingRequestIds(user.id),
     getSuggestionIds(user.id),
+    getSentRequestIdsCached(user.id),
     getActivityFeedRows(user.id),
   ]);
+
+  const sentSet = new Set(sentRequestIds);
 
   const ids = new Set<number>();
   for (const f of friendIds) ids.add(f.id);
@@ -89,11 +93,13 @@ export async function CommunityData() {
             searchHandle: profile?.searchHandle ?? null,
             avatarUrl: profile?.avatarUrl ?? null,
             mutualCount: s.mutualCount,
+            connectionStatus: sentSet.has(s.id) ? ("sent" as const) : ("none" as const),
           };
         }),
         feed: feedRows.flatMap((row) => {
           const profile = profiles.get(row.userId);
           const base = {
+            userId: row.userId,
             displayName: profile?.displayName ?? null,
             searchHandle: profile?.searchHandle ?? null,
             avatarUrl: profile?.avatarUrl ?? null,
@@ -107,9 +113,21 @@ export async function CommunityData() {
               const h = (row.completionData?.hours as number | undefined) ?? 0;
               const m = (row.completionData?.minutes as number | undefined) ?? 0;
               const dur = formatDuration(h, m);
-              return [{ ...base, category: registryTask.category, activity: dur ? `${sport} for ${dur}` : sport }];
+              return [
+                {
+                  ...base,
+                  category: registryTask.category,
+                  activity: dur ? `${sport} for ${dur}` : sport,
+                },
+              ];
             }
-            return [{ ...base, category: registryTask.category, activity: getLocalizedString(registryTask.name, "en") }];
+            return [
+              {
+                ...base,
+                category: registryTask.category,
+                activity: getLocalizedString(registryTask.name, "en"),
+              },
+            ];
           }
 
           if (row.dbTaskType === "exercise") {
@@ -117,7 +135,13 @@ export async function CommunityData() {
             const h = (row.completionData?.hours as number | undefined) ?? 0;
             const m = (row.completionData?.minutes as number | undefined) ?? 0;
             const dur = formatDuration(h, m);
-            return [{ ...base, category: row.dbCategory ?? "Physical", activity: dur ? `${sport} for ${dur}` : sport }];
+            return [
+              {
+                ...base,
+                category: row.dbCategory ?? "Physical",
+                activity: dur ? `${sport} for ${dur}` : sport,
+              },
+            ];
           }
 
           return [];

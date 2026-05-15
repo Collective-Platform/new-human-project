@@ -20,9 +20,13 @@ const BlockEncouragement = dynamic(
 
 export function DashboardClient({
   initialData,
+  calendarMonth,
+  calendarYear,
   children,
 }: {
   initialData: DashboardData;
+  calendarMonth: number;
+  calendarYear: number;
   children?: React.ReactNode;
 }) {
   const t = useTranslations("dashboard");
@@ -38,8 +42,6 @@ export function DashboardClient({
   // To re-enable: add a useEffect([data]) here that checks
   // data?.earnedBadge and data?.blockEndedWithoutCompletion,
   // then calls setShowCelebration / setShowEncouragement accordingly.
-
-  const now = new Date();
 
   return (
     <div className="space-y-4 px-4 pt-4 pb-4">
@@ -85,8 +87,8 @@ export function DashboardClient({
 
       <ActivityCalendar
         data={data.calendar}
-        month={now.getMonth()}
-        year={now.getFullYear()}
+        month={calendarMonth}
+        year={calendarYear}
         title={t("activityCalendar")}
       />
 

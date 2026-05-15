@@ -48,7 +48,12 @@ export function RecentFeed({
   title,
   emptyLabel,
 }: {
-  items: { category: string; name: string; completedAt: string; completionData?: Record<string, unknown> | null }[];
+  items: {
+    category: string;
+    name: string;
+    completedAt: string;
+    completionData?: Record<string, unknown> | null;
+  }[];
   title: string;
   emptyLabel: string;
 }) {

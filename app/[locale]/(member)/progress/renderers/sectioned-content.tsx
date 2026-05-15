@@ -172,11 +172,11 @@ function splitSections(body: string): ParsedSection[] {
 }
 
 const CHINESE_HEADING_SLUGS: Record<string, string> = {
-  "今日焦点": "today-s-focus",
-  "阅读笔记": "reading-notes",
-  "核心信息": "key-idea",
-  "反思时刻": "reflection",
-  "今日操练": "today-s-practice",
+  今日焦点: "today-s-focus",
+  阅读笔记: "reading-notes",
+  核心信息: "key-idea",
+  反思时刻: "reflection",
+  今日操练: "today-s-practice",
   "反思问题：": "question",
   "最后反思：": "final-reflection",
 };

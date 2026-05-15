@@ -1,9 +1,16 @@
-"use client";
-
 import Image from "next/image";
-import { BookOpenText, Smile, SportShoe, CheckCircle, User, type LucideIcon } from "lucide-react";
+import {
+  BookOpenText,
+  Smile,
+  SportShoe,
+  CheckCircle,
+  User,
+  type LucideIcon,
+} from "lucide-react";
+import { Link } from "@/src/i18n/navigation";
 
-interface FeedItem {
+export interface FeedItem {
+  userId: number;
   displayName: string | null;
   searchHandle: string | null;
   avatarUrl: string | null;
@@ -64,7 +71,13 @@ function relativeTime(dateStr: string): string {
   return `${days}d ago`;
 }
 
-export function ActivityFeed({ items }: { items: FeedItem[] }) {
+export function ActivityFeed({
+  items,
+  selfUserId,
+}: {
+  items: FeedItem[];
+  selfUserId?: number;
+}) {
   if (items.length === 0) return null;
 
   return (
@@ -72,39 +85,60 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
       {items.map((item, i) => {
         const style = categoryStyles[item.category] ?? defaultStyle;
         const CategoryIcon = style.Icon;
-        const name = item.searchHandle ? `@${item.searchHandle}` : (item.displayName ?? "User");
+        const isSelf = selfUserId !== undefined && item.userId === selfUserId;
+        const name = item.searchHandle
+          ? `@${item.searchHandle}`
+          : (item.displayName ?? "User");
+        const href = `/community/${item.searchHandle ?? item.userId}`;
+        const avatarNode = (
+          <>
+            {item.avatarUrl ? (
+              <Image
+                src={item.avatarUrl}
+                alt={name}
+                width={56}
+                height={56}
+                unoptimized
+                className="w-14 h-14 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
+                <User size={24} className="text-on-surface-variant" />
+              </div>
+            )}
+            <div
+              className={`absolute -bottom-1 -right-1 ${style.iconBg} p-1.5 rounded-full border-4 border-white`}
+            >
+              <CategoryIcon size={12} className="text-white" />
+            </div>
+          </>
+        );
         return (
           <div
             key={i}
             className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
           >
-            <div className="relative">
-              {item.avatarUrl ? (
-                <Image
-                  src={item.avatarUrl}
-                  alt={name}
-                  width={56}
-                  height={56}
-                  unoptimized
-                  className="w-14 h-14 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
-                  <User size={24} className="text-on-surface-variant" />
-                </div>
-              )}
-              <div
-                className={`absolute -bottom-1 -right-1 ${style.iconBg} p-1.5 rounded-full border-4 border-white`}
-              >
-                <CategoryIcon size={12} className="text-white" />
-              </div>
-            </div>
+            {isSelf ? (
+              <div className="relative shrink-0">{avatarNode}</div>
+            ) : (
+              <Link href={href} className="relative shrink-0">
+                {avatarNode}
+              </Link>
+            )}
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-start">
                 <p className="text-on-surface text-sm">
-                  <span className="font-bold">{name}</span>{" "}
+                  {isSelf ? (
+                    <span className="font-bold">You</span>
+                  ) : (
+                    <Link href={href} className="font-bold hover:underline">
+                      {name}
+                    </Link>
+                  )}{" "}
                   <span className="text-on-surface-variant">completed</span>{" "}
-                  <span className={`font-semibold ${style.accentText}`}>{item.activity}</span>
+                  <span className={`font-semibold ${style.accentText}`}>
+                    {item.activity}
+                  </span>
                 </p>
                 <span className="text-[10px] font-bold text-outline uppercase tracking-tighter shrink-0 ml-2">
                   {relativeTime(item.completedAt)}

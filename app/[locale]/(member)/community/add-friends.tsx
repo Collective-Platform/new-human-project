@@ -30,11 +30,16 @@ function useDebounced<T>(value: T, ms = 250): T {
   return debounced;
 }
 
-export function AddFriends({ onRequestSent }: { onRequestSent: () => void }) {
+export function AddFriends({
+  onRequestSent,
+  onCancel,
+}: {
+  onRequestSent: () => void;
+  onCancel?: () => void;
+}) {
   const t = useTranslations("community");
   const [query, setQuery] = useState("");
-  const [sentIds, setSentIds] = useState<Set<number>>(new Set());
-  const [friendIds, setFriendIds] = useState<Set<number>>(new Set());
+  const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
 
   // Strip a leading "@" so users can paste "@alice" or type "alice"
   const normalized = query.trim().replace(/^@+/, "");
@@ -49,18 +54,16 @@ export function AddFriends({ onRequestSent }: { onRequestSent: () => void }) {
 
   const results = data?.results ?? [];
 
-  useEffect(() => {
-    if (!data) return;
-    setSentIds(new Set(data.results.filter((r) => r.connectionStatus === "sent").map((r) => r.id)));
-    setFriendIds(
-      new Set(data.results.filter((r) => r.connectionStatus === "friends").map((r) => r.id)),
-    );
-  }, [data]);
+  function getStatus(user: SearchResult): "friends" | "sent" | "none" {
+    if (user.connectionStatus === "friends") return "friends";
+    if (user.connectionStatus === "sent" || addedIds.has(user.id)) return "sent";
+    return "none";
+  }
 
   async function handleAdd(userId: number) {
     const result = await requestFriend({ receiverId: userId });
     if (!("error" in result)) {
-      setSentIds((prev) => new Set(prev).add(userId));
+      setAddedIds((prev) => new Set(prev).add(userId));
       onRequestSent();
     }
   }
@@ -68,21 +71,32 @@ export function AddFriends({ onRequestSent }: { onRequestSent: () => void }) {
   return (
     <div className="space-y-4">
       {/* Search input */}
-      <div className="relative">
-        <Search
-          size={20}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
-        />
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search username (e.g. alice)…"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-          className="w-full rounded-xl border border-outline-variant bg-white py-3 pl-11 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant outline-none focus:ring-2 focus:ring-primary/30"
-        />
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search
+            size={20}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
+          />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search username (e.g. alice)…"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            autoFocus
+            className="w-full rounded-xl border border-outline-variant bg-white py-3 pl-11 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant outline-none focus:ring-2 focus:ring-primary/30"
+          />
+        </div>
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="shrink-0 text-primary font-bold font-headline active:scale-95 transition-transform"
+          >
+            Cancel
+          </button>
+        )}
       </div>
 
       {isLoading && (
@@ -125,21 +139,26 @@ export function AddFriends({ onRequestSent }: { onRequestSent: () => void }) {
                   <p className="text-xs text-on-surface-variant mt-0.5">@{user.searchHandle}</p>
                 )}
               </div>
-              <button
-                onClick={() => handleAdd(user.id)}
-                disabled={sentIds.has(user.id) || friendIds.has(user.id)}
-                className={`rounded-full px-4 py-1.5 text-xs font-bold transition-opacity shrink-0 ${
-                  sentIds.has(user.id) || friendIds.has(user.id)
-                    ? "bg-surface-container-highest text-on-surface-variant"
-                    : "bg-on-surface text-surface hover:opacity-90"
-                }`}
-              >
-                {friendIds.has(user.id)
-                  ? t("friends")
-                  : sentIds.has(user.id)
-                    ? t("requestSent")
-                    : t("addFriend")}
-              </button>
+              {(() => {
+                const status = getStatus(user);
+                return (
+                  <button
+                    onClick={() => handleAdd(user.id)}
+                    disabled={status !== "none"}
+                    className={`rounded-full px-4 py-1.5 text-xs font-bold transition-opacity shrink-0 ${
+                      status !== "none"
+                        ? "bg-surface-container-highest text-on-surface-variant"
+                        : "bg-on-surface text-surface hover:opacity-90"
+                    }`}
+                  >
+                    {status === "friends"
+                      ? t("friends")
+                      : status === "sent"
+                        ? t("requestSent")
+                        : t("addFriend")}
+                  </button>
+                );
+              })()}
             </div>
           ))}
         </div>

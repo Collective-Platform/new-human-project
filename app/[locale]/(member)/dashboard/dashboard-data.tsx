@@ -19,5 +19,14 @@ export async function DashboardData({
     locale,
     currentDay,
   );
-  return <DashboardClient initialData={initialData}>{children}</DashboardClient>;
+  const now = new Date();
+  return (
+    <DashboardClient
+      initialData={initialData}
+      calendarMonth={now.getMonth()}
+      calendarYear={now.getFullYear()}
+    >
+      {children}
+    </DashboardClient>
+  );
 }

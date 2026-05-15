@@ -12,6 +12,7 @@ interface Suggestion {
   searchHandle: string | null;
   avatarUrl: string | null;
   mutualCount: number;
+  connectionStatus: "sent" | "none";
 }
 
 export function PeopleYouMayKnow({
@@ -22,7 +23,9 @@ export function PeopleYouMayKnow({
   onAdd: () => void;
 }) {
   const t = useTranslations("community");
-  const [sentIds, setSentIds] = useState<Set<number>>(new Set());
+  const [sentIds, setSentIds] = useState<Set<number>>(
+    () => new Set(suggestions.filter((s) => s.connectionStatus === "sent").map((s) => s.id)),
+  );
   const [dismissedIds, setDismissedIds] = useState<Set<number>>(new Set());
 
   async function handleAdd(userId: number) {

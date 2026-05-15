@@ -7,6 +7,11 @@ export {
   searchUsers,
   getPeopleYouMayKnow,
   getActivityFeed,
+  removeFriendInDb,
+  cancelFriendRequest,
+  getSentRequestIds,
+  getUserActivities,
+  getPublicProfileByHandle,
 } from "./queries";
 export {
   getFriendIds,
@@ -14,4 +19,8 @@ export {
   getSuggestionIds,
   getActivityFeedRows,
   getPublicProfile,
+  getPublicProfileByHandleCached,
+  getSentRequestIdsCached,
+  getUserActivitiesCached,
 } from "./cached";
+export { withdrawFriendRequest } from "./actions";
