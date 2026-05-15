@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
+import { Link } from "@/src/i18n/navigation";
 import { requestFriend } from "@/src/features/community/actions";
 
 interface Suggestion {
@@ -59,25 +60,27 @@ export function PeopleYouMayKnow({
             >
               <X size={14} />
             </button>
-            {s.avatarUrl ? (
-              <Image
-                src={s.avatarUrl}
-                alt={suggestionName}
-                width={80}
-                height={80}
-                unoptimized
-                className="w-20 h-20 rounded-full object-cover mb-3"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-full bg-surface-container-highest flex items-center justify-center mb-3">
-                <span className="text-2xl font-bold text-on-surface-variant font-headline">
-                  {suggestionName.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
-            <p className="font-bold text-sm truncate w-full mb-0.5 text-on-surface">
-              {suggestionName}
-            </p>
+            <Link href={`/community/${s.searchHandle ?? s.id}`} className="contents">
+              {s.avatarUrl ? (
+                <Image
+                  src={s.avatarUrl}
+                  alt={suggestionName}
+                  width={80}
+                  height={80}
+                  unoptimized
+                  className="w-20 h-20 rounded-full object-cover mb-3"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-surface-container-highest flex items-center justify-center mb-3">
+                  <span className="text-2xl font-bold text-on-surface-variant font-headline">
+                    {suggestionName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <p className="font-bold text-sm truncate w-full mb-0.5 text-on-surface">
+                {suggestionName}
+              </p>
+            </Link>
             <p className="text-xs text-on-surface-variant mb-4">
               {t("mutualFriend", { count: s.mutualCount })}
             </p>

@@ -156,8 +156,11 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
 
       {/* Unfriend confirmation dialog */}
       {pendingRemove && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          onClick={() => setPendingRemove(null)}
+        >
+          <div className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5" onClick={(e) => e.stopPropagation()}>
             <div>
               <h3 className="font-headline font-bold text-lg text-primary">Unfriend?</h3>
               <p className="text-sm text-on-surface-variant mt-1">
