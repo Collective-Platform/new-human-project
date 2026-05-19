@@ -17,8 +17,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState<"handle" | "install">("handle");
 
   // Install prompt state
-  const [installPrompt, setInstallPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS] = useState(
     () =>
       typeof window !== "undefined" &&
@@ -26,13 +25,9 @@ export default function OnboardingPage() {
       !("MSStream" in window),
   );
   const [isStandalone] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(display-mode: standalone)").matches,
+    () => typeof window !== "undefined" && window.matchMedia("(display-mode: standalone)").matches,
   );
-  const [notifStatus, setNotifStatus] = useState<"idle" | "granted" | "denied">(
-    "idle",
-  );
+  const [notifStatus, setNotifStatus] = useState<"idle" | "granted" | "denied">("idle");
 
   const normalized = handle.trim().toLowerCase();
   const isValid = HANDLE_REGEX.test(normalized);
@@ -110,12 +105,8 @@ export default function OnboardingPage() {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📱</span>
                 <div>
-                  <p className="font-semibold text-sm text-foreground">
-                    Add to Home Screen
-                  </p>
-                  <p className="text-xs text-foreground/60">
-                    Access the app like a native app
-                  </p>
+                  <p className="font-semibold text-sm text-foreground">Add to Home Screen</p>
+                  <p className="text-xs text-foreground/60">Access the app like a native app</p>
                 </div>
               </div>
               {isIOS ? (
@@ -140,9 +131,7 @@ export default function OnboardingPage() {
               <div className="flex items-center gap-3">
                 <Bell size={24} className="text-primary" />
                 <div>
-                  <p className="font-semibold text-sm text-foreground">
-                    Enable Notifications
-                  </p>
+                  <p className="font-semibold text-sm text-foreground">Enable Notifications</p>
                   <p className="text-xs text-foreground/60">
                     Get notified about friend requests and activity
                   </p>
@@ -155,8 +144,7 @@ export default function OnboardingPage() {
                 </div>
               ) : notifStatus === "denied" ? (
                 <p className="text-xs text-foreground/40">
-                  Blocked — you can enable notifications later in your browser
-                  settings.
+                  Blocked — you can enable notifications later in your browser settings.
                 </p>
               ) : (
                 <button
@@ -189,14 +177,10 @@ export default function OnboardingPage() {
         <h1 className="text-3xl font-bold font-headline text-foreground">
           {t("pickUsernameTitle")}
         </h1>
-        <p className="text-foreground/60 leading-relaxed">
-          {t("pickUsernameSubtitle")}
-        </p>
+        <p className="text-foreground/60 leading-relaxed">{t("pickUsernameSubtitle")}</p>
 
         <div className="relative text-left">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40">
-            @
-          </span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40">@</span>
           <input
             type="text"
             value={handle}
@@ -227,9 +211,7 @@ export default function OnboardingPage() {
             {error}
           </p>
         ) : (
-          <p className="text-xs text-foreground/40 text-left">
-            {t("usernameRules")}
-          </p>
+          <p className="text-xs text-foreground/40 text-left">{t("usernameRules")}</p>
         )}
       </div>
 

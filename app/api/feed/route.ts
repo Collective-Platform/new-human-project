@@ -7,8 +7,20 @@ import { getLocalizedString } from "@/src/features/content";
 const PAGE_SIZE = 10;
 
 const sportLabels: Record<string, Record<string, string>> = {
-  en: { badminton: "Badminton", run: "Run", pickleball: "Pickleball", swimming: "Swimming", pilates: "Pilates" },
-  zh: { badminton: "羽毛球", run: "跑步", pickleball: "匹克球", swimming: "游泳", pilates: "普拉提" },
+  en: {
+    badminton: "Badminton",
+    run: "Run",
+    pickleball: "Pickleball",
+    swimming: "Swimming",
+    pilates: "Pilates",
+  },
+  zh: {
+    badminton: "羽毛球",
+    run: "跑步",
+    pickleball: "匹克球",
+    swimming: "游泳",
+    pilates: "普拉提",
+  },
 };
 
 const exerciseFallback: Record<string, string> = { en: "Exercise", zh: "运动" };

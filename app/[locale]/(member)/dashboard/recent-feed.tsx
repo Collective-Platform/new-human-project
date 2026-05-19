@@ -68,7 +68,8 @@ export function RecentFeed({
                   className="truncate text-xs font-medium text-on-surface-variant"
                   suppressHydrationWarning
                 >
-                  {categoryLabels[item.category] ?? item.category} · {relativeTime(item.completedAt, t)}
+                  {categoryLabels[item.category] ?? item.category} ·{" "}
+                  {relativeTime(item.completedAt, t)}
                 </p>
               </div>
               <ChevronRight

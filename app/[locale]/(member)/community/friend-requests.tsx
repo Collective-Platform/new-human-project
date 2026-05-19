@@ -40,9 +40,7 @@ export function FriendRequests({
   return (
     <div className="flex flex-col gap-4">
       {visible.map((req) => {
-        const requesterName = req.searchHandle
-          ? `@${req.searchHandle}`
-          : (req.displayName ?? "User");
+        const requesterName = req.searchHandle ? `@${req.searchHandle}` : "User";
 
         return (
           <div

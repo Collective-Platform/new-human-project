@@ -79,7 +79,9 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
             </button>
           )}
 
-          <h2 className="font-headline font-bold text-on-surface">{t("friendsCount", { count: visible.length })}</h2>
+          <h2 className="font-headline font-bold text-on-surface">
+            {t("friendsCount", { count: visible.length })}
+          </h2>
 
           <div className="flex justify-end">
             {editing ? (
@@ -111,9 +113,7 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
         ) : (
           <div className="space-y-3">
             {visible.map((friend) => {
-              const name = friend.searchHandle
-                ? `@${friend.searchHandle}`
-                : (friend.displayName ?? "User");
+              const name = friend.searchHandle ? `@${friend.searchHandle}` : "User";
 
               return (
                 <div
@@ -162,7 +162,10 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           onClick={() => setPendingRemove(null)}
         >
-          <div className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div>
               <h3 className="font-headline font-bold text-lg text-primary">{t("unfriendTitle")}</h3>
               <p className="text-sm text-on-surface-variant mt-1">

@@ -82,7 +82,6 @@ export function ProfileClient({
           </section>
         )}
       </main>
-
     </div>
   );
 }

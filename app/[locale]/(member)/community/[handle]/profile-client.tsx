@@ -69,8 +69,7 @@ export function ProfileClient({
   const [sentIds, setSentIds] = useState<Set<number>>(new Set());
   const [localStatus, setLocalStatus] = useState(connectionStatus);
 
-  const displayName = profile.displayName ?? profile.searchHandle ?? "User";
-  const handle = profile.searchHandle ? `@${profile.searchHandle}` : displayName;
+  const handle = profile.searchHandle ? `@${profile.searchHandle}` : "User";
 
   return (
     <div className="min-h-screen bg-surface antialiased">
@@ -142,7 +141,7 @@ export function ProfileClient({
             </div>
             <div className="relative shrink-0">
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-surface shadow-xl flex items-center justify-center">
-                <Avatar url={profile.avatarUrl} name={displayName} size={96} />
+                <Avatar url={profile.avatarUrl} name={handle} size={96} />
               </div>
             </div>
           </div>
@@ -179,7 +178,7 @@ export function ProfileClient({
             <div>
               <h3 className="font-headline font-bold text-lg text-primary">{t("unfriendTitle")}</h3>
               <p className="text-sm text-on-surface-variant mt-1">
-                {t("unfriendConfirm", { name: displayName })}
+                {t("unfriendConfirm", { name: handle })}
               </p>
             </div>
             <div className="flex gap-3">
@@ -233,7 +232,7 @@ export function ProfileClient({
             ) : (
               <div className="overflow-y-auto max-h-96 px-4 pb-5 space-y-3">
                 {friends.map((f) => {
-                  const name = f.searchHandle ? `@${f.searchHandle}` : (f.displayName ?? "User");
+                  const name = f.searchHandle ? `@${f.searchHandle}` : "User";
                   const popupStatus = sentIds.has(f.id) ? "sent" : f.connectionStatus;
                   return (
                     <div key={f.id} className="flex items-center gap-3">

@@ -2,14 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import {
-  BookOpenText,
-  Smile,
-  SportShoe,
-  CheckCircle,
-  User,
-  type LucideIcon,
-} from "lucide-react";
+import { BookOpenText, Smile, SportShoe, CheckCircle, User, type LucideIcon } from "lucide-react";
 import { Link } from "@/src/i18n/navigation";
 
 export interface FeedItem {
@@ -76,13 +69,7 @@ function relativeTime(dateStr: string, t: TFn): string {
   return t("daysAgo", { days });
 }
 
-export function ActivityFeed({
-  items,
-  selfUserId,
-}: {
-  items: FeedItem[];
-  selfUserId?: number;
-}) {
+export function ActivityFeed({ items, selfUserId }: { items: FeedItem[]; selfUserId?: number }) {
   const t = useTranslations("community");
   const tProgress = useTranslations("progress");
 
@@ -100,9 +87,7 @@ export function ActivityFeed({
         const style = categoryStyles[item.category] ?? defaultStyle;
         const CategoryIcon = style.Icon;
         const isSelf = selfUserId !== undefined && item.userId === selfUserId;
-        const name = item.searchHandle
-          ? `@${item.searchHandle}`
-          : (item.displayName ?? "User");
+        const name = item.searchHandle ? `@${item.searchHandle}` : "User";
         const href = `/community/${item.searchHandle ?? item.userId}`;
         const avatarNode = (
           <>
@@ -150,9 +135,7 @@ export function ActivityFeed({
                     </Link>
                   )}{" "}
                   <span className="text-on-surface-variant">{t("completedActivity")}</span>{" "}
-                  <span className={`font-semibold ${style.accentText}`}>
-                    {item.activity}
-                  </span>
+                  <span className={`font-semibold ${style.accentText}`}>{item.activity}</span>
                 </p>
                 <span className="text-[10px] font-bold text-outline uppercase tracking-tighter shrink-0 ml-2">
                   {relativeTime(item.completedAt, t)}

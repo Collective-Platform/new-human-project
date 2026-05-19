@@ -4,18 +4,13 @@ import { useEffect, useState } from "react";
 import { subscribeToPush } from "@/src/features/notifications/subscribe";
 
 export function SwRegister() {
-  const [installPrompt, setInstallPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS] = useState(
-    () =>
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window),
+    () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window),
   );
-  const [isStandalone] = useState(
-    () => window.matchMedia("(display-mode: standalone)").matches,
-  );
+  const [isStandalone] = useState(() => window.matchMedia("(display-mode: standalone)").matches);
   const [showA2HS, setShowA2HS] = useState(() => {
-    const ios =
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window);
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window);
     const standalone = window.matchMedia("(display-mode: standalone)").matches;
     return ios && !standalone && !localStorage.getItem("a2hs-dismissed");
   });
@@ -27,8 +22,7 @@ export function SwRegister() {
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
   useEffect(() => {
@@ -38,10 +32,7 @@ export function SwRegister() {
       navigator.serviceWorker
         .register("/sw.js", { updateViaCache: "none" })
         .then(async (registration) => {
-          if (
-            "Notification" in window &&
-            Notification.permission === "default"
-          ) {
+          if ("Notification" in window && Notification.permission === "default") {
             const permission = await Notification.requestPermission();
             if (permission === "granted" && registration.pushManager) {
               subscribeToPush(registration);
@@ -96,17 +87,13 @@ export function SwRegister() {
       <div className="flex items-center gap-3">
         <span className="text-2xl">📱</span>
         <div className="flex-1">
-          <p className="font-headline text-sm font-semibold text-foreground">
-            Add to Home Screen
-          </p>
+          <p className="font-headline text-sm font-semibold text-foreground">Add to Home Screen</p>
           {isIOS ? (
             <p className="text-xs text-foreground/60">
               Tap the share icon ⎋ then &quot;Add to Home Screen&quot; ➕
             </p>
           ) : (
-            <p className="text-xs text-foreground/60">
-              Install for the best experience
-            </p>
+            <p className="text-xs text-foreground/60">Install for the best experience</p>
           )}
         </div>
         {!isIOS && (

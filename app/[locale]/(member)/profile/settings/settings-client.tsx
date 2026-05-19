@@ -3,7 +3,17 @@
 import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/src/i18n/navigation";
-import { ArrowLeft, Bell, Clock, UserPlus, Eye, Smartphone, Camera, User, type LucideIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  Bell,
+  Clock,
+  UserPlus,
+  Eye,
+  Smartphone,
+  Camera,
+  User,
+  type LucideIcon,
+} from "lucide-react";
 import NextImage from "next/image";
 import { updateProfile } from "@/src/features/profile/actions";
 import { subscribeToPush, getPushSubscription } from "@/src/features/notifications/subscribe";
@@ -58,7 +68,6 @@ export function SettingsClient() {
 
   // Profile fields
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState("");
   const [handleValue, setHandleValue] = useState("");
   const [email, setEmail] = useState("");
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -84,7 +93,6 @@ export function SettingsClient() {
       .then((data) => {
         if (data) {
           setAvatarUrl(data.user.avatarUrl ?? null);
-          setDisplayName(data.user.displayName ?? "");
           setHandleValue(data.user.searchHandle ?? "");
           setEmail(data.user.email ?? "");
           setPrefs(data.user.notificationPrefs);
@@ -160,7 +168,6 @@ export function SettingsClient() {
     setSavingProfile(true);
     try {
       const result = await updateProfile({
-        displayName: displayName.trim() || undefined,
         searchHandle: trimmedHandle || undefined,
       });
       if ("error" in result) {
@@ -251,24 +258,13 @@ export function SettingsClient() {
           </div>
         </div>
 
-        {/* Display name */}
-        <div className="px-4 py-3.5 space-y-1">
-          <label className="text-xs text-foreground/50">Display name</label>
-          <input
-            type="text"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            maxLength={50}
-            placeholder="Your name"
-            className="w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-          />
-        </div>
-
         {/* Username */}
         <div className="px-4 py-3.5 space-y-1">
           <label className="text-xs text-foreground/50">Username</label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-foreground/40">@</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-foreground/40">
+              @
+            </span>
             <input
               type="text"
               value={handleValue}

@@ -28,7 +28,9 @@ export function FoundationCard() {
         <p className="mb-2 text-[10px] font-extrabold uppercase tracking-widest text-primary">
           {t("theFoundation")}
         </p>
-        <h3 className="mb-4 font-headline text-2xl font-bold text-on-surface">{t("the25DayBlock")}</h3>
+        <h3 className="mb-4 font-headline text-2xl font-bold text-on-surface">
+          {t("the25DayBlock")}
+        </h3>
         <p className="mb-6 text-sm leading-relaxed text-on-surface-variant">
           {t("foundationDescription")}
         </p>

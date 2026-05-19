@@ -85,7 +85,9 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
     isLoadingRef.current = true;
     setIsLoadingMore(true);
     try {
-      const res = await fetch(`/api/feed?cursor=${encodeURIComponent(cursorRef.current)}&locale=${locale}`);
+      const res = await fetch(
+        `/api/feed?cursor=${encodeURIComponent(cursorRef.current)}&locale=${locale}`,
+      );
       if (!res.ok) return;
       const data: { items: FeedItem[]; nextCursor: string | null } = await res.json();
       setFeedItems((prev) => [...prev, ...data.items]);

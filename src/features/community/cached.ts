@@ -11,6 +11,15 @@ export async function getFriendIds(
   cacheTag(`friends:${userId}`);
 
   const result = await db.execute(sql`
+    WITH unique_friends AS (
+      SELECT DISTINCT CASE
+        WHEN sender_id = ${userId} THEN receiver_id
+        ELSE sender_id
+      END AS friend_id
+      FROM nhp.friend_requests
+      WHERE status = 'accepted'
+        AND (sender_id = ${userId} OR receiver_id = ${userId})
+    )
     SELECT
       u.id,
       (
@@ -20,13 +29,8 @@ export async function getFriendIds(
         ORDER BY tc.completed_at DESC
         LIMIT 1
       ) AS last_activity
-    FROM nhp.friend_requests fr
-    JOIN nhp.users u ON u.id = CASE
-      WHEN fr.sender_id = ${userId} THEN fr.receiver_id
-      ELSE fr.sender_id
-    END
-    WHERE fr.status = 'accepted'
-      AND (fr.sender_id = ${userId} OR fr.receiver_id = ${userId})
+    FROM unique_friends uf
+    JOIN nhp.users u ON u.id = uf.friend_id
     ORDER BY u.search_handle, u.display_name
   `);
 

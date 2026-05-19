@@ -47,7 +47,7 @@ export function PeopleYouMayKnow({
   return (
     <div className="flex overflow-x-auto gap-4 scrollbar-none -mx-6 px-6 pb-2">
       {visible.map((s) => {
-        const suggestionName = s.searchHandle ? `@${s.searchHandle}` : (s.displayName ?? "User");
+        const suggestionName = s.searchHandle ? `@${s.searchHandle}` : "User";
 
         return (
           <div

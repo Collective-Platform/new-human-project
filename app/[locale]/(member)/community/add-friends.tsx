@@ -120,7 +120,7 @@ export function AddFriends({
               {user.avatarUrl ? (
                 <Image
                   src={user.avatarUrl}
-                  alt={user.displayName ?? ""}
+                  alt={user.searchHandle ?? ""}
                   width={56}
                   height={56}
                   unoptimized
@@ -133,11 +133,8 @@ export function AddFriends({
               )}
               <div className="flex-1 min-w-0">
                 <p className="truncate font-headline text-sm font-bold text-on-surface">
-                  {user.displayName ?? "User"}
+                  {user.searchHandle ? `@${user.searchHandle}` : "User"}
                 </p>
-                {user.searchHandle && (
-                  <p className="text-xs text-on-surface-variant mt-0.5">@{user.searchHandle}</p>
-                )}
               </div>
               {(() => {
                 const status = getStatus(user);
