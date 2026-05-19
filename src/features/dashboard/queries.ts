@@ -204,6 +204,7 @@ export async function getDayCompletions(
   userId: number,
   date: Date,
   onboardedAt: Date,
+  locale = "en",
 ): Promise<
   { completedAt: Date; category: string; name: string; taskType: string; data: unknown }[]
 > {
@@ -234,7 +235,7 @@ export async function getDayCompletions(
     if (!task) continue;
     const dayNumber = task.day;
     const category = task.category;
-    const name = getLocalizedString(task.name, "en");
+    const name = getLocalizedString(task.name, locale);
     const taskType = task.type;
     const displayOrder = task.order;
 

@@ -6,6 +6,7 @@ import { env } from "@/src/env";
  */
 const BOOK_TO_USFM: Record<string, string> = {
   ephesians: "EPH",
+  acts: "ACT",
 };
 
 /**
@@ -14,12 +15,21 @@ const BOOK_TO_USFM: Record<string, string> = {
  */
 export function referenceToUsfm(reference: string): string | null {
   const trimmed = reference.trim();
-  // Capture: book name, chapter, start verse, optional end verse
-  const match = trimmed.match(/^([1-3]?\s*[A-Za-z]+)\s+(\d+):(\d+)(?:\s*-\s*(\d+))?$/);
-  if (!match) return null;
-  const [, bookRaw, chapter, startVerse, endVerse] = match;
-  const bookKey = bookRaw.replace(/\s+/g, "").toLowerCase();
-  const usfmBook = BOOK_TO_USFM[bookKey];
+
+  // Whole-chapter reference: "Acts 19"
+  const chapterMatch = trimmed.match(/^([1-3]?\s*[A-Za-z]+)\s+(\d+)$/);
+  if (chapterMatch) {
+    const [, bookRaw, chapter] = chapterMatch;
+    const usfmBook = BOOK_TO_USFM[bookRaw.replace(/\s+/g, "").toLowerCase()];
+    if (!usfmBook) return null;
+    return `${usfmBook}.${chapter}`;
+  }
+
+  // Verse reference: "Ephesians 1:1-2" or "Ephesians 1:1"
+  const verseMatch = trimmed.match(/^([1-3]?\s*[A-Za-z]+)\s+(\d+):(\d+)(?:\s*-\s*(\d+))?$/);
+  if (!verseMatch) return null;
+  const [, bookRaw, chapter, startVerse, endVerse] = verseMatch;
+  const usfmBook = BOOK_TO_USFM[bookRaw.replace(/\s+/g, "").toLowerCase()];
   if (!usfmBook) return null;
   return endVerse
     ? `${usfmBook}.${chapter}.${startVerse}-${endVerse}`
@@ -56,6 +66,8 @@ async function fetchPassage(bibleId: string, usfm: string): Promise<PassageResul
     content: data.content,
   };
 }
+
+export { localizeScriptureRef } from "./localize";
 
 export interface BilingualPassage {
   en: PassageResult | null;

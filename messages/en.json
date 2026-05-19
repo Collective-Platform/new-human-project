@@ -1,5 +1,6 @@
 {
   "nav": {
+    "appName": "Rhythm",
     "home": "Home",
     "progress": "Progress",
     "community": "Community",
@@ -12,7 +13,8 @@
     "recentLogs": "Recent Logs",
     "noRecentActivity": "No recent activity",
     "last7Days": "Last 7 days",
-    "last30Days": "Last 30 days"
+    "last30Days": "Last 30 days",
+    "noCompletions": "No completions for this day"
   },
   "progress": {
     "dayLabel": "Day {day}",
@@ -25,7 +27,10 @@
     "moodLog": "Mood Log",
     "exercise": "Exercise",
     "done": "Done",
-    "completed": "Completed"
+    "completed": "Completed",
+    "today": "Today",
+    "onTrack": "On Track!",
+    "missedDays": "{count} missed {count, plural, one {day} other {days}}"
   },
   "mood": {
     "pickEmoji": "How are you feeling today?",

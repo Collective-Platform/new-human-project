@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getSessionUser } from "@/src/features/auth";
 import { getDayCompletions } from "@/src/features/dashboard";
 
@@ -8,6 +9,31 @@ const categoryDotColor: Record<string, string> = {
   Physical: "bg-category-physical border border-[#d4c8a0]",
 };
 
+function formatDate(date: Date, locale: string): string {
+  if (locale === "zh") {
+    const weekday = date.toLocaleDateString("zh-CN", { weekday: "long" });
+    const day = date.toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    return `${weekday}，${day}`;
+  }
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function formatTime(date: Date, locale: string): string {
+  return date.toLocaleTimeString(locale === "zh" ? "zh-CN" : "en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 export async function CalendarDayData({ locale, dateStr }: { locale: string; dateStr: string }) {
   const user = await getSessionUser();
   if (!user) redirect(`/${locale}/login`);
@@ -16,22 +42,25 @@ export async function CalendarDayData({ locale, dateStr }: { locale: string; dat
   const date = new Date(dateStr + "T00:00:00");
   if (isNaN(date.getTime())) redirect(`/${locale}`);
 
-  const completions = await getDayCompletions(user.id, date, user.onboardedAt);
+  const [completions, t, tProgress] = await Promise.all([
+    getDayCompletions(user.id, date, user.onboardedAt, locale),
+    getTranslations("dashboard"),
+    getTranslations("progress"),
+  ]);
 
-  const formatted = date.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const categoryLabels: Record<string, string> = {
+    Mental: tProgress("mental"),
+    Emotional: tProgress("emotional"),
+    Physical: tProgress("physical"),
+  };
 
   return (
     <>
-      <h1 className="font-headline text-lg font-bold">{formatted}</h1>
+      <h1 className="font-headline text-lg font-bold">{formatDate(date, locale)}</h1>
 
       {completions.length === 0 ? (
         <div className="rounded-md bg-white p-6 shadow-card text-center text-sm text-foreground/50">
-          No completions for this day
+          {t("noCompletions")}
         </div>
       ) : (
         <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
@@ -42,14 +71,11 @@ export async function CalendarDayData({ locale, dateStr }: { locale: string; dat
               />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-foreground">{item.name}</p>
-                <p className="text-xs text-foreground/50">{item.category}</p>
+                <p className="text-xs text-foreground/50">
+                  {categoryLabels[item.category] ?? item.category}
+                </p>
               </div>
-              <span className="text-xs text-foreground/40">
-                {item.completedAt.toLocaleTimeString("en-US", {
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
-              </span>
+              <span className="text-xs text-foreground/40">{formatTime(item.completedAt, locale)}</span>
             </div>
           ))}
         </div>

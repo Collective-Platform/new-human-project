@@ -1,5 +1,6 @@
 {
   "nav": {
+    "appName": "节奏",
     "home": "首页",
     "progress": "进度",
     "community": "社区",
@@ -12,12 +13,13 @@
     "recentLogs": "最近记录",
     "noRecentActivity": "暂无近期活动",
     "last7Days": "最近 7 天",
-    "last30Days": "最近 30 天"
+    "last30Days": "最近 30 天",
+    "noCompletions": "这一天没有完成任何活动"
   },
   "progress": {
-    "dayLabel": "第 {day} 天",
+    "dayLabel": "第{day}天",
     "blockLabel": "第 {block} 阶段",
-    "mental": "心智",
+    "mental": "心理",
     "emotional": "情绪",
     "physical": "身体",
     "memorise": "背诵 {reference}",
@@ -25,7 +27,10 @@
     "moodLog": "心情记录",
     "exercise": "运动",
     "done": "完成",
-    "completed": "已完成"
+    "completed": "已完成",
+    "today": "今天",
+    "onTrack": "按时进行！",
+    "missedDays": "延误 {count} 天"
   },
   "mood": {
     "pickEmoji": "你今天感觉怎么样？",
@@ -66,9 +71,9 @@
   },
   "community": {
     "friends": "朋友",
-    "addFriends": "添加朋友",
+    "addFriends": "添加好友",
     "peopleYouMayKnow": "你可能认识的人",
-    "addFriend": "添加朋友",
+    "addFriend": "添加好友",
     "requestSent": "已发送",
     "mutualFriend": "{count} 个共同好友",
     "completed": "已完成",

@@ -9,6 +9,7 @@ import { MoodLogRenderer } from "./renderers/mood-log";
 import { ExerciseLogRenderer } from "./renderers/exercise-log";
 import { BilingualPassage } from "./renderers/bilingual-passage";
 import { SectionedContentRenderer } from "./renderers/sectioned-content";
+import { localizeScriptureRef } from "@/src/features/bible/localize";
 
 interface TaskData {
   id: string;
@@ -190,7 +191,8 @@ export function TaskDetail({
           <div className="space-y-6">
             <div>
               <p className="mb-3 font-headline text-lg font-bold text-foreground">
-                {(content.scripture_reference as string) ?? ""}
+                {(content.prefetched_passage as { reference: string; content: string } | null)?.reference
+                  ?? localizeScriptureRef((content.scripture_reference as string) ?? "", locale)}
               </p>
               <BilingualPassage
                 passage={

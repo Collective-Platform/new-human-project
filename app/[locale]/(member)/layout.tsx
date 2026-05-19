@@ -23,7 +23,7 @@ export default async function MemberLayout({
           fallback={
             <header className="sticky top-0 z-40 bg-white">
               <div className="mx-auto flex max-w-93.75 items-center justify-between px-4 py-3">
-                <div className="flex items-center font-bold text-xl">Rhythm</div>
+                <div className="flex items-center font-bold text-xl">{locale === "zh" ? "节奏" : "Rhythm"}</div>
               </div>
             </header>
           }

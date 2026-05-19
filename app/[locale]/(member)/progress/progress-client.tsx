@@ -12,6 +12,15 @@ import { completeTask, uncompleteTask } from "@/src/features/tasks/actions";
 type TaskData = ProgressPayload["tasks"][number];
 type ProgressData = ProgressPayload;
 
+function toChineseNumeral(n: number): string {
+  const ones = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+  if (n <= 9) return ones[n];
+  if (n === 10) return "十";
+  if (n < 20) return "十" + ones[n % 10];
+  if (n === 20) return "二十";
+  return "二十" + ones[n % 10];
+}
+
 export function ProgressClient({
   locale,
   initialData,
@@ -255,22 +264,26 @@ export function ProgressClient({
         onPrefetch={prefetchDay}
         blockStartDate={data.blockStartDate}
         currentDay={data.currentDay}
+        locale={locale}
+        todayLabel={t("today")}
       />
 
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-extrabold tracking-tight text-foreground font-['Plus_Jakarta_Sans']">
-          {t("dayLabel", { day: selectedDay })} of 25
+          {locale === "zh"
+            ? t("dayLabel", { day: toChineseNumeral(selectedDay) })
+            : t("dayLabel", { day: selectedDay })}
         </h2>
         {data.missedDays > 0 ? (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
             <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">
-              {data.missedDays} missed {data.missedDays === 1 ? "day" : "days"}
+              {t("missedDays", { count: data.missedDays })}
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
             <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">
-              On Track!
+              {t("onTrack")}
             </span>
           </div>
         )}

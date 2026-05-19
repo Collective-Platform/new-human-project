@@ -9,24 +9,17 @@ interface DayInfo {
 }
 
 const MONTH_NAMES = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-function getDateForDay(blockStartDate: string, day: number): string {
+function getDateForDay(blockStartDate: string, day: number, locale: string): string {
   const start = new Date(blockStartDate);
   const date = new Date(start);
   date.setDate(start.getDate() + (day - 1));
+  if (locale === "zh") {
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
+  }
   return `${MONTH_NAMES[date.getMonth()]} ${date.getDate()}`;
 }
 
@@ -37,6 +30,8 @@ export function DayCarousel({
   onPrefetch,
   blockStartDate,
   currentDay,
+  locale = "en",
+  todayLabel = "Today",
 }: {
   days: DayInfo[];
   selectedDay: number;
@@ -48,6 +43,8 @@ export function DayCarousel({
   onPrefetch?: (day: number) => void;
   blockStartDate: string;
   currentDay: number;
+  locale?: string;
+  todayLabel?: string;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -120,7 +117,7 @@ export function DayCarousel({
                       : "font-semibold text-foreground/50 group-hover:text-foreground/70"
                 }`}
               >
-                {isToday ? "Today" : getDateForDay(blockStartDate, d.day)}
+                {isToday ? todayLabel : getDateForDay(blockStartDate, d.day, locale)}
               </span>
             </button>
           );

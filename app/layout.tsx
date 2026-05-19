@@ -22,8 +22,9 @@ const notoSansSC = Noto_Sans_SC({
 });
 
 export const metadata: Metadata = {
-  title: "The New Human Project",
-  description: "A spiritual formation journey across Mental, Emotional, and Physical dimensions",
+  title: "Rhythm",
+  description:
+    "A spiritual formation journey across Mental, Emotional, and Physical dimensions",
   manifest: "/manifest.json",
 };
 

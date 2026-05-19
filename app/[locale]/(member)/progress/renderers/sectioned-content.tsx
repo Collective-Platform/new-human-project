@@ -2,6 +2,7 @@
 
 import type { ProgramTask } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
+import { localizeScriptureRef } from "@/src/features/bible/localize";
 import { MarkdownContent } from "./markdown-content";
 import { ReflectionInput } from "./reflection-input";
 
@@ -43,14 +44,16 @@ export function SectionedContentRenderer({
   completionData: Record<string, unknown> | null;
   onSaveReflectionAction: (slug: string, text: string) => void | Promise<void>;
 }) {
-  const passageRef = task.passageRef ?? task.scriptureRef ?? "";
+  const passageRef = localizeScriptureRef(task.passageRef ?? task.scriptureRef ?? "", locale);
   const sections = splitSections(getLocalizedString(task.body, locale));
   const inputs = new Set(task.inputs ?? []);
 
   return (
     <div className="space-y-6">
       {passageRef && (
-        <p className="font-headline text-lg font-bold text-foreground">{passageRef}</p>
+        <p className="font-headline text-lg font-bold text-foreground">
+          {passageRef}
+        </p>
       )}
 
       {sections.map((section, index) => (
@@ -99,7 +102,9 @@ function Section({
   if (slug === "key-idea") {
     return (
       <blockquote className="border-l-4 border-primary bg-primary/10 p-4 text-foreground">
-        <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">{heading}</p>
+        <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">
+          {heading}
+        </p>
         <div className="text-base leading-relaxed">
           <MarkdownContent>{markdown}</MarkdownContent>
         </div>
@@ -114,7 +119,9 @@ function Section({
 
   return (
     <div className="space-y-3">
-      <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">{heading}</p>
+      <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">
+        {heading}
+      </p>
       {markdown && (
         <div className="space-y-2 text-base leading-relaxed text-foreground">
           <MarkdownContent>{markdown}</MarkdownContent>
@@ -125,7 +132,9 @@ function Section({
           initialValue={readInitialValue(completionData, inputSlug)}
           onSave={(text) => onSaveReflectionAction(inputSlug, text)}
           ariaLabel={heading}
-          placeholder={locale === "zh" ? "在此处输入你的回应…" : "Write your response…"}
+          placeholder={
+            locale === "zh" ? "写下你的回应…" : "Write your response…"
+          }
         />
       )}
     </div>
@@ -183,7 +192,8 @@ const CHINESE_HEADING_SLUGS: Record<string, string> = {
 
 function headingSlug(heading: string): string {
   const normalized = heading.trim();
-  if (CHINESE_HEADING_SLUGS[normalized]) return CHINESE_HEADING_SLUGS[normalized];
+  if (CHINESE_HEADING_SLUGS[normalized])
+    return CHINESE_HEADING_SLUGS[normalized];
   return normalized
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
@@ -207,7 +217,10 @@ function inputSlugFor(slug: string): string | null {
   return null;
 }
 
-function readInitialValue(completionData: Record<string, unknown> | null, key: string): string {
+function readInitialValue(
+  completionData: Record<string, unknown> | null,
+  key: string,
+): string {
   const v = completionData?.[key];
   return typeof v === "string" ? v : "";
 }
