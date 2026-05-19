@@ -114,7 +114,7 @@ async function handleTaskComplete(event) {
 // IndexedDB helpers for offline queue
 function openDB() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open("nhp-offline", 1);
+    const req = indexedDB.open("nhp-offline", 2);
     req.onupgradeneeded = () => {
       const db = req.result;
       if (!db.objectStoreNames.contains(OFFLINE_QUEUE_STORE)) {
@@ -123,10 +123,41 @@ function openDB() {
           autoIncrement: true,
         });
       }
+      if (!db.objectStoreNames.contains("badge-count")) {
+        db.createObjectStore("badge-count");
+      }
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
+}
+
+async function getBadgeCount() {
+  try {
+    const db = await openDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction("badge-count", "readonly");
+      const req = tx.objectStore("badge-count").get("count");
+      req.onsuccess = () => resolve(req.result ?? 0);
+      req.onerror = () => resolve(0);
+    });
+  } catch {
+    return 0;
+  }
+}
+
+async function setBadgeCount(count) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction("badge-count", "readwrite");
+      tx.objectStore("badge-count").put(count, "count");
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+  } catch {
+    // ignore
+  }
 }
 
 async function saveToOfflineQueue(body) {
@@ -193,12 +224,20 @@ self.addEventListener("push", (event) => {
   }
 
   event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: "/icons/icon-192x192.png",
-      badge: "/icons/icon-192x192.png",
-      data: { url: data.url || "/" },
-    }),
+    (async () => {
+      const count = await getBadgeCount();
+      const newCount = count + 1;
+      await setBadgeCount(newCount);
+      await self.registration.showNotification(data.title, {
+        body: data.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        data: { url: data.url || "/" },
+      });
+      if (self.navigator?.setAppBadge) {
+        await self.navigator.setAppBadge(newCount).catch(() => {});
+      }
+    })(),
   );
 });
 
@@ -206,6 +245,11 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   const url = event.notification.data?.url || "/";
+
+  setBadgeCount(0).catch(() => {});
+  if (self.navigator?.clearAppBadge) {
+    self.navigator.clearAppBadge().catch(() => {});
+  }
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {

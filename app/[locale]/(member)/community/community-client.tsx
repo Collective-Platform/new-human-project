@@ -99,7 +99,7 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
       isLoadingRef.current = false;
       setIsLoadingMore(false);
     }
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     const el = sentinelRef.current;

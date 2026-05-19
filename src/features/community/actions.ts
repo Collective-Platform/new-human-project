@@ -10,6 +10,7 @@ import {
   cancelFriendRequest,
 } from "./queries";
 import { sendPushToUser } from "@/src/features/notifications";
+import { getUserNotificationPrefs } from "@/src/features/notifications/queries";
 
 export async function requestFriend(input: {
   receiverId: number;
@@ -26,15 +27,20 @@ export async function requestFriend(input: {
     const senderName = user.searchHandle
       ? `@${user.searchHandle}`
       : (user.displayName ?? "Someone");
-    sendPushToUser(
-      receiverId,
-      {
-        title: "The New Human Project",
-        body: `${senderName} sent you a friend request`,
-        url: "/community",
-      },
-      "friend_request",
-    ).catch(() => {});
+    (async () => {
+      const prefs = await getUserNotificationPrefs(receiverId);
+      if (prefs?.friend_requests !== false) {
+        sendPushToUser(
+          receiverId,
+          {
+            title: "The New Human Project",
+            body: `${senderName} sent you a friend request`,
+            url: "/community",
+          },
+          "friend_request",
+        ).catch(() => {});
+      }
+    })().catch(() => {});
   }
 
   updateTag(`requests:${receiverId}`);
@@ -53,6 +59,24 @@ export async function acceptFriend(input: {
 
   const senderId = result.senderId;
   const receiverId = user.id;
+
+  const accepterName = user.searchHandle
+    ? `@${user.searchHandle}`
+    : (user.displayName ?? "Someone");
+  (async () => {
+    const prefs = await getUserNotificationPrefs(senderId);
+    if (prefs?.friend_requests !== false) {
+      sendPushToUser(
+        senderId,
+        {
+          title: "The New Human Project",
+          body: `${accepterName} accepted your friend request`,
+          url: "/community",
+        },
+        "friend_accepted",
+      ).catch(() => {});
+    }
+  })().catch(() => {});
 
   updateTag(`friends:${senderId}`);
   updateTag(`friends:${receiverId}`);

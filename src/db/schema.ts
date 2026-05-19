@@ -259,7 +259,7 @@ export const notificationLog = nhp.table("notification_log", {
   userId: integer()
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  type: text().notNull(), // daily_reminder | friend_request
+  type: text().notNull(), // daily_reminder | friend_request | friend_accepted | like
   title: text(),
   body: text(),
   sentAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
