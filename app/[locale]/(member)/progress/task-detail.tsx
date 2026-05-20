@@ -67,16 +67,18 @@ export function TaskDetail({
   const hasNext = currentIndex < categoryTasks.length - 1;
 
   const handleNext = useCallback(() => {
-    // Fire-and-forget: parent applies the optimistic completion patch
-    // synchronously before awaiting the network. We navigate in the same
-    // frame so the user sees the next task instantly. (Task 1.4)
-    void onComplete(task.id);
+    // Only call onComplete for tasks that haven't been completed yet.
+    // Re-viewing an already-completed task must not bump its completedAt
+    // timestamp or spam the community feed.
+    if (!task.completed) {
+      void onComplete(task.id);
+    }
     if (hasNext) {
       onNavigate(categoryTasks[currentIndex + 1]);
     } else {
       onClose();
     }
-  }, [onComplete, task.id, hasNext, categoryTasks, currentIndex, onNavigate, onClose]);
+  }, [onComplete, task.id, task.completed, hasNext, categoryTasks, currentIndex, onNavigate, onClose]);
 
   const handlePrev = useCallback(() => {
     if (hasPrev) {

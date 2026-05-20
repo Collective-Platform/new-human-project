@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = "nhp-v2";
+const CACHE_NAME = "nhp-v3";
 const STATIC_ASSETS = ["/manifest.json"];
 const API_CACHE_NAME = "nhp-api-v1";
 const OFFLINE_QUEUE_STORE = "offline-completions";

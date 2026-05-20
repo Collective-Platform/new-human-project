@@ -35,7 +35,8 @@ export async function completeTask(input: {
       target: [taskCompletions.userId, taskCompletions.taskId],
       set: {
         data: sql`COALESCE(${taskCompletions.data}, '{}') || ${JSON.stringify(data ?? {})}::jsonb`,
-        completedAt: new Date(),
+        // completedAt intentionally omitted — preserve the original timestamp
+        // so notes updates don't bump the activity to the top of the feed.
       },
     });
 
