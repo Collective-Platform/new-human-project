@@ -42,6 +42,11 @@ export const metadata: Metadata = {
   description:
     "A spiritual formation journey across Mental, Emotional, and Physical dimensions",
   manifest: "/manifest.json",
+  appleWebApp: {
+    title: "Rhythm",
+    statusBarStyle: "default",
+    capable: true,
+  },
 };
 
 export default function RootLayout({
