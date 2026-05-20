@@ -17,7 +17,7 @@ interface FriendSummary {
   displayName: string | null;
   searchHandle: string | null;
   avatarUrl: string | null;
-  connectionStatus: "friends" | "sent" | "none";
+  connectionStatus: "friends" | "sent" | "none" | "self";
 }
 
 interface Profile {
@@ -93,7 +93,7 @@ export function ProfileClient({
             <div className="flex flex-col gap-4">
               <div className="flex flex-col align-middle">
                 {profile.searchHandle && (
-                  <h2 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface">
+                  <h2 className="font-headline text-3xl font-medium tracking-tight text-on-surface">
                     {handle}
                   </h2>
                 )}
@@ -103,7 +103,7 @@ export function ProfileClient({
                     className="self-start mt-4 inline-flex items-center gap-1.5 px-3 py-1 border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container hover:border-primary/30 hover:text-primary transition-all active:scale-95"
                   >
                     <User size={14} />
-                    <span className="text-xs font-bold font-headline">
+                    <span className="text-xs font-medium font-headline">
                       {t("friendsCount", { count: friends.length })}
                     </span>
                   </button>
@@ -242,11 +242,11 @@ export function ProfileClient({
                         className="flex items-center gap-3 flex-1 min-w-0"
                       >
                         <Avatar url={f.avatarUrl} name={name} size={40} />
-                        <span className="flex-1 truncate font-headline font-bold text-sm text-on-surface">
+                        <span className="flex-1 truncate font-headline font-medium text-sm text-on-surface">
                           {name}
                         </span>
                       </Link>
-                      {popupStatus === "friends" ? (
+                      {popupStatus === "self" ? null : popupStatus === "friends" ? (
                         <span className="text-xs font-bold text-on-surface-variant px-3 py-1 rounded-full border border-outline-variant shrink-0">
                           {t("friend")}
                         </span>

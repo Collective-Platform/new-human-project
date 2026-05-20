@@ -138,7 +138,8 @@ export async function ProfileData({ handle }: { handle: string }) {
     return [];
   });
 
-  const friends = friendIds
+  const selfEntry = friendIds.find((f) => f.id === user.id);
+  const otherFriends = friendIds
     .filter((f) => f.id !== user.id)
     .map((f) => {
       const p = profileMap.get(f.id);
@@ -155,6 +156,22 @@ export async function ProfileData({ handle }: { handle: string }) {
         connectionStatus: friendStatus,
       };
     });
+
+  const selfProfile = selfEntry ? profileMap.get(selfEntry.id) : null;
+  const friends = [
+    ...(selfEntry
+      ? [
+          {
+            id: user.id,
+            displayName: selfProfile?.displayName ?? null,
+            searchHandle: selfProfile?.searchHandle ?? null,
+            avatarUrl: selfProfile?.avatarUrl ?? null,
+            connectionStatus: "self" as const,
+          },
+        ]
+      : []),
+    ...otherFriends,
+  ];
 
   const isPrivate = connectionStatus !== "friends";
 

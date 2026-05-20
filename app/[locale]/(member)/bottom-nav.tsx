@@ -46,7 +46,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 bg-white pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-93.75 items-center justify-around px-4 pt-2 pb-2">
+      <div className="mx-auto flex max-w-93.75 items-center justify-around px-4 pt-3 pb-3">
         {tabs.map((tab) => {
           const active = isActive(tab.href);
           const TabIcon = tab.Icon;
@@ -54,10 +54,10 @@ export function BottomNav() {
             <Link
               key={tab.key}
               href={tab.href}
-              className="flex flex-col items-center gap-0.5 min-w-16"
+              className="flex flex-col items-center gap-1 min-w-16"
             >
               <span
-                className={`flex items-center justify-center w-12 h-8 rounded-full transition-colors ${
+                className={`flex items-center justify-center w-14 h-9 rounded-full transition-colors ${
                   active ? "bg-primary" : ""
                 }`}
               >

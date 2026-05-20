@@ -1,5 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
-import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { and, eq, gte, sql } from "drizzle-orm";
 import { db, batchOrAll } from "@/src/db";
 import {
   taskCompletions,
@@ -8,54 +8,7 @@ import {
   memberBlockCompletions,
 } from "@/src/db/schema";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
-import { getLocalizedString } from "@/src/features/content";
 import { XP_WEIGHT_BY_TYPE } from "./queries";
-
-const sportLabels: Record<string, Record<string, string>> = {
-  en: {
-    badminton: "Badminton",
-    run: "Run",
-    pickleball: "Pickleball",
-    swimming: "Swimming",
-    pilates: "Pilates",
-  },
-  zh: {
-    badminton: "羽毛球",
-    run: "跑步",
-    pickleball: "匹克球",
-    swimming: "游泳",
-    pilates: "普拉提",
-  },
-};
-const exerciseFallback: Record<string, string> = { en: "Exercise", zh: "运动" };
-const restLabel: Record<string, string> = { en: "Rest", zh: "休息日" };
-
-function formatDuration(hours: number, minutes: number, locale: string): string {
-  if (hours === 0 && minutes === 0) return "";
-  if (locale === "zh") {
-    if (hours === 0) return `${minutes}分钟`;
-    if (minutes === 0) return `${hours}小时`;
-    return `${hours}小时${minutes}分钟`;
-  }
-  if (hours === 0) return `${minutes}m`;
-  if (minutes === 0) return `${hours}h`;
-  return `${hours}h ${minutes}m`;
-}
-
-function getExerciseLabel(data: Record<string, unknown> | null, locale: string): string {
-  const labels = sportLabels[locale] ?? sportLabels.en;
-  const fallback = exerciseFallback[locale] ?? exerciseFallback.en;
-  if (!data) return fallback;
-  const sportKey = data.sportKey as string | undefined;
-  if (!sportKey) return fallback;
-  if (sportKey === "rest") return restLabel[locale] ?? restLabel.en;
-  if (sportKey === "others") return (data.customSport as string | undefined) ?? fallback;
-  const sport = labels[sportKey] ?? fallback;
-  const h = (data.hours as number | undefined) ?? 0;
-  const m = (data.minutes as number | undefined) ?? 0;
-  const dur = formatDuration(h, m, locale);
-  return dur ? (locale === "zh" ? `${sport} ${dur}` : `${sport} for ${dur}`) : sport;
-}
 
 export interface DashboardData {
   currentDay: number;
@@ -63,11 +16,6 @@ export interface DashboardData {
   grid: { day: number; categoriesCompleted: number }[];
   streak: number;
   calendar: { date: string; categories: string[] }[];
-  recent: {
-    category: string;
-    name: string;
-    completedAt: string;
-  }[];
   earnedBadge: {
     name: string;
     description: string | null;
@@ -107,17 +55,6 @@ export async function getDashboardForUser(
     .select({ taskId: taskCompletions.taskId })
     .from(taskCompletions)
     .where(eq(taskCompletions.userId, userId));
-
-  const recentQ = db
-    .select({
-      taskId: taskCompletions.taskId,
-      completedAt: taskCompletions.completedAt,
-      data: taskCompletions.data,
-    })
-    .from(taskCompletions)
-    .where(and(eq(taskCompletions.userId, userId), gte(taskCompletions.completedAt, startDate)))
-    .orderBy(desc(taskCompletions.completedAt))
-    .limit(10);
 
   const streakQ = db.execute<{ streak: number }>(sql`
     WITH completion_dates AS (
@@ -165,9 +102,8 @@ export async function getDashboardForUser(
     )
     .limit(1);
 
-  const [allCompletions, recentRows, streakResult, badgeRows, blockDoneRows] = await batchOrAll([
+  const [allCompletions, streakResult, badgeRows, blockDoneRows] = await batchOrAll([
     allCompletionsQ,
-    recentQ,
     streakQ,
     badgeQ,
     blockDoneQ,
@@ -242,22 +178,6 @@ export async function getDashboardForUser(
     .map(([date, cats]) => ({ date, categories: Array.from(cats) }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  // Process recent completions (date-filtered, ordered recentRows).
-  const recent: { completedAt: string; category: string; name: string }[] = [];
-  for (const row of recentRows) {
-    const fromRegistry = getRegistryTaskById(row.taskId);
-    if (!fromRegistry) continue;
-    const name =
-      fromRegistry.type === "exercise"
-        ? getExerciseLabel(row.data as Record<string, unknown> | null, locale)
-        : getLocalizedString(fromRegistry.name, locale);
-    recent.push({
-      completedAt: row.completedAt.toISOString(),
-      category: fromRegistry.category,
-      name,
-    });
-  }
-
   const blockEndedWithoutCompletion = currentDay >= 25 && !blockDone;
 
   return {
@@ -266,7 +186,6 @@ export async function getDashboardForUser(
     grid,
     streak,
     calendar,
-    recent,
     earnedBadge: earnedBadge
       ? {
           name: earnedBadge.name,

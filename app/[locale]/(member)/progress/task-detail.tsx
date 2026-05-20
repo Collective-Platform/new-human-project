@@ -164,20 +164,23 @@ export function TaskDetail({
     : null;
 
   return (
-    <div className="fixed inset-0 z-50 mx-auto flex max-w-93.75 flex-col bg-surface">
+    <div className="fixed inset-0 z-50 flex flex-col bg-surface">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-100 bg-white">
-        <button
-          onClick={onClose}
-          className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-zinc-100"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <h2 className="flex-1 font-headline text-base font-semibold truncate">{task.name}</h2>
+      <div className="border-b border-zinc-100 bg-white">
+        <div className="mx-auto flex max-w-93.75 items-center gap-3 px-4 py-3">
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-zinc-100"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <h2 className="flex-1 font-headline text-base font-semibold truncate">{task.name}</h2>
+        </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 pb-24">
+        <div className="mx-auto max-w-93.75">
         {isRegistrySectioned && programTask && (
           <SectionedContentRenderer
             task={programTask}
@@ -264,42 +267,45 @@ export function TaskDetail({
             }}
           />
         )}
+        </div>
       </div>
 
       {/* Footer nav – sits where the bottom nav was, with divider and meta */}
       {task.taskType !== "mood_log" && task.taskType !== "exercise" && (
-        <div className="fixed bottom-0 inset-x-0 z-50 mx-auto flex max-w-93.75 items-center justify-between gap-3 border-t border-zinc-200 bg-white px-6 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-          {hasPrev ? (
-            <button
-              onClick={handlePrev}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 active:scale-95 transition-all"
-              aria-label="Previous task"
-            >
-              <ArrowLeft size={20} className="text-foreground" />
-            </button>
-          ) : (
-            <div className="h-11 w-11 shrink-0" />
-          )}
-          <div className="flex flex-1 flex-col items-center justify-center text-center leading-tight">
-            <span className="text-xs font-semibold text-foreground">
-              {t("blockLabel", { block: blockNumber })} | {t(task.category.toLowerCase())}
-            </span>
-            <span className="text-[11px] text-foreground/60">
-              {t("dayLabel", { day: dayNumber })} | {currentIndex + 1} of {categoryTasks.length}
-            </span>
-          </div>
-          <button
-            onClick={handleNext}
-            disabled={loading}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-60"
-            aria-label="Next task"
-          >
-            {loading ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+        <div className="fixed bottom-0 inset-x-0 z-50 border-t border-zinc-200 bg-white pb-[env(safe-area-inset-bottom)]">
+          <div className="mx-auto flex max-w-93.75 items-center justify-between gap-3 px-6 py-3">
+            {hasPrev ? (
+              <button
+                onClick={handlePrev}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 active:scale-95 transition-all"
+                aria-label="Previous task"
+              >
+                <ArrowLeft size={20} className="text-foreground" />
+              </button>
             ) : (
-              <ArrowRight size={20} />
+              <div className="h-9 w-9 shrink-0" />
             )}
-          </button>
+            <div className="flex flex-1 flex-col items-center justify-center text-center leading-tight">
+              <span className="text-xs font-semibold text-foreground">
+                {t("blockLabel", { block: blockNumber })} | {t(task.category.toLowerCase())}
+              </span>
+              <span className="text-[11px] text-foreground/60">
+                {t("dayLabel", { day: dayNumber })} | {currentIndex + 1} of {categoryTasks.length}
+              </span>
+            </div>
+            <button
+              onClick={handleNext}
+              disabled={loading}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-60"
+              aria-label="Next task"
+            >
+              {loading ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                <ArrowRight size={20} />
+              )}
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -54,10 +54,17 @@
 
   /* Font families with CJK fallbacks (CSS vars injected by next/font) */
   --font-headline:
-    var(--font-plus-jakarta-sans), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei",
+    var(--font-gt-america), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei",
     sans-serif;
   --font-body:
-    var(--font-manrope), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei", sans-serif;
+    var(--font-gt-america), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+/* font-headline elements use GT America Medium — this unlayered rule
+   wins over Tailwind utilities so font-bold on a headline element is
+   intentionally overridden to keep the type hierarchy consistent. */
+.font-headline {
+  font-weight: 500;
 }
 
 html {

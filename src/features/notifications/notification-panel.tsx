@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell } from "lucide-react";
+import { Bell, X } from "lucide-react";
 
 type NotificationRow = {
   id: string;
@@ -24,10 +24,9 @@ export function NotificationPanel({
   const [localUnread, setLocalUnread] = useState(unreadCount);
   const router = useRouter();
 
-  async function handleToggle() {
-    const next = !open;
-    setOpen(next);
-    if (next && localUnread > 0) {
+  async function handleOpen() {
+    setOpen(true);
+    if (localUnread > 0) {
       setLocalUnread(0);
       await fetch("/api/notifications/read", { method: "POST" });
       router.refresh();
@@ -35,9 +34,9 @@ export function NotificationPanel({
   }
 
   return (
-    <div className="relative">
+    <>
       <button
-        onClick={handleToggle}
+        onClick={handleOpen}
         className="relative flex items-center justify-center rounded-full p-1 text-zinc-600 hover:bg-zinc-100"
         aria-label="Notifications"
       >
@@ -50,28 +49,41 @@ export function NotificationPanel({
       </button>
 
       {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-9 z-50 w-80 overflow-hidden rounded-xl border border-zinc-100 bg-white shadow-lg">
-            <div className="border-b border-zinc-100 px-4 py-3">
-              <p className="text-sm font-semibold text-zinc-800">Notifications</p>
+        <div className="fixed inset-0 z-50 flex flex-col bg-surface">
+          <div className="border-b border-zinc-100 bg-white">
+            <div className="mx-auto flex max-w-93.75 items-center gap-3 px-4 py-3">
+              <button
+                onClick={() => setOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-zinc-100"
+                aria-label="Close"
+              >
+                <X size={20} className="text-foreground" />
+              </button>
+              <h1 className="font-headline text-base font-bold text-foreground">Notifications</h1>
             </div>
-            {notifications.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-zinc-400">No notifications yet</p>
-            ) : (
-              <ul className="max-h-80 divide-y divide-zinc-50 overflow-y-auto">
-                {notifications.map((n) => (
-                  <li key={n.id} className="px-4 py-3">
-                    <p className="text-sm text-zinc-800">{n.body}</p>
-                    <p className="mt-0.5 text-xs text-zinc-400">{relativeTime(n.sentAt)}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
-        </>
+
+          <div className="flex-1 overflow-y-auto">
+            <div className="mx-auto max-w-93.75">
+              {notifications.length === 0 ? (
+                <p className="py-16 text-center text-sm text-on-surface-variant">
+                  No notifications yet
+                </p>
+              ) : (
+                <ul className="divide-y divide-zinc-100">
+                  {notifications.map((n) => (
+                    <li key={n.id} className="px-4 py-4">
+                      <p className="text-sm text-on-surface-variant">{n.body}</p>
+                      <p className="mt-1 text-xs text-outline">{relativeTime(n.sentAt)}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
       )}
-    </div>
+    </>
   );
 }
 

@@ -128,16 +128,16 @@ export function ActivityFeed({ items, selfUserId }: { items: FeedItem[]; selfUse
               <div className="flex justify-between items-start">
                 <p className="text-on-surface text-sm">
                   {isSelf ? (
-                    <span className="font-bold">{t("you")}</span>
+                    <span className="font-medium">{t("you")}</span>
                   ) : (
-                    <Link href={href} className="font-bold hover:underline">
+                    <Link href={href} className="font-medium hover:underline">
                       {name}
                     </Link>
                   )}{" "}
                   <span className="text-on-surface-variant">{t("completedActivity")}</span>{" "}
-                  <span className={`font-semibold ${style.accentText}`}>{item.activity}</span>
+                  <span className={`font-medium ${style.accentText}`}>{item.activity}</span>
                 </p>
-                <span className="text-[10px] font-bold text-outline uppercase tracking-tighter shrink-0 ml-2">
+                <span className="text-[10px] font-normal text-outline uppercase tracking-tighter shrink-0 ml-2">
                   {relativeTime(item.completedAt, t)}
                 </span>
               </div>

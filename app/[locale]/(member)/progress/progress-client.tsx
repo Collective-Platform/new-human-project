@@ -269,20 +269,20 @@ export function ProgressClient({
       />
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground font-['Plus_Jakarta_Sans']">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">
           {locale === "zh"
             ? t("dayLabel", { day: toChineseNumeral(selectedDay) })
             : t("dayLabel", { day: selectedDay })}
         </h2>
         {data.missedDays > 0 ? (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
               {t("missedDays", { count: data.missedDays })}
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
               {t("onTrack")}
             </span>
           </div>

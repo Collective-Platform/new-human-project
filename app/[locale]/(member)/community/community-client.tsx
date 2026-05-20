@@ -137,7 +137,7 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
           className="flex items-center w-full gap-2 justify-center px-4 py-2.5 bg-white rounded-2xl shadow-[0_4px_12px_rgba(53,50,47,0.03)] hover:shadow-card transition-all"
         >
           <Users size={18} className="text-primary" />
-          <span className="font-headline font-bold text-on-surface">
+          <span className="font-headline font-medium text-on-surface">
             {t("friendsCount", { count: initialData.friends.length })}
           </span>
         </Link>
@@ -160,7 +160,7 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
         {initialData.suggestions.length > 0 && showSuggestions && (
           <section className="mb-10">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold font-headline text-on-surface">
+              <h2 className="text-lg font-medium font-headline text-on-surface">
                 {t("peopleYouMayKnow")}
               </h2>
               <button

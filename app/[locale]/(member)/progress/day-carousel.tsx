@@ -90,7 +90,7 @@ export function DayCarousel({
                 }`}
               >
                 <span
-                  className={`text-[10px] font-bold uppercase tracking-tighter ${
+                  className={`text-[10px] font-medium uppercase tracking-tighter ${
                     isSelected
                       ? "text-white/70"
                       : d.fullyCompleted
@@ -101,7 +101,7 @@ export function DayCarousel({
                   Day
                 </span>
                 <span
-                  className={`text-lg font-bold leading-none ${
+                  className={`text-lg font-medium leading-none ${
                     isSelected ? "text-white" : d.fullyCompleted ? "text-primary" : "text-zinc-600"
                   }`}
                 >
@@ -111,10 +111,10 @@ export function DayCarousel({
               <span
                 className={`text-[11px] px-2 py-0.5 ${
                   isToday
-                    ? "rounded-full border-primary/80 text-primary/80 border font-semibold"
+                    ? "rounded-full border-primary/80 text-primary/80 border font-medium"
                     : isSelected
-                      ? "font-bold text-foreground"
-                      : "font-semibold text-foreground/50 group-hover:text-foreground/70"
+                      ? "font-medium text-foreground"
+                      : "font-medium text-foreground/50 group-hover:text-foreground/70"
                 }`}
               >
                 {isToday ? todayLabel : getDateForDay(blockStartDate, d.day, locale)}

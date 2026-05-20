@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { ArrowLeft } from "lucide-react";
 import { getSessionUser } from "@/src/features/auth";
 import { getDayCompletions } from "@/src/features/dashboard";
+import { Link } from "@/src/i18n/navigation";
 
 const categoryDotColor: Record<string, string> = {
   Mental: "bg-category-mental",
@@ -55,8 +57,16 @@ export async function CalendarDayData({ locale, dateStr }: { locale: string; dat
   };
 
   return (
-    <>
-      <h1 className="font-headline text-lg font-bold">{formatDate(date, locale)}</h1>
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <Link
+          href="/"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-zinc-100"
+        >
+          <ArrowLeft size={20} className="text-foreground" />
+        </Link>
+        <h1 className="font-headline text-lg font-bold">{formatDate(date, locale)}</h1>
+      </div>
 
       {completions.length === 0 ? (
         <div className="rounded-md bg-white p-6 shadow-card text-center text-sm text-foreground/50">
@@ -80,6 +90,6 @@ export async function CalendarDayData({ locale, dateStr }: { locale: string; dat
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 }

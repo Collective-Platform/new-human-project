@@ -6,7 +6,6 @@ import dynamic from "next/dynamic";
 import { RadarChart } from "./radar-chart";
 import { StreakBadge } from "./streak-badge";
 import { ActivityCalendar } from "./activity-calendar";
-import { RecentFeed } from "./recent-feed";
 import type { DashboardData } from "@/src/features/dashboard";
 
 const BlockCelebration = dynamic(
@@ -91,8 +90,6 @@ export function DashboardClient({
         year={calendarYear}
         title={t("activityCalendar")}
       />
-
-      <RecentFeed items={data.recent} title={t("recentLogs")} emptyLabel={t("noRecentActivity")} />
     </div>
   );
 }

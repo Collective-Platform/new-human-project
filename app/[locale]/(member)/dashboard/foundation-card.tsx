@@ -25,10 +25,10 @@ export function FoundationCard() {
   return (
     <section className="flex flex-col justify-between rounded-md border border-surface-container bg-white p-8 shadow-card">
       <div>
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-widest text-primary">
+        <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-primary">
           {t("theFoundation")}
         </p>
-        <h3 className="mb-4 font-headline text-2xl font-bold text-on-surface">
+        <h3 className="mb-4 font-headline text-2xl font-medium text-on-surface">
           {t("the25DayBlock")}
         </h3>
         <p className="mb-6 text-sm leading-relaxed text-on-surface-variant">

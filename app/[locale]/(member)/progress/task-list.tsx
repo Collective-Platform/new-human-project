@@ -115,7 +115,7 @@ export function TaskList({
                         className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
                       >
                         <span
-                          className={`flex-1 text-sm font-medium ${task.completed ? "text-foreground/50" : "text-foreground"}`}
+                          className={`flex-1 text-sm font-normal ${task.completed ? "text-foreground/50" : "text-foreground"}`}
                         >
                           {task.name}
                         </span>
