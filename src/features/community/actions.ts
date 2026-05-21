@@ -33,7 +33,7 @@ export async function requestFriend(input: {
         sendPushToUser(
           receiverId,
           {
-            title: "The New Human Project",
+            title: "Rhythm",
             body: `${senderName} sent you a friend request`,
             url: "/community",
           },
@@ -69,7 +69,7 @@ export async function acceptFriend(input: {
       sendPushToUser(
         senderId,
         {
-          title: "The New Human Project",
+          title: "Rhythm",
           body: `${accepterName} accepted your friend request`,
           url: "/community",
         },

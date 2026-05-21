@@ -8,7 +8,7 @@ const messages: Record<string, { title: string; body: string }> = {
     body: "Time for your daily formation! 🌱",
   },
   zh: {
-    title: "新人类计划",
+    title: "节奏",
     body: "是时候进行每日灵修了！🌱",
   },
 };
@@ -55,7 +55,9 @@ export async function sendDailyReminders() {
     const reminderTime = prefs.reminder_time ?? "08:00";
     const timezone = prefs.reminder_timezone ?? "UTC";
 
-    if (localHourForUser(now, timezone) !== reminderTime) continue;
+    // Strip minutes — cron has hour granularity, compare "HH:00" vs "HH:00"
+    const reminderHour = `${reminderTime.slice(0, 2)}:00`;
+    if (localHourForUser(now, timezone) !== reminderHour) continue;
 
     const msg = messages.en;
     try {

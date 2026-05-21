@@ -213,7 +213,7 @@ self.addEventListener("sync", (event) => {
 
 // ---------- Push Notifications ----------
 self.addEventListener("push", (event) => {
-  let data = { title: "The New Human Project", body: "", url: "/" };
+  let data = { title: "Rhythm", body: "", url: "/" };
 
   if (event.data) {
     try {
@@ -232,6 +232,7 @@ self.addEventListener("push", (event) => {
         body: data.body,
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-192x192.png",
+        vibrate: [200, 100, 200],
         data: { url: data.url || "/" },
       });
       if (self.navigator?.setAppBadge) {

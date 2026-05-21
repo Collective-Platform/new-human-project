@@ -1,11 +1,43 @@
 "use client";
 
+import { OTPInput, type SlotProps } from "input-otp";
 import { useState } from "react";
 import { useRouter } from "@/src/i18n/navigation";
 
 type Mode = "login" | "signup";
 
-export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mode }) {
+function FakeCaret() {
+  return (
+    <div className="pointer-events-none absolute inset-0 flex items-center justify-center animate-[blink_1s_steps(1,end)_infinite]">
+      <div className="h-1/2 w-px bg-foreground" />
+    </div>
+  );
+}
+
+function Slot({ isActive, char, hasFakeCaret }: SlotProps) {
+  return (
+    <div
+      className={[
+        "relative flex aspect-square items-center justify-center bg-surface-container-lowest",
+        "border-y border-r border-outline-variant/85 first:border-l first:rounded-l-sm last:rounded-r-sm",
+        isActive ? "z-10 ring-1 ring-inset ring-primary transition-all" : "",
+      ].join(" ")}
+    >
+      {char !== null && (
+        <span className="font-mono text-lg text-foreground">{char}</span>
+      )}
+      {hasFakeCaret && <FakeCaret />}
+    </div>
+  );
+}
+
+export function VerifyForm({
+  email,
+  mode = "login",
+}: {
+  email: string;
+  mode?: Mode;
+}) {
   const router = useRouter();
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -77,25 +109,28 @@ export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mo
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
       <div>
-        <label htmlFor="otp" className="block text-sm font-medium text-foreground/70 mb-1">
+        <label className="block text-sm font-medium text-foreground/70 mb-3">
           Verification code
         </label>
-        <input
-          id="otp"
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]{6}"
-          maxLength={6}
-          required
+        <OTPInput
           value={otp}
-          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-          placeholder="000000"
-          className="w-full rounded-sm border border-foreground/10 bg-white px-4 py-3 text-center text-2xl tracking-[0.3em] font-mono text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+          onChange={setOtp}
+          maxLength={6}
+          className="w-full"
+          render={({ slots }) => (
+            <div className="grid w-full auto-rows-fr grid-cols-6">
+              {slots.map((slot, i) => (
+                <Slot key={i} {...slot} />
+              ))}
+            </div>
+          )}
         />
       </div>
 
       {error && <p className="text-sm text-primary">{error}</p>}
-      {resent && <p className="text-sm text-secondary">A new code has been sent.</p>}
+      {resent && (
+        <p className="text-sm text-secondary">A new code has been sent.</p>
+      )}
 
       <button
         type="submit"
@@ -110,7 +145,7 @@ export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mo
           type="button"
           onClick={handleResend}
           disabled={resending}
-          className="text-sm text-secondary hover:underline disabled:opacity-50"
+          className="text-sm text-primary hover:underline disabled:opacity-50"
         >
           {resending ? "Sending…" : "Resend code"}
         </button>

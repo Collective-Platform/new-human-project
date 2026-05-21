@@ -90,18 +90,18 @@ export function SignupForm() {
         {loading ? "Sending code…" : "Create account"}
       </button>
 
-      <p className="text-center text-sm text-foreground/60">
+      <p className="text-center text-xs font-light text-foreground/60">
         By signing up, you agree to our <br />
         <NextLink
           href="https://collective.my/terms/"
-          className="text-secondary hover:underline font-medium"
+          className="text-primary hover:underline"
         >
           Terms of Use
         </NextLink>
         {" and "}
         <NextLink
           href="https://collective.my/privacy/"
-          className="text-secondary hover:underline font-medium"
+          className="text-primary hover:underline"
         >
           Privacy Policy
         </NextLink>

@@ -30,13 +30,14 @@ export default async function LandingPage({
         <main className="relative z-10 mt-auto flex flex-col px-8 pb-16 md:px-12 md:pb-20">
           <div className="mb-10">
             <h1
-              className="mb-4 text-5xl font-bold tracking-tight text-white md:text-6xl md:text-foreground"
+              className="mb-4 text-5xl font-bold tracking-tight text-white md:text-6xl md:text-primary"
               style={{ fontFamily: "var(--font-nowstalgic), sans-serif" }}
             >
               Rhythm
             </h1>
-            <p className="max-w-70 text-lg font-medium leading-relaxed text-white/95 md:text-on-surface-variant">
-              Mental. Emotional. Physical. Build the rhythms that make you whole.
+            <p className="text-lg font-medium leading-relaxed text-white/95 md:text-on-surface-variant">
+              Mental. Emotional. Physical. <br></br>Build the rhythms that make
+              you whole.
             </p>
           </div>
 

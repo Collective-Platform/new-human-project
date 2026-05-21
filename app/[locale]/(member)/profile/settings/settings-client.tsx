@@ -229,10 +229,10 @@ export function SettingsClient() {
           <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">Profile</p>
         </div>
 
-        {/* Avatar */}
-        <div className="flex items-center justify-between px-4 py-4">
-          <span className="text-sm font-medium text-foreground">Photo</span>
-          <div className="relative">
+        {/* Avatar + Username side by side */}
+        <div className="flex items-center gap-4 px-4 py-4">
+          {/* Photo on the left */}
+          <div className="relative shrink-0">
             <div className="h-14 w-14 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100 flex items-center justify-center">
               {avatarUrl ? (
                 <NextImage
@@ -269,25 +269,25 @@ export function SettingsClient() {
               onChange={handleAvatarChange}
             />
           </div>
-        </div>
 
-        {/* Username */}
-        <div className="px-4 py-3.5 space-y-1">
-          <label className="text-xs text-foreground/50">Username</label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-foreground/40">
-              @
-            </span>
-            <input
-              type="text"
-              value={handleValue}
-              onChange={(e) => setHandleValue(e.target.value.toLowerCase())}
-              autoCapitalize="none"
-              autoCorrect="off"
-              maxLength={30}
-              placeholder="yourhandle"
-              className="w-full rounded-md border border-zinc-200 bg-zinc-50 py-2 pl-7 pr-3 text-sm text-foreground outline-none focus:border-primary"
-            />
+          {/* Username on the right */}
+          <div className="flex-1 space-y-1">
+            <label className="text-xs text-foreground/50">Username</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-foreground/40">
+                @
+              </span>
+              <input
+                type="text"
+                value={handleValue}
+                onChange={(e) => setHandleValue(e.target.value.toLowerCase())}
+                autoCapitalize="none"
+                autoCorrect="off"
+                maxLength={30}
+                placeholder="yourhandle"
+                className="w-full rounded-md border border-zinc-200 bg-zinc-50 py-2 pl-7 pr-3 text-sm text-foreground outline-none focus:border-primary"
+              />
+            </div>
           </div>
         </div>
 
