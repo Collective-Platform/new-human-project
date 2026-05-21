@@ -2,10 +2,9 @@ import { db } from "@/src/db";
 import { sql } from "drizzle-orm";
 import { sendPushToUser } from "./push";
 
-// Localised messages
 const messages: Record<string, { title: string; body: string }> = {
   en: {
-    title: "The New Human Project",
+    title: "Rhythm",
     body: "Time for your daily formation! 🌱",
   },
   zh: {
@@ -14,26 +13,50 @@ const messages: Record<string, { title: string; body: string }> = {
   },
 };
 
+function localHourForUser(now: Date, timezone: string): string {
+  try {
+    // Returns the current hour (0–23) in the user's timezone as "HH:00"
+    const hour = new Intl.DateTimeFormat("en", {
+      timeZone: timezone,
+      hour: "2-digit",
+      hour12: false,
+    }).format(now);
+    // Intl may return "24" for midnight in some environments — normalise to "00"
+    return `${hour === "24" ? "00" : hour}:00`;
+  } catch {
+    // Unknown timezone — fall back to UTC
+    return `${String(now.getUTCHours()).padStart(2, "0")}:00`;
+  }
+}
+
 /**
- * Send daily reminders to users whose configured reminder_time matches
- * the current hour. Call this function from a cron job every hour.
- *
- * @param currentHour - The current hour in HH:00 format (e.g., "08:00")
+ * Send daily reminders to users whose reminder_time matches the current hour
+ * in their own timezone. Called from a cron job every hour.
  */
-export async function sendDailyReminders(currentHour: string) {
-  // Query users with daily_reminder enabled and matching reminder_time
-  // who have a push subscription
+export async function sendDailyReminders() {
+  const now = new Date();
+
+  // Fetch all users with daily_reminder enabled who have a push subscription.
+  // Hour matching is done in JS so each user's timezone is respected.
   const result = await db.execute(sql`
-    SELECT u.id, u.notification_prefs
+    SELECT DISTINCT u.id, u.notification_prefs
     FROM nhp.users u
     JOIN nhp.push_subscriptions ps ON ps.user_id = u.id
     WHERE u.onboarded_at IS NOT NULL
       AND (u.notification_prefs->>'daily_reminder')::boolean = true
-      AND COALESCE(u.notification_prefs->>'reminder_time', '08:00') = ${currentHour}
   `);
 
-  for (const row of result.rows as { id: number }[]) {
-    // Default to English; in a full implementation we'd read the user's locale
+  let sent = 0;
+  for (const row of result.rows as {
+    id: number;
+    notification_prefs: Record<string, string>;
+  }[]) {
+    const prefs = row.notification_prefs ?? {};
+    const reminderTime = prefs.reminder_time ?? "08:00";
+    const timezone = prefs.reminder_timezone ?? "UTC";
+
+    if (localHourForUser(now, timezone) !== reminderTime) continue;
+
     const msg = messages.en;
     try {
       await sendPushToUser(
@@ -41,10 +64,11 @@ export async function sendDailyReminders(currentHour: string) {
         { title: msg.title, body: msg.body, url: "/" },
         "daily_reminder",
       );
+      sent++;
     } catch {
-      // Continue sending to other users
+      // Continue to next user
     }
   }
 
-  return result.rows.length;
+  return sent;
 }

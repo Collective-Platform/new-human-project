@@ -51,6 +51,7 @@ async function fileToResizedDataUrl(file: File): Promise<string> {
 interface NotificationPrefs {
   daily_reminder: boolean;
   reminder_time: string;
+  reminder_timezone?: string;
   friend_requests: boolean;
 }
 
@@ -86,6 +87,7 @@ export function SettingsClient() {
   const [pushStatus, setPushStatus] = useState<
     "loading" | "unsupported" | "denied" | "not-subscribed" | "subscribed"
   >("loading");
+  const [testingSend, setTestingSend] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   useEffect(() => {
     fetch("/api/profile")
@@ -119,6 +121,17 @@ export function SettingsClient() {
       .then((sub) => setPushStatus(sub ? "subscribed" : "not-subscribed"))
       .catch(() => setPushStatus("unsupported"));
   }, []);
+
+  async function sendTestNotification() {
+    setTestingSend("sending");
+    try {
+      const res = await fetch("/api/notifications/test", { method: "POST" });
+      setTestingSend(res.ok ? "sent" : "error");
+    } catch {
+      setTestingSend("error");
+    }
+    setTimeout(() => setTestingSend("idle"), 3000);
+  }
 
   async function enablePush() {
     if (!("serviceWorker" in navigator)) return;
@@ -319,10 +332,25 @@ export function SettingsClient() {
             <span className="text-xs text-foreground/40">Checking…</span>
           )}
           {pushStatus === "subscribed" && (
-            <span className="flex items-center gap-1.5 text-xs font-medium text-green-600">
-              <span className="h-2 w-2 rounded-full bg-green-500" />
-              Active
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-green-600">
+                <span className="h-2 w-2 rounded-full bg-green-500" />
+                Active
+              </span>
+              <button
+                onClick={sendTestNotification}
+                disabled={testingSend === "sending"}
+                className="rounded-full border border-zinc-200 px-2.5 py-1 text-xs font-medium text-foreground/60 hover:bg-zinc-50 disabled:opacity-50"
+              >
+                {testingSend === "sending"
+                  ? "Sending…"
+                  : testingSend === "sent"
+                    ? "Sent!"
+                    : testingSend === "error"
+                      ? "Failed"
+                      : "Test"}
+              </button>
+            </div>
           )}
           {pushStatus === "not-subscribed" && (
             <button
@@ -356,7 +384,13 @@ export function SettingsClient() {
             <input
               type="time"
               value={prefs.reminder_time}
-              onChange={(e) => updatePrefs({ ...prefs, reminder_time: e.target.value })}
+              onChange={(e) =>
+                updatePrefs({
+                  ...prefs,
+                  reminder_time: e.target.value,
+                  reminder_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                })
+              }
               className="rounded-md bg-zinc-100 px-2 py-1 text-xs text-foreground"
             />
           </div>

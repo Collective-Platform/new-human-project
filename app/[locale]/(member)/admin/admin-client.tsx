@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { ChevronDown } from "lucide-react";
 import { DayEditor } from "./day-editor";
+import { BroadcastForm } from "./broadcast-form";
 
 interface TaskRow {
   id: string;
@@ -46,7 +47,19 @@ export function AdminClient() {
 
   return (
     <div className="px-4 pt-4 pb-4 space-y-4">
-      <h1 className="font-headline text-xl font-bold text-foreground">Content Manager</h1>
+      <h1 className="font-headline text-xl font-bold text-foreground">Admin</h1>
+
+      {/* Push Notifications */}
+      <div className="rounded-md bg-white shadow-card overflow-hidden">
+        <div className="px-4 py-3 border-b border-zinc-100">
+          <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
+            Push Notifications
+          </p>
+        </div>
+        <BroadcastForm />
+      </div>
+
+      <h2 className="font-headline text-lg font-bold text-foreground">Content Manager</h2>
       <p className="text-sm text-foreground/60">Block 1 — 25 Days · Edit content below</p>
 
       {loading && (

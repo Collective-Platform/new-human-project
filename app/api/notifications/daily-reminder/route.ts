@@ -17,10 +17,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const now = new Date();
-  const currentHour = `${String(now.getUTCHours()).padStart(2, "0")}:00`;
+  const count = await sendDailyReminders();
 
-  const count = await sendDailyReminders(currentHour);
-
-  return Response.json({ success: true, sent: count, hour: currentHour });
+  return Response.json({ success: true, sent: count });
 }
