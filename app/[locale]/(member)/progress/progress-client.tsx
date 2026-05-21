@@ -243,14 +243,14 @@ export function ProgressClient({
         locale={locale}
         blockNumber={data.blockNumber}
         dayNumber={selectedDay}
-        onComplete={handleComplete}
-        onClose={() => {
+        onCompleteAction={handleComplete}
+        onCloseAction={() => {
           // No refetch on close — local optimistic state already reflects
           // the latest completion status. (Task 1.5 of perf improvements)
           setActiveTask(null);
         }}
         categoryTasks={categoryTasks}
-        onNavigate={(t) => setActiveTask(t)}
+        onNavigateAction={(t) => setActiveTask(t)}
       />
     );
   }

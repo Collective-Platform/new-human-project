@@ -34,19 +34,19 @@ export function TaskDetail({
   locale,
   blockNumber,
   dayNumber,
-  onComplete,
-  onClose,
+  onCompleteAction,
+  onCloseAction,
   categoryTasks,
-  onNavigate,
+  onNavigateAction,
 }: {
   task: TaskData;
   locale: string;
   blockNumber: number;
   dayNumber: number;
-  onComplete: (taskId: string, data?: Record<string, unknown>) => Promise<void>;
-  onClose: () => void;
+  onCompleteAction: (taskId: string, data?: Record<string, unknown>) => Promise<void>;
+  onCloseAction: () => void;
   categoryTasks: TaskData[];
-  onNavigate: (task: TaskData) => void;
+  onNavigateAction: (task: TaskData) => void;
 }) {
   const t = useTranslations("progress");
   const tm = useTranslations("mood");
@@ -67,57 +67,57 @@ export function TaskDetail({
   const hasNext = currentIndex < categoryTasks.length - 1;
 
   const handleNext = useCallback(() => {
-    // Only call onComplete for tasks that haven't been completed yet.
+    // Only call onCompleteAction for tasks that haven't been completed yet.
     // Re-viewing an already-completed task must not bump its completedAt
     // timestamp or spam the community feed.
     if (!task.completed) {
-      void onComplete(task.id);
+      void onCompleteAction(task.id);
     }
     if (hasNext) {
-      onNavigate(categoryTasks[currentIndex + 1]);
+      onNavigateAction(categoryTasks[currentIndex + 1]);
     } else {
-      onClose();
+      onCloseAction();
     }
-  }, [onComplete, task.id, task.completed, hasNext, categoryTasks, currentIndex, onNavigate, onClose]);
+  }, [onCompleteAction, task.id, task.completed, hasNext, categoryTasks, currentIndex, onNavigateAction, onCloseAction]);
 
   const handlePrev = useCallback(() => {
     if (hasPrev) {
-      onNavigate(categoryTasks[currentIndex - 1]);
+      onNavigateAction(categoryTasks[currentIndex - 1]);
     }
-  }, [hasPrev, categoryTasks, currentIndex, onNavigate]);
+  }, [hasPrev, categoryTasks, currentIndex, onNavigateAction]);
 
   const handleExerciseSubmit = useCallback(
     async (data: Record<string, unknown>) => {
       setLoading(true);
       try {
-        await onComplete(task.id, data);
+        await onCompleteAction(task.id, data);
         if (hasNext) {
-          onNavigate(categoryTasks[currentIndex + 1]);
+          onNavigateAction(categoryTasks[currentIndex + 1]);
         } else {
-          onClose();
+          onCloseAction();
         }
       } finally {
         setLoading(false);
       }
     },
-    [onComplete, task.id, hasNext, categoryTasks, currentIndex, onNavigate, onClose],
+    [onCompleteAction, task.id, hasNext, categoryTasks, currentIndex, onNavigateAction, onCloseAction],
   );
 
   const handleMoodSubmit = useCallback(
     async (data: Record<string, unknown>) => {
       setLoading(true);
       try {
-        await onComplete(task.id, data);
+        await onCompleteAction(task.id, data);
         if (hasNext) {
-          onNavigate(categoryTasks[currentIndex + 1]);
+          onNavigateAction(categoryTasks[currentIndex + 1]);
         } else {
-          onClose();
+          onCloseAction();
         }
       } finally {
         setLoading(false);
       }
     },
-    [onComplete, task.id, hasNext, categoryTasks, currentIndex, onNavigate, onClose],
+    [onCompleteAction, task.id, hasNext, categoryTasks, currentIndex, onNavigateAction, onCloseAction],
   );
 
   // Reflection-input autosave from SectionedContentRenderer. Merges the new
@@ -132,9 +132,9 @@ export function TaskDetail({
         ...task.completionData,
         [slug]: text,
       };
-      await onComplete(task.id, merged);
+      await onCompleteAction(task.id, merged);
     },
-    [onComplete, task.id, task.completionData],
+    [onCompleteAction, task.id, task.completionData],
   );
 
   const content = task.content ?? EMPTY_CONTENT;
@@ -171,8 +171,8 @@ export function TaskDetail({
       <div className="border-b border-zinc-100 bg-white">
         <div className="mx-auto flex max-w-93.75 items-center gap-3 px-4 py-3">
           <button
-            onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-zinc-100"
+            onClick={onCloseAction}
+            className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-zinc-100"
           >
             <ArrowLeft size={20} />
           </button>
@@ -275,7 +275,7 @@ export function TaskDetail({
       {/* Footer nav – sits where the bottom nav was, with divider and meta */}
       {task.taskType !== "mood_log" && task.taskType !== "exercise" && (
         <div className="fixed bottom-0 inset-x-0 z-50 border-t border-zinc-200 bg-white pb-[env(safe-area-inset-bottom)]">
-          <div className="mx-auto flex max-w-93.75 items-center justify-between gap-3 px-6 py-3">
+          <div className="mx-auto flex max-w-93.75 items-center justify-between gap-3 px-6 py-5">
             {hasPrev ? (
               <button
                 onClick={handlePrev}

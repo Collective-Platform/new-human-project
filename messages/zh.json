@@ -134,7 +134,11 @@
     "usernameInvalid": "请使用 3–30 个字符：字母、数字或下划线",
     "usernameTaken": "该用户名已被使用",
     "invalidImage": "请选择图片文件",
-    "imageTooLarge": "图片大小须小于 {max}MB"
+    "imageTooLarge": "图片大小须小于 {max}MB",
+    "shareProfile": "分享资料",
+    "copyLink": "复制链接",
+    "copied": "已复制！",
+    "shareVia": "分享"
   },
   "auth": {
     "enterEmail": "输入你的邮箱",

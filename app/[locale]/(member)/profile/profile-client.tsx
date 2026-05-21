@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/src/i18n/navigation";
-import { User, Settings } from "lucide-react";
+import { User, Settings, QrCode } from "lucide-react";
 import NextImage from "next/image";
 import type { ProfileData } from "@/src/features/profile/get-profile-for-user";
 import { ActivityFeed, type FeedItem } from "../community/activity-feed";
+import { BadgeGrid } from "./badge-grid";
+import { ShareProfileModal } from "./share-profile-modal";
 
 export function ProfileClient({
   initialData,
@@ -20,6 +23,7 @@ export function ProfileClient({
 }) {
   const t = useTranslations("profile");
   const { user } = initialData;
+  const [shareOpen, setShareOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-surface antialiased">
@@ -39,6 +43,15 @@ export function ProfileClient({
                   <User size={14} />
                   <span className="text-xs font-bold font-headline">{friendCount} Friends</span>
                 </Link>
+                {user.searchHandle && (
+                  <button
+                    onClick={() => setShareOpen(true)}
+                    aria-label="Share profile"
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all active:scale-95"
+                  >
+                    <QrCode size={14} />
+                  </button>
+                )}
                 <Link
                   href="/profile/settings"
                   aria-label="Settings"
@@ -81,7 +94,22 @@ export function ProfileClient({
             <ActivityFeed items={activities} selfUserId={selfUserId} />
           </section>
         )}
+
+        {/* Badges */}
+        {initialData.badges.length > 0 && (
+          <section className="mb-8">
+            <BadgeGrid badges={initialData.badges} title={t("badges")} />
+          </section>
+        )}
       </main>
+
+      {user.searchHandle && (
+        <ShareProfileModal
+          handle={user.searchHandle}
+          isOpen={shareOpen}
+          onCloseAction={() => setShareOpen(false)}
+        />
+      )}
     </div>
   );
 }

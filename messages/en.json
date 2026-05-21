@@ -134,7 +134,11 @@
     "usernameInvalid": "Use 3–30 characters: letters, numbers, or underscores",
     "usernameTaken": "That username is already taken",
     "invalidImage": "Please select an image file",
-    "imageTooLarge": "Image must be smaller than {max}MB"
+    "imageTooLarge": "Image must be smaller than {max}MB",
+    "shareProfile": "Share Profile",
+    "copyLink": "Copy Link",
+    "copied": "Copied!",
+    "shareVia": "Share"
   },
   "auth": {
     "enterEmail": "Enter your email",
