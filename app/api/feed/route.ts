@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/src/features/auth";
-import { getActivityFeedPaged } from "@/src/features/community/queries";
+import { getActivityFeedPaged, getLikeCountsForCompletions, getUserLikedCompletionIds } from "@/src/features/community/queries";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
 
@@ -58,13 +58,22 @@ export async function GET(request: NextRequest) {
 
   const rows = await getActivityFeedPaged(user.id, { limit: PAGE_SIZE, cursor });
 
+  const completionIds = rows.map((r) => r.completionId);
+  const [likeCounts, likedIds] = await Promise.all([
+    getLikeCountsForCompletions(completionIds),
+    getUserLikedCompletionIds(user.id, completionIds),
+  ]);
+
   const items = rows.flatMap((row) => {
     const base = {
+      completionId: row.completionId,
       userId: row.userId,
       displayName: row.displayName,
       searchHandle: row.searchHandle,
       avatarUrl: row.avatarUrl,
       completedAt: new Date(row.completedAtMs).toISOString(),
+      likeCount: likeCounts[row.completionId] ?? 0,
+      likedByMe: likedIds.has(row.completionId),
     };
 
     const registryTask = getRegistryTaskById(row.taskId);

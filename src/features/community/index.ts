@@ -12,6 +12,8 @@ export {
   getSentRequestIds,
   getUserActivities,
   getPublicProfileByHandle,
+  getLikeCountsForCompletions,
+  getUserLikedCompletionIds,
 } from "./queries";
 export {
   getFriendIds,
@@ -23,4 +25,4 @@ export {
   getSentRequestIdsCached,
   getUserActivitiesCached,
 } from "./cached";
-export { withdrawFriendRequest } from "./actions";
+export { withdrawFriendRequest, toggleLike, getActivityLikers } from "./actions";

@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
-import { friendRequests } from "@/src/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { friendRequests, likes } from "@/src/db/schema";
+import { eq, and, sql, inArray, count } from "drizzle-orm";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
 
@@ -295,6 +295,7 @@ export async function getUserActivities(
   targetUserId: number,
 ): Promise<
   {
+    completionId: string;
     userId: number;
     taskId: string;
     completedAtMs: number;
@@ -304,7 +305,7 @@ export async function getUserActivities(
   }[]
 > {
   const result = await db.execute(sql`
-    SELECT tc.user_id, tc.task_id, tc.completed_at, tc.data,
+    SELECT tc.id, tc.user_id, tc.task_id, tc.completed_at, tc.data,
            bdt.task_type, bdt.category
     FROM nhp.task_completions tc
     JOIN nhp.users u ON tc.user_id = u.id
@@ -328,6 +329,7 @@ export async function getUserActivities(
 
   return (
     result.rows as {
+      id: string;
       user_id: number;
       task_id: string;
       completed_at: string;
@@ -336,6 +338,7 @@ export async function getUserActivities(
       category: string | null;
     }[]
   ).map((row) => ({
+    completionId: row.id,
     userId: row.user_id,
     taskId: row.task_id,
     completedAtMs: new Date(row.completed_at).getTime(),
@@ -363,7 +366,7 @@ export async function getActivityFeedPaged(
       WHERE status = 'accepted'
         AND (sender_id = ${userId} OR receiver_id = ${userId})
     )
-    SELECT tc.user_id, u.display_name, u.search_handle, u.avatar_url,
+    SELECT tc.id, tc.user_id, u.display_name, u.search_handle, u.avatar_url,
            tc.task_id, tc.completed_at, tc.data, bdt.task_type, bdt.category
     FROM nhp.task_completions tc
     JOIN nhp.users u ON tc.user_id = u.id
@@ -377,6 +380,7 @@ export async function getActivityFeedPaged(
 
   return (
     result.rows as {
+      id: string;
       user_id: number;
       display_name: string | null;
       search_handle: string | null;
@@ -388,6 +392,7 @@ export async function getActivityFeedPaged(
       category: string | null;
     }[]
   ).map((row) => ({
+    completionId: row.id,
     userId: row.user_id,
     displayName: row.display_name,
     searchHandle: row.search_handle,
@@ -398,6 +403,84 @@ export async function getActivityFeedPaged(
     completionData: row.data ?? null,
     dbTaskType: row.task_type ?? null,
     dbCategory: row.category ?? null,
+  }));
+}
+
+// --- Likes ---
+
+export async function getCompletionOwnerId(completionId: string): Promise<number | null> {
+  const result = await db.execute(sql`
+    SELECT user_id FROM nhp.task_completions WHERE id = ${completionId}::uuid LIMIT 1
+  `);
+  return (result.rows[0] as { user_id: number } | undefined)?.user_id ?? null;
+}
+
+export async function toggleLikeInDb(userId: number, completionId: string): Promise<boolean> {
+  const existing = await db
+    .select({ id: likes.id })
+    .from(likes)
+    .where(and(eq(likes.userId, userId), eq(likes.completionId, completionId)));
+
+  if (existing.length > 0) {
+    await db.delete(likes).where(and(eq(likes.userId, userId), eq(likes.completionId, completionId)));
+    return false;
+  }
+
+  await db.insert(likes).values({ userId, completionId }).onConflictDoNothing();
+  return true;
+}
+
+export async function getLikeCountsForCompletions(
+  completionIds: string[],
+): Promise<Record<string, number>> {
+  if (completionIds.length === 0) return {};
+  const rows = await db
+    .select({ completionId: likes.completionId, count: count() })
+    .from(likes)
+    .where(inArray(likes.completionId, completionIds))
+    .groupBy(likes.completionId);
+  const result: Record<string, number> = {};
+  for (const row of rows) result[row.completionId] = row.count;
+  return result;
+}
+
+export async function getUserLikedCompletionIds(
+  userId: number,
+  completionIds: string[],
+): Promise<Set<string>> {
+  if (completionIds.length === 0) return new Set();
+  const rows = await db
+    .select({ completionId: likes.completionId })
+    .from(likes)
+    .where(and(eq(likes.userId, userId), inArray(likes.completionId, completionIds)));
+  return new Set(rows.map((r) => r.completionId));
+}
+
+export async function getLikersForCompletion(completionId: string): Promise<{
+  id: number;
+  displayName: string | null;
+  searchHandle: string | null;
+  avatarUrl: string | null;
+}[]> {
+  const result = await db.execute(sql`
+    SELECT u.id, u.display_name, u.search_handle, u.avatar_url
+    FROM nhp.likes l
+    JOIN nhp.users u ON u.id = l.user_id
+    WHERE l.completion_id = ${completionId}::uuid
+    ORDER BY l.created_at DESC
+  `);
+  return (
+    result.rows as {
+      id: number;
+      display_name: string | null;
+      search_handle: string | null;
+      avatar_url: string | null;
+    }[]
+  ).map((r) => ({
+    id: r.id,
+    displayName: r.display_name,
+    searchHandle: r.search_handle,
+    avatarUrl: r.avatar_url,
   }));
 }
 

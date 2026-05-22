@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { toggleLike } from "@/src/features/community/actions";
 import { Link } from "@/src/i18n/navigation";
 import { User, Settings, QrCode } from "lucide-react";
 import NextImage from "next/image";
@@ -24,6 +25,24 @@ export function ProfileClient({
   const t = useTranslations("profile");
   const { user } = initialData;
   const [shareOpen, setShareOpen] = useState(false);
+  const [likeState, setLikeState] = useState<Map<string, { liked: boolean; count: number }>>(
+    () => new Map(activities.map((a) => [a.completionId, { liked: a.likedByMe, count: a.likeCount }])),
+  );
+
+  async function handleLike(completionId: string) {
+    const snapshot = likeState.get(completionId) ?? { liked: false, count: 0 };
+    setLikeState((prev) => {
+      const current = prev.get(completionId) ?? { liked: false, count: 0 };
+      return new Map(prev).set(completionId, {
+        liked: !current.liked,
+        count: current.count + (current.liked ? -1 : 1),
+      });
+    });
+    const result = await toggleLike({ completionId });
+    if ("error" in result) {
+      setLikeState((prev) => new Map(prev).set(completionId, snapshot));
+    }
+  }
 
   return (
     <div className="min-h-screen bg-surface antialiased">
@@ -91,7 +110,13 @@ export function ProfileClient({
             <h3 className="font-headline text-xl font-bold text-on-surface mb-4 px-1">
               Activities
             </h3>
-            <ActivityFeed items={activities} selfUserId={selfUserId} />
+            <ActivityFeed
+              items={activities}
+              selfUserId={selfUserId}
+              onLike={handleLike}
+              likeOverrides={likeState}
+              allowSelfLike
+            />
           </section>
         )}
 

@@ -7,6 +7,8 @@ import {
   getSentRequestIdsCached,
   getActivityFeedRows,
   getPublicProfile,
+  getLikeCountsForCompletions,
+  getUserLikedCompletionIds,
 } from "@/src/features/community";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
@@ -69,6 +71,12 @@ export async function CommunityData() {
     getActivityFeedRows(user.id),
   ]);
 
+  const feedCompletionIds = feedRows.map((r) => r.completionId);
+  const [likeCounts, likedIds] = await Promise.all([
+    getLikeCountsForCompletions(feedCompletionIds),
+    getUserLikedCompletionIds(user.id, feedCompletionIds),
+  ]);
+
   const sentSet = new Set(sentRequestIds);
 
   const ids = new Set<number>();
@@ -84,6 +92,7 @@ export async function CommunityData() {
 
   return (
     <CommunityClient
+      selfUserId={user.id}
       initialData={{
         friends: friendIds.map((f) => {
           const profile = profiles.get(f.id);
@@ -121,11 +130,14 @@ export async function CommunityData() {
         feed: feedRows.flatMap((row) => {
           const profile = profiles.get(row.userId);
           const base = {
+            completionId: row.completionId,
             userId: row.userId,
             displayName: profile?.displayName ?? null,
             searchHandle: profile?.searchHandle ?? null,
             avatarUrl: profile?.avatarUrl ?? null,
             completedAt: new Date(row.completedAtMs).toISOString(),
+            likeCount: likeCounts[row.completionId] ?? 0,
+            likedByMe: likedIds.has(row.completionId),
           };
 
           const registryTask = getRegistryTaskById(row.taskId);

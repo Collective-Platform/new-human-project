@@ -6,6 +6,8 @@ import {
   getFriendIds,
   getUserActivitiesCached,
   getSentRequestIdsCached,
+  getLikeCountsForCompletions,
+  getUserLikedCompletionIds,
 } from "@/src/features/community";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
@@ -76,6 +78,12 @@ export async function ProfileData({ handle }: { handle: string }) {
     getSentRequestIdsCached(user.id),
   ]);
 
+  const activityCompletionIds = activityRows.map((r) => r.completionId);
+  const [likeCounts, likedIds] = await Promise.all([
+    getLikeCountsForCompletions(activityCompletionIds),
+    getUserLikedCompletionIds(user.id, activityCompletionIds),
+  ]);
+
   const viewerFriendSet = new Set(viewerFriendIds.map((f) => f.id));
   const sentSet = new Set(sentRequestIds);
 
@@ -91,11 +99,14 @@ export async function ProfileData({ handle }: { handle: string }) {
   const activities = activityRows.flatMap((row) => {
     const registryTask = getRegistryTaskById(row.taskId);
     const base = {
+      completionId: row.completionId,
       userId: profile.id,
       displayName: profile.displayName,
       searchHandle: profile.searchHandle,
       avatarUrl: profile.avatarUrl,
       completedAt: new Date(row.completedAtMs).toISOString(),
+      likeCount: likeCounts[row.completionId] ?? 0,
+      likedByMe: likedIds.has(row.completionId),
     };
 
     if (registryTask) {
@@ -181,6 +192,7 @@ export async function ProfileData({ handle }: { handle: string }) {
       activities={isPrivate ? [] : activities}
       friends={isPrivate ? [] : friends}
       connectionStatus={connectionStatus}
+      selfUserId={user.id}
     />
   );
 }

@@ -103,6 +103,7 @@ export async function getSuggestionIds(
 
 export async function getActivityFeedRows(userId: number): Promise<
   {
+    completionId: string;
     userId: number;
     taskId: string;
     completedAtMs: number;
@@ -125,7 +126,7 @@ export async function getActivityFeedRows(userId: number): Promise<
       WHERE status = 'accepted'
         AND (sender_id = ${userId} OR receiver_id = ${userId})
     )
-    SELECT tc.user_id, tc.task_id, tc.completed_at, tc.data,
+    SELECT tc.id, tc.user_id, tc.task_id, tc.completed_at, tc.data,
            bdt.task_type, bdt.category
     FROM nhp.task_completions tc
     JOIN nhp.users u ON tc.user_id = u.id
@@ -138,6 +139,7 @@ export async function getActivityFeedRows(userId: number): Promise<
 
   return (
     result.rows as {
+      id: string;
       user_id: number;
       task_id: string;
       completed_at: string;
@@ -146,6 +148,7 @@ export async function getActivityFeedRows(userId: number): Promise<
       category: string | null;
     }[]
   ).map((row) => ({
+    completionId: row.id,
     userId: row.user_id,
     taskId: row.task_id,
     completedAtMs: new Date(row.completed_at).getTime(),

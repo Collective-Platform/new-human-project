@@ -8,6 +8,9 @@ import {
   rejectFriendRequest,
   removeFriendInDb,
   cancelFriendRequest,
+  toggleLikeInDb,
+  getCompletionOwnerId,
+  getLikersForCompletion,
 } from "./queries";
 import { sendPushToUser } from "@/src/features/notifications";
 import { getUserNotificationPrefs } from "@/src/features/notifications/queries";
@@ -114,6 +117,47 @@ export async function withdrawFriendRequest(input: {
   updateTag(`requests:${input.receiverId}`);
 
   return { success: true };
+}
+
+export async function toggleLike(input: {
+  completionId: string;
+}): Promise<{ liked: boolean } | { error: string }> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const ownerId = await getCompletionOwnerId(input.completionId);
+  if (!ownerId) return { error: "Activity not found" };
+
+  const liked = await toggleLikeInDb(user.id, input.completionId);
+  updateTag(`likes:${input.completionId}`);
+
+  if (liked && ownerId !== user.id) {
+    (async () => {
+      const prefs = await getUserNotificationPrefs(ownerId);
+      if (prefs?.likes !== false) {
+        const senderName = user.searchHandle
+          ? `@${user.searchHandle}`
+          : (user.displayName ?? "Someone");
+        sendPushToUser(
+          ownerId,
+          { title: "Rhythm", body: `${senderName} liked your activity`, url: "/profile" },
+          "like",
+        ).catch(() => {});
+      }
+    })().catch(() => {});
+  }
+
+  return { liked };
+}
+
+export async function getActivityLikers(input: { completionId: string }): Promise<
+  | { likers: { id: number; displayName: string | null; searchHandle: string | null; avatarUrl: string | null }[] }
+  | { error: string }
+> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Unauthorized" };
+  const likers = await getLikersForCompletion(input.completionId);
+  return { likers };
 }
 
 export async function removeFriend(input: {

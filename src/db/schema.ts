@@ -48,6 +48,7 @@ export const users = nhp.table(
         daily_reminder: boolean;
         reminder_time: string;
         friend_requests: boolean;
+        likes?: boolean;
       }>()
       .default(
         sql`'{"daily_reminder": true, "reminder_time": "08:00", "friend_requests": true}'::jsonb`,
@@ -250,6 +251,23 @@ export const pushSubscriptions = nhp.table(
     uniqueIndex("push_subscriptions_endpoint_idx").on(t.endpoint),
     index("push_subscriptions_user_id_idx").on(t.userId),
   ],
+);
+
+// --- Likes -----------------------------------------------------------------
+
+export const likes = nhp.table(
+  "likes",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    userId: integer()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    completionId: uuid()
+      .notNull()
+      .references(() => taskCompletions.id, { onDelete: "cascade" }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("likes_user_completion_idx").on(t.userId, t.completionId)],
 );
 
 // --- Notification Log ------------------------------------------------------

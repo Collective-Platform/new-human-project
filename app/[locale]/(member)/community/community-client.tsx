@@ -9,6 +9,7 @@ import { AddFriends } from "./add-friends";
 import { FriendRequests } from "./friend-requests";
 import { PeopleYouMayKnow } from "./people-you-may-know";
 import { ActivityFeed } from "./activity-feed";
+import { toggleLike } from "@/src/features/community/actions";
 
 interface Friend {
   id: number;
@@ -37,6 +38,7 @@ interface Suggestion {
 }
 
 interface FeedItem {
+  completionId: string;
   userId: number;
   displayName: string | null;
   searchHandle: string | null;
@@ -44,6 +46,8 @@ interface FeedItem {
   category: string;
   activity: string;
   completedAt: string;
+  likeCount: number;
+  likedByMe: boolean;
 }
 
 interface CommunityData {
@@ -53,7 +57,13 @@ interface CommunityData {
   feed: FeedItem[];
 }
 
-export function CommunityClient({ initialData }: { initialData: CommunityData }) {
+export function CommunityClient({
+  initialData,
+  selfUserId,
+}: {
+  initialData: CommunityData;
+  selfUserId: number;
+}) {
   const router = useRouter();
   const t = useTranslations("community");
   const locale = useLocale();
@@ -70,6 +80,11 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
   const hasMoreRef = useRef(initialData.feed.length >= 10);
   const isLoadingRef = useRef(false);
 
+  // Like state — tracks optimistic like counts and liked status per completionId
+  const [likeState, setLikeState] = useState<Map<string, { liked: boolean; count: number }>>(
+    () => new Map(initialData.feed.map((item) => [item.completionId, { liked: item.likedByMe, count: item.likeCount }])),
+  );
+
   // Sync feed when server data refreshes (e.g. after accepting a friend request)
   useEffect(() => {
     setFeedItems(initialData.feed);
@@ -78,6 +93,13 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
         ? initialData.feed[initialData.feed.length - 1].completedAt
         : null;
     hasMoreRef.current = initialData.feed.length >= 10;
+    setLikeState((prev) => {
+      const next = new Map(prev);
+      for (const item of initialData.feed) {
+        next.set(item.completionId, { liked: item.likedByMe, count: item.likeCount });
+      }
+      return next;
+    });
   }, [initialData.feed]);
 
   const loadMore = useCallback(async () => {
@@ -91,6 +113,15 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
       if (!res.ok) return;
       const data: { items: FeedItem[]; nextCursor: string | null } = await res.json();
       setFeedItems((prev) => [...prev, ...data.items]);
+      setLikeState((prev) => {
+        const next = new Map(prev);
+        for (const item of data.items) {
+          if (!next.has(item.completionId)) {
+            next.set(item.completionId, { liked: item.likedByMe, count: item.likeCount });
+          }
+        }
+        return next;
+      });
       if (data.nextCursor) {
         cursorRef.current = data.nextCursor;
         hasMoreRef.current = true;
@@ -115,6 +146,21 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
     observer.observe(el);
     return () => observer.disconnect();
   }, [loadMore]);
+
+  async function handleLike(completionId: string) {
+    const snapshot = likeState.get(completionId) ?? { liked: false, count: 0 };
+    setLikeState((prev) => {
+      const current = prev.get(completionId) ?? { liked: false, count: 0 };
+      return new Map(prev).set(completionId, {
+        liked: !current.liked,
+        count: current.count + (current.liked ? -1 : 1),
+      });
+    });
+    const result = await toggleLike({ completionId });
+    if ("error" in result) {
+      setLikeState((prev) => new Map(prev).set(completionId, snapshot));
+    }
+  }
 
   function fetchData() {
     router.refresh();
@@ -176,7 +222,12 @@ export function CommunityClient({ initialData }: { initialData: CommunityData })
         )}
 
         {/* Activity Feed */}
-        <ActivityFeed items={feedItems} />
+        <ActivityFeed
+          items={feedItems}
+          selfUserId={selfUserId}
+          onLike={handleLike}
+          likeOverrides={likeState}
+        />
 
         {/* Infinite scroll sentinel */}
         <div ref={sentinelRef} className="flex justify-center py-2">

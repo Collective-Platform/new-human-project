@@ -21,9 +21,17 @@ export async function sendPushToUser(
   payload: { title: string; body: string; url?: string },
   type: string,
 ) {
+  // Always log to the in-app inbox regardless of push delivery.
+  await db.insert(notificationLog).values({
+    userId,
+    type,
+    title: payload.title,
+    body: payload.body,
+  });
+
+  // Best-effort push delivery — failure here doesn't affect the inbox.
   if (!ensureVapid()) return;
 
-  // A user may have multiple subscriptions (one per device/browser).
   const rows = await db
     .select({
       endpoint: pushSubscriptions.endpoint,
@@ -34,29 +42,15 @@ export async function sendPushToUser(
 
   if (rows.length === 0) return;
 
-  let anyDelivered = false;
-
   for (const row of rows) {
     const sub = row.subscription as webpush.PushSubscription;
     try {
       await webpush.sendNotification(sub, JSON.stringify(payload));
-      anyDelivered = true;
     } catch (err: unknown) {
       const statusCode = err instanceof webpush.WebPushError ? err.statusCode : 0;
-      // Subscription expired or invalid — clean up just this device's row.
       if (statusCode === 410 || statusCode === 404) {
         await db.delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, row.endpoint));
       }
-      // Other errors: continue to the next subscription.
     }
-  }
-
-  if (anyDelivered) {
-    await db.insert(notificationLog).values({
-      userId,
-      type,
-      title: payload.title,
-      body: payload.body,
-    });
   }
 }

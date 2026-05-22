@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toggleLike } from "@/src/features/community/actions";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { CheckCircle, User, ChevronRight, X } from "lucide-react";
@@ -56,11 +57,13 @@ export function ProfileClient({
   activities,
   friends,
   connectionStatus,
+  selfUserId,
 }: {
   profile: Profile;
   activities: FeedItem[];
   friends: FriendSummary[];
   connectionStatus: "friends" | "sent" | "none";
+  selfUserId: number;
 }) {
   const router = useRouter();
   const t = useTranslations("community");
@@ -68,6 +71,24 @@ export function ProfileClient({
   const [unfriendOpen, setUnfriendOpen] = useState(false);
   const [sentIds, setSentIds] = useState<Set<number>>(new Set());
   const [localStatus, setLocalStatus] = useState(connectionStatus);
+  const [likeState, setLikeState] = useState<Map<string, { liked: boolean; count: number }>>(
+    () => new Map(activities.map((item) => [item.completionId, { liked: item.likedByMe, count: item.likeCount }])),
+  );
+
+  async function handleLike(completionId: string) {
+    const snapshot = likeState.get(completionId) ?? { liked: false, count: 0 };
+    setLikeState((prev) => {
+      const current = prev.get(completionId) ?? { liked: false, count: 0 };
+      return new Map(prev).set(completionId, {
+        liked: !current.liked,
+        count: current.count + (current.liked ? -1 : 1),
+      });
+    });
+    const result = await toggleLike({ completionId });
+    if ("error" in result) {
+      setLikeState((prev) => new Map(prev).set(completionId, snapshot));
+    }
+  }
 
   const handle = profile.searchHandle ? `@${profile.searchHandle}` : "User";
 
@@ -165,7 +186,12 @@ export function ProfileClient({
               <h3 className="font-headline text-xl font-bold text-on-surface mb-4 px-1">
                 {t("activities")}
               </h3>
-              <ActivityFeed items={activities} />
+              <ActivityFeed
+                items={activities}
+                selfUserId={selfUserId}
+                onLike={handleLike}
+                likeOverrides={likeState}
+              />
             </>
           )}
         </section>

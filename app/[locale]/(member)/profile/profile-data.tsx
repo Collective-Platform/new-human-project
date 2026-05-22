@@ -1,7 +1,12 @@
 import { getLocale } from "next-intl/server";
 import { getSessionUser } from "@/src/features/auth";
 import { getProfileForUser } from "@/src/features/profile/get-profile-for-user";
-import { getFriendIds, getUserActivitiesCached } from "@/src/features/community";
+import {
+  getFriendIds,
+  getUserActivitiesCached,
+  getLikeCountsForCompletions,
+  getUserLikedCompletionIds,
+} from "@/src/features/community";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
 import { ProfileClient } from "./profile-client";
@@ -62,13 +67,22 @@ export async function ProfileData() {
   ]);
   if (!initialData) return null;
 
+  const activityCompletionIds = activityRows.map((r) => r.completionId);
+  const [likeCounts, likedIds] = await Promise.all([
+    getLikeCountsForCompletions(activityCompletionIds),
+    getUserLikedCompletionIds(user.id, activityCompletionIds),
+  ]);
+
   const activities: FeedItem[] = activityRows.flatMap((row) => {
     const base = {
+      completionId: row.completionId,
       userId: user.id,
       displayName: initialData.user.displayName,
       searchHandle: initialData.user.searchHandle,
       avatarUrl: initialData.user.avatarUrl,
       completedAt: new Date(row.completedAtMs).toISOString(),
+      likeCount: likeCounts[row.completionId] ?? 0,
+      likedByMe: likedIds.has(row.completionId),
     };
 
     const registryTask = getRegistryTaskById(row.taskId);
