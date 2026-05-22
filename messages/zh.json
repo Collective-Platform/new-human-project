@@ -14,7 +14,9 @@
     "noRecentActivity": "暂无近期活动",
     "last7Days": "最近 7 天",
     "last30Days": "最近 30 天",
-    "noCompletions": "这一天没有完成任何活动"
+    "noCompletions": "这一天没有完成任何活动",
+    "emotionBreakdown": "心情分析",
+    "noMoodLogs": "暂无心情记录"
   },
   "progress": {
     "dayLabel": "第{day}天",
@@ -48,7 +50,9 @@
     "health": "健康",
     "moreContext": "更多描述（可选）",
     "submit": "提交",
-    "updateMood": "更新心情"
+    "updateMood": "更新心情",
+    "addMoodLog": "添加心情记录",
+    "entryLabel": "第 {n} 条"
   },
   "exercise": {
     "selectActivity": "你做了什么运动？",
@@ -67,7 +71,9 @@
     "restDay": "休息日",
     "restMessage": "今天放松一下，休息也是旅程的一部分。",
     "takeRest": "去休息",
-    "rested": "已休息"
+    "rested": "已休息",
+    "addExercise": "添加运动记录",
+    "entryLabel": "第 {n} 条"
   },
   "community": {
     "friends": "朋友",

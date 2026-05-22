@@ -12,53 +12,75 @@ const moods = [
 
 const influenceKeys = ["family", "friends", "love", "work", "school", "health"] as const;
 
+export const MOOD_EMOJI_MAP: Record<string, string> = {
+  terrible: "😡",
+  bad: "☹️",
+  okay: "😐",
+  good: "☺️",
+  excellent: "😆",
+};
+
+export type MoodEntry = { moods: string[]; influences: string[]; context: string };
+
+export function normalizeEntries(data: Record<string, unknown> | null): MoodEntry[] {
+  if (!data) return [];
+  if (Array.isArray(data.entries)) return data.entries as MoodEntry[];
+  const moodsArr = Array.isArray(data.moods)
+    ? (data.moods as string[])
+    : data.mood
+      ? [data.mood as string]
+      : [];
+  if (moodsArr.length === 0) return [];
+  return [
+    {
+      moods: moodsArr,
+      influences: (data.influences as string[]) ?? [],
+      context: (data.context as string) ?? "",
+    },
+  ];
+}
+
+type Labels = {
+  pickEmoji: string;
+  terrible: string;
+  bad: string;
+  okay: string;
+  good: string;
+  excellent: string;
+  influences: string;
+  family: string;
+  friends: string;
+  love: string;
+  work: string;
+  school: string;
+  health: string;
+  moreContext: string;
+  submit: string;
+  completed: string;
+  updateMood: string;
+  addMoodLog: string;
+  entryLabel: string;
+};
+
 export function MoodLogRenderer({
-  completed,
   initialData,
   onSubmit,
   loading,
+  openMode = "add",
   labels,
 }: {
-  completed: boolean;
   initialData: Record<string, unknown> | null;
-  onSubmit: (data: {
-    mood: string;
-    moods: string[];
-    influences: string[];
-    context: string;
-  }) => void;
+  onSubmit: (data: Record<string, unknown>) => void;
   loading: boolean;
-  labels: {
-    pickEmoji: string;
-    terrible: string;
-    bad: string;
-    okay: string;
-    good: string;
-    excellent: string;
-    influences: string;
-    family: string;
-    friends: string;
-    love: string;
-    work: string;
-    school: string;
-    health: string;
-    moreContext: string;
-    submit: string;
-    completed: string;
-    updateMood: string;
-  };
+  openMode?: "add" | number;
+  labels: Labels;
 }) {
-  const savedMoods = Array.isArray(initialData?.moods)
-    ? (initialData.moods as string[])
-    : initialData?.mood
-      ? [initialData.mood as string]
-      : [];
-  const savedInfluences = (initialData?.influences as string[]) ?? [];
-  const savedContext = (initialData?.context as string) ?? "";
+  const existingEntries = normalizeEntries(initialData);
+  const editEntry = typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
 
-  const [selectedMoods, setSelectedMoods] = useState<string[]>(savedMoods);
-  const [influences, setInfluences] = useState<string[]>(savedInfluences);
-  const [context, setContext] = useState(savedContext);
+  const [formMoods, setFormMoods] = useState<string[]>(editEntry?.moods ?? []);
+  const [formInfluences, setFormInfluences] = useState<string[]>(editEntry?.influences ?? []);
+  const [formContext, setFormContext] = useState(editEntry?.context ?? "");
   const contextRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -66,14 +88,7 @@ export function MoodLogRenderer({
     if (!el) return;
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
-  }, [context]);
-
-  const hasChanges =
-    selectedMoods.length !== savedMoods.length ||
-    selectedMoods.some((selectedMood) => !savedMoods.includes(selectedMood)) ||
-    context !== savedContext ||
-    influences.length !== savedInfluences.length ||
-    influences.some((inf) => !savedInfluences.includes(inf));
+  }, [formContext]);
 
   const moodLabels: Record<string, string> = {
     terrible: labels.terrible,
@@ -82,7 +97,6 @@ export function MoodLogRenderer({
     good: labels.good,
     excellent: labels.excellent,
   };
-
   const influenceLabels: Record<string, string> = {
     family: labels.family,
     friends: labels.friends,
@@ -92,44 +106,40 @@ export function MoodLogRenderer({
     health: labels.health,
   };
 
-  function toggleInfluence(key: string) {
-    setInfluences((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
-  }
-
   function toggleMood(key: string) {
-    setSelectedMoods((prev) => {
-      if (prev.includes(key)) {
-        return prev.filter((selectedMood) => selectedMood !== key);
-      }
-
-      if (prev.length >= 3) {
-        return prev;
-      }
-
+    setFormMoods((prev) => {
+      if (prev.includes(key)) return prev.filter((m) => m !== key);
+      if (prev.length >= 3) return prev;
       return [...prev, key];
     });
   }
 
-  const canSubmit = !loading && selectedMoods.length > 0 && (!completed || hasChanges);
-
-  let buttonLabel = labels.submit;
-  if (completed && hasChanges) {
-    buttonLabel = labels.updateMood;
-  } else if (completed && !hasChanges) {
-    buttonLabel = labels.completed;
+  function toggleInfluence(key: string) {
+    setFormInfluences((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
   }
+
+  function handleSubmit() {
+    const newEntry: MoodEntry = { moods: formMoods, influences: formInfluences, context: formContext };
+    if (typeof openMode === "number") {
+      const all = [...existingEntries];
+      all[openMode] = newEntry;
+      onSubmit({ entries: all });
+    } else {
+      onSubmit({ entries: [...existingEntries, newEntry] });
+    }
+  }
+
+  const canSubmit = !loading && formMoods.length > 0;
+  const isEditing = typeof openMode === "number";
 
   return (
     <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-[0_16px_40px_rgba(53,50,47,0.08)]">
       <section className="space-y-4 text-center">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">
-          {labels.pickEmoji}
-        </p>
+        <p className="text-xs font-bold uppercase tracking-widest text-outline">{labels.pickEmoji}</p>
         <div className="flex items-center justify-around gap-2">
           {moods.map((m) => {
-            const isSelected = selectedMoods.includes(m.key);
-            const isMaxed = selectedMoods.length >= 3 && !isSelected;
-
+            const isSelected = formMoods.includes(m.key);
+            const isMaxed = formMoods.length >= 3 && !isSelected;
             return (
               <button
                 type="button"
@@ -155,18 +165,16 @@ export function MoodLogRenderer({
       </section>
 
       <section className="space-y-4">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">
-          {labels.influences}
-        </p>
+        <p className="text-xs font-bold uppercase tracking-widest text-outline">{labels.influences}</p>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           {influenceKeys.map((key) => (
             <button
               type="button"
               key={key}
               onClick={() => toggleInfluence(key)}
-              aria-pressed={influences.includes(key)}
+              aria-pressed={formInfluences.includes(key)}
               className={`w-full rounded-full px-4 py-2.5 text-center text-sm font-semibold transition-all duration-200 active:scale-95 ${
-                influences.includes(key)
+                formInfluences.includes(key)
                   ? "bg-secondary-container text-on-secondary-container ring-2 ring-secondary/20"
                   : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
               }`}
@@ -178,13 +186,11 @@ export function MoodLogRenderer({
       </section>
 
       <section className="space-y-3">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">
-          {labels.moreContext}
-        </p>
+        <p className="text-xs font-bold uppercase tracking-widest text-outline">{labels.moreContext}</p>
         <textarea
           ref={contextRef}
-          value={context}
-          onChange={(e) => setContext(e.target.value)}
+          value={formContext}
+          onChange={(e) => setFormContext(e.target.value)}
           style={{ minHeight: "4.5rem" }}
           className="w-full resize-none overflow-hidden rounded-md border-0 bg-surface-container-low px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
         />
@@ -192,18 +198,11 @@ export function MoodLogRenderer({
 
       <button
         type="button"
-        onClick={() =>
-          onSubmit({
-            mood: selectedMoods[0] ?? "",
-            moods: selectedMoods,
-            influences,
-            context,
-          })
-        }
+        onClick={handleSubmit}
         disabled={!canSubmit}
         className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-200 transition-all hover:opacity-90 active:scale-[0.99] disabled:cursor-default disabled:opacity-50 disabled:shadow-none"
       >
-        {loading ? "…" : buttonLabel}
+        {loading ? "…" : isEditing ? labels.updateMood : labels.submit}
       </button>
     </div>
   );

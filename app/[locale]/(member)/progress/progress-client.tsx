@@ -35,6 +35,7 @@ export function ProgressClient({
   const [data, setData] = useState<ProgressData>(initialData);
   const [selectedDay, setSelectedDay] = useState<number>(initialData.selectedDay);
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
+  const [activeTaskMode, setActiveTaskMode] = useState<"add" | number>("add");
 
   // Intent-based prefetch cache for day data. (Task 3.0)
   // Hovering / touching a day chip warms this cache so the subsequent
@@ -227,6 +228,21 @@ export function ProgressClient({
     }
   }
 
+  function handleTaskTap(task: TaskData) {
+    setActiveTaskMode("add");
+    setActiveTask(task);
+  }
+
+  function handleAddEntry(task: TaskData) {
+    setActiveTaskMode("add");
+    setActiveTask(task);
+  }
+
+  function handleViewEntry(task: TaskData, entryIndex: number) {
+    setActiveTaskMode(entryIndex);
+    setActiveTask(task);
+  }
+
   async function handleDaySelect(day: number) {
     setSelectedDay(day);
     setActiveTask(null);
@@ -234,7 +250,6 @@ export function ProgressClient({
   }
 
   if (activeTask) {
-    // Find the latest version of the task from data (with updated completed state)
     const current = data.tasks.find((t) => t.id === activeTask.id) ?? activeTask;
     const categoryTasks = data.tasks.filter((t) => t.category === current.category);
     return (
@@ -245,12 +260,15 @@ export function ProgressClient({
         dayNumber={selectedDay}
         onCompleteAction={handleComplete}
         onCloseAction={() => {
-          // No refetch on close — local optimistic state already reflects
-          // the latest completion status. (Task 1.5 of perf improvements)
           setActiveTask(null);
+          setActiveTaskMode("add");
         }}
         categoryTasks={categoryTasks}
-        onNavigateAction={(t) => setActiveTask(t)}
+        onNavigateAction={(t) => {
+          setActiveTaskMode("add");
+          setActiveTask(t);
+        }}
+        mode={activeTaskMode}
       />
     );
   }
@@ -291,8 +309,10 @@ export function ProgressClient({
 
       <TaskList
         tasks={data.tasks}
-        onTaskTap={setActiveTask}
+        onTaskTap={handleTaskTap}
         onToggleComplete={handleToggleComplete}
+        onAddEntry={handleAddEntry}
+        onViewEntry={handleViewEntry}
         labels={{
           mental: t("mental"),
           emotional: t("emotional"),

@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { RadarChart } from "./radar-chart";
 import { StreakBadge } from "./streak-badge";
 import { ActivityCalendar } from "./activity-calendar";
+import { EmotionBreakdownChart } from "./emotion-breakdown-chart";
 import type { DashboardData } from "@/src/features/dashboard";
 
 const BlockCelebration = dynamic(
@@ -83,6 +84,13 @@ export function DashboardClient({
       </div>
 
       {children}
+
+      <EmotionBreakdownChart
+        breakdown={data.emotionBreakdown}
+        title={t("emotionBreakdown")}
+        emptyLabel={t("noMoodLogs")}
+        blockStartDate={data.blockStartDate}
+      />
 
       <ActivityCalendar
         data={data.calendar}

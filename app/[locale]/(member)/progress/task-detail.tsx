@@ -19,8 +19,6 @@ interface TaskData {
   content: Record<string, unknown> | null;
   completed: boolean;
   completionData: Record<string, unknown> | null;
-  // Registry-only fields. When `body` is present the task came from the
-  // markdown program registry and is rendered with SectionedContentRenderer.
   body?: string;
   passageRef?: string;
   scriptureRef?: string;
@@ -38,6 +36,7 @@ export function TaskDetail({
   onCloseAction,
   categoryTasks,
   onNavigateAction,
+  mode = "add",
 }: {
   task: TaskData;
   locale: string;
@@ -47,6 +46,7 @@ export function TaskDetail({
   onCloseAction: () => void;
   categoryTasks: TaskData[];
   onNavigateAction: (task: TaskData) => void;
+  mode?: "add" | number;
 }) {
   const t = useTranslations("progress");
   const tm = useTranslations("mood");
@@ -67,9 +67,6 @@ export function TaskDetail({
   const hasNext = currentIndex < categoryTasks.length - 1;
 
   const handleNext = useCallback(() => {
-    // Only call onCompleteAction for tasks that haven't been completed yet.
-    // Re-viewing an already-completed task must not bump its completedAt
-    // timestamp or spam the community feed.
     if (!task.completed) {
       void onCompleteAction(task.id);
     }
@@ -86,21 +83,18 @@ export function TaskDetail({
     }
   }, [hasPrev, categoryTasks, currentIndex, onNavigateAction]);
 
+  // Mood/exercise submit: save then close — entries are visible in the task list
   const handleExerciseSubmit = useCallback(
     async (data: Record<string, unknown>) => {
       setLoading(true);
       try {
         await onCompleteAction(task.id, data);
-        if (hasNext) {
-          onNavigateAction(categoryTasks[currentIndex + 1]);
-        } else {
-          onCloseAction();
-        }
+        onCloseAction();
       } finally {
         setLoading(false);
       }
     },
-    [onCompleteAction, task.id, hasNext, categoryTasks, currentIndex, onNavigateAction, onCloseAction],
+    [onCompleteAction, task.id, onCloseAction],
   );
 
   const handleMoodSubmit = useCallback(
@@ -108,30 +102,17 @@ export function TaskDetail({
       setLoading(true);
       try {
         await onCompleteAction(task.id, data);
-        if (hasNext) {
-          onNavigateAction(categoryTasks[currentIndex + 1]);
-        } else {
-          onCloseAction();
-        }
+        onCloseAction();
       } finally {
         setLoading(false);
       }
     },
-    [onCompleteAction, task.id, hasNext, categoryTasks, currentIndex, onNavigateAction, onCloseAction],
+    [onCompleteAction, task.id, onCloseAction],
   );
 
-  // Reflection-input autosave from SectionedContentRenderer. Merges the new
-  // section text into the existing completion data (so typing in
-  // "Reflection" doesn't clobber what the user typed in
-  // "Today's Practice") and forwards to the same /api/tasks/complete path
-  // as the Next button. The endpoint already does ON CONFLICT DO UPDATE on
-  // (user_id, task_id) so repeated saves are safe.
   const handleSaveReflection = useCallback(
     async (slug: string, text: string) => {
-      const merged = {
-        ...task.completionData,
-        [slug]: text,
-      };
+      const merged = { ...task.completionData, [slug]: text };
       await onCompleteAction(task.id, merged);
     },
     [onCompleteAction, task.id, task.completionData],
@@ -144,10 +125,6 @@ export function TaskDetail({
       task.taskType === "info" ||
       task.taskType === "scripture_study");
 
-  // Reconstruct the minimal ProgramTask shape SectionedContentRenderer
-  // expects. The renderer only reads frontmatter-shaped fields plus body;
-  // we don't need the full filePath / category / etc. round-trip from the
-  // registry.
   const programTask: ProgramTask | null = isRegistrySectioned
     ? {
         id: task.id,
@@ -164,6 +141,8 @@ export function TaskDetail({
         filePath: "",
       }
     : null;
+
+  const isRestDay = ((dayNumber - 1) % 7) + 1 === 4 || ((dayNumber - 1) % 7) + 1 === 7;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-surface">
@@ -183,96 +162,95 @@ export function TaskDetail({
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 pb-24">
         <div className="mx-auto max-w-93.75">
-        {isRegistrySectioned && programTask && (
-          <SectionedContentRenderer
-            task={programTask}
-            locale={locale}
-            completionData={task.completionData}
-            onSaveReflectionAction={handleSaveReflection}
-          />
-        )}
+          {isRegistrySectioned && programTask && (
+            <SectionedContentRenderer
+              task={programTask}
+              locale={locale}
+              completionData={task.completionData}
+              onSaveReflectionAction={handleSaveReflection}
+            />
+          )}
 
-        {task.taskType === "scripture_reading" && (
-          <div className="space-y-6">
-            <div>
-              <p className="mb-3 font-headline text-lg font-bold text-foreground">
-                {(content.prefetched_passage as { reference: string; content: string } | null)?.reference
-                  ?? localizeScriptureRef((content.scripture_reference as string) ?? "", locale)}
-              </p>
-              <BilingualPassage
-                passage={
-                  (content.prefetched_passage as {
-                    reference: string;
-                    content: string;
-                  } | null) ?? null
-                }
-                locale={locale}
-              />
+          {task.taskType === "scripture_reading" && (
+            <div className="space-y-6">
+              <div>
+                <p className="mb-3 font-headline text-lg font-bold text-foreground">
+                  {(content.prefetched_passage as { reference: string; content: string } | null)?.reference
+                    ?? localizeScriptureRef((content.scripture_reference as string) ?? "", locale)}
+                </p>
+                <BilingualPassage
+                  passage={
+                    (content.prefetched_passage as { reference: string; content: string } | null) ?? null
+                  }
+                  locale={locale}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {task.taskType === "exercise" && (
-          <ExerciseLogRenderer
-            completed={task.completed}
-            initialData={task.completionData}
-            onSubmitAction={handleExerciseSubmit}
-            loading={loading}
-            isRestDay={((dayNumber - 1) % 7) + 1 === 4 || ((dayNumber - 1) % 7) + 1 === 7}
-            labels={{
-              selectActivity: te("selectActivity"),
-              badminton: te("badminton"),
-              run: te("run"),
-              pickleball: te("pickleball"),
-              swimming: te("swimming"),
-              pilates: te("pilates"),
-              others: te("others"),
-              customActivityPlaceholder: te("customActivityPlaceholder"),
-              duration: te("duration"),
-              hours: te("hours"),
-              minutes: te("minutes"),
-              logActivity: te("logActivity"),
-              updateActivity: te("updateActivity"),
-              completed: t("completed"),
-              restDay: te("restDay"),
-              restMessage: te("restMessage"),
-              takeRest: te("takeRest"),
-              rested: te("rested"),
-            }}
-          />
-        )}
+          {task.taskType === "exercise" && (
+            <ExerciseLogRenderer
+              initialData={task.completionData}
+              onSubmitAction={handleExerciseSubmit}
+              loading={loading}
+              isRestDay={isRestDay}
+              openMode={mode}
+              labels={{
+                selectActivity: te("selectActivity"),
+                badminton: te("badminton"),
+                run: te("run"),
+                pickleball: te("pickleball"),
+                swimming: te("swimming"),
+                pilates: te("pilates"),
+                others: te("others"),
+                customActivityPlaceholder: te("customActivityPlaceholder"),
+                duration: te("duration"),
+                hours: te("hours"),
+                minutes: te("minutes"),
+                logActivity: te("logActivity"),
+                restDay: te("restDay"),
+                restMessage: te("restMessage"),
+                takeRest: te("takeRest"),
+                rested: te("rested"),
+                addExercise: te("addExercise"),
+                entryLabel: te("entryLabel"),
+              }}
+            />
+          )}
 
-        {task.taskType === "mood_log" && (
-          <MoodLogRenderer
-            completed={task.completed}
-            initialData={task.completionData}
-            onSubmit={handleMoodSubmit}
-            loading={loading}
-            labels={{
-              pickEmoji: tm("pickEmoji"),
-              terrible: tm("terrible"),
-              bad: tm("bad"),
-              okay: tm("okay"),
-              good: tm("good"),
-              excellent: tm("excellent"),
-              influences: tm("influences"),
-              family: tm("family"),
-              friends: tm("friends"),
-              love: tm("love"),
-              work: tm("work"),
-              school: tm("school"),
-              health: tm("health"),
-              moreContext: tm("moreContext"),
-              submit: tm("submit"),
-              completed: t("completed"),
-              updateMood: tm("updateMood"),
-            }}
-          />
-        )}
+          {task.taskType === "mood_log" && (
+            <MoodLogRenderer
+              initialData={task.completionData}
+              onSubmit={handleMoodSubmit}
+              loading={loading}
+              openMode={mode}
+              labels={{
+                pickEmoji: tm("pickEmoji"),
+                terrible: tm("terrible"),
+                bad: tm("bad"),
+                okay: tm("okay"),
+                good: tm("good"),
+                excellent: tm("excellent"),
+                influences: tm("influences"),
+                family: tm("family"),
+                friends: tm("friends"),
+                love: tm("love"),
+                work: tm("work"),
+                school: tm("school"),
+                health: tm("health"),
+                moreContext: tm("moreContext"),
+                submit: tm("submit"),
+                completed: t("completed"),
+                updateMood: tm("updateMood"),
+                addMoodLog: tm("addMoodLog"),
+                entryLabel: tm("entryLabel"),
+              }}
+            />
+          )}
         </div>
       </div>
 
-      {/* Footer nav – sits where the bottom nav was, with divider and meta */}
+      {/* Footer nav — only for non-mood/exercise tasks */}
       {task.taskType !== "mood_log" && task.taskType !== "exercise" && (
         <div className="fixed bottom-0 inset-x-0 z-50 border-t border-zinc-200 bg-white pb-[env(safe-area-inset-bottom)]">
           <div className="mx-auto flex max-w-93.75 items-center justify-between gap-3 px-6 py-5">

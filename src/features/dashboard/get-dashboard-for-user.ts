@@ -24,6 +24,8 @@ export interface DashboardData {
     earnedAt: string;
   } | null;
   blockEndedWithoutCompletion: boolean;
+  emotionBreakdown: Record<string, number>;
+  blockStartDate: string;
 }
 
 export async function getDashboardForUser(
@@ -52,7 +54,7 @@ export async function getDashboardForUser(
   // batch endpoint (PlanetScale Postgres in prod). Local node-postgres falls
   // back to Promise.all in batchOrAll().
   const allCompletionsQ = db
-    .select({ taskId: taskCompletions.taskId })
+    .select({ taskId: taskCompletions.taskId, data: taskCompletions.data })
     .from(taskCompletions)
     .where(eq(taskCompletions.userId, userId));
 
@@ -121,14 +123,31 @@ export async function getDashboardForUser(
   let physicalCount = 0;
   const dayCategoryMap = new Map<number, Set<string>>();
   const dateCategories = new Map<string, Set<string>>();
+  const emotionBreakdown: Record<string, number> = {};
   const startMs = startDate.getTime();
   const endMs = endDate.getTime();
 
-  for (const { taskId } of allCompletions) {
+  for (const { taskId, data } of allCompletions) {
     const fromRegistry = getRegistryTaskById(taskId);
     if (!fromRegistry || fromRegistry.block !== blockNumber) continue;
 
     const { day: dayNumber, category, type: taskType } = fromRegistry;
+
+    if (taskType === "mood_log" && data) {
+      const d = data as Record<string, unknown>;
+      const moodEntries: { moods?: string[] }[] = Array.isArray(d.entries)
+        ? (d.entries as { moods?: string[] }[])
+        : Array.isArray(d.moods)
+          ? [{ moods: d.moods as string[] }]
+          : d.mood
+            ? [{ moods: [d.mood as string] }]
+            : [];
+      for (const entry of moodEntries) {
+        for (const mood of entry.moods ?? []) {
+          emotionBreakdown[mood] = (emotionBreakdown[mood] ?? 0) + 1;
+        }
+      }
+    }
 
     // Radar accumulation
     if (daysElapsed > 0) {
@@ -196,5 +215,7 @@ export async function getDashboardForUser(
         }
       : null,
     blockEndedWithoutCompletion,
+    emotionBreakdown,
+    blockStartDate: onboardedAt.toISOString().slice(0, 10),
   };
 }

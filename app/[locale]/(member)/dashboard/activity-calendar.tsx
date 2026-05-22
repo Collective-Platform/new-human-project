@@ -1,9 +1,14 @@
 import { Link } from "@/src/i18n/navigation";
 
-const categoryColors: Record<string, string> = {
-  Mental: "bg-category-mental",
-  Emotional: "bg-category-emotional",
-  Physical: "bg-category-physical border border-[#d4c8a0]",
+const r = 11;
+const circumference = 2 * Math.PI * r;
+const segLength = circumference / 3;
+const gap = 4;
+
+const categorySegments: Record<string, { stroke: string; offset: number }> = {
+  Emotional: { stroke: "#679fff", offset: -(gap / 2) },
+  Physical: { stroke: "#d4c8a0", offset: -(segLength + gap / 2) },
+  Mental: { stroke: "#ee1c24", offset: -(segLength * 2 + gap / 2) },
 };
 
 const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
@@ -32,7 +37,10 @@ export function ActivityCalendar({
 
       <div className="mb-2 grid grid-cols-7 gap-1">
         {dayLabels.map((label, i) => (
-          <div key={i} className="text-center text-[10px] font-medium text-foreground/40">
+          <div
+            key={i}
+            className="text-center text-[10px] font-medium text-foreground/40"
+          >
             {label}
           </div>
         ))}
@@ -52,16 +60,43 @@ export function ActivityCalendar({
             <Link
               key={day}
               href={hasActivity ? `/calendar/${dateStr}` : "#"}
-              className={`flex flex-col items-center gap-0.5 rounded-sm py-1 transition-colors ${hasActivity ? "hover:bg-zinc-50" : ""}`}
+              className={`flex items-center justify-center rounded-sm p-0.5 transition-colors ${hasActivity ? "hover:bg-zinc-50" : ""}`}
             >
-              <span className="text-xs text-foreground/70">{day}</span>
-              <div className="flex gap-0.5">
-                {categories.map((cat) => (
-                  <span
-                    key={cat}
-                    className={`h-1.5 w-1.5 rounded-full ${categoryColors[cat] ?? ""}`}
-                  />
-                ))}
+              <div className="relative flex h-6 w-6 items-center justify-center">
+                {hasActivity && (
+                  <svg
+                    className="absolute inset-0 overflow-visible"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    {categories.map((cat) => {
+                      const seg = categorySegments[cat];
+                      if (!seg) return null;
+                      return (
+                        <circle
+                          key={cat}
+                          cx={12}
+                          cy={12}
+                          r={r}
+                          fill="none"
+                          stroke={seg.stroke}
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeDasharray={`${segLength - gap} ${circumference - (segLength - gap)}`}
+                          strokeDashoffset={seg.offset}
+                          style={{
+                            transform: "rotate(-90deg)",
+                            transformOrigin: "12px 12px",
+                          }}
+                        />
+                      );
+                    })}
+                  </svg>
+                )}
+                <span className="relative text-xs text-foreground/70">
+                  {day}
+                </span>
               </div>
             </Link>
           );
