@@ -225,7 +225,7 @@ export function CommunityClient({
         <ActivityFeed
           items={feedItems}
           selfUserId={selfUserId}
-          onLike={handleLike}
+          onLikeAction={handleLike}
           likeOverrides={likeState}
         />
 

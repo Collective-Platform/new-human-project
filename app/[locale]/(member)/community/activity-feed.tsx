@@ -9,6 +9,7 @@ import { getActivityLikers } from "@/src/features/community/actions";
 
 export interface FeedItem {
   completionId: string;
+  taskId?: string;
   userId: number;
   displayName: string | null;
   searchHandle: string | null;
@@ -84,7 +85,8 @@ function relativeTime(dateStr: string, t: TFn): string {
 function ActivityCard({
   item,
   selfUserId,
-  onLike,
+  onLikeAction,
+  onItemClickAction,
   likeInfo,
   allowSelfLike,
   t,
@@ -92,7 +94,8 @@ function ActivityCard({
 }: {
   item: FeedItem;
   selfUserId?: number;
-  onLike?: (completionId: string) => void;
+  onLikeAction?: (completionId: string) => void;
+  onItemClickAction?: (taskId: string, date: string) => void;
   likeInfo: { liked: boolean; count: number };
   allowSelfLike?: boolean;
   t: TFn;
@@ -115,13 +118,17 @@ function ActivityCard({
   };
 
   function handleTap() {
-    if ((isSelf && !allowSelfLike) || !onLike) return;
     const now = Date.now();
-    if (now - lastTapRef.current < 300) {
-      onLike(item.completionId);
-      lastTapRef.current = 0;
-    } else {
-      lastTapRef.current = now;
+    const isDoubleTap = now - lastTapRef.current < 300;
+    lastTapRef.current = isDoubleTap ? 0 : now;
+
+    if (isDoubleTap && (!isSelf || allowSelfLike) && onLikeAction) {
+      onLikeAction(item.completionId);
+      return;
+    }
+
+    if (!isDoubleTap && onItemClickAction && item.taskId) {
+      onItemClickAction(item.taskId, item.completedAt.split('T')[0]);
     }
   }
 
@@ -199,7 +206,7 @@ function ActivityCard({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onLike?.(item.completionId);
+                    onLikeAction?.(item.completionId);
                   }}
                   className="flex items-center text-outline hover:text-primary transition-colors"
                 >
@@ -291,13 +298,15 @@ function ActivityCard({
 export function ActivityFeed({
   items,
   selfUserId,
-  onLike,
+  onLikeAction,
+  onItemClickAction,
   likeOverrides,
   allowSelfLike,
 }: {
   items: FeedItem[];
   selfUserId?: number;
-  onLike?: (completionId: string) => void;
+  onLikeAction?: (completionId: string) => void;
+  onItemClickAction?: (taskId: string, date: string) => void;
   likeOverrides?: Map<string, { liked: boolean; count: number }>;
   allowSelfLike?: boolean;
 }) {
@@ -318,7 +327,8 @@ export function ActivityFeed({
             key={item.completionId}
             item={item}
             selfUserId={selfUserId}
-            onLike={onLike}
+            onLikeAction={onLikeAction}
+            onItemClickAction={onItemClickAction}
             likeInfo={likeInfo}
             allowSelfLike={allowSelfLike}
             t={t}

@@ -189,7 +189,7 @@ export function ProfileClient({
               <ActivityFeed
                 items={activities}
                 selfUserId={selfUserId}
-                onLike={handleLike}
+                onLikeAction={handleLike}
                 likeOverrides={likeState}
               />
             </>

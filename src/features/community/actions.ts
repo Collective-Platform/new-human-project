@@ -9,7 +9,8 @@ import {
   removeFriendInDb,
   cancelFriendRequest,
   toggleLikeInDb,
-  getCompletionOwnerId,
+  getCompletionDetails,
+  computeActivityLabel,
   getLikersForCompletion,
 } from "./queries";
 import { sendPushToUser } from "@/src/features/notifications";
@@ -125,8 +126,9 @@ export async function toggleLike(input: {
   const user = await getSessionUser();
   if (!user) return { error: "Unauthorized" };
 
-  const ownerId = await getCompletionOwnerId(input.completionId);
-  if (!ownerId) return { error: "Activity not found" };
+  const details = await getCompletionDetails(input.completionId);
+  if (!details) return { error: "Activity not found" };
+  const ownerId = details.userId;
 
   const liked = await toggleLikeInDb(user.id, input.completionId);
   updateTag(`likes:${input.completionId}`);
@@ -138,9 +140,14 @@ export async function toggleLike(input: {
         const senderName = user.searchHandle
           ? `@${user.searchHandle}`
           : (user.displayName ?? "Someone");
+        const activityLabel = computeActivityLabel(
+          details.taskId,
+          details.completionData,
+          details.dbTaskType,
+        );
         sendPushToUser(
           ownerId,
-          { title: "Rhythm", body: `${senderName} liked your activity`, url: "/profile" },
+          { title: "Rhythm", body: `${senderName} liked your ${activityLabel}`, url: "/profile" },
           "like",
         ).catch(() => {});
       }

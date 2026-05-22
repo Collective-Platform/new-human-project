@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toggleLike } from "@/src/features/community/actions";
-import { Link } from "@/src/i18n/navigation";
+import { Link, useRouter } from "@/src/i18n/navigation";
 import { User, Settings, QrCode } from "lucide-react";
 import NextImage from "next/image";
 import type { ProfileData } from "@/src/features/profile/get-profile-for-user";
@@ -23,6 +23,7 @@ export function ProfileClient({
   selfUserId: number;
 }) {
   const t = useTranslations("profile");
+  const router = useRouter();
   const { user } = initialData;
   const [shareOpen, setShareOpen] = useState(false);
   const [likeState, setLikeState] = useState<Map<string, { liked: boolean; count: number }>>(
@@ -42,6 +43,10 @@ export function ProfileClient({
     if ("error" in result) {
       setLikeState((prev) => new Map(prev).set(completionId, snapshot));
     }
+  }
+
+  function handleItemClick(taskId: string, date: string) {
+    router.push(`/progress?date=${date}&task=${taskId}`);
   }
 
   return (
@@ -113,7 +118,8 @@ export function ProfileClient({
             <ActivityFeed
               items={activities}
               selfUserId={selfUserId}
-              onLike={handleLike}
+              onLikeAction={handleLike}
+              onItemClickAction={handleItemClick}
               likeOverrides={likeState}
               allowSelfLike
             />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
@@ -24,11 +24,14 @@ function toChineseNumeral(n: number): string {
 export function ProgressClient({
   locale,
   initialData,
+  initialTaskId,
 }: {
   locale: string;
   initialData: ProgressData;
+  initialTaskId?: string;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const t = useTranslations("progress");
   // Seeded from server-rendered payload — first paint shows real content,
   // no initial-load spinner. (Task 2.0 of tasks-perf-improvements.md)
@@ -46,6 +49,26 @@ export function ProgressClient({
     new Map([[initialData.selectedDay, initialData]]),
   );
   const inFlightRef = useRef<Map<number, Promise<ProgressData | null>>>(new Map());
+  const taskNavStack = useRef<Array<{ task: TaskData; mode: "add" | number }>>([]);
+  const skipNextPopRef = useRef(false);
+  const initialTaskIdRef = useRef(initialTaskId);
+
+  useEffect(() => {
+    setSelectedDay(initialData.selectedDay);
+    setData(initialData);
+    dayCacheRef.current = new Map([[initialData.selectedDay, initialData]]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData.selectedDay]);
+
+  useEffect(() => {
+    if (!initialTaskIdRef.current) return;
+    const task = data.tasks.find(t => t.id === initialTaskIdRef.current);
+    if (task) {
+      handleTaskTap(task);
+      initialTaskIdRef.current = undefined;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // mount-only: data.tasks is pre-populated from server-rendered initialData
 
   async function loadDay(day: number): Promise<ProgressData | null> {
     const cached = dayCacheRef.current.get(day);
@@ -110,6 +133,26 @@ export function ProgressClient({
     };
     // Mount-only; prefetchDay is stable (only writes to refs).
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    function onPopState() {
+      if (skipNextPopRef.current) {
+        skipNextPopRef.current = false;
+        return;
+      }
+      taskNavStack.current.pop();
+      const prev = taskNavStack.current[taskNavStack.current.length - 1];
+      if (prev) {
+        setActiveTask(prev.task);
+        setActiveTaskMode(prev.mode);
+      } else {
+        setActiveTask(null);
+        setActiveTaskMode("add");
+      }
+    }
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
   // Optimistically apply a patch to a single task in local state, then run
@@ -229,16 +272,22 @@ export function ProgressClient({
   }
 
   function handleTaskTap(task: TaskData) {
+    taskNavStack.current.push({ task, mode: "add" });
+    window.history.pushState({ taskNav: true }, '');
     setActiveTaskMode("add");
     setActiveTask(task);
   }
 
   function handleAddEntry(task: TaskData) {
+    taskNavStack.current.push({ task, mode: "add" });
+    window.history.pushState({ taskNav: true }, '');
     setActiveTaskMode("add");
     setActiveTask(task);
   }
 
   function handleViewEntry(task: TaskData, entryIndex: number) {
+    taskNavStack.current.push({ task, mode: entryIndex });
+    window.history.pushState({ taskNav: true }, '');
     setActiveTaskMode(entryIndex);
     setActiveTask(task);
   }
@@ -246,6 +295,7 @@ export function ProgressClient({
   async function handleDaySelect(day: number) {
     setSelectedDay(day);
     setActiveTask(null);
+    window.history.replaceState(null, '', `${pathname}?day=${day}`);
     await fetchDay(day);
   }
 
@@ -260,11 +310,19 @@ export function ProgressClient({
         dayNumber={selectedDay}
         onCompleteAction={handleComplete}
         onCloseAction={() => {
+          const depth = taskNavStack.current.length;
+          taskNavStack.current = [];
           setActiveTask(null);
           setActiveTaskMode("add");
+          if (depth > 0) {
+            skipNextPopRef.current = true;
+            window.history.go(-depth);
+          }
         }}
         categoryTasks={categoryTasks}
         onNavigateAction={(t) => {
+          taskNavStack.current.push({ task: t, mode: "add" });
+          window.history.pushState({ taskNav: true }, '');
           setActiveTaskMode("add");
           setActiveTask(t);
         }}

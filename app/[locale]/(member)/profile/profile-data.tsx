@@ -76,6 +76,7 @@ export async function ProfileData() {
   const activities: FeedItem[] = activityRows.flatMap((row) => {
     const base = {
       completionId: row.completionId,
+      taskId: row.taskId,
       userId: user.id,
       displayName: initialData.user.displayName,
       searchHandle: initialData.user.searchHandle,

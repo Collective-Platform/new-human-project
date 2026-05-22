@@ -408,11 +408,80 @@ export async function getActivityFeedPaged(
 
 // --- Likes ---
 
-export async function getCompletionOwnerId(completionId: string): Promise<number | null> {
+export async function getCompletionDetails(completionId: string): Promise<{
+  userId: number;
+  taskId: string;
+  completionData: Record<string, unknown> | null;
+  dbTaskType: string | null;
+} | null> {
   const result = await db.execute(sql`
-    SELECT user_id FROM nhp.task_completions WHERE id = ${completionId}::uuid LIMIT 1
+    SELECT tc.user_id, tc.task_id, tc.data, bdt.task_type
+    FROM nhp.task_completions tc
+    LEFT JOIN nhp.block_day_tasks bdt ON bdt.id::text = tc.task_id
+    WHERE tc.id = ${completionId}::uuid
+    LIMIT 1
   `);
-  return (result.rows[0] as { user_id: number } | undefined)?.user_id ?? null;
+  const row = (
+    result.rows as {
+      user_id: number;
+      task_id: string;
+      data: Record<string, unknown> | null;
+      task_type: string | null;
+    }[]
+  )[0];
+  if (!row) return null;
+  return {
+    userId: row.user_id,
+    taskId: row.task_id,
+    completionData: row.data ?? null,
+    dbTaskType: row.task_type ?? null,
+  };
+}
+
+const _sportLabels: Record<string, string> = {
+  badminton: "Badminton",
+  run: "Run",
+  pickleball: "Pickleball",
+  swimming: "Swimming",
+  pilates: "Pilates",
+};
+
+export function computeActivityLabel(
+  taskId: string,
+  completionData: Record<string, unknown> | null,
+  dbTaskType: string | null,
+): string {
+  function sportName(data: Record<string, unknown> | null): string {
+    const sportKey = data?.sportKey as string | undefined;
+    if (sportKey === "rest") return "Rest";
+    if (!sportKey) return "Exercise";
+    if (sportKey === "others") return (data?.customSport as string | undefined) ?? "Exercise";
+    return _sportLabels[sportKey] ?? "Exercise";
+  }
+  function dur(data: Record<string, unknown> | null): string {
+    const h = (data?.hours as number | undefined) ?? 0;
+    const m = (data?.minutes as number | undefined) ?? 0;
+    if (h === 0 && m === 0) return "";
+    if (h === 0) return `${m}m`;
+    if (m === 0) return `${h}h`;
+    return `${h}h ${m}m`;
+  }
+
+  const registryTask = getRegistryTaskById(taskId);
+  if (registryTask) {
+    if (registryTask.type === "exercise") {
+      const sport = sportName(completionData);
+      const d = dur(completionData);
+      return d ? `${sport} for ${d}` : sport;
+    }
+    return getLocalizedString(registryTask.name, "en");
+  }
+  if (dbTaskType === "exercise") {
+    const sport = sportName(completionData);
+    const d = dur(completionData);
+    return d ? `${sport} for ${d}` : sport;
+  }
+  return "an activity";
 }
 
 export async function toggleLikeInDb(userId: number, completionId: string): Promise<boolean> {
