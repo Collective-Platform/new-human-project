@@ -21,12 +21,15 @@ export interface FeedItem {
   likedByMe: boolean;
 }
 
-const categoryStyles: Record<string, {
-  badgeBg: string;
-  badgeText: string;
-  accentText: string;
-  iconSrc: string;
-}> = {
+const categoryStyles: Record<
+  string,
+  {
+    badgeBg: string;
+    badgeText: string;
+    accentText: string;
+    iconSrc: string;
+  }
+> = {
   Mental: {
     badgeBg: "bg-category-mental-bg",
     badgeText: "text-category-mental",
@@ -119,7 +122,7 @@ function ActivityCard({
     }
 
     if (!isDoubleTap && onItemClickAction && item.taskId) {
-      onItemClickAction(item.taskId, item.completedAt.split('T')[0]);
+      onItemClickAction(item.taskId, item.completedAt.split("T")[0]);
     }
   }
 
@@ -175,7 +178,11 @@ function ActivityCard({
               {isSelf ? (
                 <span className="font-medium">{t("you")}</span>
               ) : (
-                <Link href={href} className="font-medium hover:underline" onClick={(e) => e.stopPropagation()}>
+                <Link
+                  href={href}
+                  className="font-medium hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {name}
                 </Link>
               )}{" "}
@@ -201,10 +208,7 @@ function ActivityCard({
                   }}
                   className="flex items-center text-outline hover:text-primary transition-colors"
                 >
-                  <Heart
-                    size={14}
-                    className={likeInfo.liked ? "fill-primary text-primary" : ""}
-                  />
+                  <Heart size={14} className={likeInfo.liked ? "fill-primary text-primary" : ""} />
                 </button>
               )}
               {likeInfo.count > 0 && (
@@ -245,7 +249,9 @@ function ActivityCard({
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               </div>
             ) : likers.length === 0 ? (
-              <div className="px-5 pb-6 text-sm text-on-surface-variant text-center">No likes yet</div>
+              <div className="px-5 pb-6 text-sm text-on-surface-variant text-center">
+                No likes yet
+              </div>
             ) : (
               <div className="overflow-y-auto max-h-80 px-4 pb-5 space-y-3">
                 {likers.map((liker) => {

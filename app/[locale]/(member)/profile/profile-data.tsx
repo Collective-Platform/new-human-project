@@ -43,7 +43,9 @@ function formatDuration(hours: number, minutes: number, locale: string): string 
   return `${hours}h ${minutes}m`;
 }
 
-function resolveExerciseEntry(data: Record<string, unknown> | null): Record<string, unknown> | null {
+function resolveExerciseEntry(
+  data: Record<string, unknown> | null,
+): Record<string, unknown> | null {
   if (!data) return null;
   if (Array.isArray(data.entries) && data.entries.length > 0) {
     return data.entries[0] as Record<string, unknown>;

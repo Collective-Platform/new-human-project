@@ -46,7 +46,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 bg-white pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-93.75 items-center justify-around px-4 pt-3 pb-3">
+      <div className="mx-auto flex max-w-93.75 items-center justify-around px-3 pt-3 pb-3">
         {tabs.map((tab) => {
           const active = isActive(tab.href);
           const TabIcon = tab.Icon;

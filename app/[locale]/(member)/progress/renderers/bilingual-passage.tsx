@@ -20,7 +20,7 @@ export function BilingualPassage({
   if (passage?.content) {
     return (
       <div
-        className="text-md leading-relaxed text-foreground [&_p]:mb-2 [&_.yv-vlbl]:text-[10px] [&_.yv-vlbl]:font-bold [&_.yv-vlbl]:align-super [&_.yv-vlbl]:text-foreground/40 [&_.yv-vlbl]:mr-0.5 [&_.yv-vlbl]:select-none"
+        className="text-lg leading-loose tracking-tight text-foreground [&_p]:mb-2 [&_.yv-vlbl]:text-[10px] [&_.yv-vlbl]:font-bold [&_.yv-vlbl]:align-super [&_.yv-vlbl]:text-foreground/40 [&_.yv-vlbl]:mr-0.5 [&_.yv-vlbl]:select-none"
         dangerouslySetInnerHTML={{ __html: passage.content }}
       />
     );
@@ -28,12 +28,12 @@ export function BilingualPassage({
 
   if (fallbackText) {
     return (
-      <p className="whitespace-pre-line text-md leading-relaxed text-foreground">{fallbackText}</p>
+      <p className="whitespace-pre-line text-lg leading-loose text-foreground">{fallbackText}</p>
     );
   }
 
   return (
-    <p className="text-md text-foreground">
+    <p className="text-lg tracking-tight leading-loose text-foreground">
       {locale === "zh"
         ? "请在圣经或圣经应用程序中阅读这段经文。"
         : "Read this passage in your Bible or Bible app."}

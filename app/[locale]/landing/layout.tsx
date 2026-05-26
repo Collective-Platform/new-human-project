@@ -11,8 +11,6 @@ export default async function LandingLayout({
   setRequestLocale(locale);
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-black text-white">
-      {children}
-    </div>
+    <div className="relative h-screen w-full overflow-hidden bg-black text-white">{children}</div>
   );
 }

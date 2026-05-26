@@ -10,7 +10,11 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { title, body: message, url } = body as {
+  const {
+    title,
+    body: message,
+    url,
+  } = body as {
     title: string;
     body: string;
     url?: string;

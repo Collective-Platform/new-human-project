@@ -2,14 +2,7 @@
 
 import { useState } from "react";
 
-const sportKeys = [
-  "run",
-  "badminton",
-  "pickleball",
-  "swimming",
-  "pilates",
-  "others",
-] as const;
+const sportKeys = ["run", "badminton", "pickleball", "swimming", "pilates", "others"] as const;
 
 export const SPORT_EMOJIS: Record<string, string> = {
   run: "🏃🏻",
@@ -45,9 +38,7 @@ export type ExerciseEntry = {
   minutes?: number;
 };
 
-export function normalizeExerciseEntries(
-  data: Record<string, unknown> | null,
-): ExerciseEntry[] {
+export function normalizeExerciseEntries(data: Record<string, unknown> | null): ExerciseEntry[] {
   if (!data) return [];
   if (Array.isArray(data.entries)) return data.entries as ExerciseEntry[];
   if (data.sportKey) {
@@ -110,8 +101,7 @@ export function ExerciseLogRenderer({
   labels: Labels;
 }) {
   const existingEntries = normalizeExerciseEntries(initialData);
-  const editEntry =
-    typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
+  const editEntry = typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
 
   const sportLabels: Record<SportKey, string> = {
     badminton: labels.badminton,
@@ -146,12 +136,8 @@ export function ExerciseLogRenderer({
       <div className="space-y-6 rounded-lg bg-white p-6 shadow-card text-center">
         <div className="space-y-3">
           <p className="text-5xl">🛌</p>
-          <p className="text-lg font-bold font-headline text-foreground">
-            {labels.restDay}
-          </p>
-          <p className="text-sm text-on-surface-variant">
-            {labels.restMessage}
-          </p>
+          <p className="text-lg font-bold font-headline text-foreground">{labels.restDay}</p>
+          <p className="text-sm text-on-surface-variant">{labels.restMessage}</p>
         </div>
         <button
           type="button"
@@ -205,7 +191,7 @@ export function ExerciseLogRenderer({
 
   return (
     <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-[0_16px_40px_rgba(53,50,47,0.08)]">
-      <section className="space-y-4">
+      <section className="space-y-4 text-center">
         <p className="text-xs font-bold uppercase tracking-widest text-outline">
           {labels.selectActivity}
         </p>
@@ -239,15 +225,13 @@ export function ExerciseLogRenderer({
         )}
       </section>
 
-      <section className="space-y-4">
+      <section className="space-y-4 text-center">
         <p className="text-xs font-bold uppercase tracking-widest text-outline">
           {labels.duration}
         </p>
-        <div className="flex gap-3">
+        <div className="flex gap-3 text-left">
           <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-xs font-semibold text-on-surface-variant">
-              {labels.hours}
-            </span>
+            <span className="text-xs font-semibold text-on-surface-variant">{labels.hours}</span>
             <input
               type="number"
               min="0"
@@ -259,9 +243,7 @@ export function ExerciseLogRenderer({
             />
           </label>
           <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-xs font-semibold text-on-surface-variant">
-              {labels.minutes}
-            </span>
+            <span className="text-xs font-semibold text-on-surface-variant">{labels.minutes}</span>
             <input
               type="number"
               min="0"

@@ -20,7 +20,11 @@ export const MOOD_EMOJI_MAP: Record<string, string> = {
   excellent: "😆",
 };
 
-export type MoodEntry = { moods: string[]; influences: string[]; context: string };
+export type MoodEntry = {
+  moods: string[];
+  influences: string[];
+  context: string;
+};
 
 export function normalizeEntries(data: Record<string, unknown> | null): MoodEntry[] {
   if (!data) return [];
@@ -64,13 +68,13 @@ type Labels = {
 
 export function MoodLogRenderer({
   initialData,
-  onSubmit,
+  onSubmitAction,
   loading,
   openMode = "add",
   labels,
 }: {
   initialData: Record<string, unknown> | null;
-  onSubmit: (data: Record<string, unknown>) => void;
+  onSubmitAction: (data: Record<string, unknown>) => void;
   loading: boolean;
   openMode?: "add" | number;
   labels: Labels;
@@ -115,17 +119,23 @@ export function MoodLogRenderer({
   }
 
   function toggleInfluence(key: string) {
-    setFormInfluences((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+    setFormInfluences((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
   }
 
   function handleSubmit() {
-    const newEntry: MoodEntry = { moods: formMoods, influences: formInfluences, context: formContext };
+    const newEntry: MoodEntry = {
+      moods: formMoods,
+      influences: formInfluences,
+      context: formContext,
+    };
     if (typeof openMode === "number") {
       const all = [...existingEntries];
       all[openMode] = newEntry;
-      onSubmit({ entries: all });
+      onSubmitAction({ entries: all });
     } else {
-      onSubmit({ entries: [...existingEntries, newEntry] });
+      onSubmitAction({ entries: [...existingEntries, newEntry] });
     }
   }
 
@@ -135,7 +145,9 @@ export function MoodLogRenderer({
   return (
     <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-[0_16px_40px_rgba(53,50,47,0.08)]">
       <section className="space-y-4 text-center">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">{labels.pickEmoji}</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-outline">
+          {labels.pickEmoji}
+        </p>
         <div className="flex items-center justify-around gap-2">
           {moods.map((m) => {
             const isSelected = formMoods.includes(m.key);
@@ -164,8 +176,10 @@ export function MoodLogRenderer({
         </div>
       </section>
 
-      <section className="space-y-4">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">{labels.influences}</p>
+      <section className="space-y-4 text-center">
+        <p className="text-xs font-bold uppercase tracking-widest text-outline">
+          {labels.influences}
+        </p>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           {influenceKeys.map((key) => (
             <button
@@ -185,14 +199,16 @@ export function MoodLogRenderer({
         </div>
       </section>
 
-      <section className="space-y-3">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">{labels.moreContext}</p>
+      <section className="space-y-3 text-center">
+        <p className="text-xs font-bold uppercase tracking-widest text-outline">
+          {labels.moreContext}
+        </p>
         <textarea
           ref={contextRef}
           value={formContext}
           onChange={(e) => setFormContext(e.target.value)}
           style={{ minHeight: "4.5rem" }}
-          className="w-full resize-none overflow-hidden rounded-md border-0 bg-surface-container-low px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
+          className="w-full resize-none overflow-hidden rounded-sm border-0 bg-surface-container-low px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
         />
       </section>
 

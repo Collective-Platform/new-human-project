@@ -69,18 +69,20 @@ export function ProgressClient({
     const localDay = computeLocalCurrentDay(initialData.blockStartDate);
     setSelectedDay(initialData.selectedDay);
     setData({ ...initialData, currentDay: localDay });
-    dayCacheRef.current = new Map([[initialData.selectedDay, { ...initialData, currentDay: localDay }]]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    dayCacheRef.current = new Map([
+      [initialData.selectedDay, { ...initialData, currentDay: localDay }],
+    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData.selectedDay]);
 
   useEffect(() => {
     if (!initialTaskIdRef.current) return;
-    const task = data.tasks.find(t => t.id === initialTaskIdRef.current);
+    const task = data.tasks.find((t) => t.id === initialTaskIdRef.current);
     if (task) {
       handleTaskTap(task);
       initialTaskIdRef.current = undefined;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // mount-only: data.tasks is pre-populated from server-rendered initialData
 
   async function loadDay(day: number): Promise<ProgressData | null> {
@@ -178,8 +180,8 @@ export function ProgressClient({
         setActiveTaskMode("add");
       }
     }
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
   // Optimistically apply a patch to a single task in local state, then run
@@ -300,21 +302,21 @@ export function ProgressClient({
 
   function handleTaskTap(task: TaskData) {
     taskNavStack.current.push({ task, mode: "add" });
-    window.history.pushState({ taskNav: true }, '');
+    window.history.pushState({ taskNav: true }, "");
     setActiveTaskMode("add");
     setActiveTask(task);
   }
 
   function handleAddEntry(task: TaskData) {
     taskNavStack.current.push({ task, mode: "add" });
-    window.history.pushState({ taskNav: true }, '');
+    window.history.pushState({ taskNav: true }, "");
     setActiveTaskMode("add");
     setActiveTask(task);
   }
 
   function handleViewEntry(task: TaskData, entryIndex: number) {
     taskNavStack.current.push({ task, mode: entryIndex });
-    window.history.pushState({ taskNav: true }, '');
+    window.history.pushState({ taskNav: true }, "");
     setActiveTaskMode(entryIndex);
     setActiveTask(task);
   }
@@ -322,7 +324,7 @@ export function ProgressClient({
   async function handleDaySelect(day: number) {
     setSelectedDay(day);
     setActiveTask(null);
-    window.history.replaceState(null, '', `${pathname}?day=${day}`);
+    window.history.replaceState(null, "", `${pathname}?day=${day}`);
     await fetchDay(day);
   }
 
@@ -349,7 +351,7 @@ export function ProgressClient({
         categoryTasks={categoryTasks}
         onNavigateAction={(t) => {
           taskNavStack.current.push({ task: t, mode: "add" });
-          window.history.pushState({ taskNav: true }, '');
+          window.history.pushState({ taskNav: true }, "");
           setActiveTaskMode("add");
           setActiveTask(t);
         }}
@@ -359,7 +361,7 @@ export function ProgressClient({
   }
 
   return (
-    <div className="px-4 pt-4">
+    <div className="px-3 pt-4">
       <DayCarousel
         days={data.carousel}
         selectedDay={selectedDay}
@@ -371,7 +373,7 @@ export function ProgressClient({
         todayLabel={t("today")}
       />
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mt-6 mb-6">
         <h2 className="text-2xl font-bold tracking-tight text-foreground">
           {locale === "zh"
             ? t("dayLabel", { day: toChineseNumeral(selectedDay) })
@@ -394,10 +396,10 @@ export function ProgressClient({
 
       <TaskList
         tasks={data.tasks}
-        onTaskTap={handleTaskTap}
-        onToggleComplete={handleToggleComplete}
-        onAddEntry={handleAddEntry}
-        onViewEntry={handleViewEntry}
+        onTaskTapAction={handleTaskTap}
+        onToggleCompleteAction={handleToggleComplete}
+        onAddEntryAction={handleAddEntry}
+        onViewEntryAction={handleViewEntry}
         labels={{
           mental: t("mental"),
           emotional: t("emotional"),

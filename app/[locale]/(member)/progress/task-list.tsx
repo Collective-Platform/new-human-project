@@ -2,17 +2,9 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import {
-  CheckCircle,
-  Circle,
-  ChevronRight,
-} from "lucide-react";
+import { CheckCircle, Circle, ChevronRight } from "lucide-react";
 import { MOOD_EMOJI_MAP, normalizeEntries } from "./renderers/mood-log";
-import {
-  SPORT_EMOJIS,
-  normalizeExerciseEntries,
-  formatDuration,
-} from "./renderers/exercise-log";
+import { SPORT_EMOJIS, normalizeExerciseEntries, formatDuration } from "./renderers/exercise-log";
 
 interface TaskItem {
   id: string;
@@ -25,24 +17,24 @@ interface TaskItem {
 }
 
 const categoryConfig: Record<string, { iconSrc: string }> = {
-  Mental:    { iconSrc: "/icons/Mental.svg" },
+  Mental: { iconSrc: "/icons/Mental.svg" },
   Emotional: { iconSrc: "/icons/Emotional.svg" },
-  Physical:  { iconSrc: "/icons/Physical.svg" },
+  Physical: { iconSrc: "/icons/Physical.svg" },
 };
 
 export function TaskList({
   tasks,
-  onTaskTap,
-  onToggleComplete,
-  onAddEntry,
-  onViewEntry,
+  onTaskTapAction,
+  onToggleCompleteAction,
+  onAddEntryAction,
+  onViewEntryAction,
   labels,
 }: {
   tasks: TaskItem[];
-  onTaskTap: (task: TaskItem) => void;
-  onToggleComplete: (taskId: string) => void;
-  onAddEntry: (task: TaskItem) => void;
-  onViewEntry: (task: TaskItem, entryIndex: number) => void;
+  onTaskTapAction: (task: TaskItem) => void;
+  onToggleCompleteAction: (taskId: string) => void;
+  onAddEntryAction: (task: TaskItem) => void;
+  onViewEntryAction: (task: TaskItem, entryIndex: number) => void;
   labels: { mental: string; emotional: string; physical: string };
 }) {
   const te = useTranslations("exercise");
@@ -74,7 +66,7 @@ export function TaskList({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {categories.map((cat) => {
         const catTasks = tasks.filter((t) => t.category === cat);
         const config = categoryConfig[cat];
@@ -97,8 +89,7 @@ export function TaskList({
                   ? normalizeExerciseEntries(task.completionData)
                   : [];
                 const nonRestEntries = exerciseEntries.filter((e) => e.sportKey !== "rest");
-                const isRestCompletion =
-                  exerciseEntries.length > 0 && nonRestEntries.length === 0;
+                const isRestCompletion = exerciseEntries.length > 0 && nonRestEntries.length === 0;
 
                 const showEntryRows =
                   task.completed &&
@@ -122,10 +113,10 @@ export function TaskList({
                               <div className="flex w-full items-center gap-3 px-5 py-3.5">
                                 <CheckCircle size={20} className="text-primary shrink-0" />
                                 <button
-                                  onClick={() => onViewEntry(task, i)}
+                                  onClick={() => onViewEntryAction(task, i)}
                                   className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
                                 >
-                                  <span className="flex-1 truncate text-sm text-foreground/50">
+                                  <span className="flex-1 truncate text-base text-foreground/50">
                                     {entryLabel}
                                   </span>
                                   <ChevronRight size={18} className="text-zinc-400 shrink-0" />
@@ -139,7 +130,7 @@ export function TaskList({
                         (isRestCompletion ? (
                           <div className="flex w-full items-center gap-3 px-5 py-3.5">
                             <CheckCircle size={20} className="text-primary shrink-0" />
-                            <span className="flex-1 text-sm text-foreground/50">
+                            <span className="flex-1 text-base text-foreground/50">
                               {SPORT_EMOJIS.rest} {te("rested")}
                             </span>
                           </div>
@@ -159,10 +150,10 @@ export function TaskList({
                                 <div className="flex w-full items-center gap-3 px-5 py-3.5">
                                   <CheckCircle size={20} className="text-primary shrink-0" />
                                   <button
-                                    onClick={() => onViewEntry(task, i)}
+                                    onClick={() => onViewEntryAction(task, i)}
                                     className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
                                   >
-                                    <span className="flex-1 text-sm text-foreground/50">
+                                    <span className="flex-1 text-base text-foreground/50">
                                       {entryLabel}
                                     </span>
                                     <ChevronRight size={18} className="text-zinc-400 shrink-0" />
@@ -184,9 +175,9 @@ export function TaskList({
                         onClick={(e) => {
                           e.stopPropagation();
                           if (isMoodLog || isExercise) {
-                            onTaskTap(task);
+                            onTaskTapAction(task);
                           } else {
-                            onToggleComplete(task.id);
+                            onToggleCompleteAction(task.id);
                           }
                         }}
                         className="shrink-0 flex items-center justify-center transition-transform active:scale-90"
@@ -208,11 +199,11 @@ export function TaskList({
                         )}
                       </button>
                       <button
-                        onClick={() => onTaskTap(task)}
+                        onClick={() => onTaskTapAction(task)}
                         className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
                       >
                         <span
-                          className={`flex-1 text-sm font-normal ${task.completed ? "text-foreground/50" : "text-foreground"}`}
+                          className={`flex-1 text-base font-normal ${task.completed ? "text-foreground/50" : "text-foreground"}`}
                         >
                           {task.name}
                         </span>
@@ -235,19 +226,16 @@ export function TaskList({
                 ? normalizeExerciseEntries(task.completionData)
                 : [];
               const nonRestEntries = exerciseEntries.filter((e) => e.sportKey !== "rest");
-              const isRestCompletion =
-                exerciseEntries.length > 0 && nonRestEntries.length === 0;
-              const hasEntries = isMoodLog
-                ? moodEntries.length > 0
-                : exerciseEntries.length > 0;
+              const isRestCompletion = exerciseEntries.length > 0 && nonRestEntries.length === 0;
+              const hasEntries = isMoodLog ? moodEntries.length > 0 : exerciseEntries.length > 0;
 
               if (!hasEntries || isRestCompletion) return null;
 
               return (
                 <button
                   key={`${task.id}-add`}
-                  onClick={() => onAddEntry(task)}
-                  className="w-full rounded-full border-2 border-dashed border-zinc-200 py-2 text-xs font-semibold text-foreground/40 transition-all hover:border-primary/30 hover:text-primary active:scale-[0.99]"
+                  onClick={() => onAddEntryAction(task)}
+                  className="w-full rounded-full border-2 border-dashed border-primary/40 py-2 text-sm font-semibold text-primary/40 transition-all hover:border-primary/30 hover:text-primary active:scale-[0.99]"
                 >
                   + {isMoodLog ? tm("addMoodLog") : te("addExercise")}
                 </button>

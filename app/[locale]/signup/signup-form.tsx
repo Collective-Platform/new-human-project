@@ -92,17 +92,11 @@ export function SignupForm() {
 
       <p className="text-center text-xs font-light text-foreground/60">
         By signing up, you agree to our <br />
-        <NextLink
-          href="https://collective.my/terms/"
-          className="text-primary hover:underline"
-        >
+        <NextLink href="https://collective.my/terms/" className="text-primary hover:underline">
           Terms of Use
         </NextLink>
         {" and "}
-        <NextLink
-          href="https://collective.my/privacy/"
-          className="text-primary hover:underline"
-        >
+        <NextLink href="https://collective.my/privacy/" className="text-primary hover:underline">
           Privacy Policy
         </NextLink>
       </p>

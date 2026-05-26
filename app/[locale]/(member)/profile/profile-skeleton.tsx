@@ -1,7 +1,7 @@
 export function ProfileSkeleton() {
   return (
     <div className="min-h-screen bg-surface antialiased animate-pulse">
-      <main className="max-w-2xl mx-auto px-6 pt-8 pb-8">
+      <main className="max-w-2xl mx-auto px-3 pt-8 pb-8">
         {/* Profile header */}
         <section className="mb-10">
           <div className="flex items-start justify-between gap-4">

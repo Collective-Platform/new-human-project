@@ -16,12 +16,12 @@ html {
   --foreground: #171717;
 
   /* Category colour raw values */
-  --category-mental:       #F1A100;
-  --category-mental-bg:    #fdf4e1;
-  --category-emotional:    #256A65;
+  --category-mental: #d99100;
+  --category-mental-bg: #fdf4e1;
+  --category-emotional: #256a65;
   --category-emotional-bg: #effffe;
-  --category-physical:     #3688D8;
-  --category-physical-bg:  #e0f0ff;
+  --category-physical: #3688d8;
+  --category-physical-bg: #e0f0ff;
 }
 
 @theme inline {
@@ -30,7 +30,7 @@ html {
   --color-foreground: var(--foreground);
 
   /* Primary palette */
-  --color-primary: #c10014;
+  --color-primary: #be2b17;
   --color-on-primary: #fef8f5;
   --color-secondary: #135db9;
   --color-tertiary: #645f50;
@@ -59,12 +59,12 @@ html {
   --color-on-secondary-container: #004fa5;
 
   /* Category colours */
-  --color-category-mental:       var(--category-mental);
-  --color-category-mental-bg:    var(--category-mental-bg);
-  --color-category-emotional:    var(--category-emotional);
+  --color-category-mental: var(--category-mental);
+  --color-category-mental-bg: var(--category-mental-bg);
+  --color-category-emotional: var(--category-emotional);
   --color-category-emotional-bg: var(--category-emotional-bg);
-  --color-category-physical:     var(--category-physical);
-  --color-category-physical-bg:  var(--category-physical-bg);
+  --color-category-physical: var(--category-physical);
+  --color-category-physical-bg: var(--category-physical-bg);
 
   /* Border radius presets */
   --radius-sm: 1rem;
@@ -77,8 +77,7 @@ html {
 
   /* Font families with CJK fallbacks (CSS vars injected by next/font) */
   --font-headline:
-    var(--font-gt-america), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei",
-    sans-serif;
+    var(--font-gt-america), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-body:
     var(--font-gt-america), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei", sans-serif;
 }
@@ -101,8 +100,13 @@ body {
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes celebrationFloat {

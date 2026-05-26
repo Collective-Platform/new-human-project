@@ -491,7 +491,9 @@ export async function toggleLikeInDb(userId: number, completionId: string): Prom
     .where(and(eq(likes.userId, userId), eq(likes.completionId, completionId)));
 
   if (existing.length > 0) {
-    await db.delete(likes).where(and(eq(likes.userId, userId), eq(likes.completionId, completionId)));
+    await db
+      .delete(likes)
+      .where(and(eq(likes.userId, userId), eq(likes.completionId, completionId)));
     return false;
   }
 
@@ -525,12 +527,14 @@ export async function getUserLikedCompletionIds(
   return new Set(rows.map((r) => r.completionId));
 }
 
-export async function getLikersForCompletion(completionId: string): Promise<{
-  id: number;
-  displayName: string | null;
-  searchHandle: string | null;
-  avatarUrl: string | null;
-}[]> {
+export async function getLikersForCompletion(completionId: string): Promise<
+  {
+    id: number;
+    displayName: string | null;
+    searchHandle: string | null;
+    avatarUrl: string | null;
+  }[]
+> {
   const result = await db.execute(sql`
     SELECT u.id, u.display_name, u.search_handle, u.avatar_url
     FROM nhp.likes l

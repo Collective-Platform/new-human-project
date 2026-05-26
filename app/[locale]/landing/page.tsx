@@ -1,11 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/src/i18n/navigation";
 
-export default async function LandingPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -36,8 +32,7 @@ export default async function LandingPage({
               Rhythm
             </h1>
             <p className="text-lg font-medium leading-relaxed text-white/95 md:text-on-surface-variant">
-              Mental. Emotional. Physical. <br></br>Build the rhythms that make
-              you whole.
+              Mental. Emotional. Physical. <br></br>Build the rhythms that make you whole.
             </p>
           </div>
 

@@ -75,7 +75,16 @@ export function TaskDetail({
     } else {
       onCloseAction();
     }
-  }, [onCompleteAction, task.id, task.completed, hasNext, categoryTasks, currentIndex, onNavigateAction, onCloseAction]);
+  }, [
+    onCompleteAction,
+    task.id,
+    task.completed,
+    hasNext,
+    categoryTasks,
+    currentIndex,
+    onNavigateAction,
+    onCloseAction,
+  ]);
 
   const handlePrev = useCallback(() => {
     if (hasPrev) {
@@ -148,14 +157,14 @@ export function TaskDetail({
     <div className="fixed inset-0 z-50 flex flex-col bg-surface">
       {/* Header */}
       <div className="border-b border-zinc-100 bg-white">
-        <div className="mx-auto flex max-w-93.75 items-center gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-93.75 items-center gap-3  py-3">
           <button
             onClick={onCloseAction}
             className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-zinc-100"
           >
             <ArrowLeft size={20} />
           </button>
-          <h2 className="flex-1 font-headline text-base font-semibold truncate">{task.name}</h2>
+          <h2 className="flex-1 font-headline text-lg font-semibold truncate">{task.name}</h2>
         </div>
       </div>
 
@@ -175,12 +184,20 @@ export function TaskDetail({
             <div className="space-y-6">
               <div>
                 <p className="mb-3 font-headline text-lg font-bold text-foreground">
-                  {(content.prefetched_passage as { reference: string; content: string } | null)?.reference
-                    ?? localizeScriptureRef((content.scripture_reference as string) ?? "", locale)}
+                  {(
+                    content.prefetched_passage as {
+                      reference: string;
+                      content: string;
+                    } | null
+                  )?.reference ??
+                    localizeScriptureRef((content.scripture_reference as string) ?? "", locale)}
                 </p>
                 <BilingualPassage
                   passage={
-                    (content.prefetched_passage as { reference: string; content: string } | null) ?? null
+                    (content.prefetched_passage as {
+                      reference: string;
+                      content: string;
+                    } | null) ?? null
                   }
                   locale={locale}
                 />
@@ -221,7 +238,7 @@ export function TaskDetail({
           {task.taskType === "mood_log" && (
             <MoodLogRenderer
               initialData={task.completionData}
-              onSubmit={handleMoodSubmit}
+              onSubmitAction={handleMoodSubmit}
               loading={loading}
               openMode={mode}
               labels={{
@@ -253,7 +270,7 @@ export function TaskDetail({
       {/* Footer nav — only for non-mood/exercise tasks */}
       {task.taskType !== "mood_log" && task.taskType !== "exercise" && (
         <div className="fixed bottom-0 inset-x-0 z-50 border-t border-zinc-200 bg-white pb-[env(safe-area-inset-bottom)]">
-          <div className="mx-auto flex max-w-93.75 items-center justify-between gap-3 px-6 py-5">
+          <div className="mx-auto flex max-w-93.75 items-center justify-between gap-3 px-3 py-5">
             {hasPrev ? (
               <button
                 onClick={handlePrev}
@@ -266,10 +283,10 @@ export function TaskDetail({
               <div className="h-9 w-9 shrink-0" />
             )}
             <div className="flex flex-1 flex-col items-center justify-center text-center leading-tight">
-              <span className="text-xs font-semibold text-foreground">
+              <span className="text-sm font-semibold text-foreground">
                 {t("blockLabel", { block: blockNumber })} | {t(task.category.toLowerCase())}
               </span>
-              <span className="text-[11px] text-foreground/60">
+              <span className="text-xs text-foreground/60">
                 {t("dayLabel", { day: dayNumber })} | {currentIndex + 1} of {categoryTasks.length}
               </span>
             </div>

@@ -157,8 +157,17 @@ export async function toggleLike(input: {
   return { liked };
 }
 
-export async function getActivityLikers(input: { completionId: string }): Promise<
-  | { likers: { id: number; displayName: string | null; searchHandle: string | null; avatarUrl: string | null }[] }
+export async function getActivityLikers(input: {
+  completionId: string;
+}): Promise<
+  | {
+      likers: {
+        id: number;
+        displayName: string | null;
+        searchHandle: string | null;
+        avatarUrl: string | null;
+      }[];
+    }
   | { error: string }
 > {
   const user = await getSessionUser();

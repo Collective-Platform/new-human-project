@@ -12,6 +12,7 @@ import {
   Smartphone,
   Camera,
   User,
+  Heart,
   type LucideIcon,
 } from "lucide-react";
 import NextImage from "next/image";
@@ -53,10 +54,12 @@ interface NotificationPrefs {
   reminder_time: string;
   reminder_timezone?: string;
   friend_requests: boolean;
+  likes: boolean;
 }
 
 export function SettingsClient() {
   const t = useTranslations("profile");
+  const st = useTranslations("settings");
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -81,6 +84,7 @@ export function SettingsClient() {
     daily_reminder: true,
     reminder_time: "08:00",
     friend_requests: true,
+    likes: true,
   });
   const [privacyPublic, setPrivacyPublic] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -150,11 +154,11 @@ export function SettingsClient() {
     e.target.value = "";
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setProfileError("Please select an image file");
+      setProfileError(t("invalidImage"));
       return;
     }
     if (file.size > MAX_AVATAR_FILE_BYTES) {
-      setProfileError(`Image must be under ${MAX_AVATAR_FILE_MB}MB`);
+      setProfileError(t("imageTooLarge", { max: MAX_AVATAR_FILE_MB }));
       return;
     }
     setUploadingAvatar(true);
@@ -175,7 +179,7 @@ export function SettingsClient() {
     setProfileError(null);
     const trimmedHandle = handleValue.trim().toLowerCase();
     if (trimmedHandle && !HANDLE_REGEX.test(trimmedHandle)) {
-      setProfileError("Username must be 3–30 chars: letters, numbers, underscores only");
+      setProfileError(t("usernameInvalid"));
       return;
     }
     setSavingProfile(true);
@@ -184,9 +188,7 @@ export function SettingsClient() {
         searchHandle: trimmedHandle || undefined,
       });
       if ("error" in result) {
-        setProfileError(
-          result.error === "username_taken" ? "Username already taken" : result.error,
-        );
+        setProfileError(result.error === "username_taken" ? t("usernameTaken") : result.error);
       }
     } finally {
       setSavingProfile(false);
@@ -212,7 +214,7 @@ export function SettingsClient() {
   }
 
   return (
-    <div className="px-4 pt-4 pb-4 space-y-4">
+    <div className="px-3 pt-4 pb-4 space-y-4">
       <div className="flex items-center gap-3">
         <Link
           href="/profile"
@@ -220,13 +222,15 @@ export function SettingsClient() {
         >
           <ArrowLeft size={20} className="text-foreground/60" />
         </Link>
-        <h1 className="font-headline text-lg font-bold text-foreground">Settings</h1>
+        <h1 className="font-headline text-lg font-bold text-foreground">{st("title")}</h1>
       </div>
 
       {/* Profile */}
       <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
         <div className="px-4 py-3">
-          <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">Profile</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
+            {st("profileSection")}
+          </p>
         </div>
 
         {/* Avatar + Username side by side */}
@@ -272,7 +276,7 @@ export function SettingsClient() {
 
           {/* Username on the right */}
           <div className="flex-1 space-y-1">
-            <label className="text-xs text-foreground/50">Username</label>
+            <label className="text-xs text-foreground/50">{st("usernameLabel")}</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-foreground/40">
                 @
@@ -293,7 +297,7 @@ export function SettingsClient() {
 
         {/* Email (read-only) */}
         <div className="px-4 py-3.5 space-y-1">
-          <label className="text-xs text-foreground/50">Email</label>
+          <label className="text-xs text-foreground/50">{st("emailLabel")}</label>
           <p className="text-sm text-foreground/70">{email}</p>
         </div>
 
@@ -309,7 +313,7 @@ export function SettingsClient() {
             disabled={savingProfile}
             className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white disabled:opacity-60"
           >
-            {savingProfile ? "Saving…" : "Save Profile"}
+            {savingProfile ? t("saving") : st("saveProfile")}
           </button>
         </div>
       </div>
@@ -326,16 +330,16 @@ export function SettingsClient() {
         <div className="flex items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-3">
             <Smartphone size={20} className="text-foreground/50" />
-            <span className="text-sm font-medium text-foreground">Push Notifications</span>
+            <span className="text-sm font-medium text-foreground">{st("pushNotifications")}</span>
           </div>
           {pushStatus === "loading" && (
-            <span className="text-xs text-foreground/40">Checking…</span>
+            <span className="text-xs text-foreground/40">{st("pushChecking")}</span>
           )}
           {pushStatus === "subscribed" && (
             <div className="flex items-center gap-2">
               <span className="flex items-center gap-1.5 text-xs font-medium text-green-600">
                 <span className="h-2 w-2 rounded-full bg-green-500" />
-                Active
+                {st("pushActive")}
               </span>
               <button
                 onClick={sendTestNotification}
@@ -343,12 +347,12 @@ export function SettingsClient() {
                 className="rounded-full border border-zinc-200 px-2.5 py-1 text-xs font-medium text-foreground/60 hover:bg-zinc-50 disabled:opacity-50"
               >
                 {testingSend === "sending"
-                  ? "Sending…"
+                  ? st("pushSending")
                   : testingSend === "sent"
-                    ? "Sent!"
+                    ? st("pushSent")
                     : testingSend === "error"
-                      ? "Failed"
-                      : "Test"}
+                      ? st("pushFailed")
+                      : st("pushTest")}
               </button>
             </div>
           )}
@@ -357,20 +361,20 @@ export function SettingsClient() {
               onClick={enablePush}
               className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white"
             >
-              Enable
+              {st("pushEnable")}
             </button>
           )}
           {pushStatus === "denied" && (
-            <span className="text-xs text-foreground/40">Blocked in browser</span>
+            <span className="text-xs text-foreground/40">{st("pushBlocked")}</span>
           )}
           {pushStatus === "unsupported" && (
-            <span className="text-xs text-foreground/40">Not supported</span>
+            <span className="text-xs text-foreground/40">{st("pushUnsupported")}</span>
           )}
         </div>
 
         <ToggleRow
           Icon={Bell}
-          label="Daily Reminders"
+          label={st("dailyReminders")}
           checked={prefs.daily_reminder}
           onChange={(v) => updatePrefs({ ...prefs, daily_reminder: v })}
         />
@@ -379,7 +383,7 @@ export function SettingsClient() {
           <div className="flex items-center justify-between px-4 py-3.5">
             <div className="flex items-center gap-3">
               <Clock size={20} className="text-foreground/50" />
-              <span className="text-sm font-medium text-foreground">Reminder Time</span>
+              <span className="text-sm font-medium text-foreground">{st("reminderTime")}</span>
             </div>
             <input
               type="time"
@@ -398,9 +402,16 @@ export function SettingsClient() {
 
         <ToggleRow
           Icon={UserPlus}
-          label="Friend Requests"
+          label={st("friendRequests")}
           checked={prefs.friend_requests}
           onChange={(v) => updatePrefs({ ...prefs, friend_requests: v })}
+        />
+
+        <ToggleRow
+          Icon={Heart}
+          label={st("likeNotifications")}
+          checked={prefs.likes}
+          onChange={(v) => updatePrefs({ ...prefs, likes: v })}
         />
       </div>
 
@@ -413,7 +424,7 @@ export function SettingsClient() {
         </div>
         <ToggleRow
           Icon={Eye}
-          label="Activity visible to friends"
+          label={st("activityVisible")}
           checked={privacyPublic}
           onChange={updatePrivacy}
         />
@@ -425,7 +436,7 @@ export function SettingsClient() {
         disabled={loggingOut}
         className="w-full rounded-2xl bg-white py-3.5 text-sm font-semibold text-primary shadow-[0_4px_20px_rgba(53,50,47,0.04)] transition-colors active:bg-surface-container disabled:opacity-50"
       >
-        {loggingOut ? "Logging out…" : t("logOut")}
+        {loggingOut ? st("loggingOut") : t("logOut")}
       </button>
     </div>
   );

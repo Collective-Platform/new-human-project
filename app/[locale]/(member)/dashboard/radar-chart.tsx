@@ -62,9 +62,36 @@ export function RadarChart({
           {dataPoints.map((p, i) => (
             <circle key={i} cx={p.x} cy={p.y} r="3" style={{ fill: "var(--color-primary)" }} />
           ))}
-          <text x={bgPoints[0].x} y={bgPoints[0].y - 8} textAnchor="middle" fontSize="8" fill="currentColor" className="text-foreground/60">{labels.mental}</text>
-          <text x={bgPoints[1].x} y={bgPoints[1].y + 12} textAnchor="middle" fontSize="8" fill="currentColor" className="text-foreground/60">{labels.emotional}</text>
-          <text x={bgPoints[2].x} y={bgPoints[2].y + 12} textAnchor="middle" fontSize="8" fill="currentColor" className="text-foreground/60">{labels.physical}</text>
+          <text
+            x={bgPoints[0].x}
+            y={bgPoints[0].y - 8}
+            textAnchor="middle"
+            fontSize="8"
+            fill="currentColor"
+            className="text-foreground/60"
+          >
+            {labels.mental}
+          </text>
+          <text
+            x={bgPoints[1].x}
+            y={bgPoints[1].y + 12}
+            textAnchor="middle"
+            fontSize="8"
+            fill="currentColor"
+            className="text-foreground/60"
+          >
+            {labels.emotional}
+          </text>
+          <text
+            x={bgPoints[2].x}
+            y={bgPoints[2].y + 12}
+            textAnchor="middle"
+            fontSize="8"
+            fill="currentColor"
+            className="text-foreground/60"
+          >
+            {labels.physical}
+          </text>
         </svg>
 
         <div className="mt-3 flex justify-between text-xs">

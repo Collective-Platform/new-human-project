@@ -7,8 +7,14 @@ const gap = 4;
 
 const categorySegments: Record<string, { strokeColor: string; offset: number }> = {
   Emotional: { strokeColor: "var(--category-emotional)", offset: -(gap / 2) },
-  Physical:  { strokeColor: "var(--category-physical)",  offset: -(segLength + gap / 2) },
-  Mental:    { strokeColor: "var(--category-mental)",    offset: -(segLength * 2 + gap / 2) },
+  Physical: {
+    strokeColor: "var(--category-physical)",
+    offset: -(segLength + gap / 2),
+  },
+  Mental: {
+    strokeColor: "var(--category-mental)",
+    offset: -(segLength * 2 + gap / 2),
+  },
 };
 
 const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
@@ -31,16 +37,13 @@ export function ActivityCalendar({
 
   return (
     <div className="rounded-md bg-white p-5 shadow-card">
-      <p className="mb-3 text-xs font-medium uppercase tracking-wider text-foreground/50">
+      <p className="mb-3 text-lg font-headline tracking-tight font-medium text-on-surface">
         {title}
       </p>
 
       <div className="mb-2 grid grid-cols-7 gap-1">
         {dayLabels.map((label, i) => (
-          <div
-            key={i}
-            className="text-center text-[10px] font-medium text-foreground/40"
-          >
+          <div key={i} className="text-center text-[10px] font-medium text-foreground/40">
             {label}
           </div>
         ))}
@@ -94,9 +97,7 @@ export function ActivityCalendar({
                     })}
                   </svg>
                 )}
-                <span className="relative text-xs text-foreground/70">
-                  {day}
-                </span>
+                <span className="relative text-xs text-foreground/70">{day}</span>
               </div>
             </Link>
           );

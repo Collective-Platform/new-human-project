@@ -102,12 +102,7 @@ export async function getDashboardForUser(
     })
     .from(memberBadges)
     .innerJoin(badgeDefinitions, eq(memberBadges.badgeId, badgeDefinitions.id))
-    .where(
-      and(
-        eq(memberBadges.userId, userId),
-        eq(badgeDefinitions.blockNumber, blockNumber),
-      ),
-    )
+    .where(and(eq(memberBadges.userId, userId), eq(badgeDefinitions.blockNumber, blockNumber)))
     .limit(1);
 
   const blockDoneQ = db
@@ -121,11 +116,14 @@ export async function getDashboardForUser(
     )
     .limit(1);
 
-  const [allCompletions, streakResult, badgeRows, blockDoneRows] =
-    await batchOrAll([allCompletionsQ, streakQ, badgeQ, blockDoneQ]);
+  const [allCompletions, streakResult, badgeRows, blockDoneRows] = await batchOrAll([
+    allCompletionsQ,
+    streakQ,
+    badgeQ,
+    blockDoneQ,
+  ]);
 
-  const streakRow = (streakResult as unknown as { rows: { streak: number }[] })
-    .rows[0];
+  const streakRow = (streakResult as unknown as { rows: { streak: number }[] }).rows[0];
   const streak = streakRow ? Number(streakRow.streak) : 0;
   const earnedBadge = badgeRows[0] ?? null;
   const blockDone = blockDoneRows.length > 0;

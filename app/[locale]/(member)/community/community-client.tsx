@@ -82,7 +82,13 @@ export function CommunityClient({
 
   // Like state — tracks optimistic like counts and liked status per completionId
   const [likeState, setLikeState] = useState<Map<string, { liked: boolean; count: number }>>(
-    () => new Map(initialData.feed.map((item) => [item.completionId, { liked: item.likedByMe, count: item.likeCount }])),
+    () =>
+      new Map(
+        initialData.feed.map((item) => [
+          item.completionId,
+          { liked: item.likedByMe, count: item.likeCount },
+        ]),
+      ),
   );
 
   // Sync feed when server data refreshes (e.g. after accepting a friend request)
@@ -96,7 +102,10 @@ export function CommunityClient({
     setLikeState((prev) => {
       const next = new Map(prev);
       for (const item of initialData.feed) {
-        next.set(item.completionId, { liked: item.likedByMe, count: item.likeCount });
+        next.set(item.completionId, {
+          liked: item.likedByMe,
+          count: item.likeCount,
+        });
       }
       return next;
     });
@@ -117,7 +126,10 @@ export function CommunityClient({
         const next = new Map(prev);
         for (const item of data.items) {
           if (!next.has(item.completionId)) {
-            next.set(item.completionId, { liked: item.likedByMe, count: item.likeCount });
+            next.set(item.completionId, {
+              liked: item.likedByMe,
+              count: item.likeCount,
+            });
           }
         }
         return next;
@@ -175,7 +187,7 @@ export function CommunityClient({
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 pt-6 pb-8">
+    <div className="max-w-2xl mx-auto px-3 pt-6 pb-8">
       {/* Friends link + Add Friend button */}
       <div className="flex items-center justify-between gap-2 mb-6">
         <Link

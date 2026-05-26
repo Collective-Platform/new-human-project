@@ -4,7 +4,7 @@ import { ProfileData } from "./profile-data";
 
 function Loading() {
   return (
-    <div className="animate-pulse max-w-2xl mx-auto px-6 pt-8 space-y-6">
+    <div className="animate-pulse max-w-2xl mx-auto px-3 pt-8 space-y-6">
       <div className="flex items-start justify-between">
         <div className="space-y-3">
           <div className="h-8 w-40 rounded bg-zinc-200" />

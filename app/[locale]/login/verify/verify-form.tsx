@@ -23,21 +23,13 @@ function Slot({ isActive, char, hasFakeCaret }: SlotProps) {
         isActive ? "z-10 ring-1 ring-inset ring-primary transition-all" : "",
       ].join(" ")}
     >
-      {char !== null && (
-        <span className="font-mono text-lg text-foreground">{char}</span>
-      )}
+      {char !== null && <span className="font-mono text-lg text-foreground">{char}</span>}
       {hasFakeCaret && <FakeCaret />}
     </div>
   );
 }
 
-export function VerifyForm({
-  email,
-  mode = "login",
-}: {
-  email: string;
-  mode?: Mode;
-}) {
+export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mode }) {
   const router = useRouter();
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -128,9 +120,7 @@ export function VerifyForm({
       </div>
 
       {error && <p className="text-sm text-primary">{error}</p>}
-      {resent && (
-        <p className="text-sm text-secondary">A new code has been sent.</p>
-      )}
+      {resent && <p className="text-sm text-secondary">A new code has been sent.</p>}
 
       <button
         type="submit"

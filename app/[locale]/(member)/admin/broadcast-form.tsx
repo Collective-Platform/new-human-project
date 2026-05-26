@@ -75,7 +75,9 @@ export function BroadcastForm() {
         <p
           className={`text-xs font-medium ${"error" in result ? "text-red-600" : "text-green-600"}`}
         >
-          {"error" in result ? result.error : `Sent to ${result.sent} user${result.sent === 1 ? "" : "s"}`}
+          {"error" in result
+            ? result.error
+            : `Sent to ${result.sent} user${result.sent === 1 ? "" : "s"}`}
         </p>
       )}
 

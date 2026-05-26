@@ -72,7 +72,13 @@ export function ProfileClient({
   const [sentIds, setSentIds] = useState<Set<number>>(new Set());
   const [localStatus, setLocalStatus] = useState(connectionStatus);
   const [likeState, setLikeState] = useState<Map<string, { liked: boolean; count: number }>>(
-    () => new Map(activities.map((item) => [item.completionId, { liked: item.likedByMe, count: item.likeCount }])),
+    () =>
+      new Map(
+        activities.map((item) => [
+          item.completionId,
+          { liked: item.likedByMe, count: item.likeCount },
+        ]),
+      ),
   );
 
   async function handleLike(completionId: string) {
@@ -96,7 +102,7 @@ export function ProfileClient({
     <div className="min-h-screen bg-surface antialiased">
       {/* Header */}
       <header className="w-full sticky top-0 z-40 bg-surface">
-        <div className="flex items-center justify-between px-6 h-14 max-w-2xl mx-auto">
+        <div className="flex items-center justify-between px-3 h-14 max-w-2xl mx-auto">
           <button
             onClick={() => router.back()}
             className="text-primary font-bold active:scale-95 transition-transform"
@@ -107,7 +113,7 @@ export function ProfileClient({
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6  pb-8">
+      <main className="max-w-2xl mx-auto px-3 pb-8">
         {/* Profile header */}
         <section className="mb-10">
           <div className="flex items-start justify-between gap-4">
