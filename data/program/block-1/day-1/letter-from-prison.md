@@ -20,11 +20,11 @@ Who wrote this, where, and why does it matter?
 
 ## Reading Notes
 
-Before diving into Ephesians, it helps to know who Paul was when he wrote it — a prisoner. Not a pastor in a comfortable office, but someone in chains. Yet the letter he writes from that cell is full of joy, vision, and hope. Read Acts 19 to get a feel for Paul's history with Ephesus — three years of ministry, healings, riots, a city turned upside down. The people receiving this letter knew Paul personally. Now he writes to remind them of the bigger picture — God's dream for the world. This letter is the blueprint for the New Human Project: what God is doing in and through Jesus to create a whole new kind of people.
+Before diving into Ephesians, it helps to know who Paul was when he wrote it, a prisoner. Not a pastor in a comfortable office, but someone in chains. Yet the letter he writes from that cell is full of joy, vision, and hope. Read Acts 19 to get a feel for Paul's history with Ephesus, three years of ministry, healings, riots, a city turned upside down. The people receiving this letter knew Paul personally. Now he writes to remind them of the bigger picture, God's dream for the world. This letter is the blueprint for the New Human Project: what God is doing in and through Jesus to create a whole new kind of people.
 
 ## Key Idea
 
-Ephesians isn't written to fix a problem. It's a vision — God's vision for a new humanity, laid out from a prison cell.
+Ephesians isn't written to fix a problem. It's a vision, God's vision for a new humanity, laid out from a prison cell.
 
 ## Reflection
 

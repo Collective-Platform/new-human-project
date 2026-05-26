@@ -1,8 +1,27 @@
 @import "tailwindcss";
 
+html {
+  background-color: #fafafa;
+}
+
+@keyframes splashFadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
 :root {
-  --background: #fef8f5;
+  --background: #fafafa;
   --foreground: #171717;
+
+  /* Category colour raw values */
+  --category-mental:       #F1A100;
+  --category-mental-bg:    #fdf4e1;
+  --category-emotional:    #256A65;
+  --category-emotional-bg: #effffe;
+  --category-physical:     #3688D8;
+  --category-physical-bg:  #e0f0ff;
 }
 
 @theme inline {
@@ -40,9 +59,12 @@
   --color-on-secondary-container: #004fa5;
 
   /* Category colours */
-  --color-category-physical: #fff7e4;
-  --color-category-mental: #ee1c24;
-  --color-category-emotional: #679fff;
+  --color-category-mental:       var(--category-mental);
+  --color-category-mental-bg:    var(--category-mental-bg);
+  --color-category-emotional:    var(--category-emotional);
+  --color-category-emotional-bg: var(--category-emotional-bg);
+  --color-category-physical:     var(--category-physical);
+  --color-category-physical-bg:  var(--category-physical-bg);
 
   /* Border radius presets */
   --radius-sm: 1rem;

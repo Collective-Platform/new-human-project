@@ -1,6 +1,6 @@
 "use client";
 
-const MOOD_ORDER = ["terrible", "bad", "okay", "good", "excellent"] as const;
+const MOOD_ORDER = ["excellent", "good", "okay", "bad", "terrible"] as const;
 const MOOD_EMOJIS: Record<string, string> = {
   terrible: "😡",
   bad: "☹️",
@@ -60,8 +60,8 @@ export function EmotionBreakdownChart({
                 <span className="text-xl leading-none w-7 shrink-0">{MOOD_EMOJIS[key]}</span>
                 <div className="flex items-center gap-2 flex-1">
                   <div
-                    className="bg-primary transition-all duration-500"
-                    style={{ width: `${barWidth}px`, height: "10px" }}
+                    className="transition-all duration-500"
+                    style={{ width: `${barWidth}px`, height: "10px", backgroundColor: "#d3e1e0" }}
                   />
                   <span className="text-xs tabular-nums text-foreground/50">
                     {count}

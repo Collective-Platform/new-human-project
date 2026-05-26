@@ -46,14 +46,23 @@ function formatDuration(hours: number, minutes: number, locale: string): string 
   return `${hours}h ${minutes}m`;
 }
 
+function resolveExerciseEntry(data: Record<string, unknown> | null): Record<string, unknown> | null {
+  if (!data) return null;
+  if (Array.isArray(data.entries) && data.entries.length > 0) {
+    return data.entries[0] as Record<string, unknown>;
+  }
+  return data;
+}
+
 function getExerciseActivityLabel(data: Record<string, unknown> | null, locale: string): string {
   const labels = sportLabels[locale] ?? sportLabels.en;
   const fallback = exerciseFallback[locale] ?? exerciseFallback.en;
-  if (!data) return fallback;
-  const sportKey = data.sportKey as string | undefined;
+  const entry = resolveExerciseEntry(data);
+  if (!entry) return fallback;
+  const sportKey = entry.sportKey as string | undefined;
   if (!sportKey) return fallback;
   if (sportKey === "rest") return restLabel[locale] ?? restLabel.en;
-  if (sportKey === "others") return (data.customSport as string | undefined) ?? fallback;
+  if (sportKey === "others") return (entry.customSport as string | undefined) ?? fallback;
   return labels[sportKey] ?? fallback;
 }
 
@@ -144,8 +153,9 @@ export async function CommunityData() {
           if (registryTask) {
             if (registryTask.type === "exercise") {
               const sport = getExerciseActivityLabel(row.completionData, locale);
-              const h = (row.completionData?.hours as number | undefined) ?? 0;
-              const m = (row.completionData?.minutes as number | undefined) ?? 0;
+              const firstEntry = resolveExerciseEntry(row.completionData ?? null);
+              const h = (firstEntry?.hours as number | undefined) ?? 0;
+              const m = (firstEntry?.minutes as number | undefined) ?? 0;
               const dur = formatDuration(h, m, locale);
               return [
                 {
@@ -170,8 +180,9 @@ export async function CommunityData() {
 
           if (row.dbTaskType === "exercise") {
             const sport = getExerciseActivityLabel(row.completionData, locale);
-            const h = (row.completionData?.hours as number | undefined) ?? 0;
-            const m = (row.completionData?.minutes as number | undefined) ?? 0;
+            const firstEntry = resolveExerciseEntry(row.completionData ?? null);
+            const h = (firstEntry?.hours as number | undefined) ?? 0;
+            const m = (firstEntry?.minutes as number | undefined) ?? 0;
             const dur = formatDuration(h, m, locale);
             return [
               {

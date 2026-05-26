@@ -95,13 +95,14 @@ export async function getBlockGrid(
   });
 }
 
-export async function getStreak(userId: number): Promise<number> {
+export async function getStreak(userId: number, timezone = "UTC"): Promise<number> {
   const result = await db.execute(sql`
     WITH completion_dates AS (
-      SELECT DISTINCT tc.completed_at::date AS d
+      SELECT DISTINCT (tc.completed_at AT TIME ZONE ${timezone})::date AS d
       FROM nhp.task_completions tc
       WHERE tc.user_id = ${userId}
-        AND tc.completed_at::date <= CURRENT_DATE
+        AND (tc.completed_at AT TIME ZONE ${timezone})::date
+              <= (NOW() AT TIME ZONE ${timezone})::date
     ),
     numbered AS (
       SELECT d, d - (ROW_NUMBER() OVER (ORDER BY d ASC))::int AS grp
@@ -111,7 +112,7 @@ export async function getStreak(userId: number): Promise<number> {
     FROM numbered
     WHERE grp = (
       SELECT grp FROM numbered
-      WHERE d >= CURRENT_DATE - 1
+      WHERE d >= (NOW() AT TIME ZONE ${timezone})::date - 1
       ORDER BY d DESC
       LIMIT 1
     )

@@ -13,10 +13,13 @@ export async function sendOtp(email: string, otp: string): Promise<void> {
       Authorization: `Bearer ${env.MAILERSEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: { email: env.MAILERSEND_FROM_EMAIL, name: env.MAILERSEND_FROM_NAME },
+      from: {
+        email: env.MAILERSEND_FROM_EMAIL,
+        name: env.MAILERSEND_FROM_NAME,
+      },
       to: [{ email }],
       subject: "Your login code",
-      text: `Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`,
+      text: `Your verification code is: ${otp}\n\nThis code expires in 5 minutes.`,
     }),
   });
 

@@ -52,13 +52,19 @@ export function RadarChart({
           ))}
           <path
             d={trianglePath(dataPoints)}
-            fill="rgba(193, 0, 20, 0.15)"
-            stroke="#c10014"
+            style={{
+              fill: "var(--color-primary)",
+              fillOpacity: 0.15,
+              stroke: "var(--color-primary)",
+            }}
             strokeWidth="2"
           />
           {dataPoints.map((p, i) => (
-            <circle key={i} cx={p.x} cy={p.y} r="3" fill="#c10014" />
+            <circle key={i} cx={p.x} cy={p.y} r="3" style={{ fill: "var(--color-primary)" }} />
           ))}
+          <text x={bgPoints[0].x} y={bgPoints[0].y - 8} textAnchor="middle" fontSize="8" fill="currentColor" className="text-foreground/60">{labels.mental}</text>
+          <text x={bgPoints[1].x} y={bgPoints[1].y + 12} textAnchor="middle" fontSize="8" fill="currentColor" className="text-foreground/60">{labels.emotional}</text>
+          <text x={bgPoints[2].x} y={bgPoints[2].y + 12} textAnchor="middle" fontSize="8" fill="currentColor" className="text-foreground/60">{labels.physical}</text>
         </svg>
 
         <div className="mt-3 flex justify-between text-xs">
@@ -75,10 +81,7 @@ export function RadarChart({
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <span
-              className="h-2 w-2 rounded-full bg-category-physical"
-              style={{ border: "1px solid #d4c8a0" }}
-            />
+            <span className="h-2 w-2 rounded-full bg-category-physical" />
             <span className="text-foreground/70">
               {labels.physical} {Math.round(physical)}%
             </span>

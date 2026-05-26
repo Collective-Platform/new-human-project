@@ -5,10 +5,10 @@ const circumference = 2 * Math.PI * r;
 const segLength = circumference / 3;
 const gap = 4;
 
-const categorySegments: Record<string, { stroke: string; offset: number }> = {
-  Emotional: { stroke: "#679fff", offset: -(gap / 2) },
-  Physical: { stroke: "#d4c8a0", offset: -(segLength + gap / 2) },
-  Mental: { stroke: "#ee1c24", offset: -(segLength * 2 + gap / 2) },
+const categorySegments: Record<string, { strokeColor: string; offset: number }> = {
+  Emotional: { strokeColor: "var(--category-emotional)", offset: -(gap / 2) },
+  Physical:  { strokeColor: "var(--category-physical)",  offset: -(segLength + gap / 2) },
+  Mental:    { strokeColor: "var(--category-mental)",    offset: -(segLength * 2 + gap / 2) },
 };
 
 const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
@@ -80,12 +80,12 @@ export function ActivityCalendar({
                           cy={12}
                           r={r}
                           fill="none"
-                          stroke={seg.stroke}
                           strokeWidth="2.5"
                           strokeLinecap="round"
                           strokeDasharray={`${segLength - gap} ${circumference - (segLength - gap)}`}
                           strokeDashoffset={seg.offset}
                           style={{
+                            stroke: seg.strokeColor,
                             transform: "rotate(-90deg)",
                             transformOrigin: "12px 12px",
                           }}

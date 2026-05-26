@@ -28,12 +28,22 @@ export interface DashboardData {
   blockStartDate: string;
 }
 
+function safeTimezone(tz: string): string {
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tz });
+    return tz;
+  } catch {
+    return "UTC";
+  }
+}
+
 export async function getDashboardForUser(
   userId: number,
   onboardedAtMs: number,
   daysWindow: number,
   locale: "en" | "zh",
   currentDay: number,
+  timezone = "UTC",
 ): Promise<DashboardData> {
   "use cache";
   cacheLife("minutes");
@@ -58,12 +68,14 @@ export async function getDashboardForUser(
     .from(taskCompletions)
     .where(eq(taskCompletions.userId, userId));
 
+  const tz = safeTimezone(timezone);
   const streakQ = db.execute<{ streak: number }>(sql`
     WITH completion_dates AS (
-      SELECT DISTINCT tc.completed_at::date AS d
+      SELECT DISTINCT (tc.completed_at AT TIME ZONE ${tz})::date AS d
       FROM nhp.task_completions tc
       WHERE tc.user_id = ${userId}
-        AND tc.completed_at::date <= CURRENT_DATE
+        AND (tc.completed_at AT TIME ZONE ${tz})::date
+              <= (NOW() AT TIME ZONE ${tz})::date
     ),
     numbered AS (
       SELECT d, d - (ROW_NUMBER() OVER (ORDER BY d ASC))::int AS grp
@@ -73,7 +85,7 @@ export async function getDashboardForUser(
     FROM numbered
     WHERE grp = (
       SELECT grp FROM numbered
-      WHERE d >= CURRENT_DATE - 1
+      WHERE d >= (NOW() AT TIME ZONE ${tz})::date - 1
       ORDER BY d DESC
       LIMIT 1
     )

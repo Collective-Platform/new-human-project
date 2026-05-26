@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { BookOpenText, Smile, SportShoe, CheckCircle, User, Heart, X, type LucideIcon } from "lucide-react";
+import { User, Heart, X } from "lucide-react";
 import { Link } from "@/src/i18n/navigation";
 import { getActivityLikers } from "@/src/features/community/actions";
 
@@ -21,45 +21,37 @@ export interface FeedItem {
   likedByMe: boolean;
 }
 
-const categoryStyles: Record<
-  string,
-  {
-    badgeBg: string;
-    badgeText: string;
-    iconBg: string;
-    accentText: string;
-    Icon: LucideIcon;
-  }
-> = {
+const categoryStyles: Record<string, {
+  badgeBg: string;
+  badgeText: string;
+  accentText: string;
+  iconSrc: string;
+}> = {
   Mental: {
-    badgeBg: "bg-primary-container",
-    badgeText: "text-on-primary-container",
-    iconBg: "bg-primary",
-    accentText: "text-primary",
-    Icon: BookOpenText,
+    badgeBg: "bg-category-mental-bg",
+    badgeText: "text-category-mental",
+    accentText: "text-category-mental",
+    iconSrc: "/icons/Mental.svg",
   },
   Emotional: {
-    badgeBg: "bg-secondary-container",
-    badgeText: "text-on-secondary-container",
-    iconBg: "bg-secondary",
-    accentText: "text-secondary",
-    Icon: Smile,
+    badgeBg: "bg-category-emotional-bg",
+    badgeText: "text-category-emotional",
+    accentText: "text-category-emotional",
+    iconSrc: "/icons/Emotional.svg",
   },
   Physical: {
-    badgeBg: "bg-tertiary-container",
-    badgeText: "text-on-tertiary-fixed-variant",
-    iconBg: "bg-tertiary",
-    accentText: "text-tertiary",
-    Icon: SportShoe,
+    badgeBg: "bg-category-physical-bg",
+    badgeText: "text-category-physical",
+    accentText: "text-category-physical",
+    iconSrc: "/icons/Physical.svg",
   },
 };
 
 const defaultStyle = {
   badgeBg: "bg-surface-container",
   badgeText: "text-on-surface-variant",
-  iconBg: "bg-on-surface",
   accentText: "text-on-surface",
-  Icon: CheckCircle,
+  iconSrc: null as string | null,
 };
 
 type TFn = ReturnType<typeof useTranslations>;
@@ -107,7 +99,6 @@ function ActivityCard({
 
   const isSelf = selfUserId !== undefined && item.userId === selfUserId;
   const style = categoryStyles[item.category] ?? defaultStyle;
-  const CategoryIcon = style.Icon;
   const name = item.searchHandle ? `@${item.searchHandle}` : "User";
   const href = `/community/${item.searchHandle ?? item.userId}`;
 
@@ -157,11 +148,11 @@ function ActivityCard({
           <User size={24} className="text-on-surface-variant" />
         </div>
       )}
-      <div
-        className={`absolute -bottom-1 -right-1 ${style.iconBg} p-1.5 rounded-full border-4 border-white`}
-      >
-        <CategoryIcon size={12} className="text-white" />
-      </div>
+      {style.iconSrc && (
+        <div className="absolute -bottom-1 -right-1 rounded-full border-4 border-white overflow-hidden">
+          <Image src={style.iconSrc} alt={item.category} width={24} height={24} />
+        </div>
+      )}
     </>
   );
 

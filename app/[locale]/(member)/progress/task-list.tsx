@@ -1,14 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
-  BookOpenText,
-  Smile,
-  SportShoe,
   CheckCircle,
   Circle,
   ChevronRight,
-  type LucideIcon,
 } from "lucide-react";
 import { MOOD_EMOJI_MAP, normalizeEntries } from "./renderers/mood-log";
 import {
@@ -27,22 +24,10 @@ interface TaskItem {
   completionData: Record<string, unknown> | null;
 }
 
-const categoryConfig: Record<string, { iconBg: string; iconColor: string; Icon: LucideIcon }> = {
-  Mental: {
-    iconBg: "bg-[#ffaca3]",
-    iconColor: "text-[#c10014]",
-    Icon: BookOpenText,
-  },
-  Emotional: {
-    iconBg: "bg-[#d7e2ff]",
-    iconColor: "text-[#135db9]",
-    Icon: Smile,
-  },
-  Physical: {
-    iconBg: "bg-[#fef6e3]",
-    iconColor: "text-[#645f50]",
-    Icon: SportShoe,
-  },
+const categoryConfig: Record<string, { iconSrc: string }> = {
+  Mental:    { iconSrc: "/icons/Mental.svg" },
+  Emotional: { iconSrc: "/icons/Emotional.svg" },
+  Physical:  { iconSrc: "/icons/Physical.svg" },
 };
 
 export function TaskList({
@@ -93,16 +78,11 @@ export function TaskList({
       {categories.map((cat) => {
         const catTasks = tasks.filter((t) => t.category === cat);
         const config = categoryConfig[cat];
-        const CategoryIcon = config.Icon;
 
         return (
           <section key={cat} className="space-y-3">
             <div className="flex items-center gap-2">
-              <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full ${config.iconBg} ${config.iconColor}`}
-              >
-                <CategoryIcon size={20} />
-              </div>
+              <Image src={config.iconSrc} alt={cat} width={32} height={32} />
               <h3 className="text-xl font-bold font-headline text-foreground">{labelMap[cat]}</h3>
             </div>
 

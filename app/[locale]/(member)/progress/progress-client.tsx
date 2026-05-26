@@ -12,6 +12,18 @@ import { completeTask, uncompleteTask } from "@/src/features/tasks/actions";
 type TaskData = ProgressPayload["tasks"][number];
 type ProgressData = ProgressPayload;
 
+function computeLocalCurrentDay(blockStartDate: string): number {
+  const msPerDay = 86_400_000;
+  const now = new Date();
+  // "today" as the user's LOCAL calendar date, normalized to a UTC epoch value
+  const todayMs = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  // onboarding date stays in UTC (matches server storage)
+  const start = new Date(blockStartDate);
+  const startMs = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
+  const elapsed = Math.floor((todayMs - startMs) / msPerDay);
+  return Math.min(Math.max(elapsed + 1, 1), 25);
+}
+
 function toChineseNumeral(n: number): string {
   const ones = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
   if (n <= 9) return ones[n];
@@ -54,9 +66,10 @@ export function ProgressClient({
   const initialTaskIdRef = useRef(initialTaskId);
 
   useEffect(() => {
+    const localDay = computeLocalCurrentDay(initialData.blockStartDate);
     setSelectedDay(initialData.selectedDay);
-    setData(initialData);
-    dayCacheRef.current = new Map([[initialData.selectedDay, initialData]]);
+    setData({ ...initialData, currentDay: localDay });
+    dayCacheRef.current = new Map([[initialData.selectedDay, { ...initialData, currentDay: localDay }]]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData.selectedDay]);
 
@@ -104,6 +117,20 @@ export function ProgressClient({
     const d = await loadDay(day);
     if (d) setData((prev) => ({ ...d, currentDay: prev.currentDay }));
   }
+
+  // Advance currentDay at the user's local midnight so the "Today" label updates
+  // without a page refresh.
+  useEffect(() => {
+    const now = new Date();
+    const nextLocalMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const timer = setTimeout(() => {
+      setData((prev) => ({
+        ...prev,
+        currentDay: computeLocalCurrentDay(prev.blockStartDate),
+      }));
+    }, nextLocalMidnight.getTime() - now.getTime());
+    return () => clearTimeout(timer);
+  }, []); // mount-only — fires at the next local midnight then cleans up
 
   // Warm the immediate neighbors of the current day on mount so the most
   // common "peek at yesterday/tomorrow" path is instant. Runs once after

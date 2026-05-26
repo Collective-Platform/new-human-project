@@ -3,17 +3,13 @@
 import { useEffect, useState } from "react";
 import { subscribeToPush } from "@/src/features/notifications/subscribe";
 
+// Side-effect import — must run on the client only, so it lives in an effect.
+async function loadPwaInstall() {
+  await import("@khmyznikov/pwa-install");
+}
+
 export function SwRegister() {
-  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isIOS] = useState(
-    () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window),
-  );
-  const [isStandalone] = useState(() => window.matchMedia("(display-mode: standalone)").matches);
-  const [showA2HS, setShowA2HS] = useState(() => {
-    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window);
-    const standalone = window.matchMedia("(display-mode: standalone)").matches;
-    return ios && !standalone && !localStorage.getItem("a2hs-dismissed");
-  });
+  const [showIOSInstall, setShowIOSInstall] = useState(false);
 
   useEffect(() => {
     const handleVisibility = () => {
@@ -22,7 +18,8 @@ export function SwRegister() {
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
-    return () => document.removeEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
   useEffect(() => {
@@ -32,7 +29,10 @@ export function SwRegister() {
       navigator.serviceWorker
         .register("/sw.js", { updateViaCache: "none" })
         .then(async (registration) => {
-          if ("Notification" in window && Notification.permission === "default") {
+          if (
+            "Notification" in window &&
+            Notification.permission === "default"
+          ) {
             const permission = await Notification.requestPermission();
             if (permission === "granted" && registration.pushManager) {
               subscribeToPush(registration);
@@ -53,71 +53,35 @@ export function SwRegister() {
     } else {
       setTimeout(register, 1);
     }
-
-    // Add to Home Screen prompt — listen immediately, not deferred.
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setInstallPrompt(e as BeforeInstallPromptEvent);
-      if (!localStorage.getItem("a2hs-dismissed")) {
-        setShowA2HS(true);
-      }
-    };
-
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
-  async function handleInstall() {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    await installPrompt.userChoice;
-    setShowA2HS(false);
-    setInstallPrompt(null);
-  }
+  // Only mount the install dialog on iOS (Android browsers surface their own
+  // native install UI). Skip when already installed (standalone).
+  useEffect(() => {
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window);
+    const isStandalone = window.matchMedia(
+      "(display-mode: standalone)",
+    ).matches;
+    if (!isIOS || isStandalone) return;
 
-  function handleDismissA2HS() {
-    localStorage.setItem("a2hs-dismissed", "1");
-    setShowA2HS(false);
-  }
+    let cancelled = false;
+    loadPwaInstall().then(() => {
+      if (!cancelled) setShowIOSInstall(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  if (!showA2HS || isStandalone) return null;
+  if (!showIOSInstall) return null;
 
+  // The package's typings expect the literal strings "true"/"false" for its
+  // boolean attributes (not React `Booleanish`), so pass them explicitly.
   return (
-    <div className="fixed bottom-28 inset-x-4 z-50 rounded-md bg-white p-4 shadow-card">
-      <div className="flex items-center gap-3">
-        <span className="text-2xl">📱</span>
-        <div className="flex-1">
-          <p className="font-headline text-sm font-semibold text-foreground">Add to Home Screen</p>
-          {isIOS ? (
-            <p className="text-xs text-foreground/60">
-              Tap the share icon ⎋ then &quot;Add to Home Screen&quot; ➕
-            </p>
-          ) : (
-            <p className="text-xs text-foreground/60">Install for the best experience</p>
-          )}
-        </div>
-        {!isIOS && (
-          <button
-            onClick={handleInstall}
-            className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-white"
-          >
-            Install
-          </button>
-        )}
-        <button
-          onClick={handleDismissA2HS}
-          className="text-foreground/40 hover:text-foreground/70"
-          aria-label="Dismiss"
-        >
-          ✕
-        </button>
-      </div>
-    </div>
+    <pwa-install
+      manifest-url="/manifest.json"
+      disable-chrome="true"
+    />
   );
-}
-
-// Type for the beforeinstallprompt event
-interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }

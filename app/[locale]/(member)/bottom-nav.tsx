@@ -3,16 +3,16 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/src/i18n/navigation";
-import { Home, TrendingUp, Users, User, type LucideIcon } from "lucide-react";
+import { Home, Grid2x2, Users, User, type LucideIcon } from "lucide-react";
 import { useNavVisibility } from "./nav-visibility";
 
 const tabs: {
-  key: "home" | "progress" | "community" | "profile";
+  key: "home" | "block" | "community" | "profile";
   href: string;
   Icon: LucideIcon;
 }[] = [
   { key: "home", href: "/", Icon: Home },
-  { key: "progress", href: "/progress", Icon: TrendingUp },
+  { key: "block", href: "/progress", Icon: Grid2x2 },
   { key: "community", href: "/community", Icon: Users },
   { key: "profile", href: "/profile", Icon: User },
 ];
