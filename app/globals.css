@@ -36,12 +36,12 @@ html {
   --color-tertiary: #645f50;
 
   /* Surface */
-  --color-surface: #f4f5f5;
+  --color-surface: #ffffff;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #fafafa;
+  --color-surface-container-low: #ffffff;
   --color-surface-container: #ffffff;
-  --color-surface-container-high: #ede7e3;
-  --color-surface-container-highest: #e8e1dd;
+  --color-surface-container-high: #ffffff;
+  --color-surface-container-highest: #f4f5f5;
 
   /* On-surface text */
   --color-on-surface: #35322f;

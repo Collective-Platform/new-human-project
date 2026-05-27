@@ -23,7 +23,11 @@ const MONTH_NAMES = [
   "Dec",
 ];
 
-function getDateForDay(blockStartDate: string, day: number, locale: string): string {
+function getDateForDay(
+  blockStartDate: string,
+  day: number,
+  locale: string,
+): string {
   const start = new Date(blockStartDate);
   const date = new Date(start);
   date.setDate(start.getDate() + (day - 1));
@@ -36,8 +40,8 @@ function getDateForDay(blockStartDate: string, day: number, locale: string): str
 export function DayCarousel({
   days,
   selectedDay,
-  onSelect,
-  onPrefetch,
+  onSelectAction,
+  onPrefetchAction,
   blockStartDate,
   currentDay,
   locale = "en",
@@ -45,12 +49,12 @@ export function DayCarousel({
 }: {
   days: DayInfo[];
   selectedDay: number;
-  onSelect: (day: number) => void;
+  onSelectAction: (day: number) => void;
   /**
    * Fired when the user hovers or touches a day chip — warms the
    * day's data cache so a subsequent tap resolves instantly. (Task 3.0)
    */
-  onPrefetch?: (day: number) => void;
+  onPrefetchAction?: (day: number) => void;
   blockStartDate: string;
   currentDay: number;
   locale?: string;
@@ -78,13 +82,14 @@ export function DayCarousel({
           const isToday = d.day === currentDay;
 
           const warm = () => {
-            if (onPrefetch && d.day !== selectedDay) onPrefetch(d.day);
+            if (onPrefetchAction && d.day !== selectedDay)
+              onPrefetchAction(d.day);
           };
 
           return (
             <button
               key={d.day}
-              onClick={() => onSelect(d.day)}
+              onClick={() => onSelectAction(d.day)}
               onMouseEnter={warm}
               onTouchStart={warm}
               onFocus={warm}
@@ -96,11 +101,11 @@ export function DayCarousel({
                     ? "bg-primary text-white shadow-lg"
                     : d.fullyCompleted
                       ? "bg-primary/15 text-primary hover:bg-primary/25"
-                      : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
+                      : "border-[0.5px] border-zinc-500/50 text-zinc-500 hover:bg-zinc-200"
                 }`}
               >
                 <span
-                  className={`text-[10px] font-medium uppercase tracking-tighter ${
+                  className={`text-[10px] font-light tracking-tighter ${
                     isSelected
                       ? "text-white/70"
                       : d.fullyCompleted
@@ -112,7 +117,11 @@ export function DayCarousel({
                 </span>
                 <span
                   className={`text-lg font-medium leading-none ${
-                    isSelected ? "text-white" : d.fullyCompleted ? "text-primary" : "text-zinc-600"
+                    isSelected
+                      ? "text-white"
+                      : d.fullyCompleted
+                        ? "text-primary"
+                        : "text-zinc-600"
                   }`}
                 >
                   {d.day}
@@ -127,7 +136,9 @@ export function DayCarousel({
                       : "font-medium text-foreground/50 group-hover:text-foreground/70"
                 }`}
               >
-                {isToday ? todayLabel : getDateForDay(blockStartDate, d.day, locale)}
+                {isToday
+                  ? todayLabel
+                  : getDateForDay(blockStartDate, d.day, locale)}
               </span>
             </button>
           );

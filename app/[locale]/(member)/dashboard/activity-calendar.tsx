@@ -9,7 +9,10 @@ const categorySegments: Record<
   string,
   { strokeColor: string; offset: number }
 > = {
-  Emotional: { strokeColor: "var(--category-emotional)", offset: -(gap / 2) },
+  Emotional: {
+    strokeColor: "var(--category-emotional)",
+    offset: -(gap / 2),
+  },
   Physical: {
     strokeColor: "var(--category-physical)",
     offset: -(segLength + gap / 2),

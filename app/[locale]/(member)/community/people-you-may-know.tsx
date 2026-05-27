@@ -18,14 +18,19 @@ interface Suggestion {
 
 export function PeopleYouMayKnow({
   suggestions,
-  onAdd,
+  onAddAction,
 }: {
   suggestions: Suggestion[];
-  onAdd: () => void;
+  onAddAction: () => void;
 }) {
   const t = useTranslations("community");
   const [sentIds, setSentIds] = useState<Set<number>>(
-    () => new Set(suggestions.filter((s) => s.connectionStatus === "sent").map((s) => s.id)),
+    () =>
+      new Set(
+        suggestions
+          .filter((s) => s.connectionStatus === "sent")
+          .map((s) => s.id),
+      ),
   );
   const [dismissedIds, setDismissedIds] = useState<Set<number>>(new Set());
 
@@ -33,7 +38,7 @@ export function PeopleYouMayKnow({
     const result = await requestFriend({ receiverId: userId });
     if (!("error" in result)) {
       setSentIds((prev) => new Set(prev).add(userId));
-      onAdd();
+      onAddAction();
     }
   }
 
@@ -60,7 +65,10 @@ export function PeopleYouMayKnow({
             >
               <X size={14} />
             </button>
-            <Link href={`/community/${s.searchHandle ?? s.id}`} className="contents">
+            <Link
+              href={`/community/${s.searchHandle ?? s.id}`}
+              className="contents"
+            >
               {s.avatarUrl ? (
                 <Image
                   src={s.avatarUrl}

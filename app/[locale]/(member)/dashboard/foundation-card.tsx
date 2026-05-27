@@ -13,11 +13,11 @@ const foundationColors = [
   "bg-[#ab0010]",
   "bg-[#90000c]",
   "bg-surface-container-highest",
-  "bg-surface-container-high",
-  "bg-surface-container-high",
-  "bg-surface-container-high",
-  "bg-surface-container-high",
-  "bg-surface-container-high",
+  "bg-surface-container-highest",
+  "bg-surface-container-highest",
+  "bg-surface-container-highest",
+  "bg-surface-container-highest",
+  "bg-surface-container-highest",
 ];
 
 export function FoundationCard() {

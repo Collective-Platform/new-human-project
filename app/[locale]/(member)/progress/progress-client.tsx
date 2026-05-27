@@ -386,8 +386,8 @@ export function ProgressClient({
       <DayCarousel
         days={data.carousel}
         selectedDay={selectedDay}
-        onSelect={handleDaySelect}
-        onPrefetch={prefetchDay}
+        onSelectAction={handleDaySelect}
+        onPrefetchAction={prefetchDay}
         blockStartDate={data.blockStartDate}
         currentDay={data.currentDay}
         locale={locale}
@@ -395,7 +395,7 @@ export function ProgressClient({
       />
 
       <div className="flex items-center justify-between mt-6 mb-6">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">
+        <h2 className="text-2xl font-headline font-bold text-foreground">
           {locale === "zh"
             ? t("dayLabel", { day: toChineseNumeral(selectedDay) })
             : t("dayLabel", { day: selectedDay })}
