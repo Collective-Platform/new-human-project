@@ -31,15 +31,15 @@ html {
 
   /* Primary palette */
   --color-primary: #be2b17;
-  --color-on-primary: #fef8f5;
+  --color-on-primary: #f4f5f5;
   --color-secondary: #135db9;
   --color-tertiary: #645f50;
 
   /* Surface */
-  --color-surface: #fef8f5;
+  --color-surface: #f4f5f5;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f8f2ef;
-  --color-surface-container: #f3ede9;
+  --color-surface-container-low: #fafafa;
+  --color-surface-container: #ffffff;
   --color-surface-container-high: #ede7e3;
   --color-surface-container-highest: #e8e1dd;
 

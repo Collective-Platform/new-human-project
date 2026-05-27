@@ -5,7 +5,10 @@ const circumference = 2 * Math.PI * r;
 const segLength = circumference / 3;
 const gap = 4;
 
-const categorySegments: Record<string, { strokeColor: string; offset: number }> = {
+const categorySegments: Record<
+  string,
+  { strokeColor: string; offset: number }
+> = {
   Emotional: { strokeColor: "var(--category-emotional)", offset: -(gap / 2) },
   Physical: {
     strokeColor: "var(--category-physical)",
@@ -36,14 +39,17 @@ export function ActivityCalendar({
   const dateMap = new Map(data.map((d) => [d.date, d.categories]));
 
   return (
-    <div className="rounded-md bg-white p-5 shadow-card">
+    <div className="rounded-md bg-white py-5 px-8 shadow-card">
       <p className="mb-3 text-lg font-headline tracking-tight font-medium text-on-surface">
         {title}
       </p>
 
       <div className="mb-2 grid grid-cols-7 gap-1">
         {dayLabels.map((label, i) => (
-          <div key={i} className="text-center text-[10px] font-medium text-foreground/40">
+          <div
+            key={i}
+            className="text-center text-[10px] font-medium text-foreground/40"
+          >
             {label}
           </div>
         ))}
@@ -97,7 +103,9 @@ export function ActivityCalendar({
                     })}
                   </svg>
                 )}
-                <span className="relative text-xs text-foreground/70">{day}</span>
+                <span className="relative text-xs text-foreground/70">
+                  {day}
+                </span>
               </div>
             </Link>
           );

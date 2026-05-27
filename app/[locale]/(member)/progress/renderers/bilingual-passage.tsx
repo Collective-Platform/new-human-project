@@ -20,7 +20,7 @@ export function BilingualPassage({
   if (passage?.content) {
     return (
       <div
-        className="text-lg leading-loose tracking-tight text-foreground [&_p]:mb-2 [&_.yv-vlbl]:text-[10px] [&_.yv-vlbl]:font-bold [&_.yv-vlbl]:align-super [&_.yv-vlbl]:text-foreground/40 [&_.yv-vlbl]:mr-0.5 [&_.yv-vlbl]:select-none"
+        className="text-xl leading-8 tracking-tight text-foreground [&_p]:mb-2 [&_.yv-vlbl]:text-[10px] [&_.yv-vlbl]:font-bold [&_.yv-vlbl]:align-super [&_.yv-vlbl]:text-foreground/40 [&_.yv-vlbl]:mr-0.5 [&_.yv-vlbl]:select-none"
         dangerouslySetInnerHTML={{ __html: passage.content }}
       />
     );
@@ -28,7 +28,9 @@ export function BilingualPassage({
 
   if (fallbackText) {
     return (
-      <p className="whitespace-pre-line text-lg leading-loose text-foreground">{fallbackText}</p>
+      <p className="whitespace-pre-line text-lg leading-loose text-foreground">
+        {fallbackText}
+      </p>
     );
   }
 

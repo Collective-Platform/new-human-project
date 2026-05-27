@@ -23,7 +23,7 @@ const foundationColors = [
 export function FoundationCard() {
   const t = useTranslations("block");
   return (
-    <section className="flex flex-col justify-between rounded-md border border-surface-container bg-white px-5 py-8 shadow-card">
+    <section className="flex flex-col justify-between rounded-md border border-surface-container bg-white px-8 py-8 shadow-card">
       <div>
         <p className="mb-2 text-sm font-medium uppercase tracking-widest text-primary">
           {t("theFoundation")}
@@ -31,7 +31,7 @@ export function FoundationCard() {
         <h3 className="mb-4 font-headline text-2xl tracking-tight font-medium text-on-surface">
           {t("the25DayBlock")}
         </h3>
-        <p className="mb-6 text-lg leading-relaxed tracking-tight text-on-surface-variant">
+        <p className="mb-6 text-base leading-normal tracking-tight text-on-surface-variant">
           {t("foundationDescription")}
         </p>
         <div className="mb-8 grid grid-cols-5 gap-2">

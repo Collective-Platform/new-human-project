@@ -16,7 +16,8 @@ function formatDateRange(startIso: string): string {
   const end = new Date(start);
   end.setDate(end.getDate() + 24); // day 1 → day 25 = +24 days
 
-  const fmt = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const fmt = (d: Date) =>
+    d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
   return `${fmt(start)} – ${fmt(end)}`;
 }
@@ -38,7 +39,7 @@ export function EmotionBreakdownChart({
   const dateRange = formatDateRange(blockStartDate);
 
   return (
-    <div className="rounded-3xl bg-white shadow-card px-5 py-5">
+    <div className="rounded-3xl bg-white shadow-card px-8 py-5">
       <div className="mb-4">
         <h3 className="text-xl font-headline tracking-tight font-medium text-category-emotional">
           {title}
@@ -52,11 +53,14 @@ export function EmotionBreakdownChart({
         <div className="space-y-2">
           {MOOD_ORDER.map((key, i) => {
             const count = counts[i];
-            const barWidth = count > 0 ? Math.max((count / max) * BAR_MAX_WIDTH, 6) : 3;
+            const barWidth =
+              count > 0 ? Math.max((count / max) * BAR_MAX_WIDTH, 6) : 3;
 
             return (
               <div key={key} className="flex items-center gap-3">
-                <span className="text-xl leading-none w-7 shrink-0">{MOOD_EMOJIS[key]}</span>
+                <span className="text-xl leading-none w-7 shrink-0">
+                  {MOOD_EMOJIS[key]}
+                </span>
                 <div className="flex items-center gap-2 flex-1">
                   <div
                     className="transition-all duration-500"
@@ -66,7 +70,9 @@ export function EmotionBreakdownChart({
                       backgroundColor: "#256A65",
                     }}
                   />
-                  <span className="text-xs tabular-nums text-foreground/50">{count}</span>
+                  <span className="text-xs tabular-nums text-foreground/50">
+                    {count}
+                  </span>
                 </div>
               </div>
             );
