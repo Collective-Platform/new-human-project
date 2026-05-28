@@ -29,13 +29,17 @@ function Avatar({ url, name }: { url: string | null; name: string }) {
     );
   }
   return (
-    <div className="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
+    <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center">
       <User size={20} className="text-on-surface-variant" />
     </div>
   );
 }
 
-export function FriendsListClient({ friends: initialFriends }: { friends: Friend[] }) {
+export function FriendsListClient({
+  friends: initialFriends,
+}: {
+  friends: Friend[];
+}) {
   const router = useRouter();
   const t = useTranslations("community");
   const [editing, setEditing] = useState(false);
@@ -113,7 +117,9 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
         ) : (
           <div className="space-y-3">
             {visible.map((friend) => {
-              const name = friend.searchHandle ? `@${friend.searchHandle}` : "User";
+              const name = friend.searchHandle
+                ? `@${friend.searchHandle}`
+                : "User";
 
               return (
                 <div
@@ -146,7 +152,10 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
                       <span className="font-headline font-bold text-on-surface flex-1 truncate">
                         {name}
                       </span>
-                      <ChevronRight size={16} className="text-outline shrink-0" />
+                      <ChevronRight
+                        size={16}
+                        className="text-outline shrink-0"
+                      />
                     </Link>
                   )}
                 </div>
@@ -167,7 +176,9 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
             onClick={(e) => e.stopPropagation()}
           >
             <div>
-              <h3 className="font-headline font-bold text-lg text-primary">{t("unfriendTitle")}</h3>
+              <h3 className="font-headline font-bold text-lg text-primary">
+                {t("unfriendTitle")}
+              </h3>
               <p className="text-sm text-on-surface-variant mt-1">
                 {t("unfriendConfirm", { name: pendingRemove.name })}
               </p>

@@ -102,7 +102,7 @@ export function ProfileClient({
     <div className="min-h-screen bg-surface antialiased">
       {/* Header */}
       <header className="w-full sticky top-0 z-40 bg-surface">
-        <div className="flex items-center justify-between px-3 h-14 max-w-2xl mx-auto">
+        <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 h-14 max-w-2xl mx-auto">
           <button
             onClick={() => router.back()}
             className="text-primary font-bold active:scale-95 transition-transform"
@@ -113,7 +113,7 @@ export function ProfileClient({
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-3 pb-8">
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 pb-8">
         {/* Profile header */}
         <section className="mb-10">
           <div className="flex items-start justify-between gap-4">

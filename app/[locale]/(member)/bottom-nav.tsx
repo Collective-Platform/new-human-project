@@ -46,7 +46,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 bg-white pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-93.75 items-center justify-around px-3 pt-3 pb-3">
+      <div className="mx-auto flex max-w-3xl items-center justify-around px-4 sm:px-6 md:px-8 pt-3 pb-3">
         {tabs.map((tab) => {
           const active = isActive(tab.href);
           const TabIcon = tab.Icon;
@@ -61,10 +61,13 @@ export function BottomNav() {
                   active ? "bg-primary" : ""
                 }`}
               >
-                <TabIcon size={22} className={active ? "text-white" : "text-zinc-500"} />
+                <TabIcon
+                  size={22}
+                  className={active ? "text-white" : "text-on-surface-variant"}
+                />
               </span>
               <span
-                className={`text-[10px] font-medium ${active ? "text-primary" : "text-zinc-500"}`}
+                className={`text-[10px] font-medium ${active ? "text-primary" : "text-on-surface-variant"}`}
               >
                 {t(tab.key)}
               </span>

@@ -79,7 +79,7 @@ export function PeopleYouMayKnow({
                   className="w-20 h-20 rounded-full object-cover mb-3"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-surface-container-highest flex items-center justify-center mb-3">
+                <div className="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-3">
                   <span className="text-2xl font-bold text-on-surface-variant font-headline">
                     {suggestionName.charAt(0).toUpperCase()}
                   </span>
@@ -97,7 +97,7 @@ export function PeopleYouMayKnow({
               disabled={sentIds.has(s.id)}
               className={`w-full py-1.5 rounded-full text-xs font-bold transition-opacity ${
                 sentIds.has(s.id)
-                  ? "bg-surface-container-highest text-on-surface-variant"
+                  ? "bg-surface-container-high text-on-surface-variant"
                   : "bg-on-surface text-surface hover:opacity-90"
               }`}
             >

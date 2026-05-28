@@ -101,7 +101,7 @@ export function DayCarousel({
                     ? "bg-primary text-white shadow-lg"
                     : d.fullyCompleted
                       ? "bg-primary/15 text-primary hover:bg-primary/25"
-                      : "border-[0.5px] border-zinc-500/50 text-zinc-500 hover:bg-zinc-200"
+                      : "border-[0.5px] border-outline/50 text-outline hover:bg-zinc-200"
                 }`}
               >
                 <span
@@ -110,7 +110,7 @@ export function DayCarousel({
                       ? "text-white/70"
                       : d.fullyCompleted
                         ? "text-primary/60"
-                        : "text-zinc-400"
+                        : "text-outline-variant"
                   }`}
                 >
                   Day
@@ -121,7 +121,7 @@ export function DayCarousel({
                       ? "text-white"
                       : d.fullyCompleted
                         ? "text-primary"
-                        : "text-zinc-600"
+                        : "text-on-surface-variant"
                   }`}
                 >
                   {d.day}

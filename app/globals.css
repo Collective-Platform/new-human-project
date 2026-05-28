@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-html {
-  background-color: #fafafa;
-}
-
 @keyframes splashFadeOut {
   to {
     opacity: 0;
@@ -36,12 +32,15 @@ html {
   --color-tertiary: #645f50;
 
   /* Surface */
-  --color-surface: #ffffff;
+  --color-surface: #f4f5f5;
   --color-surface-container-lowest: #ffffff;
   --color-surface-container-low: #ffffff;
   --color-surface-container: #ffffff;
-  --color-surface-container-high: #ffffff;
-  --color-surface-container-highest: #f4f5f5;
+  --color-surface-container-high: #f4f5f5;
+  --color-surface-container-highest: #ffffff  ;
+
+  /* Bar chart track */
+  --color-bar-track: #f3f4f4;
 
   /* On-surface text */
   --color-on-surface: #35322f;
@@ -74,6 +73,7 @@ html {
 
   /* Card shadow */
   --shadow-card: 0 12px 32px rgba(53, 50, 47, 0.06);
+  --shadow-card-hover: 0 16px 40px rgba(53, 50, 47, 0.08);
 
   /* Font families with CJK fallbacks (CSS vars injected by next/font) */
   --font-headline:

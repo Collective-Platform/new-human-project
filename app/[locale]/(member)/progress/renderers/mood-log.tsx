@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { PrimaryButton } from "@/app/components/primary-button";
+import { TogglePill } from "@/app/components/toggle-pill";
 
 const moods = [
   { key: "terrible", emoji: "😡" },
@@ -10,7 +12,14 @@ const moods = [
   { key: "excellent", emoji: "😆" },
 ] as const;
 
-const influenceKeys = ["family", "friends", "love", "work", "school", "health"] as const;
+const influenceKeys = [
+  "family",
+  "friends",
+  "love",
+  "work",
+  "school",
+  "health",
+] as const;
 
 export const MOOD_EMOJI_MAP: Record<string, string> = {
   terrible: "😡",
@@ -26,7 +35,9 @@ export type MoodEntry = {
   context: string;
 };
 
-export function normalizeEntries(data: Record<string, unknown> | null): MoodEntry[] {
+export function normalizeEntries(
+  data: Record<string, unknown> | null,
+): MoodEntry[] {
   if (!data) return [];
   if (Array.isArray(data.entries)) return data.entries as MoodEntry[];
   const moodsArr = Array.isArray(data.moods)
@@ -80,10 +91,13 @@ export function MoodLogRenderer({
   labels: Labels;
 }) {
   const existingEntries = normalizeEntries(initialData);
-  const editEntry = typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
+  const editEntry =
+    typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
 
   const [formMoods, setFormMoods] = useState<string[]>(editEntry?.moods ?? []);
-  const [formInfluences, setFormInfluences] = useState<string[]>(editEntry?.influences ?? []);
+  const [formInfluences, setFormInfluences] = useState<string[]>(
+    editEntry?.influences ?? [],
+  );
   const [formContext, setFormContext] = useState(editEntry?.context ?? "");
   const contextRef = useRef<HTMLTextAreaElement>(null);
 
@@ -143,7 +157,7 @@ export function MoodLogRenderer({
   const isEditing = typeof openMode === "number";
 
   return (
-    <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-[0_16px_40px_rgba(53,50,47,0.08)]">
+    <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-card-hover">
       <section className="space-y-4 text-center">
         <p className="text-xs font-bold uppercase tracking-widest text-outline">
           {labels.pickEmoji}
@@ -182,19 +196,15 @@ export function MoodLogRenderer({
         </p>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           {influenceKeys.map((key) => (
-            <button
-              type="button"
+            <TogglePill
               key={key}
               onClick={() => toggleInfluence(key)}
               aria-pressed={formInfluences.includes(key)}
-              className={`w-full rounded-full px-4 py-2.5 text-center text-sm font-semibold transition-all duration-200 active:scale-95 ${
-                formInfluences.includes(key)
-                  ? "bg-secondary-container text-on-secondary-container ring-2 ring-secondary/20"
-                  : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
-              }`}
+              selected={formInfluences.includes(key)}
+              variant="emotional"
             >
               {influenceLabels[key]}
-            </button>
+            </TogglePill>
           ))}
         </div>
       </section>
@@ -208,18 +218,13 @@ export function MoodLogRenderer({
           value={formContext}
           onChange={(e) => setFormContext(e.target.value)}
           style={{ minHeight: "4.5rem" }}
-          className="w-full resize-none overflow-hidden rounded-sm border-0 bg-surface-container-low px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
+          className="w-full resize-none overflow-hidden rounded-sm border-0 bg-surface-container-high px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
         />
       </section>
 
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={!canSubmit}
-        className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-200 transition-all hover:opacity-90 active:scale-[0.99] disabled:cursor-default disabled:opacity-50 disabled:shadow-none"
-      >
+      <PrimaryButton onClick={handleSubmit} disabled={!canSubmit}>
         {loading ? "…" : isEditing ? labels.updateMood : labels.submit}
-      </button>
+      </PrimaryButton>
     </div>
   );
 }

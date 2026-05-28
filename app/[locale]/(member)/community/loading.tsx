@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="animate-pulse space-y-4 px-3 pt-4 pb-4">
+    <div className="animate-pulse space-y-4 px-4 sm:px-6 md:px-8 pt-4 pb-4">
       {/* Tab bar */}
       <div className="flex gap-2">
         <div className="h-9 w-24 rounded-full bg-zinc-200" />

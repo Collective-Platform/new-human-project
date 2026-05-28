@@ -382,7 +382,7 @@ export function ProgressClient({
   }
 
   return (
-    <div className="px-3 pt-4">
+    <div className="px-4 sm:px-6 md:px-8 pt-4">
       <DayCarousel
         days={data.carousel}
         selectedDay={selectedDay}

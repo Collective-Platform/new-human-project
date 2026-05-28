@@ -22,7 +22,7 @@ export default async function MemberLayout({
         <Suspense
           fallback={
             <header className="sticky top-0 z-40 bg-white">
-              <div className="mx-auto flex max-w-93.75 items-center justify-between px-4 py-3">
+              <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
                 <div className="flex items-center font-bold text-xl">
                   {locale === "zh" ? "节奏" : "Rhythm"}
                 </div>
@@ -32,7 +32,7 @@ export default async function MemberLayout({
         >
           <AppHeader />
         </Suspense>
-        <main className="flex-1 overflow-y-auto pb-24 mx-auto w-full max-w-93.75">
+        <main className="flex-1 overflow-y-auto pb-24 mx-auto w-full max-w-3xl">
           <Suspense fallback={null}>
             <AuthGate locale={locale} />
           </Suspense>

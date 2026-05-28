@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { FieldInput } from "@/app/components/field-input";
+import { PrimaryButton } from "@/app/components/primary-button";
+import { TogglePill } from "@/app/components/toggle-pill";
 
 const sportKeys = ["run", "badminton", "pickleball", "swimming", "pilates", "others"] as const;
 
@@ -139,14 +142,12 @@ export function ExerciseLogRenderer({
           <p className="text-lg font-bold font-headline text-foreground">{labels.restDay}</p>
           <p className="text-sm text-on-surface-variant">{labels.restMessage}</p>
         </div>
-        <button
-          type="button"
+        <PrimaryButton
           onClick={() => onSubmitAction({ sportKey: "rest" })}
           disabled={loading || alreadyRested}
-          className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-200 transition-all hover:opacity-90 active:scale-[0.99] disabled:cursor-default disabled:opacity-50 disabled:shadow-none"
         >
           {loading ? "…" : alreadyRested ? labels.rested : labels.takeRest}
-        </button>
+        </PrimaryButton>
       </div>
     );
   }
@@ -190,37 +191,32 @@ export function ExerciseLogRenderer({
   }
 
   return (
-    <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-[0_16px_40px_rgba(53,50,47,0.08)]">
+    <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-card-hover">
       <section className="space-y-4 text-center">
         <p className="text-xs font-bold uppercase tracking-widest text-outline">
           {labels.selectActivity}
         </p>
         <div className="grid grid-cols-2 gap-2.5">
           {sportKeys.map((key) => (
-            <button
-              type="button"
+            <TogglePill
               key={key}
               onClick={() => setSelectedSport(key)}
               aria-pressed={selectedSport === key}
-              className={`w-full rounded-full px-4 py-2.5 text-center text-sm font-semibold transition-all duration-200 active:scale-95 ${
-                selectedSport === key
-                  ? "bg-tertiary-container text-on-tertiary-fixed-variant ring-2 ring-tertiary/20"
-                  : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
-              }`}
+              selected={selectedSport === key}
+              variant="physical"
             >
               <span className="mr-1.5">{SPORT_EMOJIS[key]}</span>
               {sportLabels[key]}
-            </button>
+            </TogglePill>
           ))}
         </div>
 
         {selectedSport === "others" && (
-          <input
+          <FieldInput
             type="text"
             value={customSport}
             onChange={(e) => setCustomSport(e.target.value)}
             placeholder={labels.customActivityPlaceholder}
-            className="w-full rounded-md border-0 bg-surface-container-low px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
           />
         )}
       </section>
@@ -232,39 +228,32 @@ export function ExerciseLogRenderer({
         <div className="flex gap-3 text-left">
           <label className="flex flex-1 flex-col gap-1.5">
             <span className="text-xs font-semibold text-on-surface-variant">{labels.hours}</span>
-            <input
+            <FieldInput
               type="number"
               min="0"
               max="23"
               value={hours}
               onChange={(e) => setHours(e.target.value)}
               placeholder="0"
-              className="w-full rounded-md border-0 bg-surface-container-low px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
             />
           </label>
           <label className="flex flex-1 flex-col gap-1.5">
             <span className="text-xs font-semibold text-on-surface-variant">{labels.minutes}</span>
-            <input
+            <FieldInput
               type="number"
               min="0"
               max="59"
               value={minutes}
               onChange={(e) => setMinutes(e.target.value)}
               placeholder="0"
-              className="w-full rounded-md border-0 bg-surface-container-low px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
             />
           </label>
         </div>
       </section>
 
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={!canSubmit}
-        className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-200 transition-all hover:opacity-90 active:scale-[0.99] disabled:cursor-default disabled:opacity-50 disabled:shadow-none"
-      >
+      <PrimaryButton onClick={handleSubmit} disabled={!canSubmit}>
         {loading ? "…" : labels.logActivity}
-      </button>
+      </PrimaryButton>
     </div>
   );
 }

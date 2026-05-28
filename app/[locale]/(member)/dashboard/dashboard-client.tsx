@@ -49,7 +49,7 @@ export function DashboardClient({
   // then calls setShowCelebration / setShowEncouragement accordingly.
 
   return (
-    <div className="space-y-4 px-3 pt-4 pb-4">
+    <div className="space-y-4 px-4 sm:px-6 md:px-8 pt-4 pb-4">
       {/* Block Completion Celebration Overlay (9.3 / 9.4) */}
       {showCelebration && data?.earnedBadge && (
         <BlockCelebration

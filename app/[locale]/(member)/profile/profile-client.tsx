@@ -26,9 +26,16 @@ export function ProfileClient({
   const router = useRouter();
   const { user } = initialData;
   const [shareOpen, setShareOpen] = useState(false);
-  const [likeState, setLikeState] = useState<Map<string, { liked: boolean; count: number }>>(
+  const [likeState, setLikeState] = useState<
+    Map<string, { liked: boolean; count: number }>
+  >(
     () =>
-      new Map(activities.map((a) => [a.completionId, { liked: a.likedByMe, count: a.likeCount }])),
+      new Map(
+        activities.map((a) => [
+          a.completionId,
+          { liked: a.likedByMe, count: a.likeCount },
+        ]),
+      ),
   );
 
   async function handleLike(completionId: string) {
@@ -52,7 +59,7 @@ export function ProfileClient({
 
   return (
     <div className="min-h-screen bg-surface antialiased">
-      <main className="max-w-2xl mx-auto px-3 pt-8 pb-8">
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 pt-8 pb-8">
         {/* Profile header */}
         <section className="mb-10">
           <div className="flex items-start justify-between gap-4">
@@ -66,7 +73,9 @@ export function ProfileClient({
                   className="inline-flex items-center gap-1.5 px-3 py-1 border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container hover:border-primary/30 hover:text-primary transition-all active:scale-95"
                 >
                   <User size={14} />
-                  <span className="text-xs font-bold font-headline">{friendCount} Friends</span>
+                  <span className="text-xs font-bold font-headline">
+                    {friendCount} Friends
+                  </span>
                 </Link>
                 {user.searchHandle && (
                   <button
@@ -111,11 +120,11 @@ export function ProfileClient({
         </section>
 
         {/* Badges */}
-        {initialData.badges.length > 0 && (
+        {/* {initialData.badges.length > 0 && (
           <section className="mb-8">
             <BadgeGrid badges={initialData.badges} title={t("badges")} />
           </section>
-        )}
+        )} */}
 
         {/* Activities */}
         {activities.length > 0 && (

@@ -196,7 +196,7 @@ export function CommunityClient({
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-3 pt-6 pb-8">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 pt-6 pb-8">
       {/* Friends link + Add Friend button */}
       <div className="flex items-center justify-between gap-2 mb-6">
         <Link
