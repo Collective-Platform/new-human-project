@@ -6,7 +6,7 @@ order: 10
 category: Mental
 type: scripture_reading
 name:
-  en: "Read Ephesians 5:15-21"
-  zh: "读以弗所书 5:15-21"
+  en: "Ephesians 5:15-21"
+  zh: "以弗所书 5:15-21"
 scriptureRef: "Ephesians 5:15-21"
 ---

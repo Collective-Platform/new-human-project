@@ -6,7 +6,7 @@ order: 10
 category: Mental
 type: scripture_reading
 name:
-  en: "Read Ephesians 6:5-9"
-  zh: "读以弗所书 6:5-9"
+  en: "Ephesians 6:5-9"
+  zh: "以弗所书 6:5-9"
 scriptureRef: "Ephesians 6:5-9"
 ---

@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 6 — God's Masterpiece"
-  zh: "第6天 — 神的杰作"
+  en: "God's Masterpiece"
+  zh: "神的杰作"
 passageRef: "Ephesians 2:8–10"
 inputs:
   - reflection

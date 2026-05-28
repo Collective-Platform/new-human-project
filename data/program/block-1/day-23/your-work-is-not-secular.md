@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 23 — Your Work Is Not Secular"
-  zh: "第23天 — 你的工作并非世俗的"
+  en: "Your Work Is Not Secular"
+  zh: "你的工作并非世俗的"
 passageRef: "Ephesians 6:5–9"
 inputs:
   - reflection

@@ -222,7 +222,7 @@ export function MoodLogRenderer({
         />
       </section>
 
-      <PrimaryButton onClick={handleSubmit} disabled={!canSubmit}>
+      <PrimaryButton onClick={handleSubmit} disabled={!canSubmit} variant="emotional">
         {loading ? "…" : isEditing ? labels.updateMood : labels.submit}
       </PrimaryButton>
     </div>

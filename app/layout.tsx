@@ -39,7 +39,8 @@ const notoSansSC = Noto_Sans_SC({
 
 export const metadata: Metadata = {
   title: "Rhythm",
-  description: "A spiritual formation journey across Mental, Emotional, and Physical dimensions",
+  description:
+    "A spiritual formation journey across Mental, Emotional, and Physical dimensions",
   manifest: "/manifest.json",
   appleWebApp: {
     title: "Rhythm",
@@ -112,7 +113,7 @@ export default function RootLayout({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "#fef8f5",
+            backgroundColor: "#f4f5f5",
             animation: "splashFadeOut 0.4s ease 1.2s forwards",
             pointerEvents: "none",
           }}

@@ -145,6 +145,7 @@ export function ExerciseLogRenderer({
         <PrimaryButton
           onClick={() => onSubmitAction({ sportKey: "rest" })}
           disabled={loading || alreadyRested}
+          variant="physical"
         >
           {loading ? "…" : alreadyRested ? labels.rested : labels.takeRest}
         </PrimaryButton>
@@ -251,7 +252,7 @@ export function ExerciseLogRenderer({
         </div>
       </section>
 
-      <PrimaryButton onClick={handleSubmit} disabled={!canSubmit}>
+      <PrimaryButton onClick={handleSubmit} disabled={!canSubmit} variant="physical">
         {loading ? "…" : labels.logActivity}
       </PrimaryButton>
     </div>

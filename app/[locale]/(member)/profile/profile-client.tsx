@@ -8,7 +8,7 @@ import { User, Settings, QrCode } from "lucide-react";
 import NextImage from "next/image";
 import type { ProfileData } from "@/src/features/profile/get-profile-for-user";
 import { ActivityFeed, type FeedItem } from "../community/activity-feed";
-import { BadgeGrid } from "./badge-grid";
+// import { BadgeGrid } from "./badge-grid";
 import { ShareProfileModal } from "./share-profile-modal";
 
 export function ProfileClient({

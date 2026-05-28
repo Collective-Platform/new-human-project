@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 24 — Put On the Armour"
-  zh: "第24天 — 穿戴全副军装"
+  en: "Put On the Armour"
+  zh: "穿戴全副军装"
 passageRef: "Ephesians 6:10–20"
 inputs:
   - reflection

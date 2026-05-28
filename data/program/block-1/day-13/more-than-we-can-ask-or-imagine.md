@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 13 — More Than We Can Ask or Imagine"
-  zh: "第13天 — 超越我们所求所想"
+  en: "More Than We Can Ask or Imagine"
+  zh: "超越我们所求所想"
 passageRef: "Ephesians 3:20–21"
 inputs:
   - reflection

@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 9 — Everyone Gets Access"
-  zh: "第9天 — 每个人都可以进来"
+  en: "Everyone Gets Access"
+  zh: "每个人都可以进来"
 passageRef: "Ephesians 2:17–18"
 inputs:
   - reflection

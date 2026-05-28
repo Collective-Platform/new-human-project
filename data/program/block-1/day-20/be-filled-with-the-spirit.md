@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 20 — Be Filled with the Spirit"
-  zh: "第20天 — 被圣灵充满"
+  en: "Be Filled with the Spirit"
+  zh: "被圣灵充满"
 passageRef: "Ephesians 5:15–21"
 inputs:
   - reflection

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { CheckCircle, Circle, ChevronRight } from "lucide-react";
+import { CircleCheck, Circle, ChevronRight } from "lucide-react";
 import { MOOD_EMOJI_MAP, normalizeEntries } from "./renderers/mood-log";
 import { SPORT_EMOJIS, normalizeExerciseEntries, formatDuration } from "./renderers/exercise-log";
 
@@ -64,6 +64,11 @@ export function TaskList({
     Emotional: labels.emotional,
     Physical: labels.physical,
   };
+  const categoryCheckColor: Record<string, string> = {
+    Mental: "text-category-mental",
+    Emotional: "text-category-emotional",
+    Physical: "text-category-physical",
+  };
 
   return (
     <div className="space-y-8">
@@ -111,7 +116,7 @@ export function TaskList({
                           return (
                             <div key={i} className={i === 0 ? "" : "border-t border-zinc-50"}>
                               <div className="flex w-full items-center gap-3 px-5 py-3.5">
-                                <CheckCircle size={20} className="text-primary shrink-0" />
+                                <CircleCheck size={20} className={`${categoryCheckColor[cat]} shrink-0`} />
                                 <button
                                   onClick={() => onViewEntryAction(task, i)}
                                   className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
@@ -129,7 +134,7 @@ export function TaskList({
                       {isExercise &&
                         (isRestCompletion ? (
                           <div className="flex w-full items-center gap-3 px-5 py-3.5">
-                            <CheckCircle size={20} className="text-primary shrink-0" />
+                            <CircleCheck size={20} className={`${categoryCheckColor[cat]} shrink-0`} />
                             <span className="flex-1 text-base text-foreground/50">
                               {SPORT_EMOJIS.rest} {te("rested")}
                             </span>
@@ -148,7 +153,7 @@ export function TaskList({
                             return (
                               <div key={i} className={i === 0 ? "" : "border-t border-zinc-50"}>
                                 <div className="flex w-full items-center gap-3 px-5 py-3.5">
-                                  <CheckCircle size={20} className="text-primary shrink-0" />
+                                  <CircleCheck size={20} className={`${categoryCheckColor[cat]} shrink-0`} />
                                   <button
                                     onClick={() => onViewEntryAction(task, i)}
                                     className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
@@ -190,7 +195,7 @@ export function TaskList({
                         }
                       >
                         {task.completed ? (
-                          <CheckCircle size={20} className="text-primary" />
+                          <CircleCheck size={20} className={categoryCheckColor[cat]} />
                         ) : (
                           <Circle
                             size={20}

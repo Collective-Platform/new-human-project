@@ -6,7 +6,7 @@ order: 10
 category: Mental
 type: scripture_reading
 name:
-  en: "Read Ephesians 1:7-14"
-  zh: "读以弗所书 1:7-14"
+  en: "Ephesians 1:7-14"
+  zh: "以弗所书 1:7-14"
 scriptureRef: "Ephesians 1:7-14"
 ---

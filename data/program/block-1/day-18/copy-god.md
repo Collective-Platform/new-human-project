@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 18 — Copy God"
-  zh: "第18天 — 效法神"
+  en: "Copy God"
+  zh: "效法神"
 passageRef: "Ephesians 5:1–7"
 inputs:
   - reflection

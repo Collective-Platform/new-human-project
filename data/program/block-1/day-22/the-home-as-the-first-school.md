@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 22 — The Home as the First School"
-  zh: "第22天 — 家庭：人生的第一所学校"
+  en: "The Home as the First School"
+  zh: "家庭：人生的第一所学校"
 passageRef: "Ephesians 6:1–4"
 inputs:
   - reflection

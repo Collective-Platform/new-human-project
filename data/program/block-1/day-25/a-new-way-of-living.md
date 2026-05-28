@@ -6,8 +6,8 @@ order: 29
 category: Emotional
 type: devotional
 name:
-  en: "Day 25 - A New Way of Living"
-  zh: "第25天 — 一种新的生活方式"
+  en: "A New Way of Living"
+  zh: "一种新的生活方式"
 inputs:
   - question
 ---
@@ -29,7 +29,7 @@ But now, you have a new way of living.
 
 You don’t avoid your emotions. You bring them to God.
 
-And over time, your emotions become not a barrier—but a bridge to deeper intimacy with Him.
+And over time, your emotions become not a barrier— but a bridge to deeper intimacy with Him.
 
 ## Final Reflection:
 

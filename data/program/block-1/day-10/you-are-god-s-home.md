@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 10 — You Are God's Home"
-  zh: "第10天 — 你就是神的家"
+  en: "You Are God's Home"
+  zh: "你就是神的家"
 passageRef: "Ephesians 2:19–22"
 inputs:
   - reflection

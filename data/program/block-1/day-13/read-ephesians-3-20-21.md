@@ -6,7 +6,7 @@ order: 10
 category: Mental
 type: scripture_reading
 name:
-  en: "Read Ephesians 3:20-21"
-  zh: "读以弗所书 3:20-21"
+  en: "Ephesians 3:20-21"
+  zh: "以弗所书 3:20-21"
 scriptureRef: "Ephesians 3:20-21"
 ---

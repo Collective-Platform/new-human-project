@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 17 — Take Off the Old, Put On the New"
-  zh: "第17天 — 脱去旧人，穿上新人"
+  en: "Take Off the Old, Put On the New"
+  zh: "脱去旧人，穿上新人"
 passageRef: "Ephesians 4:17–32"
 inputs:
   - reflection

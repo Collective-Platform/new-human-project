@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 11 — The Secret God Kept — Until Now"
-  zh: "第11天 — 神死守的秘密"
+  en: "The Secret God Kept — Until Now"
+  zh: "神死守的秘密"
 passageRef: "Ephesians 3:1–13"
 inputs:
   - reflection

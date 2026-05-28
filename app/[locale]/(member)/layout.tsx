@@ -23,7 +23,10 @@ export default async function MemberLayout({
           fallback={
             <header className="sticky top-0 z-40 bg-white">
               <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-                <div className="flex items-center font-bold text-xl">
+                <div
+                  className={`flex items-center font-bold text-primary ${locale === "zh" ? "text-2xl" : "text-xl"}`}
+                  style={locale === "zh" ? { fontFamily: '"KaiTi", "楷体", "STKaiti", serif' } : { fontFamily: "var(--font-nowstalgic), sans-serif" }}
+                >
                   {locale === "zh" ? "节奏" : "Rhythm"}
                 </div>
               </div>

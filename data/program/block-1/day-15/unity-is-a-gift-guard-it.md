@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 15 — Unity Is a Gift — Guard It"
-  zh: "第15天 — 合一是一份礼物，守护它"
+  en: "Unity Is a Gift — Guard It"
+  zh: "合一是一份礼物，守护它"
 passageRef: "Ephesians 4:1–6"
 inputs:
   - reflection

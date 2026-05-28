@@ -6,8 +6,8 @@ order: 29
 category: Emotional
 type: devotional
 name:
-  en: "Day 1 — The Gift of Awareness"
-  zh: "第1天 — 感知的礼物"
+  en: "The Gift of Awareness"
+  zh: "感知的礼物"
 inputs:
   - question
 ---
@@ -27,7 +27,7 @@ He prays, “**Search me**.”
 
 Transformation begins when we allow God to uncover what is hidden deep within. What you are unaware of will eventually control you.
 
-God is not intimidated by what He will find in you. The question is—are you willing to see it with Him?
+God is not intimidated by what He will find in you. The question is— are you willing to see it with Him?
 
 ## Practice:
 

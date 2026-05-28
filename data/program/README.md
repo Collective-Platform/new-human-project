@@ -67,7 +67,7 @@ type:
   devotional # devotional | scripture_reading
   #  | scripture_study | mood_log | info
 name:
-  en: "Day 1 — A Letter Written from Prison"
+  en: "A Letter Written from Prison"
   zh: "..."
 
 # Optional, type-specific:

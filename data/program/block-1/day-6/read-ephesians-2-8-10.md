@@ -6,7 +6,7 @@ order: 10
 category: Mental
 type: scripture_reading
 name:
-  en: "Read Ephesians 2:8-10"
-  zh: "读以弗所书 2:8-10"
+  en: "Ephesians 2:8-10"
+  zh: "以弗所书 2:8-10"
 scriptureRef: "Ephesians 2:8-10"
 ---

@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 8 — One New Humanity"
-  zh: "第8天 — 一个新人类"
+  en: "One New Humanity"
+  zh: "一个新人类"
 passageRef: "Ephesians 2:13–16"
 inputs:
   - reflection

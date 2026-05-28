@@ -6,8 +6,8 @@ order: 29
 category: Emotional
 type: devotional
 name:
-  en: "Day 12 — Slowing Down Your Soul"
-  zh: "第12天 — 放慢灵魂的脚步"
+  en: "Slowing Down Your Soul"
+  zh: "放慢灵魂的脚步"
 inputs:
   - question
 ---
@@ -24,9 +24,9 @@ We often think we are seeking God, but we are actually just **rushing past Him**
 
 Stillness feels uncomfortable because it exposes what we’ve been avoiding. But stillness is where your soul begins to breathe again.
 
-Christian mindfulness is not emptying your mind—it is learning to **be present with God in the moment you are already in**.
+Christian mindfulness is not emptying your mind— it is learning to **be present with God in the moment you are already in**.
 
-You don’t need to go somewhere else to meet Him. You need to slow down enough to notice—He is already here.
+You don’t need to go somewhere else to meet Him. You need to slow down enough to notice— He is already here.
 
 ## Practice:
 

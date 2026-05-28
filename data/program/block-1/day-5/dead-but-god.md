@@ -6,8 +6,8 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Day 5 — Dead — But God"
-  zh: "第5天 — 死了，然而神"
+  en: "Dead — But God"
+  zh: "死了，然而神"
 passageRef: "Ephesians 2:1–7"
 inputs:
   - reflection

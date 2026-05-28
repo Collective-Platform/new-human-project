@@ -160,8 +160,8 @@ export function TaskDetail({
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-surface">
       {/* Header */}
-      <div className="border-b border-zinc-100 bg-white">
-        <div className="mx-auto flex max-w-3xl items-center gap-3  py-3">
+      <div className="border-b border-zinc-100 bg-white px-4 sm:px-6 md:px-8">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 py-3">
           <button
             onClick={onCloseAction}
             className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-zinc-100"
@@ -175,7 +175,7 @@ export function TaskDetail({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-4 pb-24">
+      <div className="flex-1 overflow-y-auto px-4 py-4 pb-24 sm:px-6 md:px-8">
         <div className="mx-auto max-w-3xl">
           {isRegistrySectioned && programTask && (
             <SectionedContentRenderer

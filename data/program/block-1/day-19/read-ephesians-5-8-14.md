@@ -6,7 +6,7 @@ order: 10
 category: Mental
 type: scripture_reading
 name:
-  en: "Read Ephesians 5:8-14"
-  zh: "读以弗所书 5:8-14"
+  en: "Ephesians 5:8-14"
+  zh: "以弗所书 5:8-14"
 scriptureRef: "Ephesians 5:8-14"
 ---
