@@ -1,9 +1,9 @@
 import { Link } from "@/src/i18n/navigation";
 
-const r = 11;
+const r = 17;
 const circumference = 2 * Math.PI * r;
 const segLength = circumference / 3;
-const gap = 4;
+const gap = 6;
 
 const categorySegments: Record<
   string,
@@ -23,48 +23,34 @@ const categorySegments: Record<
   },
 };
 
-const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
-
 export function ActivityCalendar({
   data,
-  month,
-  year,
+  startDate,
   title,
+  blockLabel,
 }: {
   data: { date: string; categories: string[] }[];
-  month: number;
-  year: number;
+  startDate: string;
   title: string;
+  blockLabel: string;
 }) {
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
   const dateMap = new Map(data.map((d) => [d.date, d.categories]));
+
+  const start = new Date(startDate + "T00:00:00Z");
 
   return (
     <div className="rounded-md bg-white py-5 px-8 shadow-card">
-      <p className="mb-3 text-lg font-headline tracking-tight font-medium text-on-surface">
+      <p className="mb-0 text-xl font-headline tracking-tight font-medium text-on-surface">
         {title}
       </p>
+      <p className="mb-3 text-xs text-foreground/40">{blockLabel}</p>
 
-      <div className="mb-2 grid grid-cols-7 gap-1">
-        {dayLabels.map((label, i) => (
-          <div
-            key={i}
-            className="text-center text-[10px] font-medium text-foreground/40"
-          >
-            {label}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-7 gap-1">
-        {Array.from({ length: firstDay }, (_, i) => (
-          <div key={`e-${i}`} />
-        ))}
-        {Array.from({ length: daysInMonth }, (_, i) => {
+      <div className="mt-4 grid grid-cols-5 gap-2">
+        {Array.from({ length: 25 }, (_, i) => {
           const day = i + 1;
-          const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const d = new Date(start);
+          d.setUTCDate(d.getUTCDate() + i);
+          const dateStr = d.toISOString().slice(0, 10);
           const categories = dateMap.get(dateStr) ?? [];
           const hasActivity = categories.length > 0;
 
@@ -74,13 +60,13 @@ export function ActivityCalendar({
               href={hasActivity ? `/progress?date=${dateStr}` : "#"}
               className={`flex items-center justify-center rounded-sm p-0.5 transition-colors ${hasActivity ? "hover:bg-zinc-50" : ""}`}
             >
-              <div className="relative flex h-6 w-6 items-center justify-center">
+              <div className="relative flex h-10 w-10 items-center justify-center">
                 {hasActivity && (
                   <svg
                     className="absolute inset-0 overflow-visible"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
+                    width="40"
+                    height="40"
+                    viewBox="0 0 40 40"
                   >
                     {categories.map((cat) => {
                       const seg = categorySegments[cat];
@@ -88,25 +74,25 @@ export function ActivityCalendar({
                       return (
                         <circle
                           key={cat}
-                          cx={12}
-                          cy={12}
+                          cx={20}
+                          cy={20}
                           r={r}
                           fill="none"
-                          strokeWidth="2.5"
+                          strokeWidth="3.5"
                           strokeLinecap="round"
                           strokeDasharray={`${segLength - gap} ${circumference - (segLength - gap)}`}
                           strokeDashoffset={seg.offset}
                           style={{
                             stroke: seg.strokeColor,
                             transform: "rotate(-90deg)",
-                            transformOrigin: "12px 12px",
+                            transformOrigin: "20px 20px",
                           }}
                         />
                       );
                     })}
                   </svg>
                 )}
-                <span className="relative text-xs text-foreground/70">
+                <span className="relative text-base text-foreground/70">
                   {day}
                 </span>
               </div>

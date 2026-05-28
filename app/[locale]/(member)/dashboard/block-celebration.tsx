@@ -14,10 +14,10 @@ interface EarnedBadge {
 
 export function BlockCelebration({
   badge,
-  onDismiss,
+  onDismissAction,
 }: {
   badge: EarnedBadge;
-  onDismiss: () => void;
+  onDismissAction: () => void;
 }) {
   const t = useTranslations("block");
   const [visible, setVisible] = useState(false);
@@ -29,7 +29,7 @@ export function BlockCelebration({
 
   function handleDismiss() {
     setVisible(false);
-    setTimeout(onDismiss, 300);
+    setTimeout(onDismissAction, 300);
   }
 
   return (

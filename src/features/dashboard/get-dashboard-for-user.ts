@@ -25,6 +25,7 @@ export interface DashboardData {
   } | null;
   blockEndedWithoutCompletion: boolean;
   emotionBreakdown: Record<string, number>;
+  physicalActivityByDay: { day: number; totalMinutes: number }[];
   blockStartDate: string;
 }
 
@@ -136,6 +137,7 @@ export async function getDashboardForUser(
   const dayCategoryMap = new Map<number, Set<string>>();
   const dateCategories = new Map<string, Set<string>>();
   const emotionBreakdown: Record<string, number> = {};
+  const activityByDay: Record<number, number> = {};
   const startMs = startDate.getTime();
   const endMs = endDate.getTime();
 
@@ -144,6 +146,18 @@ export async function getDashboardForUser(
     if (!fromRegistry || fromRegistry.block !== blockNumber) continue;
 
     const { day: dayNumber, category, type: taskType } = fromRegistry;
+
+    if (taskType === "exercise" && data) {
+      const d = data as Record<string, unknown>;
+      const entries = Array.isArray(d.entries)
+        ? (d.entries as Array<{ sportKey?: string; hours?: number; minutes?: number }>)
+        : [];
+      for (const entry of entries) {
+        if (entry.sportKey === "rest") continue;
+        const mins = (entry.hours ?? 0) * 60 + (entry.minutes ?? 0);
+        activityByDay[dayNumber] = (activityByDay[dayNumber] ?? 0) + mins;
+      }
+    }
 
     if (taskType === "mood_log" && data) {
       const d = data as Record<string, unknown>;
@@ -210,6 +224,10 @@ export async function getDashboardForUser(
     .sort((a, b) => a.date.localeCompare(b.date));
 
   const blockEndedWithoutCompletion = currentDay >= 25 && !blockDone;
+  const physicalActivityByDay = Array.from({ length: 25 }, (_, i) => ({
+    day: i + 1,
+    totalMinutes: activityByDay[i + 1] ?? 0,
+  }));
 
   return {
     currentDay,
@@ -228,6 +246,7 @@ export async function getDashboardForUser(
       : null,
     blockEndedWithoutCompletion,
     emotionBreakdown,
+    physicalActivityByDay,
     blockStartDate: onboardedAt.toISOString().slice(0, 10),
   };
 }

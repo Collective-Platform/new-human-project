@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-export function BlockEncouragement({ onDismiss }: { onDismiss: () => void }) {
+export function BlockEncouragement({ onDismissAction }: { onDismissAction: () => void }) {
   const t = useTranslations("block");
 
   return (
@@ -16,7 +16,7 @@ export function BlockEncouragement({ onDismiss }: { onDismiss: () => void }) {
           <p className="mt-1 text-xs text-foreground/60">{t("keepGoing")}</p>
         </div>
         <button
-          onClick={onDismiss}
+          onClick={onDismissAction}
           className="text-foreground/40 hover:text-foreground/70"
           aria-label="Dismiss"
         >

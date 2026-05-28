@@ -24,12 +24,9 @@ export async function DashboardData({
     currentDay,
     timezone,
   );
-  const now = new Date();
   return (
     <DashboardClient
       initialData={initialData}
-      calendarMonth={now.getMonth()}
-      calendarYear={now.getFullYear()}
     >
       {children}
     </DashboardClient>

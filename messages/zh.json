@@ -9,14 +9,16 @@
   "dashboard": {
     "verseOfDay": "今日经文",
     "streakLabel": "连续天数",
-    "activityCalendar": "活动日历",
+    "activityCalendar": "活动记录",
     "recentLogs": "最近记录",
     "noRecentActivity": "暂无近期活动",
     "last7Days": "最近 7 天",
     "last30Days": "最近 30 天",
     "noCompletions": "这一天没有完成任何活动",
     "emotionBreakdown": "心情分析",
-    "noMoodLogs": "暂无心情记录"
+    "noMoodLogs": "暂无心情记录",
+    "physicalActivity": "运动时长",
+    "noActivityLogs": "暂无运动记录"
   },
   "progress": {
     "dayLabel": "第{day}天",

@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 
 interface Badge {
@@ -10,7 +8,13 @@ interface Badge {
   earnedAt: string | null;
 }
 
-export function BadgeGrid({ badges, title }: { badges: Badge[]; title: string }) {
+export function BadgeGrid({
+  badges,
+  title,
+}: {
+  badges: Badge[];
+  title: string;
+}) {
   return (
     <div className="rounded-md bg-white p-5 shadow-card">
       <p className="mb-3 text-xs font-medium uppercase tracking-wider text-foreground/50">
@@ -50,7 +54,9 @@ export function BadgeGrid({ badges, title }: { badges: Badge[]; title: string })
                   {new Date(badge.earnedAt!).toLocaleDateString()}
                 </p>
               ) : (
-                <p className="text-center text-[10px] text-foreground/40">Locked</p>
+                <p className="text-center text-[10px] text-foreground/40">
+                  Locked
+                </p>
               )}
             </div>
           );

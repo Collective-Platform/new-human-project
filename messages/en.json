@@ -9,14 +9,16 @@
   "dashboard": {
     "verseOfDay": "Verse of the Day",
     "streakLabel": "Day Streak",
-    "activityCalendar": "Activity Calendar",
+    "activityCalendar": "Activity Log",
     "recentLogs": "Recent Logs",
     "noRecentActivity": "No recent activity",
     "last7Days": "Last 7 days",
     "last30Days": "Last 30 days",
     "noCompletions": "No completions for this day",
     "emotionBreakdown": "Mood Breakdown",
-    "noMoodLogs": "No mood logs yet"
+    "noMoodLogs": "No mood logs yet",
+    "physicalActivity": "Exercise Duration",
+    "noActivityLogs": "No activity logs yet"
   },
   "progress": {
     "dayLabel": "Day {day}",
@@ -153,7 +155,7 @@
     "verify": "Verify"
   },
   "notifications": {
-    "dailyReminder": "Time for your daily formation! 🌱",
+    "dailyReminder": "Time for your daily formation!",
     "friendRequest": "{name} sent you a friend request"
   },
   "settings": {

@@ -7,6 +7,7 @@ import { RadarChart } from "./radar-chart";
 import { StreakBadge } from "./streak-badge";
 import { ActivityCalendar } from "./activity-calendar";
 import { EmotionBreakdownChart } from "./emotion-breakdown-chart";
+import { PhysicalActivityChart } from "./physical-activity-chart";
 import type { DashboardData } from "@/src/features/dashboard";
 
 const BlockCelebration = dynamic(
@@ -20,13 +21,9 @@ const BlockEncouragement = dynamic(
 
 export function DashboardClient({
   initialData,
-  calendarMonth,
-  calendarYear,
   children,
 }: {
   initialData: DashboardData;
-  calendarMonth: number;
-  calendarYear: number;
   children?: React.ReactNode;
 }) {
   const t = useTranslations("dashboard");
@@ -54,7 +51,7 @@ export function DashboardClient({
       {showCelebration && data?.earnedBadge && (
         <BlockCelebration
           badge={data.earnedBadge}
-          onDismiss={() => {
+          onDismissAction={() => {
             localStorage.setItem(`badge-seen-${data.earnedBadge!.blockNumber}`, "1");
             setShowCelebration(false);
           }}
@@ -64,7 +61,7 @@ export function DashboardClient({
       {/* Block ended without completion encouragement (9.5) */}
       {showEncouragement && (
         <BlockEncouragement
-          onDismiss={() => {
+          onDismissAction={() => {
             localStorage.setItem("block-encourage-dismissed-1", "1");
             setShowEncouragement(false);
           }}
@@ -94,14 +91,21 @@ export function DashboardClient({
         breakdown={data.emotionBreakdown}
         title={t("emotionBreakdown")}
         emptyLabel={t("noMoodLogs")}
-        blockStartDate={data.blockStartDate}
+        blockLabel="Block 1"
+      />
+
+      <PhysicalActivityChart
+        activityByDay={data.physicalActivityByDay}
+        blockLabel="Block 1"
+        title={t("physicalActivity")}
+        emptyLabel={t("noActivityLogs")}
       />
 
       <ActivityCalendar
         data={data.calendar}
-        month={calendarMonth}
-        year={calendarYear}
+        startDate={data.blockStartDate}
         title={t("activityCalendar")}
+        blockLabel="Block 1"
       />
     </div>
   );

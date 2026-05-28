@@ -83,7 +83,7 @@
   --font-body:
     var(--font-gt-america), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-nowstalgic: var(--font-nowstalgic), sans-serif;
-  --font-kaiti-sc-black: "Kaiti SC Black", "KaiTi SC", "楷体", serif;
+  --font-kaiti-sc-black: var(--font-kaiti-sc-black), "Kaiti SC Black", "KaiTi SC", "楷体", serif;
 }
 
 /* font-headline elements use GT America Medium — this unlayered rule

@@ -37,6 +37,13 @@ const notoSansSC = Noto_Sans_SC({
   display: "swap",
 });
 
+const kaitiSCBlack = localFont({
+  src: "../public/fonts/KaitiSC-Black-subset.otf",
+  weight: "900",
+  variable: "--font-kaiti-sc-black",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Rhythm",
   description:
@@ -99,7 +106,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${nowstalgic.variable} ${gtAmerica.variable} ${notoSansSC.variable} h-full antialiased`}
+      className={`${nowstalgic.variable} ${gtAmerica.variable} ${notoSansSC.variable} ${kaitiSCBlack.variable} h-full antialiased`}
     >
       <head />
       <body className="min-h-full">

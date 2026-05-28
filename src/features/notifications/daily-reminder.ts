@@ -5,11 +5,11 @@ import { sendPushToUser } from "./push";
 const messages: Record<string, { title: string; body: string }> = {
   en: {
     title: "Rhythm",
-    body: "Time for your daily formation! 🌱",
+    body: "Time for your daily formation! ",
   },
   zh: {
     title: "节奏",
-    body: "是时候进行每日灵修了！🌱",
+    body: "是时候进行每日灵修了！",
   },
 };
 
