@@ -20,7 +20,9 @@ The new humanity doesn't manufacture unity — it protects the unity the Spirit 
 
 ## Reading Notes
 
-Paul tells the church to 'make every effort to keep the unity of the Spirit.' Notice: keep, not create. Unity is already there — it's the Spirit's work. Our job is to protect it through humility, gentleness, patience, and bearing with one another in love. Then Paul lists seven things all believers share: one body, one Spirit, one hope, one Lord, one faith, one baptism, one God and Father. These seven realities are deeper than any difference that might divide us. The new humanity is held together not by culture, personality, or politics — but by these seven unbreakable things.
+Paul tells the church to "make every effort to keep the unity of the Spirit." Catch that word: keep, not create. Unity is already there. The Spirit made it. Your job isn't to build something from scratch. It's to protect what's already been given, through humility, gentleness, patience, and putting up with each other in love.
+
+Then Paul rattles off seven things every believer shares: one body, one Spirit, one hope, one Lord, one faith, one baptism, one God and Father. Seven. Not two, not three. Seven things that go deeper than anything that could pull us apart. Your church isn't held together by having the same taste in music, the same political views, or the same personality type. It's held together by these seven things that nobody can take away.
 
 ## Key Idea
 
@@ -28,8 +30,8 @@ Unity in the new humanity isn't about everyone being the same. It's about lettin
 
 ## Reflection
 
-Which of the seven 'ones' feels most under threat in your church or community right now?
+Which of the seven "ones" feels most under threat in your church or community right now?
 
 ## Today's Practice
 
-Choose one of the four attitudes Paul lists — humility, gentleness, patience, bearing with others — and focus on it intentionally today.
+Paul lists four attitudes: humility, gentleness, patience, bearing with others. Pick one. Just one. And actually try to live it out today, on purpose.

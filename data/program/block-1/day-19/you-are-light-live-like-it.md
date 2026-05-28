@@ -20,7 +20,9 @@ You're not just living in the light — you actually are light. That changes eve
 
 ## Reading Notes
 
-Paul doesn't just say we live in the light now. He says we are light. Not a dim glow — actual light. And light does two things: it helps you see, and it exposes what's been hiding in the dark. Living as members of the new humanity means producing the fruit of light — goodness, righteousness, truth — and through contrast, naturally exposing what doesn't belong. This isn't about aggressive confrontation. It's about the simple power of a different kind of life. The new humanity shines not by announcing itself, but by simply being different.
+Paul doesn't just say we live in the light now. He says we are light. Not a dim glow. Actual light. And light does two things: it helps you see, and it exposes what's been hiding in the dark.
+
+Living as part of this new kind of community means producing what Paul calls "the fruit of light": goodness, righteousness, truth. And here's the thing: just by living that way, you naturally expose what doesn't belong. This isn't about going around confronting people aggressively. It's about the simple power of living a different kind of life. This new community shines not by standing up and announcing itself, but just by being different.
 
 ## Key Idea
 
@@ -28,8 +30,8 @@ You don't have to announce you're part of the new humanity. A life lived in the 
 
 ## Reflection
 
-Where in your everyday life does your faith create genuine contrast with the culture around you? Where has it faded into the background?
+Where in your everyday life does your faith create genuine contrast with the culture around you? And honestly, where has it quietly faded into the background?
 
 ## Today's Practice
 
-Ask God today: 'Where have I blended in when I should have stood out?' Listen honestly to the answer.
+Ask God: "Where have I blended in when I should have stood out?" Then sit with that honestly. Don't rush past the answer.

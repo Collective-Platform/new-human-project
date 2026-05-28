@@ -1,5 +1,3 @@
-"use client";
-
 const colorMap: Record<number, string> = {
   "-1": "bg-zinc-100 text-zinc-300",
   "0": "bg-zinc-200 text-zinc-400",

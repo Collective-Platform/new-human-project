@@ -20,7 +20,13 @@ Saved by grace, not effort — and made for a purpose.
 
 ## Reading Notes
 
-We are saved entirely by grace, through faith — not by anything we do. No room for boasting, no room for comparing ourselves to others. And yet verse 10 flips it. We are God's 'handiwork' — his masterpiece, created in Christ Jesus for good works that God prepared in advance for us to do. Works don't save us. But being saved changes us into people who naturally want to do good. This is the pattern for every member of the new humanity: received freely, lived out fully. You were rescued AND you were given a purpose.
+We are saved entirely by grace, through faith. Not by anything we do. Not by being good enough or trying hard enough. There's no room for boasting here, and no room for comparing ourselves to others. It's a gift.
+
+And yet verse 10 flips it. You are God's handiwork. Some translations say masterpiece. You are created in Christ Jesus for good works that God prepared in advance for us to do.
+
+Works don't save us. But being saved changes us into people who naturally want to do good. It's not about earning anything anymore. It's about living out what you already are.
+
+That's the rhythm of life in the new humanity: received freely, lived out fully.
 
 ## Key Idea
 

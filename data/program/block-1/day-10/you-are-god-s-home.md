@@ -20,7 +20,13 @@ The church isn't a building where God visits — it's a community where God live
 
 ## Reading Notes
 
-Paul gives the church three names in four verses: citizens, family, and a temple. That last image is the most striking. In the Old Testament, God's presence was located in the temple — a building. Now Paul says God lives in the community of believers. The new humanity, gathered around Jesus and his word, is where God has chosen to make his home. When people step into a church that is truly living as the new humanity — welcoming, honest, full of grace — they are stepping into the presence of God.
+Paul gives the church three names in four verses: citizens, family, and a temple. Being called a citizen means you belong. You have rights. You're no longer an outsider. Being called family goes even deeper than that. It becomes personal.
+
+But then Paul uses a third image: the temple. In the Old Testament, the temple was the building where God's presence lived. If you wanted to meet with God, you went there. It was tied to a location.
+
+Now Paul says the new temple isn't a building. It's the community of believers gathered around Jesus. God has chosen to make us his home.
+
+That changes how we think about church. It's not a place you go to find God. It's a community that God has chosen to live in. When people step into a church, they're not just walking into a nice community. They're walking into the presence of God.
 
 ## Key Idea
 

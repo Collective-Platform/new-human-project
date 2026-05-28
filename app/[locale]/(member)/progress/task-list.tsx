@@ -69,6 +69,11 @@ export function TaskList({
     Emotional: "text-category-emotional",
     Physical: "text-category-physical",
   };
+  const categoryAddColor: Record<string, string> = {
+    Mental: "border-category-mental/40 text-category-mental/40 hover:border-category-mental/30 hover:text-category-mental",
+    Emotional: "border-category-emotional/40 text-category-emotional/40 hover:border-category-emotional/30 hover:text-category-emotional",
+    Physical: "border-category-physical/40 text-category-physical/40 hover:border-category-physical/30 hover:text-category-physical",
+  };
 
   return (
     <div className="space-y-8">
@@ -240,7 +245,7 @@ export function TaskList({
                 <button
                   key={`${task.id}-add`}
                   onClick={() => onAddEntryAction(task)}
-                  className="w-full rounded-full border-2 border-dashed border-primary/40 py-2 text-sm font-semibold text-primary/40 transition-all hover:border-primary/30 hover:text-primary active:scale-[0.99]"
+                  className={`w-full rounded-full border-2 border-dashed py-2 text-sm font-semibold transition-all active:scale-[0.99] ${categoryAddColor[cat]}`}
                 >
                   + {isMoodLog ? tm("addMoodLog") : te("addExercise")}
                 </button>

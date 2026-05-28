@@ -20,7 +20,15 @@ What God has given us now — and the promise of so much more to come.
 
 ## Reading Notes
 
-Paul keeps piling on the blessings: forgiveness, redemption, wisdom, and God's plan revealed to us. Then he introduces the Holy Spirit — and uses a fascinating word for him. The Spirit is God's 'deposit' or 'down payment' on our future. In Paul's day, a deposit was a legal commitment — a guarantee that the full payment was coming. The Spirit living inside you is not the whole of what God has planned. It's the first instalment — God saying: 'What I've started in you, I will finish.' Every member of the new humanity carries this guarantee inside them.
+The blessings keep stacking up: forgiveness, redemption, wisdom, and on top of all that, God letting us in on his plan for everything. It's a lot to take in.
+
+Then Paul introduces the Holy Spirit, and he uses a really interesting word to describe what the Spirit is doing in our lives. He calls the Spirit a "deposit" or "down payment."
+
+Now if you've ever bought something expensive, like a car or a house, you'll know what a deposit means. It's not the full amount yet. But it's a legal commitment. It's the seller saying: the rest is coming, I promise. A deposit is a guarantee.
+
+That's what the Holy Spirit living in you actually is. Not the whole of what God has planned for you, but the first instalment. God saying: What I've started in you, I will finish. The best is not behind you. It's ahead.
+
+Every single person in the new humanity carries this guarantee. Not just the super-spiritual ones. Not just the people who've been following Jesus for decades. You. Right now. The Spirit in you is God's promise that your story isn't close to over.
 
 ## Key Idea
 

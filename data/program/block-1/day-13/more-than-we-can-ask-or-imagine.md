@@ -20,16 +20,20 @@ The doxology at the heart of Ephesians — and why God's glory comes through the
 
 ## Reading Notes
 
-Paul closes the first half of his letter with praise. God is able to do far more than we could ever ask or dream up — and this power is already at work inside us. And then this: glory comes to God 'in the church and in Christ Jesus.' Not just through individuals — through the church. When the new humanity lives together in a way the world can't explain, God is glorified. That's the vision. The New Human Project is God's greatest advertisement for his own character — a community of transformed people living as proof that Jesus is real.
+Paul wraps up the first half of his letter with a burst of praise. He says God is able to do far more than anything we could ever ask for or even dream up. And that power isn't somewhere out there waiting to be switched on. It's already at work inside us right now.
+
+Then he says something worth slowing down on. Glory comes to God "in the church and in Christ Jesus." Not just through individual people living good lives. Through the church. The community itself.
+
+When the new humanity lives together in a way that the world genuinely can't explain, God gets the credit. That's the vision Paul has been building toward the whole time. The church isn't just a weekly gathering or a social club for religious people. It's meant to be God's greatest advertisement for his own character. A community of changed people, living together as living proof that Jesus is real and that what he started actually works.
 
 ## Key Idea
 
-God is glorified when his new humanity lives together in a way that couldn't be explained without him.
+God is glorified when his new humanity lives together in a way that has no other explanation except him.
 
 ## Reflection
 
-What would your church look like if God did 'far more than you could ask or imagine' in and through it?
+What would your church look like if God did "far more than you could ask or imagine" in and through it? Let yourself actually picture it.
 
 ## Today's Practice
 
-Write a prayer asking God to do something in your church that feels impossible to you. Keep it and pray it for 25 days.
+Write a prayer asking God to do something in your church that honestly feels impossible to you right now. Keep it somewhere you'll see it, and pray it for the next 25 days.

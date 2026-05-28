@@ -20,7 +20,13 @@ Paul's prayer — and why knowing God is better than knowing about God.
 
 ## Reading Notes
 
-Paul prays for his readers — and what he asks for is striking. He doesn't pray for their comfort or safety. He prays that they would know God better. There's a difference between knowing facts about someone and actually knowing them. Paul wants the Ephesians to experience God's reality — to feel the hope of their calling, to grasp what God has given them, and to understand that the same power that raised Jesus from the dead is at work in them right now. People who know God this way are equipped to live as the new humanity in a world that doesn't know him.
+When Paul prays for the people in Ephesus, notice what he doesn't ask for. He doesn't pray for their safety. He doesn't pray that life would get easier or that things would go well for them. What he prays for is that they would know God better.
+
+There's a big difference between knowing facts about someone and actually knowing them. You could know everything about a person, their history, what they've said, what they've done, and still be a complete stranger to them.
+
+Paul isn't praying for the Ephesians to know more information about God. He's praying they would actually experience him. That they'd feel the weight of the hope they've been called into. That they'd start to grasp just how much God has given them. That they'd realise the same power that raised Jesus from the grave is at work in them right now.
+
+People who know God this way are equipped to live as the new humanity in a world that doesn't know him.
 
 ## Key Idea
 

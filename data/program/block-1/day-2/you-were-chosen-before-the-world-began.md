@@ -20,7 +20,13 @@ God chose you — not because of what you've done, but because of his love.
 
 ## Reading Notes
 
-Paul opens with an explosion of praise — blessing after blessing stacked on top of each other. And it all starts with this: God chose us before he made the world. Not after we proved ourselves. Not after we cleaned up our lives. Before any of it existed. The reason? Love. Pure and simple. The goal of being chosen is not to feel superior to others — it's to become holy and to be adopted into God's own family. This is where the new humanity begins: not with our effort, but with God's love reaching back before time itself.
+Paul kicks off this letter like someone who can barely contain himself. It's blessing after blessing, one on top of another.
+
+And right at the centre of it all is this: God chose us before he made the world. Not after we proved ourselves. Not after we cleaned up our lives. Before any of it existed.
+
+The reason? Love. That's it. No other reason. The goal of being chosen isn't meant to make you feel like you're better than everyone else. It is to become holy and to be adopted into God's own family.
+
+This is where the new humanity begins: not with our effort, but with God's love reaching back before time itself.
 
 ## Key Idea
 

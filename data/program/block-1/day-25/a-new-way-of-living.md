@@ -16,11 +16,11 @@ inputs:
 
 ## Scripture:
 
-_Remain in me, as I also remain in you. No branch can bear fruit by itself; it must remain in the vine. Neither can you bear fruit unless you remain in me._ \- **John 15:4**
+_Remain in me, as I also remain in you. No branch can bear fruit by itself; it must remain in the vine. Neither can you bear fruit unless you remain in me._ \- John 15:4
 
 This journey was never about fixing your emotions.
 
-It was about learning to **walk with God through them**.
+It was about learning to walk with God through them.
 
 You will still feel anger.  
 You will still feel sadness.

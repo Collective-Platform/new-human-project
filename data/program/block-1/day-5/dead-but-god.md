@@ -20,7 +20,13 @@ The human condition, honestly described — and the grace that changes everythin
 
 ## Reading Notes
 
-Paul gets honest here. Before Christ, we weren't just struggling — we were spiritually dead. Drifting. Following patterns and impulses that led nowhere good. But then comes verse 4 — two of the most important words in the Bible: 'But God.' Because of his great love, God stepped in. He didn't patch us up. He raised us to life. This is where the New Human Project begins for each of us personally — not with a resolution to do better, but with God breathing life into what was dead. The same power that raised Jesus from the grave is the power that woke you up spiritually.
+Paul doesn't sugarcoat it here. He describes what life looks like without Christ, and it's not pretty. He doesn't say we were struggling a bit, or that we just needed some self-improvement. He says we were spiritually dead.
+
+Drifting through life, following whatever impulses felt right, without really knowing where any of it was taking you. And then comes verse 4. Two words that change everything: "But God."
+
+Because of his great love, God stepped in. And when God steps in, he doesn't just patch things up or give you a set of rules to follow so you can do better next time. He raises you to life. The same power that raised Jesus from the grave is the power that woke you up spiritually.
+
+This is where the New Human Project gets personal. It doesn't start with you deciding to try harder. It starts with God doing something in you that you could never do for yourself.
 
 ## Key Idea
 

@@ -16,15 +16,19 @@ inputs:
 
 ## Today's Focus
 
-The New Human Project transforms how we see work — every workplace becomes a place of witness.
+The New Human Project changes how we see work — every workplace becomes a place where we can show who we follow.
 
 ## Reading Notes
 
-Paul addresses workers as people with dignity and moral agency, and gives them a framework that transforms every job: work 'as to the Lord.' When your ultimate employer is Jesus, no work is meaningless, no task beneath you. You're not just doing a job — you're offering your work to God. And for those with authority: remember you have a Master too, one who shows no favouritism. In God's new humanity, power is always held accountable. The New Human Project doesn't stay in the church building — it follows you into every meeting, every conversation, every task.
+Paul talks to workers like they actually matter, because they do. He gives them a simple but powerful idea: do your work "as to the Lord." What does that mean? When Jesus is your ultimate employer, no job is too small or too boring. Whether you're stacking shelves, doing homework, sitting in meetings, or cleaning up after someone else, you're not just getting through the day. You're offering what you do to God.
+
+And for anyone who has authority over other people — like a manager, a team leader, a parent — Paul has a word for you too: you have a boss as well. God doesn't play favourites, and power always has to answer to someone. That keeps things honest.
+
+The New Human Project doesn't clock out when you leave church on Sunday. It goes with you. Into your classroom. Into your workplace. Into every conversation and every task you do this week.
 
 ## Key Idea
 
-There is no such thing as secular work for someone in the new humanity. Every job is an opportunity to serve Christ.
+There is no such thing as secular work for someone in the new humanity. Every single thing you do is a chance to serve Christ.
 
 ## Reflection
 

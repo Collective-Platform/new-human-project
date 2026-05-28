@@ -67,7 +67,7 @@ export function EmotionBreakdownChart({
             return (
               <div
                 key={key}
-                className="flex items-center gap-3 bg-gray-50/50 hover:bg-[#256a65]/5 p-2 rounded-xl transition-all duration-150 border border-gray-100"
+                className="flex items-center gap-3 p-2 rounded-xl"
               >
                 <span className="text-lg shrink-0">{MOOD_EMOJIS[key]}</span>
 

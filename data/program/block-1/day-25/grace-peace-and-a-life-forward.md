@@ -6,7 +6,7 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Grace, Peace — and a Life Forward"
+  en: "Grace, Peace and a Life Forward"
   zh: "恩典、平安，迈向未来的人生"
 passageRef: "Ephesians 6:21–24 · Full Letter"
 inputs:
@@ -20,7 +20,21 @@ Bringing it all together — what the New Human Project means for your life from
 
 ## Reading Notes
 
-Paul closes by mentioning Tychicus — not a famous apostle, just a faithful friend who carried the letter and encouraged the churches in person. The new humanity is built by people like that. Ordinary, faithful, showing up. Now go back and read 1:3–14 again with everything you've learned. Four movements: New Life — you have been made alive in Christ. New Society — you've been brought into a community that crosses every divide. New Standards — you're called to live differently, starting in your mind. New Relationships — every relationship is now a place to practise the new humanity. This is the New Human Project. And you are part of it.
+Paul ends his letter by mentioning someone called Tychicus. Not a famous apostle. Not a theological heavyweight. Just a faithful friend who carried the letter from Paul to the churches and encouraged people in person when he got there.
+
+That's worth noticing. The new humanity isn't only built by the well-known or the gifted. It's built by people who are ordinary, faithful, and keep showing up.
+
+Now is a good moment to go back and read Ephesians 1:3–14 again, with everything you've picked up over these 25 days. You'll see the whole letter moves through four movements.
+
+New Life. You have been made alive in Christ. That's where everything starts.
+
+New Society. You've been brought into a community that crosses every divide that would normally keep people apart.
+
+New Standards. You're called to live differently, and it starts in how you think, not just what you do.
+
+New Relationships. Every relationship you have — at home, at work, at church — is now a place to practise the new humanity.
+
+This is the New Human Project. And you are part of it.
 
 ## Key Idea
 

@@ -20,7 +20,11 @@ The extraordinary call to imitate God — and what that actually looks like in d
 
 ## Reading Notes
 
-'Imitate God as dearly loved children.' It sounds audacious. But Paul immediately shows us what this means: walk in love, the way Christ loved us and gave himself up for us. The opposite of this is the world's pattern — grabbing, using, consuming — sexual immorality, greed, and coarse talk are all forms of taking rather than giving. And notice what Paul prescribes as the antidote: thanksgiving. Grateful people are not greedy people. Members of the new humanity are marked by generosity, because they know they've already been given everything they need.
+"Imitate God as dearly loved children." The first time you read that, it sounds almost too big to take seriously. Imitate God? But Paul immediately brings it down to earth. He's not talking about being all-knowing or all-powerful. He's talking about love. Walk in love, the way Christ loved us and gave himself up for us. That's the target.
+
+Then Paul flips it around and shows us what the opposite looks like. Sexual immorality, greed, coarse talk. At first those might seem like a random list, but they all have something in common. They're all about taking. Using people. Consuming things. Grabbing what you can get. It's the default pattern of the world, and it runs completely against the grain of how Jesus lived.
+
+Paul doesn't say the antidote is trying harder or being more disciplined. He says it's thanksgiving. Grateful people are not greedy people. When you genuinely know how much you've already been given, the urge to grab and consume loses its grip. Members of the new humanity are marked by generosity, because they've stopped living like they're running out.
 
 ## Key Idea
 

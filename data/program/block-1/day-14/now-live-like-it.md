@@ -20,16 +20,20 @@ The great hinge of the letter — from who you are to how you live.
 
 ## Reading Notes
 
-One word bridges the two halves of this letter: 'therefore.' Everything Paul has said about who we are — chosen, loved, forgiven, made new, brought into the new humanity — now becomes the basis for how we live. This is not about earning God's approval. It's about living in a way that matches who you already are. Members of the new humanity don't live differently to become something — they live differently because of what they already are. Think of it this way: if you've been rescued, live like someone who's been rescued.
+One word connects everything Paul has said so far to everything he's about to say: "therefore." The first three chapters of Ephesians have been packed with truth about who you are. Chosen. Loved. Forgiven. Made new. Brought into this new humanity that God has been building. Now Paul says: okay, given all of that, here's how to live.
+
+This isn't about earning anything. God's approval isn't on the table, waiting to be won. It's already been given. This is about living in a way that actually matches who you already are.
+
+Think about it this way. Members of the new humanity don't live differently in order to become something. They live differently because of what they already are. If you've been rescued from a burning building, you don't keep acting like you're still trapped inside. You live like someone who got out.
 
 ## Key Idea
 
-You don't live the Christian life to join the new humanity. You live it because you're already in it.
+You don't live the Christian life in order to join the new humanity. You live it because you're already in it.
 
 ## Reflection
 
-Is there a gap between who you know yourself to be in Christ and how you actually live day to day? Where is that gap most obvious?
+Is there a gap between who you know yourself to be in Christ and how you actually live from day to day? Where is that gap most obvious to you right now?
 
 ## Today's Practice
 
-Identify one area where you want to bring your behaviour into line with your identity in Christ. Name it. Pray about it.
+Pick one area where you want to bring how you're living into line with who you actually are in Christ. Name it out loud or write it down. Then pray about it.

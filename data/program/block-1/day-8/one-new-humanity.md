@@ -20,7 +20,11 @@ The heart of Ephesians: Jesus has made enemies into family — and created somet
 
 ## Reading Notes
 
-Jews and Gentiles were ancient enemies — divided by religion, history, and a literal wall in the Jerusalem temple that barred Gentiles from the inner courts. Paul says Jesus has torn that wall down in his own body on the cross. And he hasn't just brought two groups closer together. He has created one new humanity. Not Jews who tolerate Gentiles. Not Gentiles who adopt Jewish customs. Something brand new that only exists in Christ. This is the centrepiece of the whole letter — and the very phrase Paul uses. The church is not an organisation. It is a new humanity, called into existence by the cross.
+Jews and Gentiles weren't just different groups who didn't mix at parties. They were ancient enemies. Divided by religion, by history, by culture, and even by architecture. There was a literal wall in the Jerusalem temple that physically barred Gentiles from going any further into the inner courts.
+
+Paul says Jesus tore that wall down. In his own body, on the cross. He didn't just bring two groups closer together. He didn't ask Gentiles to become more Jewish, or ask Jews to loosen up their standards. He created something that had never existed before. One new humanity. A community that only exists because of him, and couldn't exist without him.
+
+This is the centrepiece of the whole letter. The church isn't an organisation you join or a building you attend. It's a new kind of people, called into existence by the cross. People who had every reason to be enemies, now becoming family.
 
 ## Key Idea
 

@@ -20,7 +20,11 @@ The new humanity starts at home — in how we treat the people closest to us.
 
 ## Reading Notes
 
-Paul addresses children directly — which was unusual in his time. Children were moral agents worthy of being spoken to, not just managed. He calls them to honour their parents. But he equally addresses fathers: don't exasperate your children. Don't provoke frustration through harsh or absent parenting. Instead, bring them up with nurture and guidance shaped by God's character. The home is the first classroom of the new humanity. How we treat the most vulnerable people in our homes reveals how deeply the New Human Project has actually taken root in us.
+Paul does something here that was actually pretty unusual for his day. He speaks directly to children. Not just to parents about children, but to the children themselves. That's a small detail that carries a big idea: children are not just people to be managed. They're moral agents. They're part of the community. They get addressed directly because they matter.
+
+His word to them is straightforward. Honour your parents. It's right, it's good, and there's even a promise attached to it. But then Paul swings around and speaks just as clearly to the fathers in the room. Don't exasperate your children. Don't provoke them with harshness, with impossible expectations, or by simply being absent when they need you. Instead, bring them up with genuine nurture and guidance shaped by God's own character.
+
+The home is the first classroom of the new humanity. Before any of the big Sunday ideas get tested in the world, they get tested at the dinner table, in the car, during an argument, on a tired Tuesday evening. How you treat the most vulnerable people under your roof says more about how deeply this has taken root in you than almost anything else.
 
 ## Key Idea
 
