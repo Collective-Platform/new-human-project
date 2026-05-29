@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { PrimaryButton } from "@/app/components/primary-button";
 import { TogglePill } from "@/app/components/toggle-pill";
 
@@ -55,41 +56,18 @@ export function normalizeEntries(
   ];
 }
 
-type Labels = {
-  pickEmoji: string;
-  terrible: string;
-  bad: string;
-  okay: string;
-  good: string;
-  excellent: string;
-  influences: string;
-  family: string;
-  friends: string;
-  love: string;
-  work: string;
-  school: string;
-  health: string;
-  moreContext: string;
-  submit: string;
-  completed: string;
-  updateMood: string;
-  addMoodLog: string;
-  entryLabel: string;
-};
-
 export function MoodLogRenderer({
   initialData,
   onSubmitAction,
   loading,
   openMode = "add",
-  labels,
 }: {
   initialData: Record<string, unknown> | null;
   onSubmitAction: (data: Record<string, unknown>) => void;
   loading: boolean;
   openMode?: "add" | number;
-  labels: Labels;
 }) {
+  const tm = useTranslations("mood");
   const existingEntries = normalizeEntries(initialData);
   const editEntry =
     typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
@@ -109,19 +87,19 @@ export function MoodLogRenderer({
   }, [formContext]);
 
   const moodLabels: Record<string, string> = {
-    terrible: labels.terrible,
-    bad: labels.bad,
-    okay: labels.okay,
-    good: labels.good,
-    excellent: labels.excellent,
+    terrible: tm("terrible"),
+    bad: tm("bad"),
+    okay: tm("okay"),
+    good: tm("good"),
+    excellent: tm("excellent"),
   };
   const influenceLabels: Record<string, string> = {
-    family: labels.family,
-    friends: labels.friends,
-    love: labels.love,
-    work: labels.work,
-    school: labels.school,
-    health: labels.health,
+    family: tm("family"),
+    friends: tm("friends"),
+    love: tm("love"),
+    work: tm("work"),
+    school: tm("school"),
+    health: tm("health"),
   };
 
   function toggleMood(key: string) {
@@ -160,7 +138,7 @@ export function MoodLogRenderer({
     <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-card-hover">
       <section className="space-y-4 text-center">
         <p className="text-xs font-bold uppercase tracking-widest text-outline">
-          {labels.pickEmoji}
+          {tm("pickEmoji")}
         </p>
         <div className="flex items-center justify-around gap-2">
           {moods.map((m) => {
@@ -192,7 +170,7 @@ export function MoodLogRenderer({
 
       <section className="space-y-4 text-center">
         <p className="text-xs font-bold uppercase tracking-widest text-outline">
-          {labels.influences}
+          {tm("influences")}
         </p>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           {influenceKeys.map((key) => (
@@ -211,7 +189,7 @@ export function MoodLogRenderer({
 
       <section className="space-y-3 text-center">
         <p className="text-xs font-bold uppercase tracking-widest text-outline">
-          {labels.moreContext}
+          {tm("moreContext")}
         </p>
         <textarea
           ref={contextRef}
@@ -223,7 +201,7 @@ export function MoodLogRenderer({
       </section>
 
       <PrimaryButton onClick={handleSubmit} disabled={!canSubmit} variant="emotional">
-        {loading ? "…" : isEditing ? labels.updateMood : labels.submit}
+        {loading ? "…" : isEditing ? tm("updateMood") : tm("submit")}
       </PrimaryButton>
     </div>
   );

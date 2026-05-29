@@ -451,16 +451,24 @@ export function computeActivityLabel(
   completionData: Record<string, unknown> | null,
   dbTaskType: string | null,
 ): string {
+  function getFirstEntry(data: Record<string, unknown> | null): Record<string, unknown> | null {
+    if (!data) return null;
+    if (Array.isArray(data.entries) && data.entries.length > 0)
+      return data.entries[0] as Record<string, unknown>;
+    return data;
+  }
   function sportName(data: Record<string, unknown> | null): string {
-    const sportKey = data?.sportKey as string | undefined;
+    const entry = getFirstEntry(data);
+    const sportKey = entry?.sportKey as string | undefined;
     if (sportKey === "rest") return "Rest";
     if (!sportKey) return "Exercise";
-    if (sportKey === "others") return (data?.customSport as string | undefined) ?? "Exercise";
+    if (sportKey === "others") return (entry?.customSport as string | undefined) ?? "Exercise";
     return _sportLabels[sportKey] ?? "Exercise";
   }
   function dur(data: Record<string, unknown> | null): string {
-    const h = (data?.hours as number | undefined) ?? 0;
-    const m = (data?.minutes as number | undefined) ?? 0;
+    const entry = getFirstEntry(data);
+    const h = (entry?.hours as number | undefined) ?? 0;
+    const m = (entry?.minutes as number | undefined) ?? 0;
     if (h === 0 && m === 0) return "";
     if (h === 0) return `${m}m`;
     if (m === 0) return `${h}h`;

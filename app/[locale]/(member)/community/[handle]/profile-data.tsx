@@ -45,26 +45,30 @@ function formatDuration(hours: number, minutes: number, locale: string): string 
   return `${hours}h ${minutes}m`;
 }
 
-function resolveExerciseEntry(
+function getExerciseEntries(
   data: Record<string, unknown> | null,
-): Record<string, unknown> | null {
-  if (!data) return null;
-  if (Array.isArray(data.entries) && data.entries.length > 0) {
-    return data.entries[0] as Record<string, unknown>;
-  }
-  return data;
+): Array<Record<string, unknown>> {
+  if (!data) return [];
+  if (Array.isArray(data.entries)) return data.entries as Array<Record<string, unknown>>;
+  if (data.sportKey) return [data];
+  return [];
 }
 
-function getExerciseActivityLabel(data: Record<string, unknown> | null, locale: string): string {
+function formatExerciseEntry(entry: Record<string, unknown>, locale: string): string {
   const labels = sportLabels[locale] ?? sportLabels.en;
   const fallback = exerciseFallback[locale] ?? exerciseFallback.en;
-  const entry = resolveExerciseEntry(data);
-  if (!entry) return fallback;
   const sportKey = entry.sportKey as string | undefined;
   if (!sportKey) return fallback;
   if (sportKey === "rest") return restLabel[locale] ?? restLabel.en;
-  if (sportKey === "others") return (entry.customSport as string | undefined) ?? fallback;
-  return labels[sportKey] ?? fallback;
+  const sport =
+    sportKey === "others"
+      ? (entry.customSport as string | undefined) ?? fallback
+      : (labels[sportKey] ?? fallback);
+  const h = (entry.hours as number | undefined) ?? 0;
+  const m = (entry.minutes as number | undefined) ?? 0;
+  const dur = formatDuration(h, m, locale);
+  if (!dur) return sport;
+  return locale === "zh" ? `${sport} ${dur}` : `${sport} for ${dur}`;
 }
 
 export async function ProfileData({ handle }: { handle: string }) {
@@ -122,18 +126,17 @@ export async function ProfileData({ handle }: { handle: string }) {
 
     if (registryTask) {
       if (registryTask.type === "exercise") {
-        const sport = getExerciseActivityLabel(row.completionData, locale);
-        const firstEntry = resolveExerciseEntry(row.completionData ?? null);
-        const h = (firstEntry?.hours as number | undefined) ?? 0;
-        const m = (firstEntry?.minutes as number | undefined) ?? 0;
-        const dur = formatDuration(h, m, locale);
-        return [
-          {
-            ...base,
-            category: registryTask.category,
-            activity: dur ? (locale === "zh" ? `${sport} ${dur}` : `${sport} for ${dur}`) : sport,
-          },
-        ];
+        const entries = getExerciseEntries(row.completionData ?? null);
+        const nonRest = entries.filter((e) => (e.sportKey as string) !== "rest");
+        if (nonRest.length === 0) {
+          return [{ ...base, category: registryTask.category, activity: restLabel[locale] ?? restLabel.en }];
+        }
+        return nonRest.map((entry, i) => ({
+          ...base,
+          id: `${row.completionId}:${i}`,
+          category: registryTask.category,
+          activity: formatExerciseEntry(entry, locale),
+        }));
       }
       return [
         {
@@ -145,18 +148,17 @@ export async function ProfileData({ handle }: { handle: string }) {
     }
 
     if (row.dbTaskType === "exercise") {
-      const sport = getExerciseActivityLabel(row.completionData, locale);
-      const firstEntry = resolveExerciseEntry(row.completionData ?? null);
-      const h = (firstEntry?.hours as number | undefined) ?? 0;
-      const m = (firstEntry?.minutes as number | undefined) ?? 0;
-      const dur = formatDuration(h, m, locale);
-      return [
-        {
-          ...base,
-          category: row.dbCategory ?? "Physical",
-          activity: dur ? (locale === "zh" ? `${sport} ${dur}` : `${sport} for ${dur}`) : sport,
-        },
-      ];
+      const entries = getExerciseEntries(row.completionData ?? null);
+      const nonRest = entries.filter((e) => (e.sportKey as string) !== "rest");
+      if (nonRest.length === 0) {
+        return [{ ...base, category: row.dbCategory ?? "Physical", activity: restLabel[locale] ?? restLabel.en }];
+      }
+      return nonRest.map((entry, i) => ({
+        ...base,
+        id: `${row.completionId}:${i}`,
+        category: row.dbCategory ?? "Physical",
+        activity: formatExerciseEntry(entry, locale),
+      }));
     }
 
     return [];

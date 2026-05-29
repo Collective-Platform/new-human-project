@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { FieldInput } from "@/app/components/field-input";
 import { PrimaryButton } from "@/app/components/primary-button";
 import { TogglePill } from "@/app/components/toggle-pill";
@@ -76,39 +77,18 @@ export function formatDuration(hours?: number, minutes?: number): string {
   return `${m}min`;
 }
 
-type Labels = {
-  selectActivity: string;
-  badminton: string;
-  run: string;
-  pickleball: string;
-  swimming: string;
-  pilates: string;
-  others: string;
-  customActivityPlaceholder: string;
-  duration: string;
-  hours: string;
-  minutes: string;
-  logActivity: string;
-  takeRest: string;
-  rested: string;
-  addExercise: string;
-  entryLabel: string;
-  takeRestToday: string;
-};
-
 export function ExerciseLogRenderer({
   initialData,
   onSubmitAction,
   loading,
   openMode = "add",
-  labels,
 }: {
   initialData: Record<string, unknown> | null;
   onSubmitAction: (data: Record<string, unknown>) => void;
   loading: boolean;
   openMode?: "add" | number;
-  labels: Labels;
 }) {
+  const t = useTranslations("exercise");
   const existingEntries = normalizeExerciseEntries(initialData);
   const editEntry =
     typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
@@ -118,12 +98,12 @@ export function ExerciseLogRenderer({
   const showRestCard = (typeof openMode !== "number" && !hasExerciseEntries) || isEditingRest;
 
   const sportLabels: Record<SportKey, string> = {
-    badminton: labels.badminton,
-    run: labels.run,
-    pickleball: labels.pickleball,
-    swimming: labels.swimming,
-    pilates: labels.pilates,
-    others: labels.others,
+    badminton: t("badminton"),
+    run: t("run"),
+    pickleball: t("pickleball"),
+    swimming: t("swimming"),
+    pilates: t("pilates"),
+    others: t("others"),
   };
 
   const [selectedSport, setSelectedSport] = useState<SportKey | null>(() => {
@@ -186,7 +166,7 @@ export function ExerciseLogRenderer({
       <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-card-hover">
         <section className="space-y-4 text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-outline">
-            {labels.selectActivity}
+            {t("selectActivity")}
           </p>
           <div className="grid grid-cols-2 gap-2.5">
             {sportKeys.map((key) => (
@@ -208,19 +188,19 @@ export function ExerciseLogRenderer({
               type="text"
               value={customSport}
               onChange={(e) => setCustomSport(e.target.value)}
-              placeholder={labels.customActivityPlaceholder}
+              placeholder={t("customActivityPlaceholder")}
             />
           )}
         </section>
 
         <section className="space-y-4 text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-outline">
-            {labels.duration}
+            {t("duration")}
           </p>
           <div className="flex gap-3 text-left">
             <label className="flex flex-1 flex-col gap-1.5">
               <span className="text-xs font-semibold text-on-surface-variant">
-                {labels.hours}
+                {t("hours")}
               </span>
               <FieldInput
                 type="number"
@@ -233,7 +213,7 @@ export function ExerciseLogRenderer({
             </label>
             <label className="flex flex-1 flex-col gap-1.5">
               <span className="text-xs font-semibold text-on-surface-variant">
-                {labels.minutes}
+                {t("minutes")}
               </span>
               <FieldInput
                 type="number"
@@ -252,20 +232,20 @@ export function ExerciseLogRenderer({
           disabled={!canSubmit}
           variant="physical"
         >
-          {loading ? "…" : labels.logActivity}
+          {loading ? "…" : t("logActivity")}
         </PrimaryButton>
       </div>
       {showRestCard && (
         <div className="mt-8 rounded-lg bg-white p-6 shadow-card text-center space-y-4">
           <p className="text-xs font-bold uppercase tracking-widest text-outline">
-            🛌 {labels.takeRestToday}
+            🛌 {t("takeRestToday")}
           </p>
           <PrimaryButton
             onClick={() => onSubmitAction({ entries: [{ sportKey: "rest" }] })}
             disabled={loading || alreadyRested}
             variant="physical"
           >
-            {loading ? "…" : alreadyRested ? labels.rested : labels.takeRest}
+            {loading ? "…" : alreadyRested ? t("rested") : t("takeRest")}
           </PrimaryButton>
         </div>
       )}

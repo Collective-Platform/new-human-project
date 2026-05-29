@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { CircleCheck, Circle, ChevronRight } from "lucide-react";
@@ -44,23 +45,29 @@ export function TaskList({
   const te = useTranslations("exercise");
   const tm = useTranslations("mood");
 
-  const sportLabels: Record<string, string> = {
-    run: te("run"),
-    badminton: te("badminton"),
-    pickleball: te("pickleball"),
-    swimming: te("swimming"),
-    pilates: te("pilates"),
-    others: te("others"),
-  };
+  const sportLabels = useMemo<Record<string, string>>(
+    () => ({
+      run: te("run"),
+      badminton: te("badminton"),
+      pickleball: te("pickleball"),
+      swimming: te("swimming"),
+      pilates: te("pilates"),
+      others: te("others"),
+    }),
+    [te],
+  );
 
-  const influenceLabels: Record<string, string> = {
-    family: tm("family"),
-    friends: tm("friends"),
-    love: tm("love"),
-    work: tm("work"),
-    school: tm("school"),
-    health: tm("health"),
-  };
+  const influenceLabels = useMemo<Record<string, string>>(
+    () => ({
+      family: tm("family"),
+      friends: tm("friends"),
+      love: tm("love"),
+      work: tm("work"),
+      school: tm("school"),
+      health: tm("health"),
+    }),
+    [tm],
+  );
 
   const categories = ["Mental", "Emotional", "Physical"] as const;
   const labelMap: Record<string, string> = {

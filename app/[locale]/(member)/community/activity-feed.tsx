@@ -8,6 +8,7 @@ import { Link } from "@/src/i18n/navigation";
 import { getActivityLikers } from "@/src/features/community/actions";
 
 export interface FeedItem {
+  id?: string;
   completionId: string;
   taskId?: string;
   userId: number;
@@ -343,7 +344,7 @@ export function ActivityFeed({
         };
         return (
           <ActivityCard
-            key={item.completionId}
+            key={item.id ?? item.completionId}
             item={item}
             selfUserId={selfUserId}
             onLikeAction={onLikeAction}

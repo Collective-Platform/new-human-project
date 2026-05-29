@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Bell, X } from "lucide-react";
 
 type NotificationRow = {
@@ -23,6 +23,16 @@ export function NotificationPanel({
   const [open, setOpen] = useState(false);
   const [localUnread, setLocalUnread] = useState(unreadCount);
   const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    document.body.classList.toggle("overflow-hidden", open);
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [open]);
 
   async function handleOpen() {
     setOpen(true);

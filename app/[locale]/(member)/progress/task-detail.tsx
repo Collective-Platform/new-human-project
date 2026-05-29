@@ -52,8 +52,6 @@ export function TaskDetail({
   mode?: "add" | number;
 }) {
   const t = useTranslations("progress");
-  const tm = useTranslations("mood");
-  const te = useTranslations("exercise");
   const [loading, setLoading] = useState(false);
   const { setHidden } = useNavVisibility();
 
@@ -217,25 +215,6 @@ export function TaskDetail({
               onSubmitAction={handleExerciseSubmit}
               loading={loading}
               openMode={mode}
-              labels={{
-                selectActivity: te("selectActivity"),
-                badminton: te("badminton"),
-                run: te("run"),
-                pickleball: te("pickleball"),
-                swimming: te("swimming"),
-                pilates: te("pilates"),
-                others: te("others"),
-                customActivityPlaceholder: te("customActivityPlaceholder"),
-                duration: te("duration"),
-                hours: te("hours"),
-                minutes: te("minutes"),
-                logActivity: te("logActivity"),
-                takeRest: te("takeRest"),
-                rested: te("rested"),
-                addExercise: te("addExercise"),
-                entryLabel: te("entryLabel"),
-                takeRestToday: te("takeRestToday"),
-              }}
             />
           )}
 
@@ -245,27 +224,6 @@ export function TaskDetail({
               onSubmitAction={handleMoodSubmit}
               loading={loading}
               openMode={mode}
-              labels={{
-                pickEmoji: tm("pickEmoji"),
-                terrible: tm("terrible"),
-                bad: tm("bad"),
-                okay: tm("okay"),
-                good: tm("good"),
-                excellent: tm("excellent"),
-                influences: tm("influences"),
-                family: tm("family"),
-                friends: tm("friends"),
-                love: tm("love"),
-                work: tm("work"),
-                school: tm("school"),
-                health: tm("health"),
-                moreContext: tm("moreContext"),
-                submit: tm("submit"),
-                completed: t("completed"),
-                updateMood: tm("updateMood"),
-                addMoodLog: tm("addMoodLog"),
-                entryLabel: tm("entryLabel"),
-              }}
             />
           )}
         </div>
