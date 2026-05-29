@@ -33,7 +33,7 @@ export async function ProgressData({
   } else if (initialDate) {
     const msPerDay = 86_400_000;
     const clicked = new Date(initialDate + "T00:00:00.000Z");
-    const onboarded = new Date(user.onboardedAt);
+    const onboarded = new Date(effectiveStart);
     onboarded.setUTCHours(0, 0, 0, 0);
     const elapsed = Math.floor((clicked.getTime() - onboarded.getTime()) / msPerDay);
     selectedDay = Math.min(Math.max(elapsed + 1, 1), 25);
