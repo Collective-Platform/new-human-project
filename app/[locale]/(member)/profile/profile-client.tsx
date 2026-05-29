@@ -73,7 +73,7 @@ export function ProfileClient({
                   className="inline-flex items-center gap-1.5 px-3 py-1 border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container hover:border-primary/30 hover:text-primary transition-all active:scale-95"
                 >
                   <User size={14} />
-                  <span className="text-xs font-bold font-headline">
+                  <span className="text-sm font-bold font-headline">
                     {friendCount} Friends
                   </span>
                 </Link>
@@ -81,17 +81,17 @@ export function ProfileClient({
                   <button
                     onClick={() => setShareOpen(true)}
                     aria-label="Share profile"
-                    className="flex h-7 w-7 items-center justify-center rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all active:scale-95"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all active:scale-95"
                   >
-                    <QrCode size={14} />
+                    <QrCode size={16} />
                   </button>
                 )}
                 <Link
                   href="/profile/settings"
                   aria-label="Settings"
-                  className="flex h-7 w-7 items-center justify-center rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all active:scale-95"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all active:scale-95"
                 >
-                  <Settings size={14} />
+                  <Settings size={16} />
                 </Link>
               </div>
             </div>

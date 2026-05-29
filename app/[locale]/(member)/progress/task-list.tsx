@@ -179,9 +179,15 @@ export function TaskList({
                               size={20}
                               className={`${categoryCheckColor[cat]} shrink-0`}
                             />
-                            <span className="flex-1 text-base text-foreground/50">
-                              {SPORT_EMOJIS.rest} {te("rested")}
-                            </span>
+                            <button
+                              onClick={() => onViewEntryAction(task, 0)}
+                              className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
+                            >
+                              <span className="flex-1 text-base text-foreground/50">
+                                {SPORT_EMOJIS.rest} {te("rested")}
+                              </span>
+                              <ChevronRight size={18} className="text-zinc-400 shrink-0" />
+                            </button>
                           </div>
                         ) : (
                           nonRestEntries.map((entry, i) => {

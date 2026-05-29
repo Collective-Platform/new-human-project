@@ -87,19 +87,21 @@ export function DashboardClient({
 
       {children}
 
-      <EmotionBreakdownChart
-        breakdown={data.emotionBreakdown}
-        title={t("emotionBreakdown")}
-        emptyLabel={t("noMoodLogs")}
-        blockLabel="Block 1"
-      />
+      <div className="grid md:grid-cols-2 gap-4">
+        <EmotionBreakdownChart
+          breakdown={data.emotionBreakdown}
+          title={t("emotionBreakdown")}
+          emptyLabel={t("noMoodLogs")}
+          blockLabel="Block 1"
+        />
 
-      <PhysicalActivityChart
-        activityByDay={data.physicalActivityByDay}
-        blockLabel="Block 1"
-        title={t("physicalActivity")}
-        emptyLabel={t("noActivityLogs")}
-      />
+        <PhysicalActivityChart
+          activityByDay={data.physicalActivityByDay}
+          blockLabel="Block 1"
+          title={t("physicalActivity")}
+          emptyLabel={t("noActivityLogs")}
+        />
+      </div>
 
       <ActivityCalendar
         data={data.calendar}

@@ -6,7 +6,7 @@ order: 40
 category: Physical
 type: exercise
 name:
-  en: "Rest"
+  en: "Exercise"
   zh: "运动"
 ---
 

@@ -75,7 +75,8 @@
     "takeRest": "Take a Rest",
     "rested": "Rested",
     "addExercise": "Add an exercise",
-    "entryLabel": "Entry {n}"
+    "entryLabel": "Entry {n}",
+    "takeRestToday": "Taking a rest day today?"
   },
   "community": {
     "friends": "Friends",

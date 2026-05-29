@@ -154,9 +154,6 @@ export function TaskDetail({
       }
     : null;
 
-  const isRestDay =
-    ((dayNumber - 1) % 7) + 1 === 4 || ((dayNumber - 1) % 7) + 1 === 7;
-
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-surface">
       {/* Header */}
@@ -219,7 +216,6 @@ export function TaskDetail({
               initialData={task.completionData}
               onSubmitAction={handleExerciseSubmit}
               loading={loading}
-              isRestDay={isRestDay}
               openMode={mode}
               labels={{
                 selectActivity: te("selectActivity"),
@@ -234,12 +230,11 @@ export function TaskDetail({
                 hours: te("hours"),
                 minutes: te("minutes"),
                 logActivity: te("logActivity"),
-                restDay: te("restDay"),
-                restMessage: te("restMessage"),
                 takeRest: te("takeRest"),
                 rested: te("rested"),
                 addExercise: te("addExercise"),
                 entryLabel: te("entryLabel"),
+                takeRestToday: te("takeRestToday"),
               }}
             />
           )}

@@ -5,7 +5,14 @@ import { FieldInput } from "@/app/components/field-input";
 import { PrimaryButton } from "@/app/components/primary-button";
 import { TogglePill } from "@/app/components/toggle-pill";
 
-const sportKeys = ["run", "badminton", "pickleball", "swimming", "pilates", "others"] as const;
+const sportKeys = [
+  "run",
+  "badminton",
+  "pickleball",
+  "swimming",
+  "pilates",
+  "others",
+] as const;
 
 export const SPORT_EMOJIS: Record<string, string> = {
   run: "🏃🏻",
@@ -41,7 +48,9 @@ export type ExerciseEntry = {
   minutes?: number;
 };
 
-export function normalizeExerciseEntries(data: Record<string, unknown> | null): ExerciseEntry[] {
+export function normalizeExerciseEntries(
+  data: Record<string, unknown> | null,
+): ExerciseEntry[] {
   if (!data) return [];
   if (Array.isArray(data.entries)) return data.entries as ExerciseEntry[];
   if (data.sportKey) {
@@ -80,31 +89,33 @@ type Labels = {
   hours: string;
   minutes: string;
   logActivity: string;
-  restDay: string;
-  restMessage: string;
   takeRest: string;
   rested: string;
   addExercise: string;
   entryLabel: string;
+  takeRestToday: string;
 };
 
 export function ExerciseLogRenderer({
   initialData,
   onSubmitAction,
   loading,
-  isRestDay,
   openMode = "add",
   labels,
 }: {
   initialData: Record<string, unknown> | null;
   onSubmitAction: (data: Record<string, unknown>) => void;
   loading: boolean;
-  isRestDay: boolean;
   openMode?: "add" | number;
   labels: Labels;
 }) {
   const existingEntries = normalizeExerciseEntries(initialData);
-  const editEntry = typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
+  const editEntry =
+    typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
+  const alreadyRested = existingEntries.some((e) => e.sportKey === "rest");
+  const hasExerciseEntries = existingEntries.some((e) => e.sportKey !== "rest");
+  const isEditingRest = typeof openMode === "number" && editEntry?.sportKey === "rest";
+  const showRestCard = (typeof openMode !== "number" && !hasExerciseEntries) || isEditingRest;
 
   const sportLabels: Record<SportKey, string> = {
     badminton: labels.badminton,
@@ -131,27 +142,6 @@ export function ExerciseLogRenderer({
   const [minutes, setMinutes] = useState<string>(() =>
     editEntry?.minutes != null ? String(editEntry.minutes) : "",
   );
-
-  // Rest day special case — only in add mode
-  if (isRestDay && typeof openMode !== "number") {
-    const alreadyRested = existingEntries.some((e) => e.sportKey === "rest");
-    return (
-      <div className="space-y-6 rounded-lg bg-white p-6 shadow-card text-center">
-        <div className="space-y-3">
-          <p className="text-5xl">🛌</p>
-          <p className="text-lg font-bold font-headline text-foreground">{labels.restDay}</p>
-          <p className="text-sm text-on-surface-variant">{labels.restMessage}</p>
-        </div>
-        <PrimaryButton
-          onClick={() => onSubmitAction({ sportKey: "rest" })}
-          disabled={loading || alreadyRested}
-          variant="physical"
-        >
-          {loading ? "…" : alreadyRested ? labels.rested : labels.takeRest}
-        </PrimaryButton>
-      </div>
-    );
-  }
 
   const canSubmit =
     !loading &&
@@ -192,69 +182,93 @@ export function ExerciseLogRenderer({
   }
 
   return (
-    <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-card-hover">
-      <section className="space-y-4 text-center">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">
-          {labels.selectActivity}
-        </p>
-        <div className="grid grid-cols-2 gap-2.5">
-          {sportKeys.map((key) => (
-            <TogglePill
-              key={key}
-              onClick={() => setSelectedSport(key)}
-              aria-pressed={selectedSport === key}
-              selected={selectedSport === key}
-              variant="physical"
-            >
-              <span className="mr-1.5">{SPORT_EMOJIS[key]}</span>
-              {sportLabels[key]}
-            </TogglePill>
-          ))}
-        </div>
+    <>
+      <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-card-hover">
+        <section className="space-y-4 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-outline">
+            {labels.selectActivity}
+          </p>
+          <div className="grid grid-cols-2 gap-2.5">
+            {sportKeys.map((key) => (
+              <TogglePill
+                key={key}
+                onClick={() => setSelectedSport(key)}
+                aria-pressed={selectedSport === key}
+                selected={selectedSport === key}
+                variant="physical"
+              >
+                <span className="mr-1.5">{SPORT_EMOJIS[key]}</span>
+                {sportLabels[key]}
+              </TogglePill>
+            ))}
+          </div>
 
-        {selectedSport === "others" && (
-          <FieldInput
-            type="text"
-            value={customSport}
-            onChange={(e) => setCustomSport(e.target.value)}
-            placeholder={labels.customActivityPlaceholder}
-          />
-        )}
-      </section>
-
-      <section className="space-y-4 text-center">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">
-          {labels.duration}
-        </p>
-        <div className="flex gap-3 text-left">
-          <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-xs font-semibold text-on-surface-variant">{labels.hours}</span>
+          {selectedSport === "others" && (
             <FieldInput
-              type="number"
-              min="0"
-              max="23"
-              value={hours}
-              onChange={(e) => setHours(e.target.value)}
-              placeholder="0"
+              type="text"
+              value={customSport}
+              onChange={(e) => setCustomSport(e.target.value)}
+              placeholder={labels.customActivityPlaceholder}
             />
-          </label>
-          <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-xs font-semibold text-on-surface-variant">{labels.minutes}</span>
-            <FieldInput
-              type="number"
-              min="0"
-              max="59"
-              value={minutes}
-              onChange={(e) => setMinutes(e.target.value)}
-              placeholder="0"
-            />
-          </label>
-        </div>
-      </section>
+          )}
+        </section>
 
-      <PrimaryButton onClick={handleSubmit} disabled={!canSubmit} variant="physical">
-        {loading ? "…" : labels.logActivity}
-      </PrimaryButton>
-    </div>
+        <section className="space-y-4 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-outline">
+            {labels.duration}
+          </p>
+          <div className="flex gap-3 text-left">
+            <label className="flex flex-1 flex-col gap-1.5">
+              <span className="text-xs font-semibold text-on-surface-variant">
+                {labels.hours}
+              </span>
+              <FieldInput
+                type="number"
+                min="0"
+                max="23"
+                value={hours}
+                onChange={(e) => setHours(e.target.value)}
+                placeholder="0"
+              />
+            </label>
+            <label className="flex flex-1 flex-col gap-1.5">
+              <span className="text-xs font-semibold text-on-surface-variant">
+                {labels.minutes}
+              </span>
+              <FieldInput
+                type="number"
+                min="0"
+                max="59"
+                value={minutes}
+                onChange={(e) => setMinutes(e.target.value)}
+                placeholder="0"
+              />
+            </label>
+          </div>
+        </section>
+
+        <PrimaryButton
+          onClick={handleSubmit}
+          disabled={!canSubmit}
+          variant="physical"
+        >
+          {loading ? "…" : labels.logActivity}
+        </PrimaryButton>
+      </div>
+      {showRestCard && (
+        <div className="mt-8 rounded-lg bg-white p-6 shadow-card text-center space-y-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-outline">
+            🛌 {labels.takeRestToday}
+          </p>
+          <PrimaryButton
+            onClick={() => onSubmitAction({ entries: [{ sportKey: "rest" }] })}
+            disabled={loading || alreadyRested}
+            variant="physical"
+          >
+            {loading ? "…" : alreadyRested ? labels.rested : labels.takeRest}
+          </PrimaryButton>
+        </div>
+      )}
+    </>
   );
 }

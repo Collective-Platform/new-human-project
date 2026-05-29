@@ -17,10 +17,10 @@ interface FriendRequest {
 
 export function FriendRequests({
   requests,
-  onUpdate,
+  onUpdateAction,
 }: {
   requests: FriendRequest[];
-  onUpdate: () => void;
+  onUpdateAction: () => void;
 }) {
   const t = useTranslations("community");
   const [handledIds, setHandledIds] = useState<Set<string>>(new Set());
@@ -30,7 +30,7 @@ export function FriendRequests({
       action === "accept" ? await acceptFriend({ requestId }) : await rejectFriend({ requestId });
     if (!("error" in result)) {
       setHandledIds((prev) => new Set(prev).add(requestId));
-      onUpdate();
+      onUpdateAction();
     }
   }
 

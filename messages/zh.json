@@ -75,7 +75,8 @@
     "takeRest": "去休息",
     "rested": "已休息",
     "addExercise": "添加运动记录",
-    "entryLabel": "第 {n} 条"
+    "entryLabel": "第 {n} 条",
+    "takeRestToday": "今天要休息吗？"
   },
   "community": {
     "friends": "朋友",

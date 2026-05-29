@@ -222,7 +222,7 @@ export function CommunityClient({
         {initialData.requests.length > 0 && (
           <FriendRequests
             requests={initialData.requests}
-            onUpdate={fetchData}
+            onUpdateAction={fetchData}
           />
         )}
 

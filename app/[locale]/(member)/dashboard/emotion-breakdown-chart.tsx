@@ -58,11 +58,9 @@ export function EmotionBreakdownChart({
                 <span className="text-lg shrink-0">{MOOD_EMOJIS[key]}</span>
 
                 <div className="flex-1">
-                  <div className="flex justify-between items-center text-[10px] font-bold text-foreground/50 mb-0.5">
+                  <div className="flex justify-between items-center text-[10px] text-foreground mb-0.5">
                     <span>{MOOD_LABELS[key]}</span>
-                    <span className="text-foreground/60 font-mono">
-                      {count}
-                    </span>
+                    <span>{count}</span>
                   </div>
                   <div className="w-full h-2 bg-(--color-bar-track) rounded-full overflow-hidden">
                     <div
@@ -74,7 +72,7 @@ export function EmotionBreakdownChart({
                   </div>
                 </div>
 
-                <div className="min-w-8 text-right text-xs font-bold text-category-emotional font-mono">
+                <div className="min-w-8 text-right text-xs font-medium text-category-emotional">
                   {Math.round(percentage)}%
                 </div>
               </div>
