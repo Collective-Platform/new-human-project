@@ -121,7 +121,7 @@ export function RadarChart({
           </text>
         </svg>
 
-        <div className="mt-3 flex gap-8 justify-center text-xs">
+        <div className="mt-3 flex gap-4 justify-center text-xs">
           <div className="flex items-center gap-1">
             <span className="h-2 w-2 rounded-full bg-category-mental" />
             <span className="text-foreground/70">
