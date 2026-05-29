@@ -12,7 +12,10 @@ name:
 
 ## MOVEMENT 4 — New Relationships
 
-_The new humanity in every corner of life_
+# The new humanity in every corner of life
+
 Days 21–25 · Ephesians 5:21–6:24
 
-_The New Human Project doesn't stay in the church building. These five days bring the letter to its conclusion — exploring how the gospel reshapes our homes, our workplaces, and our spiritual resilience._
+---
+
+The New Human Project doesn't stay in the church building. These five days bring the letter to its conclusion — exploring how the gospel reshapes our homes, our workplaces, and our spiritual resilience.

@@ -12,8 +12,10 @@ name:
 
 ## MOVEMENT 2 — New Society
 
-_The community Christ has created_
+# The community Christ has created
 
 Days 7–13 · Ephesians 2:11–3:21
 
-_Jesus didn't just save individuals. He created one new humanity — a community that breaks through every wall of division. These seven days explore what that new society looks like and what it's for._
+---
+
+Jesus didn't just save individuals. He created one new humanity — a community that breaks through every wall of division. These seven days explore what that new society looks like and what it's for.

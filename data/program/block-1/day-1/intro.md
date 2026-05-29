@@ -16,10 +16,10 @@ The New Human Project is inspired by the new life Jesus has won for us on the cr
 
 | Movement       | Title             | Days       | Passage       |
 | -------------- | ----------------- | ---------- | ------------- |
-| **MOVEMENT 1** | New Life          | Days 1–6   | Eph 1:1–2:10  |
-| **MOVEMENT 2** | New Society       | Days 7–13  | Eph 2:11–3:21 |
-| **MOVEMENT 3** | New Standards     | Days 14–20 | Eph 4:1–5:21  |
-| **MOVEMENT 4** | New Relationships | Days 21–25 | Eph 5:21–6:24 |
+| 1 | New Life          | Days 1–6   | Eph 1:1–2:10  |
+| 2 | New Society       | Days 7–13  | Eph 2:11–3:21 |
+| 3 | New Standards     | Days 14–20 | Eph 4:1–5:21  |
+| 4 | New Relationships | Days 21–25 | Eph 5:21–6:24 |
 
 ---
 
@@ -45,7 +45,7 @@ The letter falls into four natural movements. Each builds on the last, moving fr
 
 | Movement       | Title                          | Description                                                                                                   |
 | -------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| **MOVEMENT 1** | New Life · Days 1–6            | God's breathtaking rescue — what he has done for us in Christ, from before creation to our present moment.    |
-| **MOVEMENT 2** | New Society · Days 7–13        | The community Christ has created — one new humanity that breaks through every human division.                 |
-| **MOVEMENT 3** | New Standards · Days 14–20     | The daily walk of the new humanity — how our identity in Christ reshapes our minds, words, and habits.        |
-| **MOVEMENT 4** | New Relationships · Days 21–25 | The new humanity lived out in every relationship — at home, at work, and in the face of spiritual opposition. |
+| 1 | New Life · Days 1–6            | God's breathtaking rescue — what he has done for us in Christ, from before creation to our present moment.    |
+| 2 | New Society · Days 7–13        | The community Christ has created — one new humanity that breaks through every human division.                 |
+| 3 | New Standards · Days 14–20     | The daily walk of the new humanity — how our identity in Christ reshapes our minds, words, and habits.        |
+| 4 | New Relationships · Days 21–25 | The new humanity lived out in every relationship — at home, at work, and in the face of spiritual opposition. |

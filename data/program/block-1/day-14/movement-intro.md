@@ -12,7 +12,10 @@ name:
 
 ## MOVEMENT 3 — New Standards
 
-_How identity shapes the way we live_
+# How identity shapes the way we live
+
 Days 14–20 · Ephesians 4:1–5:21
 
-_The hinge word 'therefore' marks the shift from who we are to how we live. These seven days explore the practical, daily shape of new humanity living — in our minds, our words, and our habits._
+---
+
+The hinge word 'therefore' marks the shift from who we are to how we live. These seven days explore the practical, daily shape of new humanity living — in our minds, our words, and our habits.

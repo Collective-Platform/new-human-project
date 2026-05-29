@@ -2,12 +2,22 @@ import Markdown from "react-markdown";
 import type { Components } from "react-markdown";
 
 const markdownComponents: Components = {
+  h1: ({ children }) => (
+    <h1 className="font-headline text-2xl font-bold text-foreground mt-3">
+      {children}
+    </h1>
+  ),
+  hr: () => <hr className="my-4 border-t border-primary/40" />,
   p: ({ children }) => <p className="mb-2">{children}</p>,
   strong: ({ children }) => (
     <strong className="font-semibold text-foreground/80">{children}</strong>
   ),
-  ul: ({ children }) => <ul className="list-disc pl-4 space-y-1">{children}</ul>,
-  ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1">{children}</ol>,
+  ul: ({ children }) => (
+    <ul className="list-disc pl-4 space-y-1">{children}</ul>
+  ),
+  ol: ({ children }) => (
+    <ol className="list-decimal pl-4 space-y-1">{children}</ol>
+  ),
   li: ({ children }) => <li>{children}</li>,
 };
 
@@ -16,7 +26,9 @@ const inlineMarkdownComponents: Components = {
   p: ({ children }) => <>{children}</>,
 };
 
-type MarkdownBlock = { type: "markdown"; value: string } | { type: "table"; rows: string[][] };
+type MarkdownBlock =
+  | { type: "markdown"; value: string }
+  | { type: "table"; rows: string[][] };
 
 export function MarkdownContent({ children }: { children: string }) {
   if (!children.trim()) return null;
@@ -30,16 +42,18 @@ export function MarkdownContent({ children }: { children: string }) {
 
           return (
             <div key={index} className="my-4 overflow-x-auto">
-              <table className="w-full min-w-max border-collapse text-left text-xs">
+              <table className="w-full border-collapse text-left text-xs">
                 <thead>
                   <tr>
                     {header.map((cell, cellIndex) => (
                       <th
                         key={cellIndex}
-                        className="border border-zinc-200 bg-zinc-100 px-3 py-2 font-semibold text-foreground"
+                        className="border border-zinc-200 text-sm bg-zinc-100 px-3 py-2 font-semibold text-primary"
                         style={{ textAlign: alignments[cellIndex] }}
                       >
-                        <Markdown components={inlineMarkdownComponents}>{cell}</Markdown>
+                        <Markdown components={inlineMarkdownComponents}>
+                          {cell}
+                        </Markdown>
                       </th>
                     ))}
                   </tr>
@@ -50,7 +64,7 @@ export function MarkdownContent({ children }: { children: string }) {
                       {header.map((_, cellIndex) => (
                         <td
                           key={cellIndex}
-                          className="border border-zinc-200 px-3 py-2 align-top"
+                          className="border border-zinc-200 px-3 py-2 text-lg align-top"
                           style={{ textAlign: alignments[cellIndex] }}
                         >
                           <Markdown components={inlineMarkdownComponents}>
@@ -123,7 +137,10 @@ function isTableSeparator(line: string | undefined): boolean {
   if (!line) return false;
 
   const cells = splitTableRow(line);
-  return cells.length > 1 && cells.every((cell) => /^:?-{3,}:?$/.test(cell.replace(/\s/g, "")));
+  return (
+    cells.length > 1 &&
+    cells.every((cell) => /^:?-{3,}:?$/.test(cell.replace(/\s/g, "")))
+  );
 }
 
 function getAlignment(cell: string): React.CSSProperties["textAlign"] {

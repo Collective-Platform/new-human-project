@@ -12,7 +12,7 @@ inputs:
   - question
 ---
 
-## Day 1 — The Gift of Awareness
+## The Gift of Awareness
 
 ## Scripture:
 
