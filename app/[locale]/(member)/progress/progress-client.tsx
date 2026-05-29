@@ -405,7 +405,7 @@ export function ProgressClient({
     <div className="px-4 sm:px-6 md:px-8 pt-4">
       {locked && (
         <div className="mb-4 flex border border-primary rounded-2xl bg-primary/10 items-center justify-center px-4 py-3 text-center">
-          <span className="text-xs font-medium tracking-wider text-primary">
+          <span className="text-base font-medium tracking-wider text-primary">
             {locale === "zh"
               ? "我们将于 1 June 2026 一起开始"
               : "We will start together on 1 June 2026"}
