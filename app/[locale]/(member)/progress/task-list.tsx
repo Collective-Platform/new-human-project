@@ -34,6 +34,7 @@ export function TaskList({
   onAddEntryAction,
   onViewEntryAction,
   labels,
+  locked,
 }: {
   tasks: TaskItem[];
   onTaskTapAction: (task: TaskItem) => void;
@@ -41,6 +42,7 @@ export function TaskList({
   onAddEntryAction: (task: TaskItem) => void;
   onViewEntryAction: (task: TaskItem, entryIndex: number) => void;
   labels: { mental: string; emotional: string; physical: string };
+  locked?: boolean;
 }) {
   const te = useTranslations("exercise");
   const tm = useTranslations("mood");
@@ -260,7 +262,8 @@ export function TaskList({
                             onToggleCompleteAction(task.id);
                           }
                         }}
-                        className="shrink-0 flex items-center justify-center transition-transform active:scale-90"
+                        disabled={locked}
+                        className={`shrink-0 flex items-center justify-center ${locked ? "cursor-default" : "transition-transform active:scale-90"}`}
                         aria-label={
                           isMoodLog || isExercise
                             ? `Open ${isMoodLog ? "mood log" : "exercise log"}`
@@ -277,23 +280,26 @@ export function TaskList({
                         ) : (
                           <Circle
                             size={20}
-                            className="text-zinc-300 hover:text-primary/80 transition-colors"
+                            className="text-zinc-300"
                           />
                         )}
                       </button>
                       <button
                         onClick={() => onTaskTapAction(task)}
-                        className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
+                        disabled={locked}
+                        className={`flex flex-1 items-center text-left ${locked ? "cursor-default" : "transition-colors hover:opacity-70"}`}
                       >
                         <span
                           className={`flex-1 text-base font-normal ${task.completed ? "text-foreground/50" : "text-foreground"}`}
                         >
                           {task.name}
                         </span>
-                        <ChevronRight
-                          size={18}
-                          className="text-zinc-400 shrink-0"
-                        />
+                        {!locked && (
+                          <ChevronRight
+                            size={18}
+                            className="text-zinc-400 shrink-0"
+                          />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -302,7 +308,7 @@ export function TaskList({
             </div>
 
             {/* Separate add pills — one per task that has entries (not rest-only) */}
-            {catTasks.map((task) => {
+            {!locked && catTasks.map((task) => {
               const isMoodLog = task.taskType === "mood_log";
               const isExercise = task.taskType === "exercise";
               if (!task.completed) return null;

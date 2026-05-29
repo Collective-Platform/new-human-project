@@ -67,7 +67,7 @@ export function DayCarousel({
     if (!el) return;
     const target = el.children[selectedDay - 1] as HTMLElement;
     if (target) {
-      target.scrollIntoView({ inline: "center", behavior: "smooth" });
+      target.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
     }
   }, [selectedDay]);
 

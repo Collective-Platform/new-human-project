@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
 import { getCurrentDay } from "@/src/features/dashboard";
 import { getProgressForUser } from "@/src/features/progress";
+import { PROGRAM_BLOCK_START } from "@/src/lib/program-gate";
 
 export async function GET(request: Request) {
   const user = await getSessionUser();
@@ -18,11 +19,15 @@ export async function GET(request: Request) {
   const localeCookie = cookieStore.get("locale")?.value;
   const locale = (localeParam ?? localeCookie) === "zh" ? "zh" : "en";
 
-  const currentDay = getCurrentDay(user.onboardedAt);
+  const effectiveStart =
+    user.onboardedAt.getTime() < PROGRAM_BLOCK_START.getTime()
+      ? PROGRAM_BLOCK_START
+      : user.onboardedAt;
+  const currentDay = getCurrentDay(effectiveStart);
 
   const payload = await getProgressForUser(
     user.id,
-    user.onboardedAt.getTime(),
+    effectiveStart.getTime(),
     requestedDayParam,
     locale,
     currentDay,

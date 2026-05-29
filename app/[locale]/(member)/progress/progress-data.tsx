@@ -1,8 +1,11 @@
+export const dynamic = "force-dynamic";
+
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/src/features/auth";
 import { getCurrentDay } from "@/src/features/dashboard";
 import { getProgressForUser } from "@/src/features/progress";
 import { ProgressClient } from "./progress-client";
+import { isProgramLocked, PROGRAM_START_MS, PROGRAM_BLOCK_START } from "@/src/lib/program-gate";
 
 export async function ProgressData({
   locale,
@@ -17,7 +20,12 @@ export async function ProgressData({
 }) {
   const user = await getSessionUser();
   if (!user?.onboardedAt) redirect(`/${locale}/onboarding`);
-  const currentDay = getCurrentDay(user.onboardedAt);
+  const locked = isProgramLocked();
+  const effectiveStart =
+    user.onboardedAt.getTime() < PROGRAM_BLOCK_START.getTime()
+      ? PROGRAM_BLOCK_START
+      : user.onboardedAt;
+  const currentDay = getCurrentDay(effectiveStart);
 
   let selectedDay = currentDay;
   if (initialDay) {
@@ -33,10 +41,18 @@ export async function ProgressData({
 
   const initialData = await getProgressForUser(
     user.id,
-    user.onboardedAt.getTime(),
+    effectiveStart.getTime(),
     selectedDay,
     locale,
     currentDay,
   );
-  return <ProgressClient locale={locale} initialData={initialData} initialTaskId={initialTaskId} />;
+  return (
+    <ProgressClient
+      locale={locale}
+      initialData={initialData}
+      initialTaskId={initialTaskId}
+      isLocked={locked}
+      unlockMs={PROGRAM_START_MS}
+    />
+  );
 }

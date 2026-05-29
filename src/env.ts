@@ -22,4 +22,5 @@ export const env = {
   YVP_APP_KEY: optional("YVP_APP_KEY", ""),
   YVP_BIBLE_ID_EN: optional("YVP_BIBLE_ID_EN", "111"), // 111 = NIV (English)
   YVP_BIBLE_ID_ZH: optional("YVP_BIBLE_ID_ZH", "43"), // 43  = CSBS (中文标准译本)
+  PROGRAM_START_AT: optional("PROGRAM_START_AT", "2026-06-01T00:00:00+08:00"),
 };

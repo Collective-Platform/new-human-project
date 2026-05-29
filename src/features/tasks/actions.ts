@@ -2,6 +2,7 @@
 
 import { updateTag } from "next/cache";
 import { getSessionUser } from "@/src/features/auth";
+import { isProgramLocked } from "@/src/lib/program-gate";
 import { db } from "@/src/db";
 import {
   taskCompletions,
@@ -19,6 +20,7 @@ export async function completeTask(input: {
 }): Promise<{ success: true; blockCompleted: boolean } | { error: string }> {
   const user = await getSessionUser();
   if (!user) return { error: "Unauthorized" };
+  if (isProgramLocked()) return { error: "Program hasn't started yet" };
 
   const { taskId, data } = input;
   if (!taskId) return { error: "taskId required" };
@@ -109,6 +111,7 @@ export async function uncompleteTask(input: {
 }): Promise<{ success: true } | { error: string }> {
   const user = await getSessionUser();
   if (!user) return { error: "Unauthorized" };
+  if (isProgramLocked()) return { error: "Program hasn't started yet" };
 
   const { taskId } = input;
   if (!taskId) return { error: "taskId required" };

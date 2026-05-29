@@ -41,14 +41,19 @@ export function ProgressClient({
   locale,
   initialData,
   initialTaskId,
+  isLocked: initialLocked,
+  unlockMs,
 }: {
   locale: string;
   initialData: ProgressData;
   initialTaskId?: string;
+  isLocked?: boolean;
+  unlockMs?: number;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("progress");
+  const [locked, setLocked] = useState(initialLocked ?? false);
   // Seeded from server-rendered payload — first paint shows real content,
   // no initial-load spinner. (Task 2.0 of tasks-perf-improvements.md)
   const [data, setData] = useState<ProgressData>(initialData);
@@ -180,6 +185,17 @@ export function ProgressClient({
   }, []);
 
   useEffect(() => {
+    if (!locked || !unlockMs) return;
+    const remaining = unlockMs - Date.now();
+    if (remaining <= 0) {
+      setLocked(false);
+      return;
+    }
+    const id = setTimeout(() => setLocked(false), remaining);
+    return () => clearTimeout(id);
+  }, [locked, unlockMs]);
+
+  useEffect(() => {
     function onPopState() {
       if (skipNextPopRef.current) {
         skipNextPopRef.current = false;
@@ -262,6 +278,7 @@ export function ProgressClient({
     taskId: string,
     taskData?: Record<string, unknown>,
   ) {
+    if (locked) return;
     const previous = data.tasks.find((t) => t.id === taskId);
     if (!previous) return;
 
@@ -295,6 +312,7 @@ export function ProgressClient({
   }
 
   async function handleToggleComplete(taskId: string) {
+    if (locked) return;
     const previous = data.tasks.find((t) => t.id === taskId);
     if (!previous) return;
 
@@ -319,6 +337,7 @@ export function ProgressClient({
   }
 
   function handleTaskTap(task: TaskData) {
+    if (locked) return;
     taskNavStack.current.push({ task, mode: "add" });
     window.history.pushState({ taskNav: true }, "");
     setActiveTaskMode("add");
@@ -326,6 +345,7 @@ export function ProgressClient({
   }
 
   function handleAddEntry(task: TaskData) {
+    if (locked) return;
     taskNavStack.current.push({ task, mode: "add" });
     window.history.pushState({ taskNav: true }, "");
     setActiveTaskMode("add");
@@ -383,6 +403,15 @@ export function ProgressClient({
 
   return (
     <div className="px-4 sm:px-6 md:px-8 pt-4">
+      {locked && (
+        <div className="mb-4 flex border border-primary rounded-2xl bg-primary/10 items-center justify-center px-4 py-3 text-center">
+          <span className="text-xs font-medium tracking-wider text-primary">
+            {locale === "zh"
+              ? "我们将于 1 June 2026 一起开始"
+              : "We will start together on 1 June 2026"}
+          </span>
+        </div>
+      )}
       <DayCarousel
         days={data.carousel}
         selectedDay={selectedDay}
@@ -426,6 +455,7 @@ export function ProgressClient({
           emotional: t("emotional"),
           physical: t("physical"),
         }}
+        locked={locked}
       />
     </div>
   );
