@@ -1,12 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { db, batchOrAll } from "@/src/db";
-import {
-  taskCompletions,
-  memberBadges,
-  badgeDefinitions,
-  memberBlockCompletions,
-} from "@/src/db/schema";
+import { taskCompletions, memberBadges, badgeDefinitions } from "@/src/db/schema";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { XP_WEIGHT_BY_TYPE } from "./queries";
 
@@ -17,13 +12,13 @@ export interface DashboardData {
   streak: number;
   calendar: { date: string; categories: string[] }[];
   earnedBadge: {
+    badgeId: string;
     name: string;
     description: string | null;
     iconUrl: string | null;
     blockNumber: number;
     earnedAt: string;
   } | null;
-  blockEndedWithoutCompletion: boolean;
   emotionBreakdown: Record<string, number>;
   physicalActivityByDay: { day: number; totalMinutes: number }[];
   blockStartDate: string;
@@ -41,7 +36,6 @@ function safeTimezone(tz: string): string {
 export async function getDashboardForUser(
   userId: number,
   onboardedAtMs: number,
-  daysWindow: number,
   locale: "en" | "zh",
   currentDay: number,
   timezone = "UTC",
@@ -54,12 +48,6 @@ export async function getDashboardForUser(
   const blockNumber = 1;
   const daysElapsed = currentDay - 1;
 
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - daysWindow);
-  startDate.setHours(0, 0, 0, 0);
-  const endDate = new Date();
-  endDate.setDate(endDate.getDate() + 1);
-  endDate.setHours(0, 0, 0, 0);
 
   // Five lazy query builders sent as ONE HTTP round-trip on the Neon-protocol
   // batch endpoint (PlanetScale Postgres in prod). Local node-postgres falls
@@ -103,31 +91,24 @@ export async function getDashboardForUser(
     })
     .from(memberBadges)
     .innerJoin(badgeDefinitions, eq(memberBadges.badgeId, badgeDefinitions.id))
-    .where(and(eq(memberBadges.userId, userId), eq(badgeDefinitions.blockNumber, blockNumber)))
-    .limit(1);
-
-  const blockDoneQ = db
-    .select({ id: memberBlockCompletions.id })
-    .from(memberBlockCompletions)
     .where(
       and(
-        eq(memberBlockCompletions.userId, userId),
-        eq(memberBlockCompletions.blockNumber, blockNumber),
+        eq(memberBadges.userId, userId),
+        eq(badgeDefinitions.blockNumber, blockNumber),
+        isNull(memberBadges.seenAt),
       ),
     )
     .limit(1);
 
-  const [allCompletions, streakResult, badgeRows, blockDoneRows] = await batchOrAll([
+  const [allCompletions, streakResult, badgeRows] = await batchOrAll([
     allCompletionsQ,
     streakQ,
     badgeQ,
-    blockDoneQ,
   ]);
 
   const streakRow = (streakResult as unknown as { rows: { streak: number }[] }).rows[0];
   const streak = streakRow ? Number(streakRow.streak) : 0;
   const earnedBadge = badgeRows[0] ?? null;
-  const blockDone = blockDoneRows.length > 0;
 
   // Single pass over allCompletions builds radar, grid, and calendar together.
   // All task resolution is via the registry — block_day_tasks is legacy/empty.
@@ -138,8 +119,6 @@ export async function getDashboardForUser(
   const dateCategories = new Map<string, Set<string>>();
   const emotionBreakdown: Record<string, number> = {};
   const activityByDay: Record<number, number> = {};
-  const startMs = startDate.getTime();
-  const endMs = endDate.getTime();
 
   for (const { taskId, data } of allCompletions) {
     const fromRegistry = getRegistryTaskById(taskId);
@@ -191,17 +170,15 @@ export async function getDashboardForUser(
     cats.add(category);
     dayCategoryMap.set(dayNumber, cats);
 
-    // Activity calendar accumulation
-    const assigned = new Date(onboardedAt);
-    assigned.setDate(assigned.getDate() + dayNumber - 1);
-    assigned.setHours(0, 0, 0, 0);
-    const ms = assigned.getTime();
-    if (ms >= startMs && ms < endMs) {
-      const dateStr = assigned.toISOString().slice(0, 10);
-      const dc = dateCategories.get(dateStr) ?? new Set<string>();
-      dc.add(category);
-      dateCategories.set(dateStr, dc);
-    }
+    // Activity calendar accumulation — use UTC arithmetic to match activity-calendar.tsx
+    const blockStartUTC = new Date(onboardedAt);
+    blockStartUTC.setUTCHours(0, 0, 0, 0);
+    const dateStr = new Date(blockStartUTC.getTime() + (dayNumber - 1) * 86_400_000)
+      .toISOString()
+      .slice(0, 10);
+    const dc = dateCategories.get(dateStr) ?? new Set<string>();
+    dc.add(category);
+    dateCategories.set(dateStr, dc);
   }
 
   const radar =
@@ -223,7 +200,6 @@ export async function getDashboardForUser(
     .map(([date, cats]) => ({ date, categories: Array.from(cats) }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  const blockEndedWithoutCompletion = currentDay >= 25 && !blockDone;
   const physicalActivityByDay = Array.from({ length: 25 }, (_, i) => ({
     day: i + 1,
     totalMinutes: activityByDay[i + 1] ?? 0,
@@ -237,6 +213,7 @@ export async function getDashboardForUser(
     calendar,
     earnedBadge: earnedBadge
       ? {
+          badgeId: earnedBadge.badgeId,
           name: earnedBadge.name,
           description: earnedBadge.description,
           iconUrl: earnedBadge.iconUrl,
@@ -244,7 +221,6 @@ export async function getDashboardForUser(
           earnedAt: earnedBadge.earnedAt.toISOString(),
         }
       : null,
-    blockEndedWithoutCompletion,
     emotionBreakdown,
     physicalActivityByDay,
     blockStartDate: onboardedAt.toISOString().slice(0, 10),

@@ -63,43 +63,15 @@ export function BlockCelebration({
           )}
         </div>
 
-        {/* Flourish particles */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-md">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <span
-              key={i}
-              className="absolute block h-2 w-2 rounded-full"
-              style={{
-                backgroundColor: ["#c10014", "#135db9", "#f59e0b", "#10b981"][i % 4],
-                left: `${15 + (i * 70) / 12}%`,
-                top: `${10 + ((i * 37) % 60)}%`,
-                animation: `celebrationFloat ${1.5 + (i % 3) * 0.5}s ease-in-out infinite alternate`,
-                animationDelay: `${i * 0.12}s`,
-                opacity: 0.7,
-              }}
-            />
-          ))}
-        </div>
-
         {/* Title */}
         <h2 className="mb-2 text-center font-headline text-2xl font-bold text-foreground">
           {t("blockComplete", { block: badge.blockNumber })}
         </h2>
 
-        {/* Badge name */}
-        <p className="mb-1 text-center font-headline text-lg font-semibold text-primary">
-          {badge.name}
-        </p>
-
-        {/* Description */}
-        {badge.description && (
-          <p className="mb-6 text-center text-sm text-foreground/60">{badge.description}</p>
-        )}
-
         {/* Dismiss button */}
         <button
           onClick={handleDismiss}
-          className="rounded-full bg-primary px-8 py-3 font-headline text-sm font-semibold text-white transition-colors active:bg-primary/80"
+          className="mt-2 rounded-full bg-primary px-8 py-3 font-headline text-sm font-semibold text-white transition-colors active:bg-primary/80"
         >
           {t("continue")}
         </button>

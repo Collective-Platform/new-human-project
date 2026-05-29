@@ -9,13 +9,10 @@ import { ActivityCalendar } from "./activity-calendar";
 import { EmotionBreakdownChart } from "./emotion-breakdown-chart";
 import { PhysicalActivityChart } from "./physical-activity-chart";
 import type { DashboardData } from "@/src/features/dashboard";
+import { markBadgeSeen } from "@/src/features/badges/actions";
 
 const BlockCelebration = dynamic(
   () => import("./block-celebration").then((m) => m.BlockCelebration),
-  { ssr: false },
-);
-const BlockEncouragement = dynamic(
-  () => import("./block-encouragement").then((m) => m.BlockEncouragement),
   { ssr: false },
 );
 
@@ -28,8 +25,7 @@ export function DashboardClient({
 }) {
   const t = useTranslations("dashboard");
   const tp = useTranslations("progress");
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [showEncouragement, setShowEncouragement] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(!!initialData.earnedBadge);
 
   useEffect(() => {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -38,32 +34,14 @@ export function DashboardClient({
 
   const data: DashboardData = initialData;
 
-  // Badge system is on hold — celebration and encouragement overlays
-  // are temporarily disabled until the badge design is finalized.
-  // Code is preserved intentionally; do not delete.
-  // To re-enable: add a useEffect([data]) here that checks
-  // data?.earnedBadge and data?.blockEndedWithoutCompletion,
-  // then calls setShowCelebration / setShowEncouragement accordingly.
-
   return (
     <div className="space-y-4 px-4 sm:px-6 md:px-8 pt-4 pb-4">
-      {/* Block Completion Celebration Overlay (9.3 / 9.4) */}
-      {showCelebration && data?.earnedBadge && (
+      {showCelebration && data.earnedBadge && (
         <BlockCelebration
           badge={data.earnedBadge}
           onDismissAction={() => {
-            localStorage.setItem(`badge-seen-${data.earnedBadge!.blockNumber}`, "1");
+            markBadgeSeen(data.earnedBadge!.badgeId);
             setShowCelebration(false);
-          }}
-        />
-      )}
-
-      {/* Block ended without completion encouragement (9.5) */}
-      {showEncouragement && (
-        <BlockEncouragement
-          onDismissAction={() => {
-            localStorage.setItem("block-encourage-dismissed-1", "1");
-            setShowEncouragement(false);
           }}
         />
       )}

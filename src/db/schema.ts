@@ -207,6 +207,7 @@ export const memberBadges = nhp.table(
       .notNull()
       .references(() => badgeDefinitions.id),
     earnedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    seenAt: timestamp({ withTimezone: true }),
   },
   (t) => [uniqueIndex("member_badges_user_id_badge_id_idx").on(t.userId, t.badgeId)],
 );

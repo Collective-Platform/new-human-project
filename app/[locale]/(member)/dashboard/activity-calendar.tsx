@@ -57,7 +57,7 @@ export function ActivityCalendar({
           return (
             <Link
               key={day}
-              href={hasActivity ? `/progress?date=${dateStr}` : "#"}
+              href={`/progress?date=${dateStr}`}
               className={`flex items-center justify-center rounded-sm p-0.5 transition-colors ${hasActivity ? "hover:bg-zinc-50" : ""}`}
             >
               <div className="relative flex h-10 w-10 items-center justify-center">

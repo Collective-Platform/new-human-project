@@ -1,7 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/src/db";
 import { users, memberBadges, badgeDefinitions } from "@/src/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export interface ProfileData {
   user: {
@@ -20,8 +20,7 @@ export interface ProfileData {
     name: string;
     description: string | null;
     iconUrl: string | null;
-    blockNumber: number;
-    earnedAt: string | null;
+    earnedAt: string;
   }[];
 }
 
@@ -51,15 +50,12 @@ export async function getProfileForUser(userId: number): Promise<ProfileData | n
       name: badgeDefinitions.name,
       description: badgeDefinitions.description,
       iconUrl: badgeDefinitions.iconUrl,
-      blockNumber: badgeDefinitions.blockNumber,
       earnedAt: memberBadges.earnedAt,
     })
-    .from(badgeDefinitions)
-    .leftJoin(
-      memberBadges,
-      and(eq(memberBadges.badgeId, badgeDefinitions.id), eq(memberBadges.userId, userId)),
-    )
-    .orderBy(badgeDefinitions.blockNumber);
+    .from(memberBadges)
+    .innerJoin(badgeDefinitions, eq(memberBadges.badgeId, badgeDefinitions.id))
+    .where(eq(memberBadges.userId, userId))
+    .orderBy(memberBadges.earnedAt);
 
   return {
     user: {
@@ -78,8 +74,7 @@ export async function getProfileForUser(userId: number): Promise<ProfileData | n
       name: b.name,
       description: b.description,
       iconUrl: b.iconUrl,
-      blockNumber: b.blockNumber,
-      earnedAt: b.earnedAt?.toISOString() ?? null,
+      earnedAt: b.earnedAt.toISOString(),
     })),
   };
 }

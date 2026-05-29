@@ -8,7 +8,7 @@ import { User, Settings, QrCode } from "lucide-react";
 import NextImage from "next/image";
 import type { ProfileData } from "@/src/features/profile/get-profile-for-user";
 import { ActivityFeed, type FeedItem } from "../community/activity-feed";
-// import { BadgeGrid } from "./badge-grid";
+import { BadgeGrid } from "./badge-grid";
 import { ShareProfileModal } from "./share-profile-modal";
 
 export function ProfileClient({
@@ -120,11 +120,11 @@ export function ProfileClient({
         </section>
 
         {/* Badges */}
-        {/* {initialData.badges.length > 0 && (
+        {initialData.badges.length > 0 && (
           <section className="mb-8">
             <BadgeGrid badges={initialData.badges} title={t("badges")} />
           </section>
-        )} */}
+        )}
 
         {/* Activities */}
         {activities.length > 0 && (

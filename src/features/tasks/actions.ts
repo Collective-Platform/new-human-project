@@ -45,14 +45,21 @@ export async function completeTask(input: {
     .from(taskCompletions)
     .where(eq(taskCompletions.userId, user.id));
 
-  const completedCategories = new Set<string>();
+  const dayCategories = new Map<number, Set<string>>();
   for (const c of completions) {
     const task = getRegistryTaskById(c.taskId);
-    if (task && task.block === 1) completedCategories.add(task.category);
+    if (task && task.block === 1) {
+      const cats = dayCategories.get(task.day) ?? new Set<string>();
+      cats.add(task.category);
+      dayCategories.set(task.day, cats);
+    }
   }
 
+  const allDaysComplete = Array.from({ length: 25 }, (_, i) => i + 1)
+    .every((day) => (dayCategories.get(day)?.size ?? 0) >= 3);
+
   let blockCompleted = false;
-  if (completedCategories.size >= 3) {
+  if (allDaysComplete) {
     const existing = await db
       .select()
       .from(memberBlockCompletions)

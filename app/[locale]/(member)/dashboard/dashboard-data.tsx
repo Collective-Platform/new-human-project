@@ -19,7 +19,6 @@ export async function DashboardData({
   const initialData = await getDashboardForUser(
     user.id,
     user.onboardedAt.getTime(),
-    30,
     locale,
     currentDay,
     timezone,
