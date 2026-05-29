@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/src/i18n/navigation";
 import {
   ArrowLeft,
-  Bell,
-  Clock,
+  // Bell, // unused while daily reminder is disabled
+  // Clock, // unused while daily reminder is disabled
   UserPlus,
   Eye,
   Smartphone,
@@ -372,6 +372,7 @@ export function SettingsClient() {
           )}
         </div>
 
+        {/* Daily reminder — disabled until push scheduling is implemented
         <ToggleRow
           Icon={Bell}
           label={st("dailyReminders")}
@@ -399,6 +400,7 @@ export function SettingsClient() {
             />
           </div>
         )}
+        */}
 
         <ToggleRow
           Icon={UserPlus}
