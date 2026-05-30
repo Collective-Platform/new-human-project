@@ -23,6 +23,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self'",
+      "media-src 'self' https://mqyxc4xvodvuodmx.public.blob.vercel-storage.com",
       "connect-src 'self' https://vitals.vercel-insights.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
