@@ -23,13 +23,23 @@ function Slot({ isActive, char, hasFakeCaret }: SlotProps) {
         isActive ? "z-10 ring-1 ring-inset ring-primary transition-all" : "",
       ].join(" ")}
     >
-      {char !== null && <span className="font-mono text-lg text-foreground">{char}</span>}
+      {char !== null && (
+        <span className="font-mono text-lg text-foreground">{char}</span>
+      )}
       {hasFakeCaret && <FakeCaret />}
     </div>
   );
 }
 
-export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mode }) {
+export function VerifyForm({
+  email,
+  mode = "login",
+  queued = false,
+}: {
+  email: string;
+  mode?: Mode;
+  queued?: boolean;
+}) {
   const router = useRouter();
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -86,13 +96,27 @@ export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mo
       });
 
       if (res.status === 429) {
-        setError("Too many attempts. Please try again later.");
+        setError(
+          "Too many attempts. Please wait 5 minutes before trying again.",
+        );
+        return;
+      }
+
+      if (res.status === 503) {
+        setError(
+          "We're experiencing high volume. Please try again in a moment.",
+        );
+        return;
+      }
+
+      if (!res.ok) {
+        setError("Failed to resend code. Please try again.");
         return;
       }
 
       setResent(true);
     } catch {
-      setError("Failed to resend code.");
+      setError("Failed to resend code. Please try again.");
     } finally {
       setResending(false);
     }
@@ -100,6 +124,14 @@ export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mo
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
+      {queued && (
+        <p className="text-sm border-category-mental bg-category-mental-bg border rounded-xl text-foreground text-center px-4 py-2 mt-4">
+          Due to high volume, your code will arrive in
+          <br></br>
+          <strong>1 minute</strong>. Thank you for your patience 🙏🏻
+        </p>
+      )}
+
       <div>
         <label className="block text-sm font-medium text-foreground/70 mb-3">
           Verification code
@@ -119,8 +151,10 @@ export function VerifyForm({ email, mode = "login" }: { email: string; mode?: Mo
         />
       </div>
 
-      {error && <p className="text-sm text-primary">{error}</p>}
-      {resent && <p className="text-sm text-secondary">A new code has been sent.</p>}
+      {error && <p className="text-sm text-primary text-center">{error}</p>}
+      {resent && (
+        <p className="text-sm text-secondary">A new code has been sent.</p>
+      )}
 
       <button
         type="submit"

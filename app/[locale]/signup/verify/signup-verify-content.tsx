@@ -9,6 +9,7 @@ export function SignupVerifyContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const email = searchParams.get("email");
+  const queued = searchParams.get("queued") === "true";
 
   useEffect(() => {
     if (!email) router.replace("/signup");
@@ -21,7 +22,7 @@ export function SignupVerifyContent() {
       <p className="text-sm text-foreground/60">
         We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>
       </p>
-      <VerifyForm email={email} mode="signup" />
+      <VerifyForm email={email} mode="signup" queued={queued} />
     </>
   );
 }

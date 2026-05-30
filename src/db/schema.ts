@@ -97,6 +97,8 @@ export const pendingAuth = nhp.table(
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     expiresAt: timestamp({ withTimezone: true }).notNull(),
     consumedAt: timestamp({ withTimezone: true }),
+    otpPlaintext: varchar({ length: 10 }), // null after email sent; only set in queued mode
+    emailSentAt: timestamp({ withTimezone: true }), // null = not yet sent
   },
   (t) => [
     uniqueIndex("pending_auth_token_hash_idx").on(t.tokenHash),

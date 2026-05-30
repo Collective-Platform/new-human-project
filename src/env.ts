@@ -19,6 +19,8 @@ export const env = {
   MAILERSEND_API_KEY: optional("MAILERSEND_API_KEY", ""),
   MAILERSEND_FROM_EMAIL: optional("MAILERSEND_FROM_EMAIL", "noreply@rhythm.you"),
   MAILERSEND_FROM_NAME: optional("MAILERSEND_FROM_NAME", "Rhythm"),
+  EMAIL_DELIVERY_MODE: optional("EMAIL_DELIVERY_MODE", "immediate") as "immediate" | "queued",
+  CRON_SECRET: optional("CRON_SECRET", ""),
   YVP_APP_KEY: optional("YVP_APP_KEY", ""),
   YVP_BIBLE_ID_EN: optional("YVP_BIBLE_ID_EN", "111"), // 111 = NIV (English)
   YVP_BIBLE_ID_ZH: optional("YVP_BIBLE_ID_ZH", "43"), // 43  = CSBS (中文标准译本)

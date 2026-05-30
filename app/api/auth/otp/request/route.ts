@@ -1,11 +1,12 @@
 import { db } from "@/src/db";
 import { users, pendingAuth } from "@/src/db/schema";
-import { generateOtp, hashToken, checkRateLimit, sendOtp } from "@/src/features/auth";
+import { generateOtp, hashToken, checkRateLimit, sendOtp, MailerSendRateLimitError } from "@/src/features/auth";
+import { env } from "@/src/env";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 
 type Mode = "login" | "signup";
 
-const OTP_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -20,12 +21,12 @@ export async function POST(request: Request) {
     identifier: email,
     action: "otp_request",
     maxAttempts: 5,
-    windowMinutes: 15,
+    windowMinutes: 5,
   });
 
   if (!allowed) {
     return Response.json(
-      { success: false, error: "Too many attempts. Please try again later." },
+      { success: false, error: "Too many attempts. Please wait 5 minutes before trying again." },
       { status: 429 },
     );
   }
@@ -89,9 +90,29 @@ export async function POST(request: Request) {
     tokenHash,
     mode,
     expiresAt,
+    otpPlaintext: otp,
   });
 
-  await sendOtp(email, otp);
+  if (env.EMAIL_DELIVERY_MODE === "queued") {
+    return Response.json({ success: true, queued: true, requestedAt: Date.now() });
+  }
 
-  return Response.json({ success: true });
+  // Immediate mode: attempt to send now, fall back to cron if rate-limited.
+  try {
+    await sendOtp(email, otp);
+    await db
+      .update(pendingAuth)
+      .set({ emailSentAt: new Date(), otpPlaintext: null })
+      .where(eq(pendingAuth.tokenHash, tokenHash));
+    return Response.json({ success: true });
+  } catch (err) {
+    if (err instanceof MailerSendRateLimitError) {
+      // otpPlaintext stays in DB; cron will pick it up within 60s.
+      return Response.json({ success: true, queued: true, requestedAt: Date.now() });
+    }
+    return Response.json(
+      { success: false, code: "EMAIL_SEND_FAILED" },
+      { status: 500 },
+    );
+  }
 }

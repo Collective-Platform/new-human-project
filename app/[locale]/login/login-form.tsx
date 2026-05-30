@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/src/i18n/navigation";
 
@@ -11,6 +11,13 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [notExists, setNotExists] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+    const t = setInterval(() => setCooldownSeconds((s) => s - 1), 1000);
+    return () => clearInterval(t);
+  }, [cooldownSeconds]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,7 +33,13 @@ export function LoginForm() {
       });
 
       if (res.status === 429) {
-        setError("Too many attempts. Please try again later.");
+        setError("Too many attempts. Please wait 5 minutes before trying again.");
+        return;
+      }
+
+      if (res.status === 503) {
+        setError("We're experiencing high volume. Please wait a moment and try again.");
+        setCooldownSeconds(30);
         return;
       }
 
@@ -41,13 +54,17 @@ export function LoginForm() {
       }
 
       if (!res.ok) {
-        setError("Something went wrong. Please try again.");
+        setError("Failed to send verification code. Please try again.");
+        setCooldownSeconds(30);
         return;
       }
 
-      router.push(`/login/verify?email=${encodeURIComponent(email)}`);
+      const data = await res.json().catch(() => ({}));
+      const base = `/login/verify?email=${encodeURIComponent(email)}`;
+      router.push(data.queued ? `${base}&queued=true` : base);
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError("Failed to send verification code. Please try again.");
+      setCooldownSeconds(30);
     } finally {
       setLoading(false);
     }
@@ -67,7 +84,7 @@ export function LoginForm() {
         />
       </div>
 
-      {error && <p className="text-sm text-primary">{error}</p>}
+      {error && <p className="text-sm text-primary text-center">{error}</p>}
       {notExists && (
         <p className="text-sm text-primary text-center">
           No account found for this email.
@@ -83,10 +100,10 @@ export function LoginForm() {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || cooldownSeconds > 0}
         className="w-full rounded-sm bg-primary py-3 text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
       >
-        {loading ? "Sending code…" : "Continue"}
+        {cooldownSeconds > 0 ? `Try again in ${cooldownSeconds}s` : loading ? "Sending code…" : "Continue"}
       </button>
     </form>
   );

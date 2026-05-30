@@ -22,6 +22,13 @@
       "when": 1778225362879,
       "tag": "0002_lethal_millenium_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780154043658,
+      "tag": "0003_flippant_chat",
+      "breakpoints": true
     }
   ]
 }

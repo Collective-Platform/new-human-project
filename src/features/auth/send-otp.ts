@@ -1,10 +1,17 @@
 import { env } from "@/src/env";
 
+export class MailerSendRateLimitError extends Error {
+  constructor() {
+    super("MailerSend rate limit reached");
+    this.name = "MailerSendRateLimitError";
+  }
+}
+
 export function buildOtpEmail(
   otp: string,
   fromName: string,
 ): { html: string; text: string } {
-  const text = `Your verification code is: ${otp}\n\nThis code expires in 5 minutes.\n\nYou've received this email as part of the log in process. This is a mandatory service email from ${fromName}.`;
+  const text = `Your verification code is: ${otp}\n\nThis code expires in 10 minutes.\n\nYou've received this email as part of the log in process. This is a mandatory service email from ${fromName}.`;
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -35,7 +42,7 @@ export function buildOtpEmail(
           <tr>
             <td style="padding:60px 0 88px;">
               <p style="margin:0 0 32px;font-size:30px;font-weight:600;text-align:center;color:#171717;">Hi there &#x1F44B;,</p>
-              <p style="margin:0 0 32px;font-size:15px;line-height:1.6;text-align:center;color:#171717;">We have received a login attempt. Here&rsquo;s the verification code you&rsquo;ll need to log in. Don&rsquo;t wait, this code is only valid for 5 minutes.</p>
+              <p style="margin:0 0 32px;font-size:15px;line-height:1.6;text-align:center;color:#171717;">We have received a login attempt. Here&rsquo;s the verification code you&rsquo;ll need to log in. This code is only valid for 10 minutes.</p>
               <div style="background:#f3f4f4;padding:16px;text-align:center;">
                 <span style="font-family:sans-serif;font-size:30px;font-weight:400;letter-spacing:0.2em;color:#be2b17;">${otp}</span>
               </div>
@@ -88,10 +95,12 @@ export async function sendOtp(email: string, otp: string): Promise<void> {
       html,
       text,
     }),
+    signal: AbortSignal.timeout(10_000),
   });
 
   if (!response.ok) {
     const body = await response.text();
+    if (response.status === 429) throw new MailerSendRateLimitError();
     throw new Error(
       `Failed to send OTP email: ${response.status} ${response.statusText} — ${body}`,
     );

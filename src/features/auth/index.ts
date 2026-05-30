@@ -4,4 +4,4 @@ export { hasRole, isAdmin, isSuperUser, isActive } from "./roles";
 export type { UserRole, UserStatus } from "./roles";
 export { generateOtp, hashToken } from "./crypto";
 export { checkRateLimit, resetRateLimit } from "./rate-limit";
-export { sendOtp } from "./send-otp";
+export { sendOtp, MailerSendRateLimitError } from "./send-otp";
