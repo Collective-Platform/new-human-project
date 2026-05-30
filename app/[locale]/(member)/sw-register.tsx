@@ -18,7 +18,8 @@ export function SwRegister() {
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
-    return () => document.removeEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
   useEffect(() => {
@@ -28,7 +29,10 @@ export function SwRegister() {
       navigator.serviceWorker
         .register("/sw.js", { updateViaCache: "none" })
         .then(async (registration) => {
-          if ("Notification" in window && Notification.permission === "default") {
+          if (
+            "Notification" in window &&
+            Notification.permission === "default"
+          ) {
             const permission = await Notification.requestPermission();
             if (permission === "granted" && registration.pushManager) {
               subscribeToPush(registration);
@@ -54,8 +58,11 @@ export function SwRegister() {
   // Only mount the install dialog on iOS (Android browsers surface their own
   // native install UI). Skip when already installed (standalone).
   useEffect(() => {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window);
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window);
+    const isStandalone = window.matchMedia(
+      "(display-mode: standalone)",
+    ).matches;
     if (!isIOS || isStandalone) return;
 
     let cancelled = false;
@@ -71,5 +78,11 @@ export function SwRegister() {
 
   // The package's typings expect the literal strings "true"/"false" for its
   // boolean attributes (not React `Booleanish`), so pass them explicitly.
-  return <pwa-install manifest-url="/manifest.json" disable-chrome="true" install-description="Add this app to your Home Screen for smoother experience and easy access." />;
+  return (
+    <pwa-install
+      manifest-url="/manifest.json"
+      disable-chrome="true"
+      install-description="Add this app to your Home Screen for smooth and easy access."
+    />
+  );
 }

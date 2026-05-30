@@ -1,6 +1,7 @@
 {
   "name": "Rhythm",
   "short_name": "Rhythm",
+  "description": "A community-wide commitment to building healthy rhythms across three dimensions.",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#c10014",

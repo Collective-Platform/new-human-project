@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
 import { users, pendingAuth } from "@/src/db/schema";
-import { hashToken, checkRateLimit, createSession, setSessionCookie } from "@/src/features/auth";
+import { hashToken, checkRateLimit, resetRateLimit, createSession, setSessionCookie } from "@/src/features/auth";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 
 type Mode = "login" | "signup";
@@ -118,6 +118,8 @@ export async function POST(request: Request) {
         .where(and(eq(users.id, userId), isNull(users.emailVerifiedAt)));
     }
   }
+
+  await resetRateLimit(email, "otp_verify");
 
   const cookieValue = await createSession(userId);
   await setSessionCookie(cookieValue);

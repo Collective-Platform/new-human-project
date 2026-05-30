@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { db } from "@/src/db";
@@ -60,7 +61,10 @@ async function _getSessionUser(): Promise<SessionUser | null> {
 
   const row = rows[0];
 
-  if (row.sessionTokenHash !== tokenHash) return null;
+  const storedHash = Buffer.from(row.sessionTokenHash, "hex");
+  const computedHash = Buffer.from(tokenHash, "hex");
+  if (storedHash.length !== computedHash.length || !timingSafeEqual(storedHash, computedHash))
+    return null;
   if (row.sessionExpiresAt < new Date()) return null;
 
   const now = Date.now();
