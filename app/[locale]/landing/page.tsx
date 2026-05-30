@@ -46,13 +46,13 @@ export default async function LandingPage({
               href="/signup"
               className="w-full rounded-xl bg-primary py-2.5 text-center text-base font-bold text-white shadow-lg transition-opacity hover:opacity-90 active:scale-[0.98] md:w-auto md:rounded-full md:px-8 md:py-3.5"
             >
-              Get Started
+              Sign Up
             </Link>
             <Link
               href="/login"
               className="w-full rounded-xl border border-white/30 bg-white/10 py-2.5 text-center text-base font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 active:scale-[0.98] md:w-auto md:rounded-full md:px-8 md:py-3.5"
             >
-              I already have an account
+              Log In
             </Link>
           </div>
         </div>
@@ -191,7 +191,7 @@ export default async function LandingPage({
             href="/signup"
             className="inline-block rounded-full bg-black px-10 py-4 text-base font-semibold text-on-primary transition-opacity hover:opacity-90"
           >
-            Get Started
+            Sign Up
           </Link>
         </div>
         <div className="mt-10 flex justify-center overflow-hidden">
