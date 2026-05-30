@@ -46,6 +46,8 @@ const kaitiSCBlack = localFont({
 
 export const metadata: Metadata = {
   title: "Rhythm",
+  description:
+    "A community-wide commitment to building healthy rhythms across three dimensions.",
   manifest: "/manifest.json",
   appleWebApp: {
     title: "Rhythm",
