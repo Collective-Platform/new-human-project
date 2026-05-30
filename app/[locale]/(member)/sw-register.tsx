@@ -71,5 +71,5 @@ export function SwRegister() {
 
   // The package's typings expect the literal strings "true"/"false" for its
   // boolean attributes (not React `Booleanish`), so pass them explicitly.
-  return <pwa-install manifest-url="/manifest.json" disable-chrome="true" />;
+  return <pwa-install manifest-url="/manifest.json" disable-chrome="true" install-description="Add this app to your Home Screen for smoother experience and easy access." />;
 }
