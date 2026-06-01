@@ -40,6 +40,9 @@ function createDb(): DbInstance {
     const pool = new pg.Pool({
       connectionString: env.DATABASE_URL,
       options: `-c search_path=${SEARCH_PATH}`,
+      max: 20,
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 5_000,
     });
     return drizzleNode(pool, { schema, casing: "snake_case" });
   }
