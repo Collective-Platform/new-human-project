@@ -26,12 +26,17 @@ neonConfig.wsProxy = (host, port) => `${host}/v2?address=${host}:${port}`;
 // parameter with `08P01 unsupported startup parameter in options: search_path`.
 const SEARCH_PATH = "nhp,public";
 
-type DbInstance = ReturnType<typeof drizzleNode> | ReturnType<typeof drizzleNeonHttp>;
+type DbInstance =
+  | ReturnType<typeof drizzleNode>
+  | ReturnType<typeof drizzleNeonHttp>;
 
 declare global {
   // eslint-disable-next-line no-var
   var __db: DbInstance | undefined;
 }
+
+// Log every SQL query in non-production runs (works for both local Postgres
+// and remote PlanetScale via `pnpm dev`). Off in `pnpm start` / Vercel.
 
 function createDb(): DbInstance {
   if (env.DATABASE_PROVIDER === "local") {

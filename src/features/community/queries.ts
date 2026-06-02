@@ -1,5 +1,5 @@
 import { db } from "@/src/db";
-import { friendRequests, likes } from "@/src/db/schema";
+import { friendRequests, likes, users } from "@/src/db/schema";
 import { eq, and, sql, inArray, count } from "drizzle-orm";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
@@ -202,6 +202,44 @@ export async function getPublicProfileByHandle(handle: string): Promise<{
     searchHandle: row.search_handle,
     avatarUrl: row.avatar_url,
   };
+}
+
+// --- Batch lookup profiles by ids (fan-out friendly, single round-trip) ---
+
+export type PublicProfile = {
+  id: number;
+  displayName: string | null;
+  searchHandle: string | null;
+  avatarUrl: string | null;
+};
+
+export async function getPublicProfilesByIds(ids: number[]): Promise<Map<number, PublicProfile>> {
+  if (ids.length === 0) return new Map();
+  // De-dupe to keep the IN list small and predictable. Use the typed query
+  // builder with inArray() — raw `sql\`... ANY(${ids})\`` expands the JS array
+  // into a tuple of placeholders, which Postgres rejects (42809: ANY/ALL
+  // requires array on right side).
+  const uniqueIds = Array.from(new Set(ids));
+  const rows = await db
+    .select({
+      id: users.id,
+      displayName: users.displayName,
+      searchHandle: users.searchHandle,
+      avatarUrl: users.avatarUrl,
+    })
+    .from(users)
+    .where(inArray(users.id, uniqueIds));
+
+  const map = new Map<number, PublicProfile>();
+  for (const row of rows) {
+    map.set(row.id, {
+      id: row.id,
+      displayName: row.displayName,
+      searchHandle: row.searchHandle,
+      avatarUrl: row.avatarUrl,
+    });
+  }
+  return map;
 }
 
 // --- Search users by handle or display name ---

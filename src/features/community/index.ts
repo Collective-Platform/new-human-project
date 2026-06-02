@@ -12,6 +12,7 @@ export {
   getSentRequestIds,
   getUserActivities,
   getPublicProfileByHandle,
+  getPublicProfilesByIds,
   getLikeCountsForCompletions,
   getUserLikedCompletionIds,
 } from "./queries";

@@ -2,6 +2,7 @@ import { getLocale } from "next-intl/server";
 import { getSessionUser } from "@/src/features/auth";
 import {
   getPublicProfile,
+  getPublicProfilesByIds,
   getPublicProfileByHandleCached,
   getFriendIds,
   getUserActivitiesCached,
@@ -108,8 +109,8 @@ export async function ProfileData({ handle }: { handle: string }) {
       ? "sent"
       : "none";
 
-  const friendProfiles = await Promise.all(friendIds.map((f) => getPublicProfile(f.id)));
-  const profileMap = new Map(friendIds.map((f, i) => [f.id, friendProfiles[i]]));
+  // Single batched query instead of one-per-id to avoid N+1 storms.
+  const profileMap = await getPublicProfilesByIds(friendIds.map((f) => f.id));
 
   const activities = activityRows.flatMap((row) => {
     const registryTask = getRegistryTaskById(row.taskId);

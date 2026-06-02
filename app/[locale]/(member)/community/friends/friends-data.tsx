@@ -1,5 +1,5 @@
 import { getSessionUser } from "@/src/features/auth";
-import { getFriendIds, getPublicProfile } from "@/src/features/community";
+import { getFriendIds, getPublicProfilesByIds } from "@/src/features/community";
 import { FriendsListClient } from "./friends-list-client";
 
 export async function FriendsData() {
@@ -8,10 +8,11 @@ export async function FriendsData() {
 
   const friendIds = await getFriendIds(user.id);
 
-  const profiles = await Promise.all(friendIds.map((f) => getPublicProfile(f.id)));
+  // Single batched query instead of one-per-id to avoid N+1 storms.
+  const profiles = await getPublicProfilesByIds(friendIds.map((f) => f.id));
 
-  const friends = friendIds.map((f, i) => {
-    const profile = profiles[i];
+  const friends = friendIds.map((f) => {
+    const profile = profiles.get(f.id);
     return {
       id: f.id,
       displayName: profile?.displayName ?? null,

@@ -6,7 +6,7 @@ import {
   getSuggestionIds,
   getSentRequestIdsCached,
   getActivityFeedRows,
-  getPublicProfile,
+  getPublicProfilesByIds,
   getLikeCountsForCompletions,
   getUserLikedCompletionIds,
 } from "@/src/features/community";
@@ -100,10 +100,9 @@ export async function CommunityData() {
   for (const s of suggestionIds) ids.add(s.id);
   for (const row of feedRows) ids.add(row.userId);
 
-  const profileEntries = await Promise.all(
-    [...ids].map(async (id) => [id, await getPublicProfile(id)] as const),
-  );
-  const profiles = new Map(profileEntries);
+  // Single batched query instead of one-per-id (fan-out previously caused
+  // N+1 storms against PlanetScale Postgres on cold cache / after updateTag).
+  const profiles = await getPublicProfilesByIds([...ids]);
 
   return (
     <CommunityClient
