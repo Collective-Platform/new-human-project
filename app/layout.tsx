@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Noto_Sans_SC } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
@@ -43,6 +43,14 @@ const kaitiSCBlack = localFont({
   variable: "--font-kaiti-sc-black",
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+  themeColor: "#f4f5f5",
+};
 
 export const metadata: Metadata = {
   title: "Rhythm",

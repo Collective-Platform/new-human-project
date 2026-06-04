@@ -8,7 +8,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
   setRequestLocale(locale);
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex min-h-[100svh] w-full flex-col">
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-sm space-y-6 p-8">
           <div className="text-center space-y-2">

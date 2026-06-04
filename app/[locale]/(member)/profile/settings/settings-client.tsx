@@ -14,10 +14,15 @@ import {
   User,
   Heart,
   type LucideIcon,
+  Bell,
+  Clock,
 } from "lucide-react";
 import NextImage from "next/image";
 import { updateProfile } from "@/src/features/profile/actions";
-import { subscribeToPush, getPushSubscription } from "@/src/features/notifications/subscribe";
+import {
+  subscribeToPush,
+  getPushSubscription,
+} from "@/src/features/notifications/subscribe";
 
 const HANDLE_REGEX = /^[a-z0-9_]{3,30}$/;
 const MAX_AVATAR_DIMENSION = 256;
@@ -39,7 +44,10 @@ async function fileToResizedDataUrl(file: File): Promise<string> {
     image.src = dataUrl;
   });
 
-  const scale = Math.min(1, MAX_AVATAR_DIMENSION / Math.max(img.width, img.height));
+  const scale = Math.min(
+    1,
+    MAX_AVATAR_DIMENSION / Math.max(img.width, img.height),
+  );
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(img.width * scale);
   canvas.height = Math.round(img.height * scale);
@@ -92,7 +100,9 @@ export function SettingsClient() {
   const [pushStatus, setPushStatus] = useState<
     "loading" | "unsupported" | "denied" | "not-subscribed" | "subscribed"
   >("loading");
-  const [testingSend, setTestingSend] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [testingSend, setTestingSend] = useState<
+    "idle" | "sending" | "sent" | "error"
+  >("idle");
 
   useEffect(() => {
     fetch("/api/profile")
@@ -167,10 +177,13 @@ export function SettingsClient() {
     try {
       const dataUrl = await fileToResizedDataUrl(file);
       const result = await updateProfile({ avatarUrl: dataUrl });
-      if ("error" in result) throw new Error(result.error ?? "Failed to upload");
+      if ("error" in result)
+        throw new Error(result.error ?? "Failed to upload");
       setAvatarUrl(dataUrl);
     } catch (err) {
-      setProfileError(err instanceof Error ? err.message : "Failed to upload avatar");
+      setProfileError(
+        err instanceof Error ? err.message : "Failed to upload avatar",
+      );
     } finally {
       setUploadingAvatar(false);
     }
@@ -189,7 +202,9 @@ export function SettingsClient() {
         searchHandle: trimmedHandle || undefined,
       });
       if ("error" in result) {
-        setProfileError(result.error === "username_taken" ? t("usernameTaken") : result.error);
+        setProfileError(
+          result.error === "username_taken" ? t("usernameTaken") : result.error,
+        );
       }
     } finally {
       setSavingProfile(false);
@@ -223,7 +238,9 @@ export function SettingsClient() {
         >
           <ArrowLeft size={20} className="text-foreground/60" />
         </Link>
-        <h1 className="font-headline text-lg font-bold text-foreground">{st("title")}</h1>
+        <h1 className="font-headline text-lg font-bold text-foreground">
+          {st("title")}
+        </h1>
       </div>
 
       {/* Profile */}
@@ -277,7 +294,9 @@ export function SettingsClient() {
 
           {/* Username on the right */}
           <div className="flex-1 space-y-1">
-            <label className="text-xs text-foreground/50">{st("usernameLabel")}</label>
+            <label className="text-xs text-foreground/50">
+              {st("usernameLabel")}
+            </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-foreground/40">
                 @
@@ -298,7 +317,9 @@ export function SettingsClient() {
 
         {/* Email (read-only) */}
         <div className="px-4 py-3.5 space-y-1">
-          <label className="text-xs text-foreground/50">{st("emailLabel")}</label>
+          <label className="text-xs text-foreground/50">
+            {st("emailLabel")}
+          </label>
           <p className="text-sm text-foreground/70">{email}</p>
         </div>
 
@@ -326,15 +347,18 @@ export function SettingsClient() {
             {t("notifications")}
           </p>
         </div>
-
         {/* Push subscription status */}
         <div className="flex items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-3">
             <Smartphone size={20} className="text-foreground/50" />
-            <span className="text-sm font-medium text-foreground">{st("pushNotifications")}</span>
+            <span className="text-sm font-medium text-foreground">
+              {st("pushNotifications")}
+            </span>
           </div>
           {pushStatus === "loading" && (
-            <span className="text-xs text-foreground/40">{st("pushChecking")}</span>
+            <span className="text-xs text-foreground/40">
+              {st("pushChecking")}
+            </span>
           )}
           {pushStatus === "subscribed" && (
             <div className="flex items-center gap-2">
@@ -366,26 +390,29 @@ export function SettingsClient() {
             </button>
           )}
           {pushStatus === "denied" && (
-            <span className="text-xs text-foreground/40">{st("pushBlocked")}</span>
+            <span className="text-xs text-foreground/40">
+              {st("pushBlocked")}
+            </span>
           )}
           {pushStatus === "unsupported" && (
-            <span className="text-xs text-foreground/40">{st("pushUnsupported")}</span>
+            <span className="text-xs text-foreground/40">
+              {st("pushUnsupported")}
+            </span>
           )}
         </div>
-
-        {/* Daily reminder — disabled until push scheduling is implemented
         <ToggleRow
           Icon={Bell}
           label={st("dailyReminders")}
           checked={prefs.daily_reminder}
           onChange={(v) => updatePrefs({ ...prefs, daily_reminder: v })}
         />
-
         {prefs.daily_reminder && (
           <div className="flex items-center justify-between px-4 py-3.5">
             <div className="flex items-center gap-3">
               <Clock size={20} className="text-foreground/50" />
-              <span className="text-sm font-medium text-foreground">{st("reminderTime")}</span>
+              <span className="text-sm font-medium text-foreground">
+                {st("reminderTime")}
+              </span>
             </div>
             <input
               type="time"
@@ -394,22 +421,20 @@ export function SettingsClient() {
                 updatePrefs({
                   ...prefs,
                   reminder_time: e.target.value,
-                  reminder_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                  reminder_timezone:
+                    Intl.DateTimeFormat().resolvedOptions().timeZone,
                 })
               }
               className="rounded-md bg-zinc-100 px-2 py-1 text-xs text-foreground"
             />
           </div>
         )}
-        */}
-
         <ToggleRow
           Icon={UserPlus}
           label={st("friendRequests")}
           checked={prefs.friend_requests}
           onChange={(v) => updatePrefs({ ...prefs, friend_requests: v })}
         />
-
         <ToggleRow
           Icon={Heart}
           label={st("likeNotifications")}

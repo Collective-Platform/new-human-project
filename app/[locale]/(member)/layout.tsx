@@ -17,11 +17,11 @@ export default async function MemberLayout({
   setRequestLocale(locale);
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface">
+    <div className="flex flex-col h-[100dvh] bg-surface overflow-hidden">
       <NavVisibilityProvider>
         <Suspense
           fallback={
-            <header className="sticky top-0 z-40 bg-white">
+            <header className="bg-white">
               <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
                 <div className="flex items-center font-bold text-xl text-primary zh:text-2xl zh:font-kaiti-sc-black">
                   {locale === "zh" ? "节奏" : "Rhythm"}
@@ -32,7 +32,7 @@ export default async function MemberLayout({
         >
           <AppHeader />
         </Suspense>
-        <main className="flex-1 overflow-y-auto pb-24 mx-auto w-full max-w-3xl">
+        <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain mx-auto w-full max-w-3xl">
           <Suspense fallback={null}>
             <AuthGate locale={locale} />
           </Suspense>

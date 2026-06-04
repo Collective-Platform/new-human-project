@@ -10,5 +10,5 @@ export default async function LoginLayout({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <div className="min-h-screen flex items-center justify-center bg-surface">{children}</div>;
+  return <div className="min-h-[100svh] bg-surface">{children}</div>;
 }
