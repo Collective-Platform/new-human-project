@@ -1,15 +1,14 @@
 import { sendDailyReminders } from "@/src/features/notifications";
 
 /**
- * Cron endpoint: POST /api/notifications/daily-reminder
+ * Cron endpoint: GET /api/notifications/daily-reminder
  *
- * Call this from an external cron service (e.g., Vercel Cron, Railway cron)
- * every hour. It sends push notifications to users whose configured
- * reminder_time matches the current hour.
- *
- * Protected by a simple bearer token check (CRON_SECRET env var).
+ * Triggered by Vercel Cron (see vercel.json) every hour. Vercel Cron always
+ * issues GET requests and automatically injects `Authorization: Bearer
+ * ${CRON_SECRET}` when that env var is set. Sends push notifications to users
+ * whose configured reminder_time matches the current hour.
  */
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 

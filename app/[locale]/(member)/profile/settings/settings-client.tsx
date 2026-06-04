@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/src/i18n/navigation";
+import { Link } from "@/src/i18n/navigation";
 import {
   ArrowLeft,
   // Bell, // unused while daily reminder is disabled
@@ -60,7 +60,6 @@ interface NotificationPrefs {
 export function SettingsClient() {
   const t = useTranslations("profile");
   const st = useTranslations("settings");
-  const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
 
   async function handleLogout() {
