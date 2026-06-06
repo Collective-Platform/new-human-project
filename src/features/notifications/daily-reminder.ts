@@ -5,7 +5,7 @@ import { sendPushToUser } from "./push";
 const messages: Record<string, { title: string; body: string }> = {
   en: {
     title: "Rhythm",
-    body: "Time for your daily formation! ",
+    body: "Time to get on your daily rhythm! ",
   },
   zh: {
     title: "节奏",
