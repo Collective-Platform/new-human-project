@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-The great hinge of the letter — from who you are to how you live.
+The great hinge of the letter from who you are to how you live.
 
 ## Reading Notes
 

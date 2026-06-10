@@ -18,7 +18,7 @@ inputs:
 
 _Search me, God, and know my heart; test me and know my anxious thoughts. See if there is any offensive way in me, and lead me in the way everlasting._ \- Psalm 139:23–24
 
-Most people don’t struggle because they feel too much— they struggle because they don’t know what they’re feeling at all.
+Most people don’t struggle because they feel too much, they struggle because they don’t know what they’re feeling at all.
 
 We move fast. We respond quickly. We serve faithfully. But beneath all of that, there is an inner world quietly shaping everything.
 
@@ -27,7 +27,7 @@ He prays, “Search me.”
 
 Transformation begins when we allow God to uncover what is hidden deep within. What you are unaware of will eventually control you.
 
-God is not intimidated by what He will find in you. The question is— are you willing to see it with Him?
+God is not intimidated by what He will find in you. The question is, are you willing to see it with Him?
 
 ## Practice:
 

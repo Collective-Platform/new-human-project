@@ -118,30 +118,6 @@ export default function RootLayout({
     >
       <head />
       <body className="min-h-full">
-        <div
-          id="splash"
-          aria-hidden="true"
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#f4f5f5",
-            animation: "splashFadeOut 0.4s ease 1.2s forwards",
-            pointerEvents: "none",
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/icons/rhythm-512x512.png"
-            width="120"
-            height="120"
-            alt=""
-            style={{ borderRadius: "24px" }}
-          />
-        </div>
         <div className="flex min-h-screen flex-col">{children}</div>
         <Analytics />
       </body>

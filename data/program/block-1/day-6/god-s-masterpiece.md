@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-Saved by grace, not effort — and made for a purpose.
+Saved by grace, not effort and made for a purpose.
 
 ## Reading Notes
 
@@ -30,7 +30,7 @@ That's the rhythm of life in the new humanity: received freely, lived out fully.
 
 ## Key Idea
 
-You didn't earn your place in God's new humanity — it was given to you. And that gift comes with a calling.
+You didn't earn your place in God's new humanity, it was given to you. And that gift comes with a calling.
 
 ## Reflection
 

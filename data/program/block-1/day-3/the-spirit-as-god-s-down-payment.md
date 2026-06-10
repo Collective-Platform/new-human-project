@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-What God has given us now — and the promise of so much more to come.
+What God has given us now and the promise of so much more to come.
 
 ## Reading Notes
 

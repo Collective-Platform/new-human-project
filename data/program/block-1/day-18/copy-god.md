@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-The extraordinary call to imitate God — and what that actually looks like in daily life.
+The extraordinary call to imitate God and what that actually looks like in daily life.
 
 ## Reading Notes
 
@@ -28,7 +28,7 @@ Paul doesn't say the antidote is trying harder or being more disciplined. He say
 
 ## Key Idea
 
-To be part of the new humanity is to love the way Jesus loved — generously, sacrificially, without keeping score.
+To be part of the new humanity is to love the way Jesus loved generously, sacrificially, without keeping score.
 
 ## Reflection
 

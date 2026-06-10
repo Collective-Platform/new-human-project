@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-The new humanity starts at home — in how we treat the people closest to us.
+The new humanity starts at home, in how we treat the people closest to us.
 
 ## Reading Notes
 
@@ -28,7 +28,7 @@ The home is the first classroom of the new humanity. Before any of the big Sunda
 
 ## Key Idea
 
-The new humanity is practiced at home first — in how we treat the people we live with every single day.
+The new humanity is practiced at home first, in how we treat the people we live with every single day.
 
 ## Reflection
 

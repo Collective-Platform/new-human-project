@@ -18,4 +18,4 @@ Days 7–13 · Ephesians 2:11–3:21
 
 ---
 
-Jesus didn't just save individuals. He created one new humanity — a community that breaks through every wall of division. These seven days explore what that new society looks like and what it's for.
+Jesus didn't just save individuals. He created one new humanity, a community that breaks through every wall of division. These seven days explore what that new society looks like and what it's for.

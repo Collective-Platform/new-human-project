@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-The Spirit-filled life isn't a private experience — it overflows into how the new humanity lives together.
+The Spirit-filled life isn't a private experience, it overflows into how the new humanity lives together.
 
 ## Reading Notes
 
@@ -34,7 +34,7 @@ You can't be full of the Spirit and stay isolated. The Spirit always spills over
 
 ## Reflection
 
-Is your experience of the Holy Spirit mostly private — or does it regularly overflow into how you treat and serve the people around you?
+Is your experience of the Holy Spirit mostly private or does it regularly overflow into how you treat and serve the people around you?
 
 ## Today's Practice
 

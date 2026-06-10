@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-The heart of Ephesians: Jesus has made enemies into family — and created something entirely new.
+The heart of Ephesians: Jesus has made enemies into family and created something entirely new.
 
 ## Reading Notes
 
@@ -28,7 +28,7 @@ This is the centrepiece of the whole letter. The church isn't an organisation yo
 
 ## Key Idea
 
-Jesus didn't just make peace between enemies. He created one new humanity — a community that couldn't exist without him.
+Jesus didn't just make peace between enemies. He created one new humanity, a community that couldn't exist without him.
 
 ## Reflection
 

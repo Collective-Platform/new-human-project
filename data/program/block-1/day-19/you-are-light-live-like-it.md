@@ -6,7 +6,7 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "You Are Light — Live Like It"
+  en: "You Are Light, Live Like It"
   zh: "你是光，活出光的样貌"
 passageRef: "Ephesians 5:8–14"
 inputs:
@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-You're not just living in the light — you actually are light. That changes everything.
+You're not just living in the light you actually are light. That changes everything.
 
 ## Reading Notes
 

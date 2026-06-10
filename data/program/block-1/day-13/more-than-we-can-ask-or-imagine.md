@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-The doxology at the heart of Ephesians — and why God's glory comes through the church.
+The doxology at the heart of Ephesians and why God's glory comes through the church.
 
 ## Reading Notes
 

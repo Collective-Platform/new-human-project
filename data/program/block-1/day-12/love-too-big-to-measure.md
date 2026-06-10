@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-Paul's great prayer — and the love at the centre of the new humanity.
+Paul's great prayer and the love at the centre of the new humanity.
 
 ## Reading Notes
 
@@ -24,7 +24,7 @@ Paul kneels to pray. That's actually unusual for his time, when people typically
 
 He asks for three things. First, that they'd be strengthened from the inside by the Spirit. Second, that Christ would feel genuinely at home in their hearts, not like a guest who's just passing through. Third, that they'd have the capacity to grasp how wide, long, high, and deep Christ's love actually is.
 
-Four dimensions. But the point isn't to calculate the measurements. The point is that you can't. This love isn't just a warm, fuzzy feeling. It's the same love that pushed Jesus all the way to the cross to make the new humanity possible in the first place. And Paul says that to truly know this love — not just know about it — is to be filled with the fullness of God himself. That's a staggering thing to say.
+Four dimensions. But the point isn't to calculate the measurements. The point is that you can't. This love isn't just a warm, fuzzy feeling. It's the same love that pushed Jesus all the way to the cross to make the new humanity possible in the first place. And Paul says that to truly know this love not just know about it is to be filled with the fullness of God himself. That's a staggering thing to say.
 
 ## Key Idea
 
@@ -36,4 +36,4 @@ Do you find it easy or difficult to believe that God loves you personally and de
 
 ## Today's Practice
 
-Pray Paul's prayer for yourself today. Ask God to help you actually grasp — not just mentally agree with — how loved you are.
+Pray Paul's prayer for yourself today. Ask God to help you actually grasp, not just mentally agree with how loved you are.

@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-Why Paul tells us to remember our past — and why that matters.
+Why Paul tells us to remember our past and why that matters.
 
 ## Reading Notes
 
@@ -38,4 +38,4 @@ What might you start taking for granted about your faith if you forget where you
 
 ## Today's Practice
 
-Spend time today in genuine gratitude — not just for what God has given you, but for what he brought you out of.
+Spend time today in genuine gratitude not just for what God has given you, but for what he brought you out of.

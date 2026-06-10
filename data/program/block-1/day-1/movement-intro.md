@@ -18,4 +18,4 @@ Days 1–6 · Ephesians 1:1–2:10
 
 ---
 
-Before we can live the new humanity, we need to understand what God has freely given us. These six days explore the breathtaking scope of grace — from election before creation to resurrection from spiritual death.
+Before we can live the new humanity, we need to understand what God has freely given us. These six days explore the breathtaking scope of grace from election before creation to resurrection from spiritual death.

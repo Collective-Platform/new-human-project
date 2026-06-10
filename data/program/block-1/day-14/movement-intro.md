@@ -18,4 +18,4 @@ Days 14–20 · Ephesians 4:1–5:21
 
 ---
 
-The hinge word 'therefore' marks the shift from who we are to how we live. These seven days explore the practical, daily shape of new humanity living — in our minds, our words, and our habits.
+The hinge word 'therefore' marks the shift from who we are to how we live. These seven days explore the practical, daily shape of new humanity living in our minds, our words, and our habits.

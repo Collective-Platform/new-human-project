@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-The church isn't a building where God visits — it's a community where God lives.
+The church isn't a building where God visits, it's a community where God lives.
 
 ## Reading Notes
 
@@ -34,7 +34,7 @@ The church is not a place you go to find God. It's the new humanity God has deci
 
 ## Reflection
 
-Does your experience of church feel like a place where God is genuinely present? What contributes to that — or gets in the way?
+Does your experience of church feel like a place where God is genuinely present? What contributes to that or gets in the way?
 
 ## Today's Practice
 

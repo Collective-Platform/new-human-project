@@ -28,7 +28,7 @@ In a world where authority meant power over other people, that was a complete re
 
 ## Key Idea
 
-The New Human Project doesn't give anyone permission to dominate. It calls everyone — especially the powerful — to serve.
+The New Human Project doesn't give anyone permission to dominate. It calls everyone, especially the powerful to serve.
 
 ## Reflection
 

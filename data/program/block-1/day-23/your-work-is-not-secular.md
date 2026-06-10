@@ -16,13 +16,13 @@ inputs:
 
 ## Today's Focus
 
-The New Human Project changes how we see work — every workplace becomes a place where we can show who we follow.
+The New Human Project changes how we see work, every workplace becomes a place where we can show who we follow.
 
 ## Reading Notes
 
 Paul talks to workers like they actually matter, because they do. He gives them a simple but powerful idea: do your work "as to the Lord." What does that mean? When Jesus is your ultimate employer, no job is too small or too boring. Whether you're stacking shelves, doing homework, sitting in meetings, or cleaning up after someone else, you're not just getting through the day. You're offering what you do to God.
 
-And for anyone who has authority over other people — like a manager, a team leader, a parent — Paul has a word for you too: you have a boss as well. God doesn't play favourites, and power always has to answer to someone. That keeps things honest.
+And for anyone who has authority over other people like a manager, a team leader, a parent, Paul has a word for you too: you have a boss as well. God doesn't play favourites, and power always has to answer to someone. That keeps things honest.
 
 The New Human Project doesn't clock out when you leave church on Sunday. It goes with you. Into your classroom. Into your workplace. Into every conversation and every task you do this week.
 

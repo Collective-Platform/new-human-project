@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-Gifts aren't for personal gain — they're for building the whole new humanity up.
+Gifts aren't for personal gain, they're for building the whole new humanity up.
 
 ## Reading Notes
 
@@ -28,11 +28,11 @@ The goal Paul is pointing to is maturity. A community so rooted in truth and lov
 
 ## Key Idea
 
-The new humanity grows when everyone uses their gifts — not when a few people do everything.
+The new humanity grows when everyone uses their gifts not when a few people do everything.
 
 ## Reflection
 
-What gift do you bring to the body of Christ? Are you using it — or has it been sitting on the shelf?
+What gift do you bring to the body of Christ? Are you using it or has it been sitting on the shelf?
 
 ## Today's Practice
 

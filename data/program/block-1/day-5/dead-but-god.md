@@ -6,7 +6,7 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Dead — But God"
+  en: "Dead, But God"
   zh: "死了，然而神"
 passageRef: "Ephesians 2:1–7"
 inputs:
@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-The human condition, honestly described — and the grace that changes everything.
+The human condition, honestly described and the grace that changes everything.
 
 ## Reading Notes
 
@@ -30,11 +30,11 @@ This is where the New Human Project gets personal. It doesn't start with you dec
 
 ## Key Idea
 
-'But God' — the two words that describe the moment grace interrupted everything and the new humanity became possible for you.
+'But God' the two words that describe the moment grace interrupted everything and the new humanity became possible for you.
 
 ## Reflection
 
-Can you identify your own 'but God' moment — when grace showed up and changed the direction of your life?
+Can you identify your own 'but God' moment when grace showed up and changed the direction of your life?
 
 ## Today's Practice
 

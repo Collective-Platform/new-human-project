@@ -18,6 +18,31 @@ export default async function MemberLayout({
 
   return (
     <div className="flex flex-col h-[100dvh] bg-surface overflow-hidden">
+      {/* Splash screen — only shown inside the PWA member shell, not on /live or /landing */}
+      <div
+        id="splash"
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 9999,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f4f5f5",
+          animation: "splashFadeOut 0.4s ease 1.2s forwards",
+          pointerEvents: "none",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/icons/rhythm-512x512.png"
+          width="120"
+          height="120"
+          alt=""
+          style={{ borderRadius: "24px" }}
+        />
+      </div>
       <NavVisibilityProvider>
         <Suspense
           fallback={
@@ -32,7 +57,7 @@ export default async function MemberLayout({
         >
           <AppHeader />
         </Suspense>
-        <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain mx-auto w-full max-w-3xl">
+        <main className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain mx-auto w-full max-w-3xl">
           <Suspense fallback={null}>
             <AuthGate locale={locale} />
           </Suspense>

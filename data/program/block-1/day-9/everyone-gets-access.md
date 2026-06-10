@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-Through Jesus, every person — regardless of background — comes to God the same way.
+Through Jesus, every person regardless of background comes to God the same way.
 
 ## Reading Notes
 
@@ -30,11 +30,11 @@ That's worth asking yourself honestly: are there walls you're still maintaining 
 
 ## Key Idea
 
-There are no second-class citizens in God's new humanity. Everyone gets the same access — through the same Jesus.
+There are no second-class citizens in God's new humanity. Everyone gets the same access through the same Jesus.
 
 ## Reflection
 
-Is there anyone you've treated — consciously or unconsciously — as less welcome in God's presence than you are?
+Is there anyone you've treated consciously or unconsciously as less welcome in God's presence than you are?
 
 ## Today's Practice
 

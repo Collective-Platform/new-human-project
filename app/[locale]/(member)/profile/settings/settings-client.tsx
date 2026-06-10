@@ -19,42 +19,23 @@ import {
 } from "lucide-react";
 import NextImage from "next/image";
 import { updateProfile } from "@/src/features/profile/actions";
+import { AvatarCropModal } from "./avatar-crop-modal";
 import {
   subscribeToPush,
   getPushSubscription,
 } from "@/src/features/notifications/subscribe";
 
 const HANDLE_REGEX = /^[a-z0-9_]{3,30}$/;
-const MAX_AVATAR_DIMENSION = 256;
 const MAX_AVATAR_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_AVATAR_FILE_MB = 5;
 
-async function fileToResizedDataUrl(file: File): Promise<string> {
-  const dataUrl = await new Promise<string>((resolve, reject) => {
+async function fileToDataUrl(file: File): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result));
     reader.onerror = () => reject(new Error("Failed to read image"));
     reader.readAsDataURL(file);
   });
-
-  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error("Failed to load image"));
-    image.src = dataUrl;
-  });
-
-  const scale = Math.min(
-    1,
-    MAX_AVATAR_DIMENSION / Math.max(img.width, img.height),
-  );
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(img.width * scale);
-  canvas.height = Math.round(img.height * scale);
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas not supported");
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL("image/jpeg", 0.85);
 }
 
 interface NotificationPrefs {
@@ -81,6 +62,7 @@ export function SettingsClient() {
 
   // Profile fields
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [handleValue, setHandleValue] = useState("");
   const [email, setEmail] = useState("");
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -172,10 +154,15 @@ export function SettingsClient() {
       setProfileError(t("imageTooLarge", { max: MAX_AVATAR_FILE_MB }));
       return;
     }
-    setUploadingAvatar(true);
     setProfileError(null);
+    const dataUrl = await fileToDataUrl(file);
+    setCropSrc(dataUrl);
+  }
+
+  async function handleCropConfirm(dataUrl: string) {
+    setCropSrc(null);
+    setUploadingAvatar(true);
     try {
-      const dataUrl = await fileToResizedDataUrl(file);
       const result = await updateProfile({ avatarUrl: dataUrl });
       if ("error" in result)
         throw new Error(result.error ?? "Failed to upload");
@@ -187,6 +174,10 @@ export function SettingsClient() {
     } finally {
       setUploadingAvatar(false);
     }
+  }
+
+  function handleCropCancel() {
+    setCropSrc(null);
   }
 
   async function saveProfile() {
@@ -230,6 +221,14 @@ export function SettingsClient() {
   }
 
   return (
+    <>
+    {cropSrc && (
+      <AvatarCropModal
+        imageSrc={cropSrc}
+        onConfirm={handleCropConfirm}
+        onCancel={handleCropCancel}
+      />
+    )}
     <div className="px-3 pt-4 pb-4 space-y-4">
       <div className="flex items-center gap-3">
         <Link
@@ -467,6 +466,7 @@ export function SettingsClient() {
         {loggingOut ? st("loggingOut") : t("logOut")}
       </button>
     </div>
+    </>
   );
 }
 

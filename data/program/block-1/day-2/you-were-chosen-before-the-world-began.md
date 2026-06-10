@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-God chose you — not because of what you've done, but because of his love.
+God chose you not because of what you've done, but because of his love.
 
 ## Reading Notes
 
@@ -34,7 +34,7 @@ The new humanity starts with God's love, not our performance. You were chosen be
 
 ## Reflection
 
-Does it feel hard to believe that God loves you unconditionally — before you do anything to earn it? Why or why not?
+Does it feel hard to believe that God loves you unconditionally before you do anything to earn it? Why or why not?
 
 ## Today's Practice
 

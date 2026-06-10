@@ -11,14 +11,16 @@ export default async function SignupVerifyPage({
   setRequestLocale(locale);
 
   return (
-    <div className="w-full max-w-sm space-y-6 p-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold font-(family-name:--font-headline) text-foreground">
-          Check your email
-        </h1>
-        <Suspense>
-          <SignupVerifyContent />
-        </Suspense>
+    <div className="flex min-h-[100svh] w-full flex-col items-center justify-center">
+      <div className="w-full max-w-sm space-y-6 p-8">
+        <div className="space-y-2 text-center">
+          <h1 className="font-(family-name:--font-headline) text-2xl font-bold text-foreground">
+            Check your email
+          </h1>
+          <Suspense>
+            <SignupVerifyContent />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-Paul's prayer — and why knowing God is better than knowing about God.
+Paul's prayer and why knowing God is better than knowing about God.
 
 ## Reading Notes
 
@@ -30,7 +30,7 @@ People who know God this way are equipped to live as the new humanity in a world
 
 ## Key Idea
 
-The most important thing you can pursue is knowing God himself — not just knowing things about him.
+The most important thing you can pursue is knowing God himself, not just knowing things about him.
 
 ## Reflection
 

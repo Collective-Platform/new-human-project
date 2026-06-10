@@ -16,13 +16,13 @@ inputs:
 
 ## Today's Focus
 
-Real change starts in the mind — and works its way out into everyday behaviour.
+Real change starts in the mind and works its way out into everyday behaviour.
 
 ## Reading Notes
 
 Paul paints a pretty bleak picture of life without God. A darkened mindset. A hardened heart. Gradually losing the ability to even tell what's right and wrong anymore. It's not that people wake up one day and decide to go off the rails. It happens slowly, when the mind drifts and nothing pulls it back.
 
-The new life starts with a renewed mind. You have to think differently before you can live differently. That's not just a motivational poster line — it's the actual order Paul lays out. Change your thinking first. The behaviour follows.
+The new life starts with a renewed mind. You have to think differently before you can live differently. That's not just a motivational poster line, it's the actual order Paul lays out. Change your thinking first. The behaviour follows.
 
 Then Paul gets really practical, and he does it in contrasts. Stop lying, tell the truth. Don't let anger sit and rot inside you. Stop taking from people, start giving. Cut out words that tear people down, use words that build them up. Be kind. Forgive, the same way God forgave you.
 

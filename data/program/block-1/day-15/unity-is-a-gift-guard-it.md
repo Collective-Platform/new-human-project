@@ -6,7 +6,7 @@ order: 20
 category: Mental
 type: devotional
 name:
-  en: "Unity Is a Gift — Guard It"
+  en: "Unity Is a Gift, Guard It"
   zh: "合一是一份礼物，守护它"
 passageRef: "Ephesians 4:1–6"
 inputs:
@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-The new humanity doesn't manufacture unity — it protects the unity the Spirit has already created.
+The new humanity doesn't manufacture unity, it protects the unity the Spirit has already created.
 
 ## Reading Notes
 

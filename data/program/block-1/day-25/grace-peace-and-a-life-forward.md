@@ -16,7 +16,7 @@ inputs:
 
 ## Today's Focus
 
-Bringing it all together — what the New Human Project means for your life from here.
+Bringing it all together, what the New Human Project means for your life from here.
 
 ## Reading Notes
 
@@ -32,7 +32,7 @@ New Society. You've been brought into a community that crosses every divide that
 
 New Standards. You're called to live differently, and it starts in how you think, not just what you do.
 
-New Relationships. Every relationship you have — at home, at work, at church — is now a place to practise the new humanity.
+New Relationships. Every relationship you have at home, at work, at church is now a place to practise the new humanity.
 
 This is the New Human Project. And you are part of it.
 

@@ -19,7 +19,9 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      // Next.js 16 uses Turbopack for both dev and production builds; Turbopack's
+      // runtime requires eval() in both environments, so 'unsafe-eval' must be present.
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self'",

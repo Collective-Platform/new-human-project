@@ -29,7 +29,7 @@ But now, you have a new way of living.
 
 You don’t avoid your emotions. You bring them to God.
 
-And over time, your emotions become not a barrier— but a bridge to deeper intimacy with Him.
+And over time, your emotions become not a barrier but a bridge to deeper intimacy with Him.
 
 ## Final Reflection:
 

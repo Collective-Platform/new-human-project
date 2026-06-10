@@ -18,4 +18,4 @@ Days 21–25 · Ephesians 5:21–6:24
 
 ---
 
-The New Human Project doesn't stay in the church building. These five days bring the letter to its conclusion — exploring how the gospel reshapes our homes, our workplaces, and our spiritual resilience.
+The New Human Project doesn't stay in the church building. These five days bring the letter to its conclusion exploring how the gospel reshapes our homes, our workplaces, and our spiritual resilience.
