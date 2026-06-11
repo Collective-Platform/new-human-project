@@ -48,7 +48,7 @@ export function CountdownTimer() {
   ];
 
   return (
-    <div className="flex items-end justify-center gap-2 py-6 md:gap-4">
+    <div className="flex items-end justify-center gap-2 pt-3 pb-6 md:gap-4">
       {units.map(({ label, value }, i) => (
         <div key={label} className="flex items-end gap-2 md:gap-4">
           <div className="flex flex-col items-center">

@@ -2,6 +2,7 @@
 // Accordion uses native <details>/<summary> — no client JS needed.
 // On desktop, the left image is sticky while only the right accordion scrolls.
 
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 const display = { fontFamily: "var(--font-nowstalgic), serif" } as const;
@@ -17,31 +18,6 @@ function ChevronDown({ className }: { className?: string }) {
       aria-hidden
     >
       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  );
-}
-
-function CameraIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      aria-hidden
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-      />
     </svg>
   );
 }
@@ -311,7 +287,7 @@ const FAQ_ITEMS: FaqItem[] = [
 
 export function FaqSection() {
   return (
-    <section id="faq" className="bg-white">
+    <section id="faq" className="overflow-clip rounded-4xl bg-white">
       {/*
         Desktop: 2-col grid. Left image is sticky top-0 h-screen so it pins
         while the right accordion scrolls. Once the section ends (accordion
@@ -322,19 +298,22 @@ export function FaqSection() {
         {/* ── LEFT — sticky image ─────────────────────────────────────────── */}
         <div className="hidden md:block">
           <div className="sticky top-0 flex h-screen items-center p-10 lg:p-16">
-            <div className="flex h-full max-h-170 w-full flex-col items-center justify-center gap-3 rounded-[--radius-md] bg-surface-container-high">
-              <CameraIcon className="size-8 text-outline-variant" />
-              <p className="text-xs font-medium text-outline">
-                FAQ image placeholder
-              </p>
+            <div className="relative h-full max-h-170 w-full overflow-hidden rounded-[--radius-md]">
+              <Image
+                src="/live/faq.jpg"
+                alt="Attendees connecting at Collective"
+                fill
+                className="object-cover"
+                sizes="50vw"
+              />
             </div>
           </div>
         </div>
 
         {/* ── RIGHT — accordion ───────────────────────────────────────────── */}
-        <div className="px-6 py-24 md:px-10 lg:px-16">
+        <div className="px-6 py-8 md:py-24 md:px-10 lg:px-16">
           <h2
-            className="mb-10 text-4xl font-bold leading-[1.1] text-on-surface md:text-5xl"
+            className="mb-4 md:mb-10 text-4xl font-bold leading-[1.1] text-on-surface md:text-5xl"
             style={display}
           >
             Frequently
