@@ -18,6 +18,7 @@ import { CountdownTimer } from "./countdown-timer";
 import { DressCodeSection } from "./dress-code-section";
 import { FaqSection } from "./faq-section";
 import { PillarsSection } from "./pillars-section";
+import { SpeakersSection } from "./speakers-section";
 
 const TICKET_URL = "https://www.ticket2u.com.my/event/50219/rhythm-live";
 
@@ -90,12 +91,6 @@ export default function RhythmLivePage() {
             </span>
             <div className="flex items-center gap-3 md:gap-5">
               <a
-                href="#about"
-                className="hidden text-sm font-medium text-white/90 transition-colors hover:text-white md:block"
-              >
-                About
-              </a>
-              <a
                 href="#speakers"
                 className="hidden text-sm font-medium text-white/90 transition-colors hover:text-white md:block"
               >
@@ -157,6 +152,9 @@ export default function RhythmLivePage() {
       {/* ── THREE PILLARS ───────────────────────────────────────────────────── */}
       <PillarsSection />
 
+      {/* ── SPEAKERS ────────────────────────────────────────────────────────── */}
+      <SpeakersSection />
+
       {/* ── DRESS CODE ──────────────────────────────────────────────────────── */}
       <DressCodeSection />
 
@@ -177,9 +175,9 @@ export default function RhythmLivePage() {
                 <li key={item} className="flex items-start gap-4">
                   <span
                     aria-hidden
-                    className="mt-1 size-2 shrink-0 rounded-full bg-primary"
+                    className="mt-2 size-2 shrink-0 rounded-full bg-primary"
                   />
-                  <span className="text-base leading-none text-white">
+                  <span className="text-base leading-normal text-white">
                     {item}
                   </span>
                 </li>
