@@ -247,29 +247,27 @@ export function PillarsSection() {
             className="absolute inset-0 flex items-center justify-center px-8 text-center"
           >
             <div className="max-w-xl">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
-                The Three Pillars
-              </p>
               <h2
-                className="mb-5 text-4xl font-bold leading-[1.1] text-white md:text-5xl"
+                className="mb-5 text-4xl md:text-5xl font-bold leading-[1.1] text-white"
                 style={display}
               >
                 Three Pillars.
                 <br />
                 One Whole Life.
               </h2>
-              <p className="text-base leading-relaxed text-white/80 md:text-lg">
-                We often separate life into different compartments. <br />
-                <strong className="text-white">Spiritual.</strong>{" "}
-                <strong className="text-white">Mental.</strong>{" "}
-                <strong className="text-white">Emotional.</strong>{" "}
-                <strong className="text-white">Physical.</strong>
-                <br />
-                But God created us as whole people.
-                <br />
-                At Rhythm Live, we&rsquo;ll explore how every part of our lives
-                can become part of our spiritual formation.
-              </p>
+              <div className="space-y-2">
+                <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
+                  We often separate life into different compartments.
+                </p>
+                <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
+                  But God created us as whole people.
+                </p>
+                <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
+                  At Rhythm Live, we explore together how the pursuit of our
+                  <strong> mental, emotional and physical</strong> health is
+                  integral to our spiritual formation.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -354,12 +352,12 @@ export function PillarsSection() {
             style={{ opacity: 0, zIndex: 30 }}
           >
             <h2
-              className="text-3xl font-bold text-black md:text-5xl"
+              className="text-4xl md:text-5xl font-bold leading-[1.1] text-black"
               style={display}
             >
               Everything is Spiritual
             </h2>
-            <p className="mt-2 md:mt-6 text-lg md:text-xl text-black/60">
+            <p className="mt-2 md:mt-6 text-base md:text-lg leading-normal md:leading-relaxed  text-black/60">
               <span className="md:hidden">
                 Tap each circle to explore the pillar
               </span>
@@ -408,7 +406,7 @@ export function PillarsSection() {
                 >
                   {activePillar.title}
                 </p>
-                <p className="text-sm leading-relaxed text-on-surface-variant">
+                <p className="text-base md:text-lg leading-normal md:leading-relaxed text-on-surface-variant">
                   {activePillar.detail}
                 </p>
               </div>
@@ -443,7 +441,7 @@ function DetailCard({ pillar }: { pillar: (typeof PILLARS)[0] }) {
       <p className="mb-3 text-xl font-bold text-on-surface" style={display}>
         {pillar.title}
       </p>
-      <p className="text-base leading-relaxed text-on-surface-variant">
+      <p className="text-base md:text-lg leading-normal md:leading-relaxed text-on-surface-variant">
         {pillar.detail}
       </p>
     </div>

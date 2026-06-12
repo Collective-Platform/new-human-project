@@ -84,14 +84,12 @@ export function DressCodeSection() {
         {/* Heading + paragraph */}
         <div className="mx-auto mb-4 md:mb-8 max-w-2xl text-center">
           <h2
-            className="mb-5 text-[2.8rem] font-bold leading-tight text-white md:text-6xl"
+            className="mb-5 text-4xl md:text-5xl font-bold leading-[1.1] text-white"
             style={display}
           >
-            Mandatory
-            <br />
-            Gear Check
+            Mandatory <br /> Gear Check
           </h2>
-          <p className="text-base leading-relaxed text-white/80 md:text-lg">
+          <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
             To fully participate in the Rhythm Live experience, all ticket
             holders must adhere to the dress code.{" "}
             <strong className="text-white">Do not skip this.</strong>
@@ -112,7 +110,9 @@ export function DressCodeSection() {
               </div>
               <ImageSlot src={image} alt={imageAlt} />
               <div className="px-6 pb-5">
-                <p className="text-base leading-normal text-white">{body}</p>
+                <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
+                  {body}
+                </p>
               </div>
             </div>
           ))}
@@ -128,7 +128,7 @@ export function DressCodeSection() {
           style={{ height: `${DRESS_CODE_ITEMS.length * 100}svh` }}
         >
           <div
-            className="sticky top-6 overflow-hidden"
+            className="sticky top-1 overflow-hidden"
             style={{ height: "calc(100svh - 1.5rem)" }}
           >
             {/* Cards slide up from off-screen and stack */}
@@ -160,7 +160,7 @@ export function DressCodeSection() {
                   </div>
                   <ImageSlot src={image} alt={imageAlt} />
                   <div className="px-6 pt-4 pb-8">
-                    <p className="text-base leading-relaxed text-white">
+                    <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
                       {body}
                     </p>
                   </div>

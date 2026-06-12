@@ -26,6 +26,21 @@ const SPEAKERS: {
   language?: string;
 }[] = [
   {
+    name: "Kevin Loo",
+    title: "Founder, Collective",
+    bio: "Kevin Loo is a creative, a dreamer and a communicator. \n\nHis fierce and relentless tenacity to break limiting mindsets have led him to help thousands uncover and unleash their fullest potential in life. \n\nIn 2001, he founded a contemporary church called Collective with only 15 people to begin with. Today, it is a thriving movement of 15 like-minded churches worldwide.",
+    image: "/live/kevin-loo.jpg",
+    category: "Mental",
+  },
+  {
+    name: "Tim Tiah",
+    title: "Co-founder, Colony & Nuffnang",
+    bio: "Timothy Tiah is a Malaysian entrepreneur, investor, and content creator. He is the co-founder of Nuffnang and Colony, and has built an audience of nearly 200,000 Instagram followers, generating around 27 million monthly views through content focused on business, economics, entrepreneurship, and personal finance. His mission is to help Malaysians better understand the forces shaping their money, careers, and everyday lives.",
+    image: "/live/timothy-tiah.jpg",
+    category: "Emotional",
+  },
+
+  {
     name: "Dr Victor Lee",
     title: "President, Bible College of Malaysia",
     bio: "Rev Dr Victor Lee has been the President of Bible College of Malaysia since January 2017. He is also an EXCO member of the Assemblies of God of Malaysia and a Council member of the National Evangelical Christian Fellowship (NECF). He holds a PhD in Divinity from the University of Aberdeen, Scotland. His thesis was published by Langham Monograph (2021) with the title Reading Johannine Dramatic Irony through Ancient Dramatic Devices.",
@@ -50,22 +65,8 @@ const SPEAKERS: {
     category: "Physical",
   },
   {
-    name: "Tim Tiah",
-    title: "Co-founder, Colony & Nuffnang",
-    bio: "Timothy Tiah is a Malaysian entrepreneur, investor, and content creator. He is the co-founder of Nuffnang and Colony, and has built an audience of nearly 200,000 Instagram followers, generating around 27 million monthly views through content focused on business, economics, entrepreneurship, and personal finance. His mission is to help Malaysians better understand the forces shaping their money, careers, and everyday lives.",
-    image: "/live/timothy-tiah.jpg",
-    category: "Emotional",
-  },
-  {
-    name: "Kevin Loo",
-    title: "Founder, Collective",
-    bio: "Kevin Loo is a creative, a dreamer and a communicator. \n\nHis fierce and relentless tenacity to break limiting mindsets have led him to help thousands uncover and unleash their fullest potential in life. \n\nIn 2001, he founded a contemporary church called Collective with only 15 people to begin with. Today, it is a thriving movement of 15 like-minded churches worldwide.",
-    image: "/live/kevin-loo.jpg",
-    category: "Mental",
-  },
-  {
     name: "Wendy Vaz",
-    title: "Breathwork & Mindfulness Facilitator",
+    title: "Coach, Breathwork Facilitator and Content Creator",
     bio: "Wendy Vaz is passionate about mindful, intentional living. Her journey through depression, PTSD, and burnout led her to discover the quiet power of breathwork and nervous system regulation — tools that transformed how she shows up in her creative work and her life. She believes calm is a practice, not a personality trait, and loves creating spaces where people can experience that for themselves.",
     image: "/live/wendy-vaz.jpg",
     category: "Emotional",
@@ -93,7 +94,7 @@ export function SpeakersSection() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
           <h2
-            className="text-4xl font-bold leading-[1.1] text-white md:text-6xl"
+            className="text-4xl md:text-5xl font-bold leading-[1.1] text-white"
             style={display}
           >
             Voices
@@ -206,7 +207,7 @@ export function SpeakersSection() {
                 </button>
               </div>
             )}
-            <p className="whitespace-pre-line text-lg leading-relaxed text-white md:text-base">
+            <p className="whitespace-pre-line text-base md:text-lg leading-normal md:leading-relaxed text-white/90">
               {lang === "zh" && selected.bioZh ? selected.bioZh : selected.bio}
             </p>
           </div>

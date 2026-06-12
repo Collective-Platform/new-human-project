@@ -2,15 +2,6 @@
 // No backend: the ticket CTA links out to ticket2u. Copy is from the
 // Rhythm Live marketing copy.
 //
-// FUTURE / PERFORMANCE NOTE:
-// When you add three.js or heavy animations, build them as a client component
-// and load it here with next/dynamic so it ships ONLY on this route and never
-// affects the rest of the app. Example (once the package is installed):
-//
-//   import dynamic from "next/dynamic";
-//   const LiveHeroCanvas = dynamic(() => import("./live-hero-canvas"), { ssr: false });
-//
-// Then drop <LiveHeroCanvas /> into the hero section below.
 
 import Image from "next/image";
 import type { ReactNode } from "react";
@@ -30,13 +21,12 @@ const EVENT_DETAILS = [
 ];
 
 const EXPERIENCES = [
-  "Inspiring keynote sessions",
-  "Interactive community experiences",
-  "Practical activities and activations",
-  "Opportunities to connect with fellow members",
-  "Partner booths and experiences",
-  "Moments of celebration and reflection",
-  "Practical next steps for the journey ahead",
+  "Inspiring keynote sessions.",
+  "Interactive community experiences.",
+  "Practical activations.",
+  "Opportunities to connect with like-minded participants.",
+  "Moments of celebration and reflection.",
+  "Practical next steps for the journey ahead.",
 ];
 
 const display = { fontFamily: "var(--font-nowstalgic), serif" } as const;
@@ -122,7 +112,7 @@ export default function RhythmLivePage() {
               Rhythm Live
             </h1>
 
-            <p className="mx-auto mb-3 max-w-2xl text-base leading-normal md:leading-relaxed text-white md:text-lg">
+            <p className="mx-auto mb-3 max-w-2xl text-base md:text-lg leading-normal md:leading-relaxed text-white">
               A one-day gathering where the community comes together to learn,
               grow, worship, connect, and continue the journey together.
             </p>
@@ -163,27 +153,24 @@ export default function RhythmLivePage() {
         <div className="mx-auto grid max-w-5xl items-center gap-12 md:grid-cols-2">
           <div>
             <h2
-              className="mb-8 text-4xl font-bold leading-[1.1] text-white md:text-5xl"
+              className="mb-8 text-4xl md:text-5xl font-bold leading-[1.1] text-white"
               style={display}
             >
               Experience
               <br />
               Rhythm.You Live
             </h2>
-            <ul className="space-y-4">
+            <ul className="list-disc space-y-4 pl-5">
               {EXPERIENCES.map((item) => (
-                <li key={item} className="flex items-start gap-4">
-                  <span
-                    aria-hidden
-                    className="mt-2 size-2 shrink-0 rounded-full bg-primary"
-                  />
-                  <span className="text-base leading-normal text-white">
-                    {item}
-                  </span>
+                <li
+                  key={item}
+                  className="text-base md:text-lg leading-normal md:leading-relaxed text-white"
+                >
+                  {item}
                 </li>
               ))}
             </ul>
-            <p className="mt-8 text-base italic text-white/80">
+            <p className="mt-8 text-base md:text-lg leading-normal md:leading-relaxed italic text-white">
               This isn&rsquo;t about sitting in a room and taking notes.
               It&rsquo;s about experiencing the movement you&rsquo;re already
               part of.
@@ -229,7 +216,7 @@ export default function RhythmLivePage() {
       </section>
 
       {/* ── FAQ ─────────────────────────────────────────────────────────────── */}
-      <div className="bg-black px-4 py-4">
+      <div className="bg-black px-4 md:px-24 py-4">
         <FaqSection />
       </div>
 
@@ -238,7 +225,7 @@ export default function RhythmLivePage() {
         <dl className="mx-auto grid max-w-4xl grid-cols-2 gap-8 text-center md:grid-cols-4 mb-10">
           {EVENT_DETAILS.map((item) => (
             <div key={item.label}>
-              <dt className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
                 {item.label}
               </dt>
               <dd className="text-lg font-bold text-white" style={display}>

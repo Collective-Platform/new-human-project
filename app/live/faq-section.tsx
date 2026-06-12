@@ -317,11 +317,32 @@ const FAQ_ITEMS: FaqItem[] = [
           as well as agree to use care, good judgment and abide by the rules and
           directions given during the event.
         </p>
+        <p>
+          You may refer to our{" "}
+          <a
+            href="https://collective.my/privacy/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-secondary underline underline-offset-2"
+          >
+            privacy policy
+          </a>{" "}
+          and{" "}
+          <a
+            href="https://collective.my/terms/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-secondary underline underline-offset-2"
+          >
+            terms and condition
+          </a>{" "}
+          here.
+        </p>
       </div>
     ),
   },
   {
-    q: "ASSISTANCE",
+    q: "Assistance",
     a: (
       <div className="space-y-2">
         <p>
@@ -372,31 +393,29 @@ export function FaqSection() {
         exhausted), both columns leave the viewport together — natural un-stick.
         Mobile: single column, image hidden.
       */}
-      <div className="">
-        {/* ── RIGHT — accordion ───────────────────────────────────────────── */}
-        <div className="px-6 py-8 md:py-24 md:px-10 lg:px-16">
-          <h2
-            className="mb-4 md:mb-10 text-4xl font-bold leading-[1.1] text-on-surface md:text-5xl"
-            style={display}
-          >
-            Frequently
-            <br />
-            Asked Questions
-          </h2>
 
-          <div className="divide-y divide-outline-variant">
-            {FAQ_ITEMS.map(({ q, a }) => (
-              <details key={q} className="group py-5">
-                <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-xl font-semibold text-on-surface">
-                  <span>{q}</span>
-                  <ChevronDown className="mt-0.5 size-5 shrink-0 text-outline transition-transform duration-200 group-open:rotate-180" />
-                </summary>
-                <div className="mt-3 text-lg md:text-base leading-relaxed text-on-surface-variant">
-                  {typeof a === "string" ? <p>{a}</p> : a}
-                </div>
-              </details>
-            ))}
-          </div>
+      <div className="px-6 py-8 md:py-24 md:px-10 lg:px-16">
+        <h2
+          className="mb-4 md:mb-10 text-4xl md:text-5xl font-bold leading-[1.1] text-on-surface"
+          style={display}
+        >
+          Frequently
+          <br />
+          Asked Questions
+        </h2>
+
+        <div className="divide-y divide-outline-variant">
+          {FAQ_ITEMS.map(({ q, a }) => (
+            <details key={q} className="group py-5">
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-lg md:text-xl leading-tight font-semibold text-on-surface">
+                <span>{q}</span>
+                <ChevronDown className="mt-0.5 size-5 shrink-0 text-outline transition-transform duration-200 group-open:rotate-180" />
+              </summary>
+              <div className="mt-3 text-base md:text-lg leading-normal md:leading-relaxed text-black/90">
+                {typeof a === "string" ? <p>{a}</p> : a}
+              </div>
+            </details>
+          ))}
         </div>
       </div>
     </section>
