@@ -3,8 +3,6 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-const display = { fontFamily: "var(--font-nowstalgic), serif" } as const;
-
 type Category = "Mental" | "Emotional" | "Physical";
 
 const CATEGORY_STYLES: Record<Category, { bg: string; text: string }> = {
@@ -94,8 +92,7 @@ export function SpeakersSection() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
           <h2
-            className="text-4xl md:text-5xl font-bold leading-[1.1] text-white"
-            style={display}
+            className="text-4xl md:text-5xl font-black leading-[1.1] text-white"
           >
             Voices
           </h2>
@@ -119,8 +116,7 @@ export function SpeakersSection() {
                 <div className="absolute inset-0 bg-white/0 transition-colors duration-300 group-hover:bg-white/5" />
               </div>
               <p
-                className="mb-0.5 text-lg font-bold text-white transition-colors duration-200 group-hover:text-white/80 md:text-xl"
-                style={display}
+                className="mb-0.5 text-lg font-black text-white transition-colors duration-200 group-hover:text-white/80 md:text-xl"
               >
                 {speaker.name}
               </p>
@@ -158,10 +154,7 @@ export function SpeakersSection() {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <p
-                  className="text-2xl md:text-lg font-bold text-white"
-                  style={display}
-                >
+                <p className="text-2xl md:text-lg font-black text-white">
                   {selected.name}
                 </p>
                 {selected.title && (

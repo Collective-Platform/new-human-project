@@ -3,8 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-const display = { fontFamily: "var(--font-nowstalgic), serif" } as const;
-
 const STACK_TOP_BASE = 24;
 const TITLE_HEIGHT = 56;
 // const CARD_BG = "var(--color-primary)";
@@ -84,8 +82,7 @@ export function DressCodeSection() {
         {/* Heading + paragraph */}
         <div className="mx-auto mb-4 md:mb-8 max-w-2xl text-center">
           <h2
-            className="mb-5 text-4xl md:text-5xl font-bold leading-[1.1] text-white"
-            style={display}
+            className="mb-5 text-4xl md:text-5xl font-black leading-[1.1] text-white"
           >
             Mandatory <br /> Gear Check
           </h2>

@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 
-const display = { fontFamily: "var(--font-nowstalgic), serif" } as const;
-
 function ChevronDown({ className }: { className?: string }) {
   return (
     <svg
@@ -396,8 +394,7 @@ export function FaqSection() {
 
       <div className="px-6 py-8 md:py-24 md:px-10 lg:px-16">
         <h2
-          className="mb-4 md:mb-10 text-4xl md:text-5xl font-bold leading-[1.1] text-on-surface"
-          style={display}
+          className="mb-4 md:mb-10 text-4xl md:text-5xl font-black leading-[1.1] text-on-surface"
         >
           Frequently
           <br />

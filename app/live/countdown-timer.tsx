@@ -9,8 +9,6 @@ function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-const display = { fontFamily: "var(--font-nowstalgic), serif" } as const;
-
 export function CountdownTimer() {
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
@@ -52,10 +50,7 @@ export function CountdownTimer() {
       {units.map(({ label, value }, i) => (
         <div key={label} className="flex items-end gap-2 md:gap-4">
           <div className="flex flex-col items-center">
-            <span
-              className="tabular-nums text-4xl font-bold leading-none text-white md:text-4xl"
-              style={display}
-            >
+            <span className="tabular-nums text-4xl font-black leading-none text-white">
               {value}
             </span>
             <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
@@ -63,11 +58,7 @@ export function CountdownTimer() {
             </span>
           </div>
           {i < units.length - 1 && (
-            <span
-              className="mb-2 text-2xl font-bold text-white/25 md:text-2xl"
-              style={display}
-              aria-hidden
-            >
+            <span className="mb-2 text-2xl font-bold text-white/25" aria-hidden>
               :
             </span>
           )}

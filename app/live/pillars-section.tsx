@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const display = { fontFamily: "var(--font-nowstalgic), serif" } as const;
-
 const PILLARS = [
   {
     id: "mental",
@@ -248,8 +246,7 @@ export function PillarsSection() {
           >
             <div className="max-w-xl">
               <h2
-                className="mb-5 text-4xl md:text-5xl font-bold leading-[1.1] text-white"
-                style={display}
+                className="mb-5 text-4xl md:text-5xl font-black leading-[1.1] text-white"
               >
                 Three Pillars.
                 <br />
@@ -352,8 +349,7 @@ export function PillarsSection() {
             style={{ opacity: 0, zIndex: 30 }}
           >
             <h2
-              className="text-4xl md:text-5xl font-bold leading-[1.1] text-black"
-              style={display}
+              className="text-4xl md:text-5xl font-black leading-[1.1] text-black"
             >
               Everything is Spiritual
             </h2>
@@ -400,10 +396,7 @@ export function PillarsSection() {
                 >
                   {activePillar.name}
                 </p>
-                <p
-                  className="mb-3 text-xl font-bold text-on-surface"
-                  style={display}
-                >
+                <p className="mb-3 text-xl font-black text-on-surface">
                   {activePillar.title}
                 </p>
                 <p className="text-base md:text-lg leading-normal md:leading-relaxed text-on-surface-variant">
@@ -438,7 +431,7 @@ function DetailCard({ pillar }: { pillar: (typeof PILLARS)[0] }) {
       >
         {pillar.name}
       </p>
-      <p className="mb-3 text-xl font-bold text-on-surface" style={display}>
+      <p className="mb-3 text-xl font-black text-on-surface">
         {pillar.title}
       </p>
       <p className="text-base md:text-lg leading-normal md:leading-relaxed text-on-surface-variant">

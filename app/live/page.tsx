@@ -29,8 +29,6 @@ const EXPERIENCES = [
   "Practical next steps for the journey ahead.",
 ];
 
-const display = { fontFamily: "var(--font-nowstalgic), serif" } as const;
-
 function CtaButton({
   href,
   children,
@@ -76,9 +74,15 @@ export default function RhythmLivePage() {
 
           {/* Nav bar */}
           <nav className="relative flex items-center justify-between px-6 py-5 md:px-8">
-            <span className="font-nowstalgic text-xl font-bold text-primary">
-              Rhythm
-            </span>
+            <div className="relative h-7 md:w-24 w-20">
+              <Image
+                src="/live/rhythm-logo.png"
+                alt="Rhythm"
+                fill
+                className="object-contain object-left"
+                priority
+              />
+            </div>
             <div className="flex items-center gap-3 md:gap-5">
               <a
                 href="#speakers"
@@ -105,12 +109,15 @@ export default function RhythmLivePage() {
 
           {/* Content anchored to the bottom */}
           <div className="relative mt-auto px-6 pb-5 text-center md:px-12 md:pb-6">
-            <h1
-              className="mb-6 text-[2.5rem] font-bold leading-none tracking-tight text-white md:text-[4rem]"
-              style={display}
-            >
-              Rhythm Live
-            </h1>
+            <div className="relative mx-auto h-16 w-72 md:h-24 md:w-120">
+              <Image
+                src="/live/rhythm-live.png"
+                alt="Rhythm Live"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
 
             <p className="mx-auto mb-3 max-w-2xl text-base md:text-lg leading-normal md:leading-relaxed text-white">
               A one-day gathering where the community comes together to learn,
@@ -131,9 +138,7 @@ export default function RhythmLivePage() {
               <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
                 {item.label}
               </dt>
-              <dd className="text-lg font-bold text-white" style={display}>
-                {item.value}
-              </dd>
+              <dd className="text-lg font-bold text-white">{item.value}</dd>
             </div>
           ))}
         </dl>
@@ -152,10 +157,7 @@ export default function RhythmLivePage() {
       <section className="bg-black px-4 py-24 md:px-12">
         <div className="mx-auto grid max-w-5xl items-center gap-12 md:grid-cols-2">
           <div>
-            <h2
-              className="mb-8 text-4xl md:text-5xl font-bold leading-[1.1] text-white"
-              style={display}
-            >
+            <h2 className="mb-8 text-4xl md:text-5xl font-black leading-[1.1] text-white">
               Experience
               <br />
               Rhythm.You Live
@@ -228,9 +230,7 @@ export default function RhythmLivePage() {
               <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
                 {item.label}
               </dt>
-              <dd className="text-lg font-bold text-white" style={display}>
-                {item.value}
-              </dd>
+              <dd className="text-lg font-bold text-white">{item.value}</dd>
             </div>
           ))}
         </dl>
