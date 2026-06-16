@@ -79,6 +79,7 @@ export default function RhythmLivePage() {
                 src="/live/rhythm-logo.png"
                 alt="Rhythm"
                 fill
+                sizes="96px"
                 className="object-contain object-left"
                 priority
               />

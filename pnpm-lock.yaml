@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  web-push@3.6.7:
+    hash: 0abb9a6a6430e1df669b94b5dbce35460a668036fcdd444b94515934afd3a711
+    path: patches/web-push@3.6.7.patch
+
 importers:
 
   .:
@@ -61,7 +66,7 @@ importers:
         version: 3.0.2
       web-push:
         specifier: ^3.6.7
-        version: 3.6.7
+        version: 3.6.7(patch_hash=0abb9a6a6430e1df669b94b5dbce35460a668036fcdd444b94515934afd3a711)
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -6948,7 +6953,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  web-push@3.6.7:
+  web-push@3.6.7(patch_hash=0abb9a6a6430e1df669b94b5dbce35460a668036fcdd444b94515934afd3a711):
     dependencies:
       asn1.js: 5.4.1
       http_ece: 1.2.0
