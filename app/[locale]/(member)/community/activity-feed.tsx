@@ -156,12 +156,7 @@ function ActivityCard({
       )}
       {style.iconSrc && (
         <div className="absolute -bottom-1 -right-1 rounded-full border-4 border-white overflow-hidden">
-          <Image
-            src={style.iconSrc}
-            alt={item.category}
-            width={24}
-            height={24}
-          />
+          <Image src={style.iconSrc} alt={item.category} width={24} height={24} />
         </div>
       )}
     </>
@@ -176,11 +171,7 @@ function ActivityCard({
         {isSelf ? (
           <div className="relative shrink-0">{avatarNode}</div>
         ) : (
-          <Link
-            href={href}
-            className="relative shrink-0"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <Link href={href} className="relative shrink-0" onClick={(e) => e.stopPropagation()}>
             {avatarNode}
           </Link>
         )}
@@ -198,12 +189,8 @@ function ActivityCard({
                   {name}
                 </Link>
               )}{" "}
-              <span className="text-on-surface-variant">
-                {t("completedActivity")}
-              </span>{" "}
-              <span className={`font-medium ${style.accentText}`}>
-                {item.activity}
-              </span>
+              <span className="text-on-surface-variant">{t("completedActivity")}</span>{" "}
+              <span className={`font-medium ${style.accentText}`}>{item.activity}</span>
             </p>
             <span className="text-[10px] font-normal text-outline uppercase tracking-tighter shrink-0 ml-2">
               {relativeTime(item.completedAt, t)}
@@ -224,12 +211,7 @@ function ActivityCard({
                   }}
                   className="flex items-center text-outline hover:text-primary transition-colors"
                 >
-                  <Heart
-                    size={14}
-                    className={
-                      likeInfo.liked ? "fill-primary text-primary" : ""
-                    }
-                  />
+                  <Heart size={14} className={likeInfo.liked ? "fill-primary text-primary" : ""} />
                 </button>
               )}
               {likeInfo.count > 0 && (
@@ -276,9 +258,7 @@ function ActivityCard({
             ) : (
               <div className="overflow-y-auto max-h-80 px-4 pb-5 space-y-3">
                 {likers.map((liker) => {
-                  const likerName = liker.searchHandle
-                    ? `@${liker.searchHandle}`
-                    : "User";
+                  const likerName = liker.searchHandle ? `@${liker.searchHandle}` : "User";
                   return (
                     <Link
                       key={liker.id}

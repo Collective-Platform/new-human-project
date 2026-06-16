@@ -11,13 +11,10 @@ export async function AdminData({ locale }: { locale: string }) {
   const user = await getSessionUser();
   if (!user || !isAdmin(user)) redirect(`/${locale}`);
 
-  const [[{ total }], [{ active }], signupsResult, activeResult, allUsers] =
+  const [[{ total }], [{ active }], signupsResult, activeResult, dailySignupsResult, allUsers] =
     await Promise.all([
       db.select({ total: count() }).from(users),
-      db
-        .select({ active: count() })
-        .from(users)
-        .where(eq(users.status, "active")),
+      db.select({ active: count() }).from(users).where(eq(users.status, "active")),
       db.execute(sql`
       SELECT to_char(date_trunc('month', created_at), 'YYYY-MM') AS month,
              count(*)::int AS count
@@ -31,6 +28,13 @@ export async function AdminData({ locale }: { locale: string }) {
       FROM nhp.task_completions
       WHERE completed_at >= now() - interval '12 months'
       GROUP BY 1 ORDER BY 1 DESC
+    `),
+      db.execute(sql`
+      SELECT to_char(date_trunc('day', created_at), 'YYYY-MM-DD') AS date,
+             count(*)::int AS count
+      FROM nhp.users
+      WHERE created_at >= '2026-05-30'
+      GROUP BY 1 ORDER BY 1 ASC
     `),
       db
         .select({
@@ -51,16 +55,16 @@ export async function AdminData({ locale }: { locale: string }) {
   const stats: AdminStatsData = {
     total: Number(total),
     active: Number(active),
-    monthlySignups: (
-      signupsResult.rows as Array<{ month: string; count: number }>
-    ).map((r) => ({
+    monthlySignups: (signupsResult.rows as Array<{ month: string; count: number }>).map((r) => ({
       month: r.month,
       count: Number(r.count),
     })),
-    monthlyActive: (
-      activeResult.rows as Array<{ month: string; count: number }>
-    ).map((r) => ({
+    monthlyActive: (activeResult.rows as Array<{ month: string; count: number }>).map((r) => ({
       month: r.month,
+      count: Number(r.count),
+    })),
+    dailySignups: (dailySignupsResult.rows as Array<{ date: string; count: number }>).map((r) => ({
+      date: r.date,
       count: Number(r.count),
     })),
   };

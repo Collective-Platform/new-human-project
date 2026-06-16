@@ -103,7 +103,11 @@ export function LoginForm() {
         disabled={loading || cooldownSeconds > 0}
         className="w-full rounded-sm bg-primary py-3 text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
       >
-        {cooldownSeconds > 0 ? `Try again in ${cooldownSeconds}s` : loading ? "Sending code…" : "Continue"}
+        {cooldownSeconds > 0
+          ? `Try again in ${cooldownSeconds}s`
+          : loading
+            ? "Sending code…"
+            : "Continue"}
       </button>
     </form>
   );

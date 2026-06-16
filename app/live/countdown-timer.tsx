@@ -22,9 +22,7 @@ export function CountdownTimer() {
       const diff = EVENT_DATE.getTime() - Date.now();
       if (diff <= 0) return null;
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = pad(
-        Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-      );
+      const hours = pad(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
       const minutes = pad(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)));
       const seconds = pad(Math.floor((diff % (1000 * 60)) / 1000));
       return { days, hours, minutes, seconds };

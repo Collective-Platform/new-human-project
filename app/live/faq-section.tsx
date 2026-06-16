@@ -22,14 +22,11 @@ const FAQ_ITEMS: FaqItem[] = [
     q: "Will the full schedule be revealed?",
     a: (
       <div className="space-y-2">
-        <p>
-          Yes! The full schedule will be revealed as we get closer to the event
-          date
-        </p>
+        <p>Yes! The full schedule will be revealed as we get closer to the event date</p>
         <p>There will be breaks in between the sessions.</p>
         <p>
-          Do get to the venue early so that we can get you through the check-in
-          process swiftly for you to secure the best seat in the venue!
+          Do get to the venue early so that we can get you through the check-in process swiftly for
+          you to secure the best seat in the venue!
         </p>
       </div>
     ),
@@ -43,10 +40,7 @@ const FAQ_ITEMS: FaqItem[] = [
     a: (
       <div className="space-y-2">
         <p>Here&rsquo;s the location of the event venue.</p>
-        <p>
-          Address: 3, Jalan SS 13/4, Subang Jaya Industrial Estate, 47500 Subang
-          Jaya, Selangor
-        </p>
+        <p>Address: 3, Jalan SS 13/4, Subang Jaya Industrial Estate, 47500 Subang Jaya, Selangor</p>
         <p>
           Google Maps:{" "}
           <a
@@ -76,10 +70,7 @@ const FAQ_ITEMS: FaqItem[] = [
     q: "Are there accommodation options nearby?",
     a: (
       <>
-        <p>
-          Here are a few hotels near the venue with food and shopping options
-          close by.
-        </p>
+        <p>Here are a few hotels near the venue with food and shopping options close by.</p>
         <ul className="list-disc space-y-1 pl-5">
           {[
             {
@@ -115,12 +106,11 @@ const FAQ_ITEMS: FaqItem[] = [
     a: (
       <div className="space-y-2">
         <p>
-          There is limited parking space within the venue and they are available
-          on a first come first served basis.
+          There is limited parking space within the venue and they are available on a first come
+          first served basis.
         </p>
         <p>
-          Alternatively, there is street parking outside the venue or paid
-          parking at{" "}
+          Alternatively, there is street parking outside the venue or paid parking at{" "}
           <a
             href="https://maps.app.goo.gl/iQLMh6BTWVBqXckz9"
             target="_blank"
@@ -139,9 +129,8 @@ const FAQ_ITEMS: FaqItem[] = [
     a: (
       <div className="space-y-2">
         <p>
-          Meals will not be provided during the event but here are some options
-          for food and beverages that are in the event venue or within walking
-          distance.
+          Meals will not be provided during the event but here are some options for food and
+          beverages that are in the event venue or within walking distance.
         </p>
         <ul className="list-disc space-y-1 pl-5">
           {[
@@ -185,14 +174,11 @@ const FAQ_ITEMS: FaqItem[] = [
     q: "What if I bought the tickets but I am not able to make it?",
     a: (
       <div className="space-y-2">
+        <p>All ticket purchases are strictly non-refundable and non-deferrable.</p>
         <p>
-          All ticket purchases are strictly non-refundable and non-deferrable.
-        </p>
-        <p>
-          If you have purchased a ticket but are unable to attend, you may
-          consider gifting your ticket to another person. However, your
-          registration details must be transferred to the new attendee. Please
-          email{" "}
+          If you have purchased a ticket but are unable to attend, you may consider gifting your
+          ticket to another person. However, your registration details must be transferred to the
+          new attendee. Please email{" "}
           <a
             href="mailto:admin@collective.my"
             className="font-medium text-secondary underline underline-offset-2"
@@ -219,31 +205,22 @@ const FAQ_ITEMS: FaqItem[] = [
       <div className="space-y-2">
         <p>
           E-tickets will be sent to the{" "}
-          <strong className="font-semibold text-on-surface">
-            BUYER&rsquo;S EMAIL
-          </strong>
-          . The buyer is responsible to forward/pass the e-ticket to all
-          respective attendees.
+          <strong className="font-semibold text-on-surface">BUYER&rsquo;S EMAIL</strong>. The buyer
+          is responsible to forward/pass the e-ticket to all respective attendees.
         </p>
         <p>
-          Every successful purchase will receive an SMS from Ticket2u and emails
-          from Razer Pay and Ticket2u. The emails contain payment confirmation
-          and an e-ticket with embedded QR code.
+          Every successful purchase will receive an SMS from Ticket2u and emails from Razer Pay and
+          Ticket2u. The emails contain payment confirmation and an e-ticket with embedded QR code.
         </p>
         <p>
-          A valid QR code must be produced to enter the event venue. Removing
-          any part of and/or, altering and/or defacing the QR code may
-          invalidate the ticket.
+          A valid QR code must be produced to enter the event venue. Removing any part of and/or,
+          altering and/or defacing the QR code may invalidate the ticket.
         </p>
         <p>One (1) ticket admits one (1) person only.</p>
         <p>
-          For bulk ticket purchases (more than 1 ticket), the corresponding SMS
-          from Ticket2U and emails from Razer Pay and Ticket2u will be sent ONLY
-          to the{" "}
-          <strong className="font-semibold text-on-surface">
-            BUYER&rsquo;S EMAIL
-          </strong>
-          .
+          For bulk ticket purchases (more than 1 ticket), the corresponding SMS from Ticket2U and
+          emails from Razer Pay and Ticket2u will be sent ONLY to the{" "}
+          <strong className="font-semibold text-on-surface">BUYER&rsquo;S EMAIL</strong>.
         </p>
       </div>
     ),
@@ -277,20 +254,18 @@ const FAQ_ITEMS: FaqItem[] = [
     a: (
       <div className="space-y-2">
         <p>
-          Our ticketing platform Ticket2u accepts payment via Local Bank
-          Transfers (FPX), VISA and MASTERCARD credit cards (local and
-          international). AMEX is currently NOT accepted.
+          Our ticketing platform Ticket2u accepts payment via Local Bank Transfers (FPX), VISA and
+          MASTERCARD credit cards (local and international). AMEX is currently NOT accepted.
         </p>
         <p>
-          International Customers - please ensure that 3D Secure has been
-          enabled by the issuer of your respective VISA and/or MASTERCARD.
-          Without 3D Secure enabled, your ticket purchase via VISA and/or
-          MASTERCARD may not be successful.
+          International Customers - please ensure that 3D Secure has been enabled by the issuer of
+          your respective VISA and/or MASTERCARD. Without 3D Secure enabled, your ticket purchase
+          via VISA and/or MASTERCARD may not be successful.
         </p>
         <p>
-          3D Secure is an authentication scheme that requires the cardholder to
-          enter an additional password when they make an online purchase. This
-          applies to Visa and Mastercard in any region.
+          3D Secure is an authentication scheme that requires the cardholder to enter an additional
+          password when they make an online purchase. This applies to Visa and Mastercard in any
+          region.
         </p>
       </div>
     ),
@@ -300,20 +275,18 @@ const FAQ_ITEMS: FaqItem[] = [
     a: (
       <div className="space-y-3">
         <p>
-          The Rhythm Live event will be captured in photographs and audio and
-          visual footage. The organizers reserve the right to use this material
-          for any purposes in perpetuity.
+          The Rhythm Live event will be captured in photographs and audio and visual footage. The
+          organizers reserve the right to use this material for any purposes in perpetuity.
         </p>
         <p>
-          The organizers reserve the right to change or amend any of terms and
-          conditions at any time as its sole discretion without prior notice.
+          The organizers reserve the right to change or amend any of terms and conditions at any
+          time as its sole discretion without prior notice.
         </p>
         <p>
-          The organizers shall not be liable for any injury, loss of property or
-          any other damage or loss suffered as a result of your participation in
-          the event. Attendees assume all risks when participating in this event
-          as well as agree to use care, good judgment and abide by the rules and
-          directions given during the event.
+          The organizers shall not be liable for any injury, loss of property or any other damage or
+          loss suffered as a result of your participation in the event. Attendees assume all risks
+          when participating in this event as well as agree to use care, good judgment and abide by
+          the rules and directions given during the event.
         </p>
         <p>
           You may refer to our{" "}
@@ -344,11 +317,10 @@ const FAQ_ITEMS: FaqItem[] = [
     a: (
       <div className="space-y-2">
         <p>
-          If you&rsquo;re facing issues with ticket purchasing/payments, please
-          contact Ticket2U customer service. On the Ticket2u event page, click
-          the bottom left &ldquo;Live Chat&rdquo; button to start a chat or
-          leave a message. A Ticket2u customer service personnel will get back
-          to you as soon as possible.
+          If you&rsquo;re facing issues with ticket purchasing/payments, please contact Ticket2U
+          customer service. On the Ticket2u event page, click the bottom left &ldquo;Live
+          Chat&rdquo; button to start a chat or leave a message. A Ticket2u customer service
+          personnel will get back to you as soon as possible.
         </p>
         <p>
           Alternatively, you may email{" "}
@@ -393,9 +365,7 @@ export function FaqSection() {
       */}
 
       <div className="px-6 py-8 md:py-24 md:px-10 lg:px-16">
-        <h2
-          className="mb-4 md:mb-10 text-4xl md:text-5xl font-black leading-[1.1] text-on-surface"
-        >
+        <h2 className="mb-4 md:mb-10 text-4xl md:text-5xl font-black leading-[1.1] text-on-surface">
           Frequently
           <br />
           Asked Questions

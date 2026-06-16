@@ -1,6 +1,12 @@
 import { db } from "@/src/db";
 import { users, pendingAuth } from "@/src/db/schema";
-import { hashToken, checkRateLimit, resetRateLimit, createSession, setSessionCookie } from "@/src/features/auth";
+import {
+  hashToken,
+  checkRateLimit,
+  resetRateLimit,
+  createSession,
+  setSessionCookie,
+} from "@/src/features/auth";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 
 type Mode = "login" | "signup";

@@ -1,5 +1,12 @@
+import { DailySignupsChart } from "./daily-signups-chart";
+
 interface MonthRow {
   month: string;
+  count: number;
+}
+
+interface DayRow {
+  date: string;
   count: number;
 }
 
@@ -8,6 +15,7 @@ export interface AdminStatsData {
   active: number;
   monthlySignups: MonthRow[];
   monthlyActive: MonthRow[];
+  dailySignups: DayRow[];
 }
 
 function formatMonth(yyyyMM: string): string {
@@ -39,17 +47,15 @@ export function AdminStats({ stats }: { stats: AdminStatsData }) {
 
       {/* Monthly tables */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <MonthTable
-          title="Monthly Signups"
-          colHeader="New Users"
-          rows={stats.monthlySignups}
-        />
+        <MonthTable title="Monthly Signups" colHeader="New Users" rows={stats.monthlySignups} />
         <MonthTable
           title="Monthly Active Users"
           colHeader="Active Users"
           rows={stats.monthlyActive}
         />
       </div>
+
+      <DailySignupsChart rows={stats.dailySignups} />
     </div>
   );
 }

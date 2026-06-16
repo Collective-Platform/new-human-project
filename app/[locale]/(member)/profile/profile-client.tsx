@@ -26,16 +26,9 @@ export function ProfileClient({
   const router = useRouter();
   const { user } = initialData;
   const [shareOpen, setShareOpen] = useState(false);
-  const [likeState, setLikeState] = useState<
-    Map<string, { liked: boolean; count: number }>
-  >(
+  const [likeState, setLikeState] = useState<Map<string, { liked: boolean; count: number }>>(
     () =>
-      new Map(
-        activities.map((a) => [
-          a.completionId,
-          { liked: a.likedByMe, count: a.likeCount },
-        ]),
-      ),
+      new Map(activities.map((a) => [a.completionId, { liked: a.likedByMe, count: a.likeCount }])),
   );
 
   async function handleLike(completionId: string) {
@@ -73,9 +66,7 @@ export function ProfileClient({
                   className="inline-flex items-center gap-1.5 px-3 py-1 border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container hover:border-primary/30 hover:text-primary transition-all active:scale-95"
                 >
                   <User size={14} />
-                  <span className="text-sm font-bold font-headline">
-                    {friendCount} Friends
-                  </span>
+                  <span className="text-sm font-bold font-headline">{friendCount} Friends</span>
                 </Link>
                 {user.searchHandle && (
                   <button

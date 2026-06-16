@@ -26,9 +26,7 @@ neonConfig.wsProxy = (host, port) => `${host}/v2?address=${host}:${port}`;
 // parameter with `08P01 unsupported startup parameter in options: search_path`.
 const SEARCH_PATH = "nhp,public";
 
-type DbInstance =
-  | ReturnType<typeof drizzleNode>
-  | ReturnType<typeof drizzleNeonHttp>;
+type DbInstance = ReturnType<typeof drizzleNode> | ReturnType<typeof drizzleNeonHttp>;
 
 declare global {
   // eslint-disable-next-line no-var

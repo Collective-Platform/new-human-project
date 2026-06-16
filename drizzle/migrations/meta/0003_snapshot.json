@@ -227,12 +227,8 @@
           "tableFrom": "friend_requests",
           "tableTo": "users",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "sender_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sender_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -241,12 +237,8 @@
           "tableFrom": "friend_requests",
           "tableTo": "users",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "receiver_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["receiver_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -317,12 +309,8 @@
           "tableFrom": "likes",
           "tableTo": "users",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -331,12 +319,8 @@
           "tableFrom": "likes",
           "tableTo": "task_completions",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "completion_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["completion_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -413,12 +397,8 @@
           "tableFrom": "member_badges",
           "tableTo": "users",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -427,12 +407,8 @@
           "tableFrom": "member_badges",
           "tableTo": "badge_definitions",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "badge_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["badge_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -504,12 +480,8 @@
           "tableFrom": "member_block_completions",
           "tableTo": "users",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -576,12 +548,8 @@
           "tableFrom": "notification_log",
           "tableTo": "users",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -781,12 +749,8 @@
           "tableFrom": "push_subscriptions",
           "tableTo": "users",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -937,12 +901,8 @@
           "tableFrom": "sessions",
           "tableTo": "users",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1040,12 +1000,8 @@
           "tableFrom": "task_completions",
           "tableTo": "users",
           "schemaTo": "nhp",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

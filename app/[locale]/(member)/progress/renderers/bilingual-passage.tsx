@@ -28,9 +28,7 @@ export function BilingualPassage({
 
   if (fallbackText) {
     return (
-      <p className="whitespace-pre-line text-lg leading-loose text-foreground">
-        {fallbackText}
-      </p>
+      <p className="whitespace-pre-line text-lg leading-loose text-foreground">{fallbackText}</p>
     );
   }
 

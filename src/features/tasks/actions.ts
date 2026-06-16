@@ -57,8 +57,9 @@ export async function completeTask(input: {
     }
   }
 
-  const allDaysComplete = Array.from({ length: 25 }, (_, i) => i + 1)
-    .every((day) => (dayCategories.get(day)?.size ?? 0) >= 3);
+  const allDaysComplete = Array.from({ length: 25 }, (_, i) => i + 1).every(
+    (day) => (dayCategories.get(day)?.size ?? 0) >= 3,
+  );
 
   let blockCompleted = false;
   if (allDaysComplete) {

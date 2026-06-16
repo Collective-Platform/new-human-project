@@ -4,73 +4,6 @@ import { eq, and, sql, inArray, count } from "drizzle-orm";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getLocalizedString } from "@/src/features/content";
 
-// --- Friends list (accepted) ---
-
-export async function getFriends(userId: number) {
-  const result = await db.execute(sql`
-    WITH unique_friends AS (
-      SELECT DISTINCT CASE
-        WHEN sender_id = ${userId} THEN receiver_id
-        ELSE sender_id
-      END AS friend_id
-      FROM nhp.friend_requests
-      WHERE status = 'accepted'
-        AND (sender_id = ${userId} OR receiver_id = ${userId})
-    )
-    SELECT
-      u.id,
-      u.display_name,
-      u.search_handle,
-      u.avatar_url,
-      (
-        SELECT tc.completed_at
-        FROM nhp.task_completions tc
-        WHERE tc.user_id = u.id
-        ORDER BY tc.completed_at DESC
-        LIMIT 1
-      ) AS last_activity
-    FROM unique_friends uf
-    JOIN nhp.users u ON u.id = uf.friend_id
-    ORDER BY u.search_handle, u.display_name
-  `);
-
-  return result.rows as {
-    id: number;
-    display_name: string | null;
-    search_handle: string | null;
-    avatar_url: string | null;
-    last_activity: string | null;
-  }[];
-}
-
-// --- Pending incoming friend requests ---
-
-export async function getIncomingRequests(userId: number) {
-  const result = await db.execute(sql`
-    SELECT
-      fr.id AS request_id,
-      u.id AS user_id,
-      u.display_name,
-      u.search_handle,
-      u.avatar_url,
-      fr.created_at
-    FROM nhp.friend_requests fr
-    JOIN nhp.users u ON u.id = fr.sender_id
-    WHERE fr.receiver_id = ${userId}
-      AND fr.status = 'pending'
-    ORDER BY fr.created_at DESC
-  `);
-
-  return result.rows as {
-    request_id: string;
-    user_id: number;
-    display_name: string | null;
-    search_handle: string | null;
-    avatar_url: string | null;
-    created_at: string;
-  }[];
-}
-
 // --- Send friend request ---
 
 export async function sendFriendRequest(senderId: number, receiverId: number) {
@@ -283,46 +216,6 @@ export async function searchUsers(query: string, currentUserId: number) {
     avatar_url: string | null;
     search_handle: string | null;
     connection_status: "none" | "sent" | "friends";
-  }[];
-}
-
-// --- People you may know (mutual friends) ---
-
-export async function getPeopleYouMayKnow(userId: number) {
-  const result = await db.execute(sql`
-    WITH user_friends AS (
-      SELECT CASE WHEN sender_id = ${userId} THEN receiver_id ELSE sender_id END AS friend_id
-      FROM nhp.friend_requests
-      WHERE status = 'accepted'
-        AND (sender_id = ${userId} OR receiver_id = ${userId})
-    ),
-    friends_of_friends AS (
-      SELECT
-        CASE WHEN fr.sender_id = uf.friend_id THEN fr.receiver_id ELSE fr.sender_id END AS potential_id,
-        uf.friend_id AS via_friend_id
-      FROM user_friends uf
-      JOIN nhp.friend_requests fr
-        ON fr.status = 'accepted'
-        AND (fr.sender_id = uf.friend_id OR fr.receiver_id = uf.friend_id)
-    )
-    SELECT u.id, u.display_name, u.search_handle, u.avatar_url,
-           COUNT(DISTINCT fof.via_friend_id) AS mutual_count
-    FROM friends_of_friends fof
-    JOIN nhp.users u ON u.id = fof.potential_id
-    WHERE fof.potential_id != ${userId}
-      AND fof.potential_id NOT IN (SELECT friend_id FROM user_friends)
-    GROUP BY u.id, u.display_name, u.search_handle, u.avatar_url
-    HAVING COUNT(DISTINCT fof.via_friend_id) >= 1
-    ORDER BY mutual_count DESC, u.search_handle
-    LIMIT 10
-  `);
-
-  return result.rows as {
-    id: number;
-    display_name: string | null;
-    search_handle: string | null;
-    avatar_url: string | null;
-    mutual_count: number;
   }[];
 }
 
@@ -601,59 +494,4 @@ export async function getLikersForCompletion(completionId: string): Promise<
     searchHandle: r.search_handle,
     avatarUrl: r.avatar_url,
   }));
-}
-
-// --- Activity feed (friends' recent completions) ---
-
-export async function getActivityFeed(userId: number) {
-  // Fetch completions with user info but without the task JOIN — registry tasks
-  // (ULID ids) have no row in block_day_tasks so a direct JOIN drops them.
-  const result = await db.execute(sql`
-    WITH friend_ids AS (
-      SELECT CASE
-        WHEN sender_id = ${userId} THEN receiver_id
-        ELSE sender_id
-      END AS friend_id
-      FROM nhp.friend_requests
-      WHERE status = 'accepted'
-        AND (sender_id = ${userId} OR receiver_id = ${userId})
-    )
-    SELECT u.display_name, u.search_handle, u.avatar_url, tc.task_id, tc.completed_at
-    FROM nhp.task_completions tc
-    JOIN nhp.users u ON tc.user_id = u.id
-    WHERE (
-        tc.user_id = ${userId}
-        OR (
-          tc.user_id IN (SELECT friend_id FROM friend_ids)
-          AND u.privacy_public = true
-        )
-      )
-    ORDER BY tc.completed_at DESC
-    LIMIT 50
-  `);
-
-  const rows = result.rows as {
-    display_name: string | null;
-    search_handle: string | null;
-    avatar_url: string | null;
-    task_id: string;
-    completed_at: string;
-  }[];
-
-  if (rows.length === 0) return [];
-
-  return rows.flatMap((row) => {
-    const task = getRegistryTaskById(row.task_id);
-    if (!task) return [];
-    return [
-      {
-        display_name: row.display_name,
-        search_handle: row.search_handle,
-        avatar_url: row.avatar_url,
-        category: task.category,
-        activity: getLocalizedString(task.name, "en"),
-        completed_at: row.completed_at,
-      },
-    ];
-  });
 }

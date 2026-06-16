@@ -58,10 +58,7 @@ export async function checkRateLimit(
   return { allowed, remaining };
 }
 
-export async function resetRateLimit(
-  identifier: string,
-  action: RateLimitAction,
-): Promise<void> {
+export async function resetRateLimit(identifier: string, action: RateLimitAction): Promise<void> {
   await db
     .delete(rateLimitAttempts)
     .where(and(eq(rateLimitAttempts.identifier, identifier), eq(rateLimitAttempts.action, action)));

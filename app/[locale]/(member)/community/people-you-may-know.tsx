@@ -25,12 +25,7 @@ export function PeopleYouMayKnow({
 }) {
   const t = useTranslations("community");
   const [sentIds, setSentIds] = useState<Set<number>>(
-    () =>
-      new Set(
-        suggestions
-          .filter((s) => s.connectionStatus === "sent")
-          .map((s) => s.id),
-      ),
+    () => new Set(suggestions.filter((s) => s.connectionStatus === "sent").map((s) => s.id)),
   );
   const [dismissedIds, setDismissedIds] = useState<Set<number>>(new Set());
 
@@ -65,10 +60,7 @@ export function PeopleYouMayKnow({
             >
               <X size={14} />
             </button>
-            <Link
-              href={`/community/${s.searchHandle ?? s.id}`}
-              className="contents"
-            >
+            <Link href={`/community/${s.searchHandle ?? s.id}`} className="contents">
               {s.avatarUrl ? (
                 <Image
                   src={s.avatarUrl}

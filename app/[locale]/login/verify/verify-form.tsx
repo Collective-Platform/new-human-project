@@ -23,9 +23,7 @@ function Slot({ isActive, char, hasFakeCaret }: SlotProps) {
         isActive ? "z-10 ring-1 ring-inset ring-primary transition-all" : "",
       ].join(" ")}
     >
-      {char !== null && (
-        <span className="font-mono text-lg text-foreground">{char}</span>
-      )}
+      {char !== null && <span className="font-mono text-lg text-foreground">{char}</span>}
       {hasFakeCaret && <FakeCaret />}
     </div>
   );
@@ -96,16 +94,12 @@ export function VerifyForm({
       });
 
       if (res.status === 429) {
-        setError(
-          "Too many attempts. Please wait 5 minutes before trying again.",
-        );
+        setError("Too many attempts. Please wait 5 minutes before trying again.");
         return;
       }
 
       if (res.status === 503) {
-        setError(
-          "We're experiencing high volume. Please try again in a moment.",
-        );
+        setError("We're experiencing high volume. Please try again in a moment.");
         return;
       }
 
@@ -152,9 +146,7 @@ export function VerifyForm({
       </div>
 
       {error && <p className="text-sm text-primary text-center">{error}</p>}
-      {resent && (
-        <p className="text-sm text-secondary">A new code has been sent.</p>
-      )}
+      {resent && <p className="text-sm text-secondary">A new code has been sent.</p>}
 
       <button
         type="submit"

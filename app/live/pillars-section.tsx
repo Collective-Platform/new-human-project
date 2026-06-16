@@ -115,19 +115,16 @@ export function PillarsSection() {
     const zp = zoneProgressRef.current;
     const cp = easeInOut(clamp(zp - 1, 0, 1));
 
-    const corners = (isMobile ? CORNER_POS_MOBILE : CORNER_POS_DESKTOP).map(
-      ({ fx, fy }) => ({
-        x: fx * cw,
-        y: fy * ch,
-      }),
-    );
+    const corners = (isMobile ? CORNER_POS_MOBILE : CORNER_POS_DESKTOP).map(({ fx, fy }) => ({
+      x: fx * cw,
+      y: fy * ch,
+    }));
 
     // ── Text fade ──────────────────────────────────────────────────────────────
     const textOpacity = clamp(1 - easeInOut(clamp(zp - 0.5, 0, 1)) * 2, 0, 1);
     if (textRef.current) {
       textRef.current.style.opacity = String(textOpacity);
-      textRef.current.style.pointerEvents =
-        textOpacity < 0.05 ? "none" : "auto";
+      textRef.current.style.pointerEvents = textOpacity < 0.05 ? "none" : "auto";
     }
 
     // ── Circles ────────────────────────────────────────────────────────────────
@@ -175,8 +172,7 @@ export function PillarsSection() {
     // ── Venn labels ────────────────────────────────────────────────────────────
     const labelOpacity = easeInOut(clamp((cp - 0.85) / 0.15, 0, 1));
     if (humanRef.current) humanRef.current.style.opacity = String(labelOpacity);
-    if (everythingRef.current)
-      everythingRef.current.style.opacity = String(labelOpacity);
+    if (everythingRef.current) everythingRef.current.style.opacity = String(labelOpacity);
   };
 
   useEffect(() => {
@@ -213,11 +209,7 @@ export function PillarsSection() {
     const onScroll = () => {
       const zone = zoneRef.current;
       if (!zone) return;
-      zoneProgressRef.current = clamp(
-        -zone.getBoundingClientRect().top / winRef.current.h,
-        0,
-        4,
-      );
+      zoneProgressRef.current = clamp(-zone.getBoundingClientRect().top / winRef.current.h, 0, 4);
       applyTransforms();
     };
 
@@ -245,9 +237,7 @@ export function PillarsSection() {
             className="absolute inset-0 flex items-center justify-center px-8 text-center"
           >
             <div className="max-w-xl">
-              <h2
-                className="mb-5 text-4xl md:text-5xl font-black leading-[1.1] text-white"
-              >
+              <h2 className="mb-5 text-4xl md:text-5xl font-black leading-[1.1] text-white">
                 Three Pillars.
                 <br />
                 One Whole Life.
@@ -261,8 +251,8 @@ export function PillarsSection() {
                 </p>
                 <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
                   At Rhythm Live, we explore together how the pursuit of our
-                  <strong> mental, emotional and physical</strong> health is
-                  integral to our spiritual formation.
+                  <strong> mental, emotional and physical</strong> health is integral to our
+                  spiritual formation.
                 </p>
               </div>
             </div>
@@ -291,10 +281,7 @@ export function PillarsSection() {
                     willChange: "transform",
                   }}
                   onPointerEnter={(e) => {
-                    if (
-                      zoneProgressRef.current >= 1.8 &&
-                      e.pointerType !== "touch"
-                    )
+                    if (zoneProgressRef.current >= 1.8 && e.pointerType !== "touch")
                       setActiveDetail(i);
                   }}
                   onPointerLeave={(e) => {
@@ -327,11 +314,7 @@ export function PillarsSection() {
                     >
                       <span
                         className="text-base md:text-xl font-semibold tracking-wide text-black transition-colors duration-200 group-hover:text-primary"
-                        style={
-                          isActive
-                            ? { color: "var(--color-primary)" }
-                            : undefined
-                        }
+                        style={isActive ? { color: "var(--color-primary)" } : undefined}
                       >
                         {circle.label}
                       </span>
@@ -348,18 +331,12 @@ export function PillarsSection() {
             className="pointer-events-none absolute bottom-[12%] left-0 right-0 text-center"
             style={{ opacity: 0, zIndex: 30 }}
           >
-            <h2
-              className="text-4xl md:text-5xl font-black leading-[1.1] text-black"
-            >
+            <h2 className="text-4xl md:text-5xl font-black leading-[1.1] text-black">
               Everything is Spiritual
             </h2>
             <p className="mt-2 md:mt-6 text-base md:text-lg leading-normal md:leading-relaxed  text-black/60">
-              <span className="md:hidden">
-                Tap each circle to explore the pillar
-              </span>
-              <span className="hidden md:inline">
-                Hover each circle to explore the pillar
-              </span>
+              <span className="md:hidden">Tap each circle to explore the pillar</span>
+              <span className="hidden md:inline">Hover each circle to explore the pillar</span>
             </p>
           </div>
         </div>
@@ -396,9 +373,7 @@ export function PillarsSection() {
                 >
                   {activePillar.name}
                 </p>
-                <p className="mb-3 text-xl font-black text-on-surface">
-                  {activePillar.title}
-                </p>
+                <p className="mb-3 text-xl font-black text-on-surface">{activePillar.title}</p>
                 <p className="text-base md:text-lg leading-normal md:leading-relaxed text-on-surface-variant">
                   {activePillar.detail}
                 </p>
@@ -431,9 +406,7 @@ function DetailCard({ pillar }: { pillar: (typeof PILLARS)[0] }) {
       >
         {pillar.name}
       </p>
-      <p className="mb-3 text-xl font-black text-on-surface">
-        {pillar.title}
-      </p>
+      <p className="mb-3 text-xl font-black text-on-surface">{pillar.title}</p>
       <p className="text-base md:text-lg leading-normal md:leading-relaxed text-on-surface-variant">
         {pillar.detail}
       </p>

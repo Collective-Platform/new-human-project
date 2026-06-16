@@ -91,11 +91,7 @@ export function SpeakersSection() {
     <section id="speakers" className="bg-black px-4 py-24 md:px-12">
       <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
-          <h2
-            className="text-4xl md:text-5xl font-black leading-[1.1] text-white"
-          >
-            Voices
-          </h2>
+          <h2 className="text-4xl md:text-5xl font-black leading-[1.1] text-white">Voices</h2>
         </div>
 
         <div className="grid grid-cols-2 gap-6 md:grid-cols-3 md:gap-8">
@@ -115,14 +111,10 @@ export function SpeakersSection() {
                 />
                 <div className="absolute inset-0 bg-white/0 transition-colors duration-300 group-hover:bg-white/5" />
               </div>
-              <p
-                className="mb-0.5 text-lg font-black text-white transition-colors duration-200 group-hover:text-white/80 md:text-xl"
-              >
+              <p className="mb-0.5 text-lg font-black text-white transition-colors duration-200 group-hover:text-white/80 md:text-xl">
                 {speaker.name}
               </p>
-              {speaker.title && (
-                <p className="mb-1.5 text-sm text-white/80">{speaker.title}</p>
-              )}
+              {speaker.title && <p className="mb-1.5 text-sm text-white/80">{speaker.title}</p>}
             </div>
           ))}
         </div>
@@ -154,13 +146,9 @@ export function SpeakersSection() {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-2xl md:text-lg font-black text-white">
-                  {selected.name}
-                </p>
+                <p className="text-2xl md:text-lg font-black text-white">{selected.name}</p>
                 {selected.title && (
-                  <p className="mt-0.5 text-base md:text-sm text-white/80">
-                    {selected.title}
-                  </p>
+                  <p className="mt-0.5 text-base md:text-sm text-white/80">{selected.title}</p>
                 )}
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   <span

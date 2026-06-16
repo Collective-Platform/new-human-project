@@ -40,9 +40,7 @@ export function PhysicalActivityChart({
           </div>
           {totalMinutes > 0 && (
             <div className="flex flex-col items-end">
-              <span className="text-[10px] text-foreground/40">
-                Total hours
-              </span>
+              <span className="text-[10px] text-foreground/40">Total hours</span>
               <span className="text-sm font-medium text-category-physical">
                 {formatMins(totalMinutes)}
               </span>
@@ -58,8 +56,7 @@ export function PhysicalActivityChart({
           {/* Bars with duration label floating just above each bar */}
           <div className="flex gap-1" style={{ minWidth: "max-content" }}>
             {activityByDay.map(({ day, totalMinutes: mins }) => {
-              const barH =
-                mins > 0 ? Math.max((mins / maxMinutes) * BAR_HEIGHT, 6) : 2;
+              const barH = mins > 0 ? Math.max((mins / maxMinutes) * BAR_HEIGHT, 6) : 2;
               return (
                 <div
                   key={day}

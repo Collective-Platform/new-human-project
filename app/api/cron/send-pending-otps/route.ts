@@ -53,7 +53,9 @@ export async function GET(request: Request) {
     });
 
     const data = await res.json().catch(() => ({}));
-    console.log(`[cron] bulk-email status=${res.status} bulk_email_id=${data.bulk_email_id} count=${pending.length}`);
+    console.log(
+      `[cron] bulk-email status=${res.status} bulk_email_id=${data.bulk_email_id} count=${pending.length}`,
+    );
 
     if (res.ok || res.status === 202) {
       const ids = pending.map((r) => r.id);

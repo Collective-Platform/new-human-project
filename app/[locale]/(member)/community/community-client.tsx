@@ -75,17 +75,13 @@ export function CommunityClient({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<string | null>(
-    initialData.feed.length > 0
-      ? initialData.feed[initialData.feed.length - 1].completedAt
-      : null,
+    initialData.feed.length > 0 ? initialData.feed[initialData.feed.length - 1].completedAt : null,
   );
   const hasMoreRef = useRef(initialData.feed.length >= 10);
   const isLoadingRef = useRef(false);
 
   // Like state — tracks optimistic like counts and liked status per completionId
-  const [likeState, setLikeState] = useState<
-    Map<string, { liked: boolean; count: number }>
-  >(
+  const [likeState, setLikeState] = useState<Map<string, { liked: boolean; count: number }>>(
     () =>
       new Map(
         initialData.feed.map((item) => [
@@ -116,8 +112,7 @@ export function CommunityClient({
   }, [initialData.feed]);
 
   const loadMore = useCallback(async () => {
-    if (!cursorRef.current || isLoadingRef.current || !hasMoreRef.current)
-      return;
+    if (!cursorRef.current || isLoadingRef.current || !hasMoreRef.current) return;
     isLoadingRef.current = true;
     setIsLoadingMore(true);
     try {
@@ -125,8 +120,7 @@ export function CommunityClient({
         `/api/feed?cursor=${encodeURIComponent(cursorRef.current)}&locale=${locale}`,
       );
       if (!res.ok) return;
-      const data: { items: FeedItem[]; nextCursor: string | null } =
-        await res.json();
+      const data: { items: FeedItem[]; nextCursor: string | null } = await res.json();
       setFeedItems((prev) => [...prev, ...data.items]);
       setLikeState((prev) => {
         const next = new Map(prev);
@@ -187,10 +181,7 @@ export function CommunityClient({
   if (searching) {
     return (
       <div className="max-w-2xl mx-auto px-6 pt-6 pb-8">
-        <AddFriends
-          onRequestSent={fetchData}
-          onCancel={() => setSearching(false)}
-        />
+        <AddFriends onRequestSent={fetchData} onCancel={() => setSearching(false)} />
       </div>
     );
   }
@@ -220,10 +211,7 @@ export function CommunityClient({
       <div className="space-y-4">
         {/* Incoming friend requests */}
         {initialData.requests.length > 0 && (
-          <FriendRequests
-            requests={initialData.requests}
-            onUpdateAction={fetchData}
-          />
+          <FriendRequests requests={initialData.requests} onUpdateAction={fetchData} />
         )}
 
         {/* People You May Know carousel */}
@@ -241,10 +229,7 @@ export function CommunityClient({
                 <X size={16} />
               </button>
             </div>
-            <PeopleYouMayKnow
-              suggestions={initialData.suggestions}
-              onAddAction={fetchData}
-            />
+            <PeopleYouMayKnow suggestions={initialData.suggestions} onAddAction={fetchData} />
           </section>
         )}
 

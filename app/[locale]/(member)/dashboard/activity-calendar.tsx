@@ -5,10 +5,7 @@ const circumference = 2 * Math.PI * r;
 const segLength = circumference / 3;
 const gap = 6;
 
-const categorySegments: Record<
-  string,
-  { strokeColor: string; offset: number }
-> = {
+const categorySegments: Record<string, { strokeColor: string; offset: number }> = {
   Emotional: {
     strokeColor: "var(--category-emotional)",
     offset: -(gap / 2),
@@ -92,9 +89,7 @@ export function ActivityCalendar({
                     })}
                   </svg>
                 )}
-                <span className="relative text-base text-foreground/70">
-                  {day}
-                </span>
+                <span className="relative text-base text-foreground/70">{day}</span>
               </div>
             </Link>
           );

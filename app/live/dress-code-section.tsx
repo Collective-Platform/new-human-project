@@ -57,9 +57,7 @@ export function DressCodeSection() {
       const vh = vhRef.current;
       setCardProgress(
         DRESS_CODE_ITEMS.map((_, i) =>
-          i === 0
-            ? 1
-            : Math.max(0, Math.min(1, (zoneScroll - (i - 1) * vh) / vh)),
+          i === 0 ? 1 : Math.max(0, Math.min(1, (zoneScroll - (i - 1) * vh) / vh)),
         ),
       );
     };
@@ -81,29 +79,21 @@ export function DressCodeSection() {
       <div className="px-4 pb-32 pt-24 md:px-12">
         {/* Heading + paragraph */}
         <div className="mx-auto mb-4 md:mb-8 max-w-2xl text-center">
-          <h2
-            className="mb-5 text-4xl md:text-5xl font-black leading-[1.1] text-white"
-          >
+          <h2 className="mb-5 text-4xl md:text-5xl font-black leading-[1.1] text-white">
             Mandatory <br /> Gear Check
           </h2>
           <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
-            To fully participate in the Rhythm Live experience, all ticket
-            holders must adhere to the dress code.{" "}
-            <strong className="text-white">Do not skip this.</strong>
+            To fully participate in the Rhythm Live experience, all ticket holders must adhere to
+            the dress code. <strong className="text-white">Do not skip this.</strong>
           </p>
         </div>
 
         {/* ── Desktop: 3-column grid ───────────────────────────────────────── */}
         <div className="mx-auto hidden max-w-5xl gap-6 md:grid md:grid-cols-3">
           {DRESS_CODE_ITEMS.map(({ label, body, image, imageAlt }) => (
-            <div
-              key={label}
-              className="overflow-hidden text-center rounded-2xl bg-[#242422]"
-            >
+            <div key={label} className="overflow-hidden text-center rounded-2xl bg-[#242422]">
               <div className="px-6 pt-5 pb-5">
-                <p className="text-base font-bold uppercase tracking-[0.2em] text-white">
-                  {label}
-                </p>
+                <p className="text-base font-bold uppercase tracking-[0.2em] text-white">{label}</p>
               </div>
               <ImageSlot src={image} alt={imageAlt} />
               <div className="px-6 pb-5">
@@ -124,10 +114,7 @@ export function DressCodeSection() {
           className="md:hidden"
           style={{ height: `${DRESS_CODE_ITEMS.length * 100}svh` }}
         >
-          <div
-            className="sticky top-1 overflow-hidden"
-            style={{ height: "calc(100svh - 1.5rem)" }}
-          >
+          <div className="sticky top-1 overflow-hidden" style={{ height: "calc(100svh - 1.5rem)" }}>
             {/* Cards slide up from off-screen and stack */}
             {DRESS_CODE_ITEMS.map(({ label, body, image, imageAlt }, i) => {
               const raw = cardProgress[i];
@@ -147,10 +134,7 @@ export function DressCodeSection() {
                     boxShadow: "0 -2px 12px rgba(0,0,0,0.4)",
                   }}
                 >
-                  <div
-                    className="flex items-center px-6"
-                    style={{ height: TITLE_HEIGHT }}
-                  >
+                  <div className="flex items-center px-6" style={{ height: TITLE_HEIGHT }}>
                     <p className="text-sm font-bold uppercase tracking-[0.2em] text-white">
                       {label}
                     </p>

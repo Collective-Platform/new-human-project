@@ -13,14 +13,7 @@ const moods = [
   { key: "excellent", emoji: "😆" },
 ] as const;
 
-const influenceKeys = [
-  "family",
-  "friends",
-  "love",
-  "work",
-  "school",
-  "health",
-] as const;
+const influenceKeys = ["family", "friends", "love", "work", "school", "health"] as const;
 
 export const MOOD_EMOJI_MAP: Record<string, string> = {
   terrible: "😡",
@@ -36,9 +29,7 @@ export type MoodEntry = {
   context: string;
 };
 
-export function normalizeEntries(
-  data: Record<string, unknown> | null,
-): MoodEntry[] {
+export function normalizeEntries(data: Record<string, unknown> | null): MoodEntry[] {
   if (!data) return [];
   if (Array.isArray(data.entries)) return data.entries as MoodEntry[];
   const moodsArr = Array.isArray(data.moods)
@@ -69,13 +60,10 @@ export function MoodLogRenderer({
 }) {
   const tm = useTranslations("mood");
   const existingEntries = normalizeEntries(initialData);
-  const editEntry =
-    typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
+  const editEntry = typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
 
   const [formMoods, setFormMoods] = useState<string[]>(editEntry?.moods ?? []);
-  const [formInfluences, setFormInfluences] = useState<string[]>(
-    editEntry?.influences ?? [],
-  );
+  const [formInfluences, setFormInfluences] = useState<string[]>(editEntry?.influences ?? []);
   const [formContext, setFormContext] = useState(editEntry?.context ?? "");
   const contextRef = useRef<HTMLTextAreaElement>(null);
 

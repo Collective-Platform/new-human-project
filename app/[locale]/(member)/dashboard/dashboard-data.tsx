@@ -28,11 +28,5 @@ export async function DashboardData({
     currentDay,
     timezone,
   );
-  return (
-    <DashboardClient
-      initialData={initialData}
-    >
-      {children}
-    </DashboardClient>
-  );
+  return <DashboardClient initialData={initialData}>{children}</DashboardClient>;
 }

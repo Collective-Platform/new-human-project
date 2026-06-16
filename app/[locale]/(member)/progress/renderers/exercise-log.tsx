@@ -6,14 +6,7 @@ import { FieldInput } from "@/app/components/field-input";
 import { PrimaryButton } from "@/app/components/primary-button";
 import { TogglePill } from "@/app/components/toggle-pill";
 
-const sportKeys = [
-  "run",
-  "badminton",
-  "pickleball",
-  "swimming",
-  "pilates",
-  "others",
-] as const;
+const sportKeys = ["run", "badminton", "pickleball", "swimming", "pilates", "others"] as const;
 
 export const SPORT_EMOJIS: Record<string, string> = {
   run: "🏃🏻",
@@ -49,9 +42,7 @@ export type ExerciseEntry = {
   minutes?: number;
 };
 
-export function normalizeExerciseEntries(
-  data: Record<string, unknown> | null,
-): ExerciseEntry[] {
+export function normalizeExerciseEntries(data: Record<string, unknown> | null): ExerciseEntry[] {
   if (!data) return [];
   if (Array.isArray(data.entries)) return data.entries as ExerciseEntry[];
   if (data.sportKey) {
@@ -90,8 +81,7 @@ export function ExerciseLogRenderer({
 }) {
   const t = useTranslations("exercise");
   const existingEntries = normalizeExerciseEntries(initialData);
-  const editEntry =
-    typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
+  const editEntry = typeof openMode === "number" ? (existingEntries[openMode] ?? null) : null;
   const alreadyRested = existingEntries.some((e) => e.sportKey === "rest");
   const hasExerciseEntries = existingEntries.some((e) => e.sportKey !== "rest");
   const isEditingRest = typeof openMode === "number" && editEntry?.sportKey === "rest";
@@ -199,9 +189,7 @@ export function ExerciseLogRenderer({
           </p>
           <div className="flex gap-3 text-left">
             <label className="flex flex-1 flex-col gap-1.5">
-              <span className="text-xs font-semibold text-on-surface-variant">
-                {t("hours")}
-              </span>
+              <span className="text-xs font-semibold text-on-surface-variant">{t("hours")}</span>
               <FieldInput
                 type="number"
                 min="0"
@@ -212,9 +200,7 @@ export function ExerciseLogRenderer({
               />
             </label>
             <label className="flex flex-1 flex-col gap-1.5">
-              <span className="text-xs font-semibold text-on-surface-variant">
-                {t("minutes")}
-              </span>
+              <span className="text-xs font-semibold text-on-surface-variant">{t("minutes")}</span>
               <FieldInput
                 type="number"
                 min="0"
@@ -227,11 +213,7 @@ export function ExerciseLogRenderer({
           </div>
         </section>
 
-        <PrimaryButton
-          onClick={handleSubmit}
-          disabled={!canSubmit}
-          variant="physical"
-        >
+        <PrimaryButton onClick={handleSubmit} disabled={!canSubmit} variant="physical">
           {loading ? "…" : t("logActivity")}
         </PrimaryButton>
       </div>

@@ -5,11 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { CircleCheck, Circle, ChevronRight } from "lucide-react";
 import { MOOD_EMOJI_MAP, normalizeEntries } from "./renderers/mood-log";
-import {
-  SPORT_EMOJIS,
-  normalizeExerciseEntries,
-  formatDuration,
-} from "./renderers/exercise-log";
+import { SPORT_EMOJIS, normalizeExerciseEntries, formatDuration } from "./renderers/exercise-log";
 
 interface TaskItem {
   id: string;
@@ -101,9 +97,7 @@ export function TaskList({
           <section key={cat} className="space-y-3">
             <div className="flex items-center gap-2">
               <Image src={config.iconSrc} alt={cat} width={32} height={32} />
-              <h3 className="text-xl font-bold font-headline text-foreground">
-                {labelMap[cat]}
-              </h3>
+              <h3 className="text-xl font-bold font-headline text-foreground">{labelMap[cat]}</h3>
             </div>
 
             {/* Main card — all task rows and entry rows, no add rows */}
@@ -112,53 +106,32 @@ export function TaskList({
                 const isExercise = task.taskType === "exercise";
                 const isMoodLog = task.taskType === "mood_log";
 
-                const moodEntries = isMoodLog
-                  ? normalizeEntries(task.completionData)
-                  : [];
+                const moodEntries = isMoodLog ? normalizeEntries(task.completionData) : [];
                 const exerciseEntries = isExercise
                   ? normalizeExerciseEntries(task.completionData)
                   : [];
-                const nonRestEntries = exerciseEntries.filter(
-                  (e) => e.sportKey !== "rest",
-                );
-                const isRestCompletion =
-                  exerciseEntries.length > 0 && nonRestEntries.length === 0;
+                const nonRestEntries = exerciseEntries.filter((e) => e.sportKey !== "rest");
+                const isRestCompletion = exerciseEntries.length > 0 && nonRestEntries.length === 0;
 
                 const showEntryRows =
                   task.completed &&
-                  (isMoodLog
-                    ? moodEntries.length > 0
-                    : exerciseEntries.length > 0);
+                  (isMoodLog ? moodEntries.length > 0 : exerciseEntries.length > 0);
 
                 const isFirst = taskIdx === 0;
 
                 if (showEntryRows) {
                   return (
-                    <div
-                      key={task.id}
-                      className={isFirst ? "" : "border-t border-zinc-50"}
-                    >
+                    <div key={task.id} className={isFirst ? "" : "border-t border-zinc-50"}>
                       {isMoodLog &&
                         moodEntries.map((entry, i) => {
-                          const emojis = entry.moods
-                            .map((m) => MOOD_EMOJI_MAP[m] ?? "")
-                            .join(" ");
+                          const emojis = entry.moods.map((m) => MOOD_EMOJI_MAP[m] ?? "").join(" ");
                           const preview =
                             entry.influences.length > 0
-                              ? entry.influences
-                                  .map((k) => influenceLabels[k] ?? k)
-                                  .join(", ")
+                              ? entry.influences.map((k) => influenceLabels[k] ?? k).join(", ")
                               : entry.context.trim().slice(0, 40) || null;
-                          const entryLabel = preview
-                            ? `${emojis} · ${preview}`
-                            : emojis;
+                          const entryLabel = preview ? `${emojis} · ${preview}` : emojis;
                           return (
-                            <div
-                              key={i}
-                              className={
-                                i === 0 ? "" : "border-t border-zinc-50"
-                              }
-                            >
+                            <div key={i} className={i === 0 ? "" : "border-t border-zinc-50"}>
                               <div className="flex w-full items-center gap-3 px-5 py-3.5">
                                 <CircleCheck
                                   size={20}
@@ -171,10 +144,7 @@ export function TaskList({
                                   <span className="flex-1 truncate text-base text-foreground/50">
                                     {entryLabel}
                                   </span>
-                                  <ChevronRight
-                                    size={18}
-                                    className="text-zinc-400 shrink-0"
-                                  />
+                                  <ChevronRight size={18} className="text-zinc-400 shrink-0" />
                                 </button>
                               </div>
                             </div>
@@ -204,22 +174,13 @@ export function TaskList({
                             const sportName =
                               entry.sportKey === "others"
                                 ? (entry.customSport ?? sportLabels.others)
-                                : (sportLabels[entry.sportKey] ??
-                                  entry.sportKey);
-                            const duration = formatDuration(
-                              entry.hours,
-                              entry.minutes,
-                            );
+                                : (sportLabels[entry.sportKey] ?? entry.sportKey);
+                            const duration = formatDuration(entry.hours, entry.minutes);
                             const entryLabel = duration
                               ? `${emoji} ${sportName} · ${duration}`
                               : `${emoji} ${sportName}`;
                             return (
-                              <div
-                                key={i}
-                                className={
-                                  i === 0 ? "" : "border-t border-zinc-50"
-                                }
-                              >
+                              <div key={i} className={i === 0 ? "" : "border-t border-zinc-50"}>
                                 <div className="flex w-full items-center gap-3 px-5 py-3.5">
                                   <CircleCheck
                                     size={20}
@@ -232,10 +193,7 @@ export function TaskList({
                                     <span className="flex-1 text-base text-foreground/50">
                                       {entryLabel}
                                     </span>
-                                    <ChevronRight
-                                      size={18}
-                                      className="text-zinc-400 shrink-0"
-                                    />
+                                    <ChevronRight size={18} className="text-zinc-400 shrink-0" />
                                   </button>
                                 </div>
                               </div>
@@ -248,10 +206,7 @@ export function TaskList({
 
                 // Standard task row
                 return (
-                  <div
-                    key={task.id}
-                    className={isFirst ? "" : "border-t border-zinc-50"}
-                  >
+                  <div key={task.id} className={isFirst ? "" : "border-t border-zinc-50"}>
                     <div className="flex w-full items-center gap-3 px-5 py-3.5">
                       <button
                         onClick={(e) => {
@@ -273,15 +228,9 @@ export function TaskList({
                         }
                       >
                         {task.completed ? (
-                          <CircleCheck
-                            size={20}
-                            className={categoryCheckColor[cat]}
-                          />
+                          <CircleCheck size={20} className={categoryCheckColor[cat]} />
                         ) : (
-                          <Circle
-                            size={20}
-                            className="text-zinc-300"
-                          />
+                          <Circle size={20} className="text-zinc-300" />
                         )}
                       </button>
                       <button
@@ -294,12 +243,7 @@ export function TaskList({
                         >
                           {task.name}
                         </span>
-                        {!locked && (
-                          <ChevronRight
-                            size={18}
-                            className="text-zinc-400 shrink-0"
-                          />
-                        )}
+                        {!locked && <ChevronRight size={18} className="text-zinc-400 shrink-0" />}
                       </button>
                     </div>
                   </div>
@@ -308,38 +252,32 @@ export function TaskList({
             </div>
 
             {/* Separate add pills — one per task that has entries (not rest-only) */}
-            {!locked && catTasks.map((task) => {
-              const isMoodLog = task.taskType === "mood_log";
-              const isExercise = task.taskType === "exercise";
-              if (!task.completed) return null;
+            {!locked &&
+              catTasks.map((task) => {
+                const isMoodLog = task.taskType === "mood_log";
+                const isExercise = task.taskType === "exercise";
+                if (!task.completed) return null;
 
-              const moodEntries = isMoodLog
-                ? normalizeEntries(task.completionData)
-                : [];
-              const exerciseEntries = isExercise
-                ? normalizeExerciseEntries(task.completionData)
-                : [];
-              const nonRestEntries = exerciseEntries.filter(
-                (e) => e.sportKey !== "rest",
-              );
-              const isRestCompletion =
-                exerciseEntries.length > 0 && nonRestEntries.length === 0;
-              const hasEntries = isMoodLog
-                ? moodEntries.length > 0
-                : exerciseEntries.length > 0;
+                const moodEntries = isMoodLog ? normalizeEntries(task.completionData) : [];
+                const exerciseEntries = isExercise
+                  ? normalizeExerciseEntries(task.completionData)
+                  : [];
+                const nonRestEntries = exerciseEntries.filter((e) => e.sportKey !== "rest");
+                const isRestCompletion = exerciseEntries.length > 0 && nonRestEntries.length === 0;
+                const hasEntries = isMoodLog ? moodEntries.length > 0 : exerciseEntries.length > 0;
 
-              if (!hasEntries || isRestCompletion) return null;
+                if (!hasEntries || isRestCompletion) return null;
 
-              return (
-                <button
-                  key={`${task.id}-add`}
-                  onClick={() => onAddEntryAction(task)}
-                  className={`w-full rounded-full border-2 border-dashed py-2 text-sm font-semibold transition-all active:scale-[0.99] ${categoryAddColor[cat]}`}
-                >
-                  + {isMoodLog ? tm("addMoodLog") : te("addExercise")}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={`${task.id}-add`}
+                    onClick={() => onAddEntryAction(task)}
+                    className={`w-full rounded-full border-2 border-dashed py-2 text-sm font-semibold transition-all active:scale-[0.99] ${categoryAddColor[cat]}`}
+                  >
+                    + {isMoodLog ? tm("addMoodLog") : te("addExercise")}
+                  </button>
+                );
+              })}
           </section>
         );
       })}

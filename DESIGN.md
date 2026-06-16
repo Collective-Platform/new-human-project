@@ -226,7 +226,7 @@ them at sufficient contrast (`on-surface` / `on-surface-variant`).
 - **Mobile-first PWA.** The app is designed for a portrait phone viewport with
   safe-area insets (`viewportFit: cover`) and a persistent bottom navigation bar.
 - **Spacing scale** is an 8px-based rhythm: `xs 4 / sm 8 / md 16 / lg 24 /
-  xl 32`. Prefer multiples of 8 for padding and gaps.
+xl 32`. Prefer multiples of 8 for padding and gaps.
 - **Generous padding.** Cards and inputs use comfortable internal padding
   (16px horizontal, 12–14px vertical) and sit on the warm `surface` shell.
 - **Content width** is constrained to a single readable column on mobile; avoid

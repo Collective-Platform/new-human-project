@@ -23,11 +23,7 @@ const MONTH_NAMES = [
   "Dec",
 ];
 
-function getDateForDay(
-  blockStartDate: string,
-  day: number,
-  locale: string,
-): string {
+function getDateForDay(blockStartDate: string, day: number, locale: string): string {
   const start = new Date(blockStartDate);
   const date = new Date(start);
   date.setDate(start.getDate() + (day - 1));
@@ -82,8 +78,7 @@ export function DayCarousel({
           const isToday = d.day === currentDay;
 
           const warm = () => {
-            if (onPrefetchAction && d.day !== selectedDay)
-              onPrefetchAction(d.day);
+            if (onPrefetchAction && d.day !== selectedDay) onPrefetchAction(d.day);
           };
 
           return (
@@ -136,9 +131,7 @@ export function DayCarousel({
                       : "font-medium text-foreground/50 group-hover:text-foreground/70"
                 }`}
               >
-                {isToday
-                  ? todayLabel
-                  : getDateForDay(blockStartDate, d.day, locale)}
+                {isToday ? todayLabel : getDateForDay(blockStartDate, d.day, locale)}
               </span>
             </button>
           );

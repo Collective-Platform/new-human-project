@@ -1,12 +1,8 @@
 export {
-  getFriends,
-  getIncomingRequests,
   sendFriendRequest,
   acceptFriendRequest,
   rejectFriendRequest,
   searchUsers,
-  getPeopleYouMayKnow,
-  getActivityFeed,
   removeFriendInDb,
   cancelFriendRequest,
   getSentRequestIds,

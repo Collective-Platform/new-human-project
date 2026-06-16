@@ -4,13 +4,7 @@ import type { AdminStatsData } from "./admin-stats";
 import { AdminUsersTable } from "./admin-users-table";
 import type { UserRow } from "./admin-users-table";
 
-export function AdminClient({
-  stats,
-  users,
-}: {
-  stats: AdminStatsData;
-  users: UserRow[];
-}) {
+export function AdminClient({ stats, users }: { stats: AdminStatsData; users: UserRow[] }) {
   return (
     <div className="px-4 pt-4 pb-4 space-y-4">
       <h1 className="font-headline text-xl font-bold text-foreground">Admin</h1>

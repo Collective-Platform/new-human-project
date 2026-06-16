@@ -157,9 +157,7 @@ export async function toggleLike(input: {
   return { liked };
 }
 
-export async function getActivityLikers(input: {
-  completionId: string;
-}): Promise<
+export async function getActivityLikers(input: { completionId: string }): Promise<
   | {
       likers: {
         id: number;

@@ -1,6 +1,12 @@
 import { db } from "@/src/db";
 import { users, pendingAuth } from "@/src/db/schema";
-import { generateOtp, hashToken, checkRateLimit, sendOtp, MailerSendRateLimitError } from "@/src/features/auth";
+import {
+  generateOtp,
+  hashToken,
+  checkRateLimit,
+  sendOtp,
+  MailerSendRateLimitError,
+} from "@/src/features/auth";
 import { env } from "@/src/env";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 
@@ -110,9 +116,6 @@ export async function POST(request: Request) {
       // otpPlaintext stays in DB; cron will pick it up within 60s.
       return Response.json({ success: true, queued: true, requestedAt: Date.now() });
     }
-    return Response.json(
-      { success: false, code: "EMAIL_SEND_FAILED" },
-      { status: 500 },
-    );
+    return Response.json({ success: false, code: "EMAIL_SEND_FAILED" }, { status: 500 });
   }
 }

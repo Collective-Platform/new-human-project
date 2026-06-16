@@ -7,10 +7,7 @@ export class MailerSendRateLimitError extends Error {
   }
 }
 
-export function buildOtpEmail(
-  otp: string,
-  fromName: string,
-): { html: string; text: string } {
+export function buildOtpEmail(otp: string, fromName: string): { html: string; text: string } {
   const text = `Your verification code is: ${otp}\n\nThis code expires in 10 minutes.\n\nYou've received this email as part of the log in process. This is a mandatory service email from ${fromName}.`;
 
   const html = `<!DOCTYPE html>

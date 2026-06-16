@@ -5,6 +5,7 @@ import useSWR from "swr";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Search, User } from "lucide-react";
+import { Link } from "@/src/i18n/navigation";
 import { requestFriend } from "@/src/features/community/actions";
 
 interface SearchResult {
@@ -117,25 +118,29 @@ export function AddFriends({
               key={user.id}
               className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
             >
-              {user.avatarUrl ? (
-                <Image
-                  src={user.avatarUrl}
-                  alt={user.searchHandle ?? ""}
-                  width={56}
-                  height={56}
-                  unoptimized
-                  className="w-14 h-14 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
-                  <User size={24} className="text-on-surface-variant" />
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
+              <Link
+                href={`/community/${user.searchHandle ?? user.id}`}
+                className="flex items-center gap-4 flex-1 min-w-0"
+              >
+                {user.avatarUrl ? (
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.searchHandle ?? ""}
+                    width={56}
+                    height={56}
+                    unoptimized
+                    className="w-14 h-14 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center">
+                    <User size={24} className="text-on-surface-variant" />
+                  </div>
+                )}
                 <p className="truncate font-headline text-sm font-bold text-on-surface">
                   {user.searchHandle ? `@${user.searchHandle}` : "User"}
                 </p>
-              </div>
+              </Link>
+              {/* Add friend button */}
               {(() => {
                 const status = getStatus(user);
                 return (

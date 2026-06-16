@@ -48,7 +48,6 @@ export async function getDashboardForUser(
   const blockNumber = 1;
   const daysElapsed = currentDay - 1;
 
-
   // Five lazy query builders sent as ONE HTTP round-trip on the Neon-protocol
   // batch endpoint (PlanetScale Postgres in prod). Local node-postgres falls
   // back to Promise.all in batchOrAll().

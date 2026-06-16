@@ -28,15 +28,7 @@ interface Profile {
   avatarUrl: string | null;
 }
 
-function Avatar({
-  url,
-  name,
-  size,
-}: {
-  url: string | null;
-  name: string;
-  size: number;
-}) {
+function Avatar({ url, name, size }: { url: string | null; name: string; size: number }) {
   if (url) {
     return (
       <Image
@@ -79,9 +71,7 @@ export function ProfileClient({
   const [unfriendOpen, setUnfriendOpen] = useState(false);
   const [sentIds, setSentIds] = useState<Set<number>>(new Set());
   const [localStatus, setLocalStatus] = useState(connectionStatus);
-  const [likeState, setLikeState] = useState<
-    Map<string, { liked: boolean; count: number }>
-  >(
+  const [likeState, setLikeState] = useState<Map<string, { liked: boolean; count: number }>>(
     () =>
       new Map(
         activities.map((item) => [
@@ -224,9 +214,7 @@ export function ProfileClient({
             onClick={(e) => e.stopPropagation()}
           >
             <div>
-              <h3 className="font-headline font-bold text-lg text-primary">
-                {t("unfriendTitle")}
-              </h3>
+              <h3 className="font-headline font-bold text-lg text-primary">{t("unfriendTitle")}</h3>
               <p className="text-sm text-on-surface-variant mt-1">
                 {t("unfriendConfirm", { name: handle })}
               </p>
@@ -283,9 +271,7 @@ export function ProfileClient({
               <div className="overflow-y-auto max-h-96 px-4 pb-5 space-y-3">
                 {friends.map((f) => {
                   const name = f.searchHandle ? `@${f.searchHandle}` : "User";
-                  const popupStatus = sentIds.has(f.id)
-                    ? "sent"
-                    : f.connectionStatus;
+                  const popupStatus = sentIds.has(f.id) ? "sent" : f.connectionStatus;
                   return (
                     <div key={f.id} className="flex items-center gap-3">
                       <Link
@@ -298,8 +284,7 @@ export function ProfileClient({
                           {name}
                         </span>
                       </Link>
-                      {popupStatus === "self" ? null : popupStatus ===
-                        "friends" ? (
+                      {popupStatus === "self" ? null : popupStatus === "friends" ? (
                         <span className="text-xs font-bold text-on-surface-variant px-3 py-1 rounded-full border border-outline-variant shrink-0">
                           {t("friend")}
                         </span>

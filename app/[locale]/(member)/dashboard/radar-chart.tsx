@@ -1,19 +1,11 @@
-function pointOnAxis(
-  angle: number,
-  percentage: number,
-  cx: number,
-  cy: number,
-  r: number,
-) {
+function pointOnAxis(angle: number, percentage: number, cx: number, cy: number, r: number) {
   const rad = (angle - 90) * (Math.PI / 180);
   const dist = (percentage / 100) * r;
   return { x: cx + dist * Math.cos(rad), y: cy + dist * Math.sin(rad) };
 }
 
 function trianglePath(points: { x: number; y: number }[]) {
-  return (
-    points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ") + " Z"
-  );
+  return points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ") + " Z";
 }
 
 export function RadarChart({
@@ -54,22 +46,9 @@ export function RadarChart({
               />
             );
           })}
-          <path
-            d={trianglePath(bgPoints)}
-            fill="none"
-            stroke="#d4d4d4"
-            strokeWidth="1"
-          />
+          <path d={trianglePath(bgPoints)} fill="none" stroke="#d4d4d4" strokeWidth="1" />
           {bgPoints.map((p, i) => (
-            <line
-              key={i}
-              x1={cx}
-              y1={cy}
-              x2={p.x}
-              y2={p.y}
-              stroke="#e5e5e5"
-              strokeWidth="0.5"
-            />
+            <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e5e5e5" strokeWidth="0.5" />
           ))}
           <path
             d={trianglePath(dataPoints)}
@@ -81,13 +60,7 @@ export function RadarChart({
             strokeWidth="2"
           />
           {dataPoints.map((p, i) => (
-            <circle
-              key={i}
-              cx={p.x}
-              cy={p.y}
-              r="3"
-              style={{ fill: "var(--color-primary)" }}
-            />
+            <circle key={i} cx={p.x} cy={p.y} r="3" style={{ fill: "var(--color-primary)" }} />
           ))}
           <text
             x={bgPoints[0].x}

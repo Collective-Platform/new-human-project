@@ -19,11 +19,7 @@ function computeLocalCurrentDay(blockStartDate: string): number {
   const todayMs = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
   // onboarding date stays in UTC (matches server storage)
   const start = new Date(blockStartDate);
-  const startMs = Date.UTC(
-    start.getUTCFullYear(),
-    start.getUTCMonth(),
-    start.getUTCDate(),
-  );
+  const startMs = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
   const elapsed = Math.floor((todayMs - startMs) / msPerDay);
   return Math.min(Math.max(elapsed + 1, 1), 25);
 }
@@ -57,9 +53,7 @@ export function ProgressClient({
   // Seeded from server-rendered payload — first paint shows real content,
   // no initial-load spinner. (Task 2.0 of tasks-perf-improvements.md)
   const [data, setData] = useState<ProgressData>(initialData);
-  const [selectedDay, setSelectedDay] = useState<number>(
-    initialData.selectedDay,
-  );
+  const [selectedDay, setSelectedDay] = useState<number>(initialData.selectedDay);
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
   const [activeTaskMode, setActiveTaskMode] = useState<"add" | number>("add");
 
@@ -71,12 +65,8 @@ export function ProgressClient({
   const dayCacheRef = useRef<Map<number, ProgressData>>(
     new Map([[initialData.selectedDay, initialData]]),
   );
-  const inFlightRef = useRef<Map<number, Promise<ProgressData | null>>>(
-    new Map(),
-  );
-  const taskNavStack = useRef<Array<{ task: TaskData; mode: "add" | number }>>(
-    [],
-  );
+  const inFlightRef = useRef<Map<number, Promise<ProgressData | null>>>(new Map());
+  const taskNavStack = useRef<Array<{ task: TaskData; mode: "add" | number }>>([]);
   const skipNextPopRef = useRef(false);
   const initialTaskIdRef = useRef(initialTaskId);
 
@@ -139,11 +129,7 @@ export function ProgressClient({
   // without a page refresh.
   useEffect(() => {
     const now = new Date();
-    const nextLocalMidnight = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() + 1,
-    );
+    const nextLocalMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
     const timer = setTimeout(() => {
       setData((prev) => ({
         ...prev,
@@ -158,10 +144,9 @@ export function ProgressClient({
   // hydration via requestIdleCallback so it doesn't compete with paint.
   // Bounded to [1, 25] and skips the already-cached current day. (Task 3.0)
   useEffect(() => {
-    const neighbors = [
-      initialData.currentDay - 1,
-      initialData.currentDay + 1,
-    ].filter((d) => d >= 1 && d <= 25);
+    const neighbors = [initialData.currentDay - 1, initialData.currentDay + 1].filter(
+      (d) => d >= 1 && d <= 25,
+    );
 
     const idle =
       typeof window !== "undefined" && "requestIdleCallback" in window
@@ -274,10 +259,7 @@ export function ProgressClient({
     }
   }
 
-  async function handleComplete(
-    taskId: string,
-    taskData?: Record<string, unknown>,
-  ) {
+  async function handleComplete(taskId: string, taskData?: Record<string, unknown>) {
     if (locked) return;
     const previous = data.tasks.find((t) => t.id === taskId);
     if (!previous) return;
@@ -367,11 +349,8 @@ export function ProgressClient({
   }
 
   if (activeTask) {
-    const current =
-      data.tasks.find((t) => t.id === activeTask.id) ?? activeTask;
-    const categoryTasks = data.tasks.filter(
-      (t) => t.category === current.category,
-    );
+    const current = data.tasks.find((t) => t.id === activeTask.id) ?? activeTask;
+    const categoryTasks = data.tasks.filter((t) => t.category === current.category);
     return (
       <TaskDetail
         task={current}

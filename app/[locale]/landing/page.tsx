@@ -2,11 +2,7 @@ import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/src/i18n/navigation";
 
-export default async function LandingPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -73,8 +69,8 @@ export default async function LandingPage({
             The goal: A way of life.
           </h2>
           <p className="text-lg leading-relaxed text-on-surface-variant">
-            A community-wide commitment to building healthy rhythms across three
-            dimensions — practised concurrently in 25-day blocks on rhythm.you.
+            A community-wide commitment to building healthy rhythms across three dimensions —
+            practised concurrently in 25-day blocks on rhythm.you.
           </p>
         </div>
       </section>
@@ -93,12 +89,10 @@ export default async function LandingPage({
             >
               Focus, clarity, learning.
             </h3>
-            <p className="mt-2 text-sm font-semibold text-category-mental">
-              Matt 22:37
-            </p>
+            <p className="mt-2 text-sm font-semibold text-category-mental">Matt 22:37</p>
             <p className="mt-4 text-lg leading-relaxed text-on-surface-variant">
-              Truth sets us free. Each day we study a Scripture passage together
-              and write up what we&apos;ve learned and how to apply it.
+              Truth sets us free. Each day we study a Scripture passage together and write up what
+              we&apos;ve learned and how to apply it.
             </p>
           </div>
           <div className="flex items-end justify-center px-8 pb-0 lg:mt-auto">
@@ -124,12 +118,10 @@ export default async function LandingPage({
             >
               Resilience, regulation, inner work.
             </h3>
-            <p className="mt-2 text-sm font-semibold text-category-emotional">
-              Matt 22:37
-            </p>
+            <p className="mt-2 text-sm font-semibold text-category-emotional">Matt 22:37</p>
             <p className="mt-4 text-lg leading-relaxed text-on-surface-variant">
-              Knowing truth without handling emotion renders life ineffective.
-              Each day, we are given tools to regulate and grow our inner world.
+              Knowing truth without handling emotion renders life ineffective. Each day, we are
+              given tools to regulate and grow our inner world.
             </p>
           </div>
           <div className="flex items-end justify-center px-8 pb-0 lg:mt-auto">
@@ -155,12 +147,10 @@ export default async function LandingPage({
             >
               Movement, recovery, sleep.
             </h3>
-            <p className="mt-2 text-sm font-semibold text-category-physical">
-              Luke 2:52
-            </p>
+            <p className="mt-2 text-sm font-semibold text-category-physical">Luke 2:52</p>
             <p className="mt-4 text-lg leading-relaxed text-on-surface-variant">
-              Jesus grew in stature. Our bodies matter. Every day we complete a
-              movement task designed to make exercise a way of life.
+              Jesus grew in stature. Our bodies matter. Every day we complete a movement task
+              designed to make exercise a way of life.
             </p>
           </div>
           <div className="flex items-end justify-center px-8 pb-0 lg:mt-auto">

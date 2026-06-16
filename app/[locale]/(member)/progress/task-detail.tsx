@@ -42,10 +42,7 @@ export function TaskDetail({
   locale: string;
   blockNumber: number;
   dayNumber: number;
-  onCompleteAction: (
-    taskId: string,
-    data?: Record<string, unknown>,
-  ) => Promise<void>;
+  onCompleteAction: (taskId: string, data?: Record<string, unknown>) => Promise<void>;
   onCloseAction: () => void;
   categoryTasks: TaskData[];
   onNavigateAction: (task: TaskData) => void;
@@ -163,9 +160,7 @@ export function TaskDetail({
           >
             <ArrowLeft size={20} />
           </button>
-          <h2 className="flex-1 font-headline text-lg font-semibold truncate">
-            {task.name}
-          </h2>
+          <h2 className="flex-1 font-headline text-lg font-semibold truncate">{task.name}</h2>
         </div>
       </div>
 
@@ -191,10 +186,7 @@ export function TaskDetail({
                       content: string;
                     } | null
                   )?.reference ??
-                    localizeScriptureRef(
-                      (content.scripture_reference as string) ?? "",
-                      locale,
-                    )}
+                    localizeScriptureRef((content.scripture_reference as string) ?? "", locale)}
                 </p>
                 <BilingualPassage
                   passage={
@@ -246,12 +238,10 @@ export function TaskDetail({
             )}
             <div className="flex flex-1 flex-col items-center justify-center text-center leading-tight">
               <span className="text-sm font-semibold text-foreground">
-                {t("blockLabel", { block: blockNumber })} |{" "}
-                {t(task.category.toLowerCase())}
+                {t("blockLabel", { block: blockNumber })} | {t(task.category.toLowerCase())}
               </span>
               <span className="text-xs text-foreground/60">
-                {t("dayLabel", { day: dayNumber })} | {currentIndex + 1} of{" "}
-                {categoryTasks.length}
+                {t("dayLabel", { day: dayNumber })} | {currentIndex + 1} of {categoryTasks.length}
               </span>
             </div>
             <button

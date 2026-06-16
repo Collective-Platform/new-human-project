@@ -51,10 +51,7 @@ export function EmotionBreakdownChart({
             const percentage = total > 0 ? (count / total) * 100 : 0;
 
             return (
-              <div
-                key={key}
-                className="flex items-center gap-3 px-2 py-1 rounded-xl"
-              >
+              <div key={key} className="flex items-center gap-3 px-2 py-1 rounded-xl">
                 <span className="text-lg shrink-0">{MOOD_EMOJIS[key]}</span>
 
                 <div className="flex-1">
