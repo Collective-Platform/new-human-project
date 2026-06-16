@@ -112,7 +112,7 @@ export default function RhythmLivePage() {
           <div className="relative mt-auto px-6 pb-5 text-center md:px-12 md:pb-6">
             <div className="relative mx-auto h-16 w-72 md:h-24 md:w-120">
               <Image
-                src="/live/rhythm-live.png"
+                src="/live/rhythm-live-title.png"
                 alt="Rhythm Live"
                 fill
                 className="object-contain"
@@ -121,8 +121,8 @@ export default function RhythmLivePage() {
             </div>
 
             <p className="mx-auto mb-3 max-w-2xl text-base md:text-lg leading-normal md:leading-relaxed text-white">
-              A one-day gathering where the community comes together to learn, grow, worship,
-              connect, and continue the journey together.
+              A one-day gathering where the community comes together to learn,
+              grow, worship, connect, and continue the journey together.
             </p>
             <CountdownTimer />
             <CtaButton href={TICKET_URL}>Reserve My Seat</CtaButton>
@@ -174,8 +174,9 @@ export default function RhythmLivePage() {
               ))}
             </ul>
             <p className="mt-8 text-base md:text-lg leading-normal md:leading-relaxed italic text-white">
-              This isn&rsquo;t about sitting in a room and taking notes. It&rsquo;s about
-              experiencing the movement you&rsquo;re already part of.
+              This isn&rsquo;t about sitting in a room and taking notes.
+              It&rsquo;s about experiencing the movement you&rsquo;re already
+              part of.
             </p>
             <div className="mt-8">
               <CtaButton href={TICKET_URL}>Reserve My Seat</CtaButton>
