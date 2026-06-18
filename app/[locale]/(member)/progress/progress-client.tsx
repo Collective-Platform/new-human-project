@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
@@ -11,6 +11,77 @@ import { completeTask, uncompleteTask } from "@/src/features/tasks/actions";
 
 type TaskData = ProgressPayload["tasks"][number];
 type ProgressData = ProgressPayload;
+
+// Optimistic completion overrides, persisted to localStorage so a checked task
+// stays checked across client navigation AND full reloads, even when the server
+// payload (RSC router cache / "use cache" data) hasn't caught up yet. Each entry
+// is dropped automatically once the server payload agrees (see reconcile below),
+// so a stale override can never permanently mask a genuine server-side change.
+const OVERRIDE_KEY = "progress-task-overrides-v1";
+
+function readOverrides(): Record<string, boolean> {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(window.localStorage.getItem(OVERRIDE_KEY) || "{}") as Record<string, boolean>;
+  } catch {
+    return {};
+  }
+}
+
+function writeOverride(taskId: string, completed: boolean): void {
+  if (typeof window === "undefined") return;
+  const all = readOverrides();
+  all[taskId] = completed;
+  try {
+    window.localStorage.setItem(OVERRIDE_KEY, JSON.stringify(all));
+  } catch {
+    // storage full / disabled — non-fatal, the in-memory state still updates.
+  }
+}
+
+function clearOverride(taskId: string): void {
+  if (typeof window === "undefined") return;
+  const all = readOverrides();
+  if (!(taskId in all)) return;
+  delete all[taskId];
+  try {
+    window.localStorage.setItem(OVERRIDE_KEY, JSON.stringify(all));
+  } catch {
+    // non-fatal
+  }
+}
+
+function applyPendingOverlay(data: ProgressData): ProgressData {
+  const overrides = readOverrides();
+  if (Object.keys(overrides).length === 0) return data;
+
+  let changed = false;
+  const tasks = data.tasks.map((t) => {
+    const o = overrides[t.id];
+    if (o === undefined || o === t.completed) return t;
+    changed = true;
+    return { ...t, completed: o };
+  });
+  if (!changed) return data;
+
+  // Keep the selected day's carousel chip in sync with the overlaid tasks so the
+  // day badge and the checkboxes can never disagree (the "day done but task
+  // unchecked" symptom).
+  const allDone = tasks.length > 0 && tasks.every((t) => t.completed);
+  const carousel = data.carousel.map((c) =>
+    c.day === data.selectedDay ? { ...c, fullyCompleted: allDone } : c,
+  );
+  return { ...data, tasks, carousel };
+}
+
+// Drop any override the server payload already reflects, so localStorage stays
+// small and self-heals. Compares against the RAW server data, not the overlay.
+function reconcileOverrides(data: ProgressData): void {
+  const overrides = readOverrides();
+  for (const t of data.tasks) {
+    if (t.id in overrides && overrides[t.id] === t.completed) clearOverride(t.id);
+  }
+}
 
 function computeLocalCurrentDay(blockStartDate: string): number {
   const msPerDay = 86_400_000;
@@ -46,13 +117,12 @@ export function ProgressClient({
   isLocked?: boolean;
   unlockMs?: number;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("progress");
   const [locked, setLocked] = useState(initialLocked ?? false);
   // Seeded from server-rendered payload — first paint shows real content,
   // no initial-load spinner. (Task 2.0 of tasks-perf-improvements.md)
-  const [data, setData] = useState<ProgressData>(initialData);
+  const [data, setData] = useState<ProgressData>(() => applyPendingOverlay(initialData));
   const [selectedDay, setSelectedDay] = useState<number>(initialData.selectedDay);
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
   const [activeTaskMode, setActiveTaskMode] = useState<"add" | number>("add");
@@ -63,7 +133,7 @@ export function ProgressClient({
   // This is intentionally a small ad-hoc cache that will be replaced
   // by TanStack Query in Task 4.0 — keep the surface minimal.
   const dayCacheRef = useRef<Map<number, ProgressData>>(
-    new Map([[initialData.selectedDay, initialData]]),
+    new Map([[initialData.selectedDay, applyPendingOverlay(initialData)]]),
   );
   const inFlightRef = useRef<Map<number, Promise<ProgressData | null>>>(new Map());
   const taskNavStack = useRef<Array<{ task: TaskData; mode: "add" | number }>>([]);
@@ -71,12 +141,14 @@ export function ProgressClient({
   const initialTaskIdRef = useRef(initialTaskId);
 
   useEffect(() => {
+    // Drop overrides the (raw) server payload already reflects before overlaying,
+    // so confirmed completions stop being re-applied and the store self-heals.
+    reconcileOverrides(initialData);
     const localDay = computeLocalCurrentDay(initialData.blockStartDate);
+    const overlaid = applyPendingOverlay({ ...initialData, currentDay: localDay });
     setSelectedDay(initialData.selectedDay);
-    setData({ ...initialData, currentDay: localDay });
-    dayCacheRef.current = new Map([
-      [initialData.selectedDay, { ...initialData, currentDay: localDay }],
-    ]);
+    setData(overlaid);
+    dayCacheRef.current = new Map([[initialData.selectedDay, overlaid]]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData.selectedDay]);
 
@@ -122,7 +194,14 @@ export function ProgressClient({
 
   async function fetchDay(day: number) {
     const d = await loadDay(day);
-    if (d) setData((prev) => ({ ...d, currentDay: prev.currentDay }));
+    if (!d) return;
+    // Reconcile overrides the server already confirms, then re-apply any
+    // still-pending overrides so carousel navigation never shows a stale unchecked
+    // state while the server cache catches up.
+    reconcileOverrides(d);
+    const overlaid = applyPendingOverlay(d);
+    setData((prev) => ({ ...overlaid, currentDay: prev.currentDay }));
+    if (overlaid !== d) dayCacheRef.current.set(day, overlaid);
   }
 
   // Advance currentDay at the user's local midnight so the "Today" label updates
@@ -229,6 +308,9 @@ export function ProgressClient({
         ),
       };
     });
+    // Patch the selected day in dayCacheRef and propagate the updated carousel
+    // entry for selectedDay into every other cached day's payload so that
+    // navigating the carousel never shows a stale fullyCompleted chip.
     const cached = dayCacheRef.current.get(selectedDay);
     if (cached) {
       const newCachedTasks = cached.tasks.map((t) => {
@@ -247,15 +329,16 @@ export function ProgressClient({
           c.day === selectedDay ? { ...c, fullyCompleted: allDone } : c,
         ),
       });
-    }
-  }
-
-  // After a successful completion mutation, all other days' cached payloads
-  // have a stale carousel (their fullyCompleted snapshot predates this change).
-  // Drop them so the next navigation fetches a fresh payload from the server.
-  function evictOtherDayCache() {
-    for (const day of Array.from(dayCacheRef.current.keys())) {
-      if (day !== selectedDay) dayCacheRef.current.delete(day);
+      for (const [day, other] of Array.from(dayCacheRef.current.entries())) {
+        if (day !== selectedDay) {
+          dayCacheRef.current.set(day, {
+            ...other,
+            carousel: other.carousel.map((c) =>
+              c.day === selectedDay ? { ...c, fullyCompleted: allDone } : c,
+            ),
+          });
+        }
+      }
     }
   }
 
@@ -269,6 +352,9 @@ export function ProgressClient({
       completed: true,
       completionData: taskData ?? previous.completionData,
     });
+    // Persist the override BEFORE the server round-trip so the checked state
+    // survives navigation even if the user leaves before completeTask() resolves.
+    writeOverride(taskId, true);
 
     // Background write — no await, no full-day refetch. When Next is clicked
     // after reflection autosave, preserve the existing completion data
@@ -281,15 +367,14 @@ export function ProgressClient({
           completed: previous.completed,
           completionData: previous.completionData,
         });
-      } else {
-        evictOtherDayCache();
-        router.refresh();
+        clearOverride(taskId);
       }
     } catch {
       applyTaskPatch(taskId, {
         completed: previous.completed,
         completionData: previous.completionData,
       });
+      clearOverride(taskId);
     }
   }
 
@@ -302,6 +387,8 @@ export function ProgressClient({
 
     // Optimistic flip: checkbox updates within the same frame as the tap.
     applyTaskPatch(taskId, { completed: nextCompleted });
+    // Persist the override BEFORE the server round-trip so it survives navigation.
+    writeOverride(taskId, nextCompleted);
 
     try {
       const result = previous.completed
@@ -309,12 +396,11 @@ export function ProgressClient({
         : await completeTask({ taskId });
       if ("error" in result) {
         applyTaskPatch(taskId, { completed: previous.completed });
-      } else {
-        evictOtherDayCache();
-        router.refresh();
+        clearOverride(taskId);
       }
     } catch {
       applyTaskPatch(taskId, { completed: previous.completed });
+      clearOverride(taskId);
     }
   }
 

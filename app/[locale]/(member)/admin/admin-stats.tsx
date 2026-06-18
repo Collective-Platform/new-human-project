@@ -1,4 +1,5 @@
 import { DailySignupsChart } from "./daily-signups-chart";
+import { WeeklyActiveUsersChart } from "./weekly-active-users-chart";
 
 interface MonthRow {
   month: string;
@@ -10,12 +11,18 @@ interface DayRow {
   count: number;
 }
 
+interface WeekRow {
+  week: string;
+  count: number;
+}
+
 export interface AdminStatsData {
   total: number;
   active: number;
   monthlySignups: MonthRow[];
   monthlyActive: MonthRow[];
   dailySignups: DayRow[];
+  weeklyActiveUsers: WeekRow[];
 }
 
 function formatMonth(yyyyMM: string): string {
@@ -56,6 +63,8 @@ export function AdminStats({ stats }: { stats: AdminStatsData }) {
       </div>
 
       <DailySignupsChart rows={stats.dailySignups} />
+
+      <WeeklyActiveUsersChart rows={stats.weeklyActiveUsers} />
     </div>
   );
 }

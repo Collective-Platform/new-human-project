@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/src/features/auth";
 import { getCurrentDay } from "@/src/features/dashboard";

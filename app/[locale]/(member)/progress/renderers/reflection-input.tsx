@@ -78,12 +78,18 @@ export function ReflectionInput({
     }
   }
 
+  function handleFocus(e: React.FocusEvent<HTMLTextAreaElement>) {
+    const el = e.currentTarget;
+    setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "nearest" }), 300);
+  }
+
   return (
     <textarea
       ref={textareaRef}
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onBlur={handleBlur}
+      onFocus={handleFocus}
       style={{ minHeight: `${rows * 1.5}rem` }}
       placeholder={placeholder}
       aria-label={ariaLabel}

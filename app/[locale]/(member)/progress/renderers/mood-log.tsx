@@ -183,6 +183,10 @@ export function MoodLogRenderer({
           ref={contextRef}
           value={formContext}
           onChange={(e) => setFormContext(e.target.value)}
+          onFocus={(e) => {
+            const el = e.currentTarget;
+            setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "nearest" }), 300);
+          }}
           style={{ minHeight: "4.5rem" }}
           className="w-full resize-none overflow-hidden rounded-sm border-0 bg-surface-container-high px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
         />
