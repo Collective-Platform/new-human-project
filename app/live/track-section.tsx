@@ -79,7 +79,7 @@ const TRACKS = [
 const GRID_CARDS = [
   {
     name: "Hyrox",
-    image: "/live/tracks/hyrox.jpg",
+    image: "/live/tracks/crossfit.jpg",
     description:
       "A 1 hour hybrid fitness training session that combines cardio with functional strength exercises.",
   },
