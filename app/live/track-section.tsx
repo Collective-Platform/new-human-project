@@ -26,7 +26,7 @@ const TRACKS = [
     description:
       "The ultimate indoor cycling workout, designed to give you an adrenaline rush of sweat, fun and energy.",
     image: "/live/tracks/spin.jpg",
-    capacity: 30,
+    capacity: 25,
     price: 20,
     sessions: ["dawn", "dusk"],
     times: { dawn: "7:00 AM", dusk: "4:00 PM" },
@@ -118,6 +118,7 @@ export function TrackSection() {
   const [loading, setLoading] = useState(false);
   const [soldOut, setSoldOut] = useState<Set<string>>(new Set());
   const [availability, setAvailability] = useState<Availability | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     fetch("/api/live/availability")
@@ -176,7 +177,7 @@ export function TrackSection() {
       const res = await fetch("/api/live/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items, termsAccepted, termsAcceptedAt: new Date().toISOString() }),
       });
 
       if (res.status === 409) {
@@ -378,19 +379,41 @@ export function TrackSection() {
             {/* Cart bar — sticky at bottom of modal */}
             <div className="border-t border-white/10 px-6 py-4">
               {cart.size > 0 ? (
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-white/70">
-                    <span className="font-black text-white">{cart.size}</span>{" "}
-                    {cart.size === 1 ? "track" : "tracks"} ·{" "}
-                    <span className="font-black text-white">RM{total}</span>
-                  </p>
-                  <button
-                    onClick={handleCheckout}
-                    disabled={loading}
-                    className="rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
-                  >
-                    {loading ? "Loading…" : "Pay now"}
-                  </button>
+                <div className="flex flex-col gap-3">
+                  <label className="flex cursor-pointer items-start gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+                    />
+                    <span className="text-sm text-white/70">
+                      I agree to the{" "}
+                      <a
+                        href="/live/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-white/90 hover:text-white"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        terms and conditions
+                      </a>
+                    </span>
+                  </label>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-white/70">
+                      <span className="font-black text-white">{cart.size}</span>{" "}
+                      {cart.size === 1 ? "track" : "tracks"} ·{" "}
+                      <span className="font-black text-white">RM{total}</span>
+                    </p>
+                    <button
+                      onClick={handleCheckout}
+                      disabled={loading || !termsAccepted}
+                      className="rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+                    >
+                      {loading ? "Loading…" : "Pay now"}
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <></>

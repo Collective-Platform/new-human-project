@@ -45,6 +45,8 @@ export async function POST(req: NextRequest) {
     const name = getField("full_name");
     const ticketId = getField("ticket_id");
     const phone = session.customer_details?.phone ?? "";
+    const termsAccepted = session.metadata?.terms_accepted === "true";
+    const termsAcceptedAt = session.metadata?.terms_accepted_at ?? "";
 
     const items = (session.line_items?.data ?? [])
       .filter((item) => item.price?.id)
@@ -56,7 +58,7 @@ export async function POST(req: NextRequest) {
       }));
 
     if (items.length > 0) {
-      await recordSales({ stripeSessionId: session.id, name, phone, ticketId, items });
+      await recordSales({ stripeSessionId: session.id, name, phone, ticketId, termsAccepted, termsAcceptedAt, items });
     }
   }
 

@@ -23,6 +23,8 @@ export async function recordSales(params: {
   name: string;
   phone: string;
   ticketId: string;
+  termsAccepted: boolean;
+  termsAcceptedAt: string;
   items: SaleItem[];
 }) {
   const sheets = getSheets();
@@ -46,11 +48,13 @@ export async function recordSales(params: {
     `RM${(item.amountCents / 100).toFixed(0)}`,
     item.priceId,
     createdAt,
+    params.termsAccepted ? "Yes" : "No",
+    params.termsAcceptedAt,
   ]);
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: sheetId,
-    range: "Sheet1!A:I",
+    range: "Sheet1!A:K",
     valueInputOption: "RAW",
     requestBody: { values: rows },
   });

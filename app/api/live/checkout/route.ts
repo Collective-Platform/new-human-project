@@ -11,7 +11,11 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Payments not configured" }, { status: 503 });
   }
 
-  const { items } = (await req.json()) as { items: CartItem[] };
+  const { items, termsAccepted, termsAcceptedAt } = (await req.json()) as {
+    items: CartItem[];
+    termsAccepted: boolean;
+    termsAcceptedAt: string;
+  };
 
   if (!Array.isArray(items) || items.length === 0) {
     return Response.json({ error: "No items selected" }, { status: 400 });
@@ -50,6 +54,10 @@ export async function POST(req: NextRequest) {
       price: TRACK_PRICES[item.track][item.session].priceId,
       quantity: 1,
     })),
+    metadata: {
+      terms_accepted: termsAccepted ? "true" : "false",
+      terms_accepted_at: termsAcceptedAt,
+    },
     phone_number_collection: { enabled: true },
     custom_fields: [
       {

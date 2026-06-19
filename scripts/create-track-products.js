@@ -12,7 +12,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const TRACKS = [
   { name: "Hyrox",           capacity: 20, price: 2000, sessions: ["dawn", "dusk"] },
-  { name: "Spin",            capacity: 30, price: 2000, sessions: ["dawn", "dusk"] },
+  { name: "Spin",            capacity: 25, price: 2000, sessions: ["dawn", "dusk"] },
   { name: "Run",             capacity: 30, price: 1000, sessions: ["dawn"] },
   { name: "PilatesReformer", capacity: 10, price: 2000, sessions: ["dawn"], label: "Reformer Pilates" },
   { name: "PilatesChair",    capacity: 8,  price: 2000, sessions: ["dawn"], label: "Chair Pilates" },

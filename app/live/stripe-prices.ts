@@ -12,8 +12,8 @@
 //     dusk: { priceId: "price_1TjvWFHJ40gQ7FP8of0cShES", capacity: 20 },
 //   },
 //   Spin: {
-//     dawn: { priceId: "price_1TjvWFHJ40gQ7FP8plgrncrH", capacity: 30 },
-//     dusk: { priceId: "price_1TjvWGHJ40gQ7FP8LOnp1CUd", capacity: 30 },
+//     dawn: { priceId: "price_1TjvWFHJ40gQ7FP8plgrncrH", capacity: 25 },
+//     dusk: { priceId: "price_1TjvWGHJ40gQ7FP8LOnp1CUd", capacity: 25 },
 //   },
 //   Run: { dawn: { priceId: "price_1TjvWHHJ40gQ7FP8GzEhugO5", capacity: 30 } },
 //   PilatesReformer: {
@@ -38,8 +38,8 @@ export const TRACK_PRICES: Record<
     dusk: { priceId: "price_1Tjvj2HJ40gQ7FP8yXHEXh1f", capacity: 20 },
   },
   Spin: {
-    dawn: { priceId: "price_1Tjvj3HJ40gQ7FP8FDv0IBy5", capacity: 30 },
-    dusk: { priceId: "price_1Tjvj4HJ40gQ7FP8zyQML5oG", capacity: 30 },
+    dawn: { priceId: "price_1Tjvj3HJ40gQ7FP8FDv0IBy5", capacity: 25 },
+    dusk: { priceId: "price_1Tjvj4HJ40gQ7FP8zyQML5oG", capacity: 25 },
   },
   Run: { dawn: { priceId: "price_1Tjvj5HJ40gQ7FP8WKoFlFZ7", capacity: 30 } },
   PilatesReformer: {
