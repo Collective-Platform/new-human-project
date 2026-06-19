@@ -14,11 +14,11 @@ const TRACKS = [
     stripeKey: "Hyrox",
     description:
       "A 1 hour hybrid fitness training session that combines cardio with functional strength exercises.",
-    image: "/live/tracks/hyrox.jpg",
+    image: "/live/tracks/crossfit.jpg",
     capacity: 20,
     price: 20,
     sessions: ["dawn", "dusk"],
-    times: { dawn: "7:00 AM", dusk: "4:00 PM" },
+    times: { dawn: "6:45 AM", dusk: "4:00 PM" },
   },
   {
     name: "Spin",
@@ -29,7 +29,7 @@ const TRACKS = [
     capacity: 25,
     price: 20,
     sessions: ["dawn", "dusk"],
-    times: { dawn: "7:00 AM", dusk: "4:00 PM" },
+    times: { dawn: "6:45 AM", dusk: "4:00 PM" },
   },
   {
     name: "5k Run",
@@ -39,7 +39,7 @@ const TRACKS = [
     capacity: 30,
     price: 10,
     sessions: ["dawn"],
-    times: { dawn: "7:00 AM" },
+    times: { dawn: "6:45 AM" },
   },
   {
     name: "Breathwork & Ice Plunge",
@@ -50,7 +50,7 @@ const TRACKS = [
     capacity: 24,
     price: 20,
     sessions: ["dawn", "dusk"],
-    times: { dawn: "7:00 AM", dusk: "4:00 PM" },
+    times: { dawn: "6:45 AM", dusk: "4:00 PM" },
   },
   {
     name: "Reformer Pilates",
@@ -61,7 +61,7 @@ const TRACKS = [
     capacity: 10,
     price: 20,
     sessions: ["dawn"],
-    times: { dawn: "8:30 AM" },
+    times: { dawn: "8:15 AM" },
   },
   {
     name: "Chair Pilates",
@@ -72,7 +72,7 @@ const TRACKS = [
     capacity: 8,
     price: 20,
     sessions: ["dawn"],
-    times: { dawn: "8:30 AM" },
+    times: { dawn: "8:15 AM" },
   },
 ];
 
@@ -92,7 +92,7 @@ const GRID_CARDS = [
   {
     name: "5k Run",
     image: "/live/tracks/run.jpg",
-    description: "5k outdoor run around church.",
+    description: "5k outdoor run.",
   },
   {
     name: "Pilates",
@@ -177,7 +177,11 @@ export function TrackSection() {
       const res = await fetch("/api/live/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items, termsAccepted, termsAcceptedAt: new Date().toISOString() }),
+        body: JSON.stringify({
+          items,
+          termsAccepted,
+          termsAcceptedAt: new Date().toISOString(),
+        }),
       });
 
       if (res.status === 409) {
@@ -254,13 +258,16 @@ export function TrackSection() {
           ))}
         </div>
 
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex flex-col items-center gap-4">
           <button
             onClick={() => setModalOpen(true)}
             className="rounded-full bg-primary px-8 py-3.5 text-base font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
           >
             Join A Track
           </button>
+          <p className="mx-auto mb-12 max-w-xl text-center text-base leading-relaxed  md:text-lg text-white/60">
+            Location for all activation tracks will be at Collective.
+          </p>
         </div>
       </div>
 

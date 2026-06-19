@@ -115,6 +115,11 @@ export function SpeakersSection() {
               </div>
               <p className="mb-0.5 text-lg font-black text-white transition-colors duration-200 group-hover:text-white/80 md:text-xl">
                 {speaker.name}
+                {speaker.language && (
+                  <span className="ml-2 align-middle rounded-full bg-white/20 px-2 py-0.5 text-xs font-semibold">
+                    {speaker.language}
+                  </span>
+                )}
               </p>
               {speaker.title && (
                 <p className="mb-1.5 text-sm text-white/80">{speaker.title}</p>

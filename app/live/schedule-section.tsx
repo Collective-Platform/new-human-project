@@ -9,7 +9,12 @@ type ScheduleItem = {
 };
 
 const SCHEDULE: ScheduleItem[] = [
-  { time: "7:00", segment: "The Dawn Activation Track", type: "track" },
+  {
+    time: "6:45",
+    segment: "Dawn Activation Track",
+    type: "track",
+    note: "*Pre-registration required (see below)",
+  },
   { time: "8:30", segment: "Break", type: "break" },
   { time: "10:00", segment: "Registration", type: "logistics" },
   { time: "10:15", segment: "Doors Open", type: "logistics" },
@@ -37,7 +42,12 @@ const SCHEDULE: ScheduleItem[] = [
     type: "keynote",
   },
 
-  { time: "16:00", segment: "The Dusk Activation Track", type: "track" },
+  {
+    time: "16:00",
+    segment: "Dusk Activation Track",
+    type: "track",
+    note: "*Pre-registration required (see below)",
+  },
 ];
 
 function ScheduleRow({ item }: { item: ScheduleItem }) {
@@ -63,7 +73,7 @@ function ScheduleRow({ item }: { item: ScheduleItem }) {
           )}
         </div>
         {item.note && (
-          <span className="text-sm text-white/40">{item.note}</span>
+          <span className="text-sm text-white/60">{item.note}</span>
         )}
       </div>
     </div>
