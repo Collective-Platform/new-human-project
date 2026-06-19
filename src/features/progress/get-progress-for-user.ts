@@ -30,6 +30,9 @@ export interface ProgressPayload {
   carousel: ProgressCarouselDay[];
   tasks: ProgressTask[];
   taskIdsByDay: Record<number, string[]>;
+  // Full completion map across ALL days, keyed by taskId. The client holds this
+  // so day-switches resolve completion state locally without a server round-trip.
+  completions: Record<string, Record<string, unknown> | null>;
 }
 
 export async function getProgressForUser(
@@ -62,5 +65,6 @@ export async function getProgressForUser(
     carousel: state.carousel,
     tasks,
     taskIdsByDay: state.taskIdsByDay,
+    completions: state.completions,
   };
 }

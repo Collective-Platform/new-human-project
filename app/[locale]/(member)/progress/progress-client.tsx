@@ -92,16 +92,10 @@ export function ProgressClient({
   const skipNextPopRef = useRef(false);
   const initialTaskIdRef = useRef(initialTaskId);
 
-  // Pre-compute initial completions from SSR data. Used as fallback when the
-  // context hasn't been initialized yet (first paint of first session load).
-  // On soft navigation back, ctx.state is already set and this is ignored.
-  const initialCompletions = useRef(
-    Object.fromEntries(
-      initialData.tasks
-        .filter((t) => t.completed)
-        .map((t): [string, Record<string, unknown> | null] => [t.id, t.completionData ?? null]),
-    ),
-  );
+  // Full completion map across ALL days from SSR. Used as the fallback before the
+  // context is initialized (first paint / hard reload). Must be the complete map,
+  // not just the selected day's tasks — otherwise other days render as unchecked.
+  const initialCompletions = useRef(initialData.completions);
 
   // Initialize the context from SSR data. The provider's initializedRef means
   // this is a no-op on soft navigation back (context already has correct state).
