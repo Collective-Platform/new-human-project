@@ -6,93 +6,18 @@ import { useTranslations } from "next-intl";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
 import { TaskDetail } from "./task-detail";
-import type { ProgressPayload } from "@/src/features/progress";
-import { completeTask, uncompleteTask } from "@/src/features/tasks/actions";
+import type { ProgressPayload, ProgressTask, DayContentTask } from "@/src/features/progress";
+import { useProgressContext } from "@/src/features/progress/progress-context";
 
-type TaskData = ProgressPayload["tasks"][number];
-type ProgressData = ProgressPayload;
-
-// Optimistic completion overrides, persisted to localStorage so a checked task
-// stays checked across client navigation AND full reloads, even when the server
-// payload (RSC router cache / "use cache" data) hasn't caught up yet. Each entry
-// is dropped automatically once the server payload agrees (see reconcile below),
-// so a stale override can never permanently mask a genuine server-side change.
-const OVERRIDE_KEY = "progress-task-overrides-v1";
-
-function readOverrides(): Record<string, boolean> {
-  if (typeof window === "undefined") return {};
-  try {
-    return JSON.parse(window.localStorage.getItem(OVERRIDE_KEY) || "{}") as Record<string, boolean>;
-  } catch {
-    return {};
-  }
-}
-
-function writeOverride(taskId: string, completed: boolean): void {
-  if (typeof window === "undefined") return;
-  const all = readOverrides();
-  all[taskId] = completed;
-  try {
-    window.localStorage.setItem(OVERRIDE_KEY, JSON.stringify(all));
-  } catch {
-    // storage full / disabled — non-fatal, the in-memory state still updates.
-  }
-}
-
-function clearOverride(taskId: string): void {
-  if (typeof window === "undefined") return;
-  const all = readOverrides();
-  if (!(taskId in all)) return;
-  delete all[taskId];
-  try {
-    window.localStorage.setItem(OVERRIDE_KEY, JSON.stringify(all));
-  } catch {
-    // non-fatal
-  }
-}
-
-function applyPendingOverlay(data: ProgressData): ProgressData {
-  const overrides = readOverrides();
-  if (Object.keys(overrides).length === 0) return data;
-
-  let changed = false;
-  const tasks = data.tasks.map((t) => {
-    const o = overrides[t.id];
-    if (o === undefined || o === t.completed) return t;
-    changed = true;
-    return { ...t, completed: o };
-  });
-  if (!changed) return data;
-
-  // Keep the selected day's carousel chip in sync with the overlaid tasks so the
-  // day badge and the checkboxes can never disagree (the "day done but task
-  // unchecked" symptom).
-  const allDone = tasks.length > 0 && tasks.every((t) => t.completed);
-  const carousel = data.carousel.map((c) =>
-    c.day === data.selectedDay ? { ...c, fullyCompleted: allDone } : c,
-  );
-  return { ...data, tasks, carousel };
-}
-
-// Drop any override the server payload already reflects, so localStorage stays
-// small and self-heals. Compares against the RAW server data, not the overlay.
-function reconcileOverrides(data: ProgressData): void {
-  const overrides = readOverrides();
-  for (const t of data.tasks) {
-    if (t.id in overrides && overrides[t.id] === t.completed) clearOverride(t.id);
-  }
-}
+type TaskData = ProgressTask;
 
 function computeLocalCurrentDay(blockStartDate: string): number {
   const msPerDay = 86_400_000;
   const now = new Date();
-  // "today" as the user's LOCAL calendar date, normalized to a UTC epoch value
   const todayMs = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-  // onboarding date stays in UTC (matches server storage)
   const start = new Date(blockStartDate);
   const startMs = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
-  const elapsed = Math.floor((todayMs - startMs) / msPerDay);
-  return Math.min(Math.max(elapsed + 1, 1), 25);
+  return Math.min(Math.max(Math.floor((todayMs - startMs) / msPerDay) + 1, 1), 25);
 }
 
 function toChineseNumeral(n: number): string {
@@ -104,6 +29,22 @@ function toChineseNumeral(n: number): string {
   return "二十" + ones[n % 10];
 }
 
+function stripCompletion(t: ProgressTask): DayContentTask {
+  const { completed: _c, completionData: _d, ...rest } = t;
+  return rest;
+}
+
+function mergedTasks(
+  dayTasks: DayContentTask[],
+  completions: Record<string, Record<string, unknown> | null>,
+): ProgressTask[] {
+  return dayTasks.map((t) => ({
+    ...t,
+    completed: t.id in completions,
+    completionData: completions[t.id] ?? null,
+  }));
+}
+
 export function ProgressClient({
   locale,
   initialData,
@@ -112,131 +53,121 @@ export function ProgressClient({
   unlockMs,
 }: {
   locale: string;
-  initialData: ProgressData;
+  initialData: ProgressPayload;
   initialTaskId?: string;
   isLocked?: boolean;
   unlockMs?: number;
 }) {
   const pathname = usePathname();
   const t = useTranslations("progress");
+  const ctx = useProgressContext();
+
   const [locked, setLocked] = useState(initialLocked ?? false);
-  // Seeded from server-rendered payload — first paint shows real content,
-  // no initial-load spinner. (Task 2.0 of tasks-perf-improvements.md)
-  const [data, setData] = useState<ProgressData>(() => applyPendingOverlay(initialData));
-  const [selectedDay, setSelectedDay] = useState<number>(initialData.selectedDay);
+
+  // Restore to the day the user was on before navigating away. ctx.state is
+  // already set on soft navigation back (layout provider persists). Fall back
+  // to the SSR-provided selectedDay on first load / hard reload.
+  const [selectedDay, setSelectedDay] = useState<number>(
+    ctx.state?.selectedDay ?? initialData.selectedDay,
+  );
+
+  // Day content only — no completion state. Merged with context at render time.
+  // On soft navigation back, ctx.state.selectedDay may differ from initialData
+  // (user had navigated to a different day). The restore effect below fetches
+  // the correct day's content if needed.
+  const [dayTasks, setDayTasks] = useState<DayContentTask[]>(
+    () => initialData.tasks.map(stripCompletion),
+  );
+
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
   const [activeTaskMode, setActiveTaskMode] = useState<"add" | number>("add");
 
-  // Intent-based prefetch cache for day data. (Task 3.0)
-  // Hovering / touching a day chip warms this cache so the subsequent
-  // tap can resolve from memory instead of waiting on a round-trip.
-  // This is intentionally a small ad-hoc cache that will be replaced
-  // by TanStack Query in Task 4.0 — keep the surface minimal.
-  const dayCacheRef = useRef<Map<number, ProgressData>>(
-    new Map([[initialData.selectedDay, applyPendingOverlay(initialData)]]),
+  // Static day content cache: day → DayContentTask[].
+  // Content never changes so cache entries never need invalidation.
+  const dayCacheRef = useRef<Map<number, DayContentTask[]>>(
+    new Map([[initialData.selectedDay, initialData.tasks.map(stripCompletion)]]),
   );
-  const inFlightRef = useRef<Map<number, Promise<ProgressData | null>>>(new Map());
+  const inFlightRef = useRef<Map<number, Promise<DayContentTask[] | null>>>(new Map());
   const taskNavStack = useRef<Array<{ task: TaskData; mode: "add" | number }>>([]);
   const skipNextPopRef = useRef(false);
   const initialTaskIdRef = useRef(initialTaskId);
 
-  useEffect(() => {
-    // Drop overrides the (raw) server payload already reflects before overlaying,
-    // so confirmed completions stop being re-applied and the store self-heals.
-    reconcileOverrides(initialData);
-    const localDay = computeLocalCurrentDay(initialData.blockStartDate);
-    const overlaid = applyPendingOverlay({ ...initialData, currentDay: localDay });
-    setSelectedDay(initialData.selectedDay);
-    setData(overlaid);
-    dayCacheRef.current = new Map([[initialData.selectedDay, overlaid]]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialData.selectedDay]);
+  // Pre-compute initial completions from SSR data. Used as fallback when the
+  // context hasn't been initialized yet (first paint of first session load).
+  // On soft navigation back, ctx.state is already set and this is ignored.
+  const initialCompletions = useRef(
+    Object.fromEntries(
+      initialData.tasks
+        .filter((t) => t.completed)
+        .map((t): [string, Record<string, unknown> | null] => [t.id, t.completionData ?? null]),
+    ),
+  );
 
+  // Initialize the context from SSR data. The provider's initializedRef means
+  // this is a no-op on soft navigation back (context already has correct state).
+  useEffect(() => {
+    ctx.initialize({
+      blockNumber: initialData.blockNumber,
+      blockStartDate: initialData.blockStartDate,
+      currentDay: computeLocalCurrentDay(initialData.blockStartDate),
+      selectedDay: initialData.selectedDay,
+      missedDays: initialData.missedDays,
+      carousel: initialData.carousel,
+      completions: initialCompletions.current,
+      taskIdsByDay: initialData.taskIdsByDay,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // mount-only
+
+  // On soft navigation back, ctx.state.selectedDay may differ from the SSR
+  // initialData (user was on a different day when they left). Fetch that day's
+  // content so the task list matches the restored carousel selection.
+  useEffect(() => {
+    const restoredDay = ctx.state?.selectedDay;
+    if (!restoredDay || restoredDay === initialData.selectedDay) return;
+    const cached = dayCacheRef.current.get(restoredDay);
+    if (cached) { setDayTasks(cached); return; }
+    void loadDayContent(restoredDay).then((content) => { if (content) setDayTasks(content); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // mount-only — ctx.state is synchronously available on soft nav back
+
+  // Open deep-linked task. Runs once state is ready; no-op after initialTaskId is cleared.
   useEffect(() => {
     if (!initialTaskIdRef.current) return;
-    const task = data.tasks.find((t) => t.id === initialTaskIdRef.current);
+    const completions = ctx.state?.completions ?? initialCompletions.current;
+    const tasks = mergedTasks(dayTasks, completions);
+    const task = tasks.find((t) => t.id === initialTaskIdRef.current);
     if (task) {
       handleTaskTap(task);
       initialTaskIdRef.current = undefined;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // mount-only: data.tasks is pre-populated from server-rendered initialData
+  }, [ctx.state]); // fires once ctx.state becomes non-null (or immediately if already set)
 
-  async function loadDay(day: number): Promise<ProgressData | null> {
-    const cached = dayCacheRef.current.get(day);
-    if (cached) return cached;
-
-    const existing = inFlightRef.current.get(day);
-    if (existing) return existing;
-
-    const promise = (async () => {
-      try {
-        const res = await fetch(`/api/progress?day=${day}&locale=${locale}`, {
-          cache: "no-store",
-        });
-        if (!res.ok) return null;
-        const d: ProgressData = await res.json();
-        dayCacheRef.current.set(day, d);
-        return d;
-      } finally {
-        inFlightRef.current.delete(day);
-      }
-    })();
-    inFlightRef.current.set(day, promise);
-    return promise;
-  }
-
-  // Fire-and-forget warm-up — no UI change, just primes the cache.
-  function prefetchDay(day: number) {
-    if (dayCacheRef.current.has(day) || inFlightRef.current.has(day)) return;
-    void loadDay(day);
-  }
-
-  async function fetchDay(day: number) {
-    const d = await loadDay(day);
-    if (!d) return;
-    // Reconcile overrides the server already confirms, then re-apply any
-    // still-pending overrides so carousel navigation never shows a stale unchecked
-    // state while the server cache catches up.
-    reconcileOverrides(d);
-    const overlaid = applyPendingOverlay(d);
-    setData((prev) => ({ ...overlaid, currentDay: prev.currentDay }));
-    if (overlaid !== d) dayCacheRef.current.set(day, overlaid);
-  }
-
-  // Advance currentDay at the user's local midnight so the "Today" label updates
-  // without a page refresh.
+  // Advance currentDay at the user's local midnight so the "Today" label updates.
   useEffect(() => {
     const now = new Date();
     const nextLocalMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
     const timer = setTimeout(() => {
-      setData((prev) => ({
-        ...prev,
-        currentDay: computeLocalCurrentDay(prev.blockStartDate),
-      }));
+      ctx.updateCurrentDay(computeLocalCurrentDay(initialData.blockStartDate));
     }, nextLocalMidnight.getTime() - now.getTime());
     return () => clearTimeout(timer);
-  }, []); // mount-only — fires at the next local midnight then cleans up
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // mount-only
 
-  // Warm the immediate neighbors of the current day on mount so the most
-  // common "peek at yesterday/tomorrow" path is instant. Runs once after
-  // hydration via requestIdleCallback so it doesn't compete with paint.
-  // Bounded to [1, 25] and skips the already-cached current day. (Task 3.0)
+  // Warm immediate neighbors after hydration.
   useEffect(() => {
     const neighbors = [initialData.currentDay - 1, initialData.currentDay + 1].filter(
       (d) => d >= 1 && d <= 25,
     );
-
     const idle =
       typeof window !== "undefined" && "requestIdleCallback" in window
         ? (window as Window).requestIdleCallback
         : null;
-
     const handle =
       idle != null
         ? idle(() => neighbors.forEach(prefetchDay))
         : window.setTimeout(() => neighbors.forEach(prefetchDay), 200);
-
     return () => {
       if (idle != null && "cancelIdleCallback" in window) {
         (window as Window).cancelIdleCallback(handle as number);
@@ -244,27 +175,20 @@ export function ProgressClient({
         clearTimeout(handle as number);
       }
     };
-    // Mount-only; prefetchDay is stable (only writes to refs).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (!locked || !unlockMs) return;
     const remaining = unlockMs - Date.now();
-    if (remaining <= 0) {
-      setLocked(false);
-      return;
-    }
+    if (remaining <= 0) { setLocked(false); return; }
     const id = setTimeout(() => setLocked(false), remaining);
     return () => clearTimeout(id);
   }, [locked, unlockMs]);
 
   useEffect(() => {
     function onPopState() {
-      if (skipNextPopRef.current) {
-        skipNextPopRef.current = false;
-        return;
-      }
+      if (skipNextPopRef.current) { skipNextPopRef.current = false; return; }
       taskNavStack.current.pop();
       const prev = taskNavStack.current[taskNavStack.current.length - 1];
       if (prev) {
@@ -279,128 +203,64 @@ export function ProgressClient({
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  // Optimistically apply a patch to a single task in local state, then run
-  // a fetch in the background. If the request fails, roll back to the
-  // previous task snapshot. We never await fetchDay here — UI flips first,
-  // server reconciles second. (Task 1.0 of tasks-perf-improvements.md)
-  // Also patches the prefetch cache (Task 3.0) so navigating away and back
-  // doesn't restore stale completion state from the cache.
-  function applyTaskPatch(taskId: string, patch: Partial<TaskData>) {
-    setData((prev) => {
-      const newTasks = prev.tasks.map((t) => {
-        if (t.id !== taskId) return t;
-        // Merge completionData rather than overwrite so concurrent autosaves
-        // (practice + reflection firing in the same debounce window) accumulate
-        // both fields. The updater form of setData applies patches sequentially,
-        // so the second patch sees the first patch's output as `t.completionData`.
-        const completionData =
-          patch.completionData !== undefined
-            ? { ...t.completionData, ...patch.completionData }
-            : t.completionData;
-        return { ...t, ...patch, completionData };
-      });
-      const allDone = newTasks.every((t) => t.completed);
-      return {
-        ...prev,
-        tasks: newTasks,
-        carousel: prev.carousel.map((c) =>
-          c.day === selectedDay ? { ...c, fullyCompleted: allDone } : c,
-        ),
-      };
-    });
-    // Patch the selected day in dayCacheRef and propagate the updated carousel
-    // entry for selectedDay into every other cached day's payload so that
-    // navigating the carousel never shows a stale fullyCompleted chip.
-    const cached = dayCacheRef.current.get(selectedDay);
-    if (cached) {
-      const newCachedTasks = cached.tasks.map((t) => {
-        if (t.id !== taskId) return t;
-        const completionData =
-          patch.completionData !== undefined
-            ? { ...t.completionData, ...patch.completionData }
-            : t.completionData;
-        return { ...t, ...patch, completionData };
-      });
-      const allDone = newCachedTasks.every((t) => t.completed);
-      dayCacheRef.current.set(selectedDay, {
-        ...cached,
-        tasks: newCachedTasks,
-        carousel: cached.carousel.map((c) =>
-          c.day === selectedDay ? { ...c, fullyCompleted: allDone } : c,
-        ),
-      });
-      for (const [day, other] of Array.from(dayCacheRef.current.entries())) {
-        if (day !== selectedDay) {
-          dayCacheRef.current.set(day, {
-            ...other,
-            carousel: other.carousel.map((c) =>
-              c.day === selectedDay ? { ...c, fullyCompleted: allDone } : c,
-            ),
-          });
-        }
+  // --- Content fetching ---
+
+  async function loadDayContent(day: number): Promise<DayContentTask[] | null> {
+    const cached = dayCacheRef.current.get(day);
+    if (cached) return cached;
+
+    const existing = inFlightRef.current.get(day);
+    if (existing) return existing;
+
+    const promise = (async () => {
+      try {
+        const res = await fetch(`/api/progress/day?day=${day}&locale=${locale}`);
+        if (!res.ok) return null;
+        const data = (await res.json()) as { tasks: DayContentTask[] };
+        dayCacheRef.current.set(day, data.tasks);
+        return data.tasks;
+      } finally {
+        inFlightRef.current.delete(day);
       }
+    })();
+    inFlightRef.current.set(day, promise);
+    return promise;
+  }
+
+  function prefetchDay(day: number) {
+    if (dayCacheRef.current.has(day) || inFlightRef.current.has(day)) return;
+    void loadDayContent(day);
+  }
+
+  // --- Handlers ---
+
+  async function handleDaySelect(day: number) {
+    setSelectedDay(day);
+    ctx.updateSelectedDay(day);
+    setActiveTask(null);
+    window.history.replaceState(null, "", `${pathname}?day=${day}`);
+
+    const cached = dayCacheRef.current.get(day);
+    if (cached) {
+      setDayTasks(cached);
+      return;
     }
+    const content = await loadDayContent(day);
+    if (content) setDayTasks(content);
   }
 
   async function handleComplete(taskId: string, taskData?: Record<string, unknown>) {
     if (locked) return;
-    const previous = data.tasks.find((t) => t.id === taskId);
-    if (!previous) return;
-
-    // Optimistic: mark complete immediately so Next/checkbox feel instant.
-    applyTaskPatch(taskId, {
-      completed: true,
-      completionData: taskData ?? previous.completionData,
-    });
-    // Persist the override BEFORE the server round-trip so the checked state
-    // survives navigation even if the user leaves before completeTask() resolves.
-    writeOverride(taskId, true);
-
-    // Background write — no await, no full-day refetch. When Next is clicked
-    // after reflection autosave, preserve the existing completion data
-    // instead of sending undefined and overwriting the row with `{}`.
-    const completionData = taskData ?? previous.completionData ?? {};
-    try {
-      const result = await completeTask({ taskId, data: completionData });
-      if ("error" in result) {
-        applyTaskPatch(taskId, {
-          completed: previous.completed,
-          completionData: previous.completionData,
-        });
-        clearOverride(taskId);
-      }
-    } catch {
-      applyTaskPatch(taskId, {
-        completed: previous.completed,
-        completionData: previous.completionData,
-      });
-      clearOverride(taskId);
-    }
+    await ctx.markComplete(taskId, taskData);
   }
 
   async function handleToggleComplete(taskId: string) {
     if (locked) return;
-    const previous = data.tasks.find((t) => t.id === taskId);
-    if (!previous) return;
-
-    const nextCompleted = !previous.completed;
-
-    // Optimistic flip: checkbox updates within the same frame as the tap.
-    applyTaskPatch(taskId, { completed: nextCompleted });
-    // Persist the override BEFORE the server round-trip so it survives navigation.
-    writeOverride(taskId, nextCompleted);
-
-    try {
-      const result = previous.completed
-        ? await uncompleteTask({ taskId })
-        : await completeTask({ taskId });
-      if ("error" in result) {
-        applyTaskPatch(taskId, { completed: previous.completed });
-        clearOverride(taskId);
-      }
-    } catch {
-      applyTaskPatch(taskId, { completed: previous.completed });
-      clearOverride(taskId);
+    const completions = ctx.state?.completions ?? initialCompletions.current;
+    if (taskId in completions) {
+      await ctx.markIncomplete(taskId);
+    } else {
+      await ctx.markComplete(taskId);
     }
   }
 
@@ -427,21 +287,24 @@ export function ProgressClient({
     setActiveTask(task);
   }
 
-  async function handleDaySelect(day: number) {
-    setSelectedDay(day);
-    setActiveTask(null);
-    window.history.replaceState(null, "", `${pathname}?day=${day}`);
-    await fetchDay(day);
-  }
+  // Derive rendered state: context when available, SSR fallback on first paint.
+  // On soft navigation back, ctx.state is already set (layout provider persists).
+  // On first load, ctx.state is null until the mount effect fires; SSR data fills in.
+  const completions = ctx.state?.completions ?? initialCompletions.current;
+  const carousel = ctx.state?.carousel ?? initialData.carousel;
+  const missedDays = ctx.state?.missedDays ?? initialData.missedDays;
+  const currentDay = ctx.state?.currentDay ?? initialData.currentDay;
+
+  const tasks = mergedTasks(dayTasks, completions);
 
   if (activeTask) {
-    const current = data.tasks.find((t) => t.id === activeTask.id) ?? activeTask;
-    const categoryTasks = data.tasks.filter((t) => t.category === current.category);
+    const current = tasks.find((t) => t.id === activeTask.id) ?? activeTask;
+    const categoryTasks = tasks.filter((t) => t.category === current.category);
     return (
       <TaskDetail
         task={current}
         locale={locale}
-        blockNumber={data.blockNumber}
+        blockNumber={initialData.blockNumber}
         dayNumber={selectedDay}
         onCompleteAction={handleComplete}
         onCloseAction={() => {
@@ -478,12 +341,12 @@ export function ProgressClient({
         </div>
       )}
       <DayCarousel
-        days={data.carousel}
+        days={carousel}
         selectedDay={selectedDay}
         onSelectAction={handleDaySelect}
         onPrefetchAction={prefetchDay}
-        blockStartDate={data.blockStartDate}
-        currentDay={data.currentDay}
+        blockStartDate={initialData.blockStartDate}
+        currentDay={currentDay}
         locale={locale}
         todayLabel={t("today")}
       />
@@ -494,10 +357,10 @@ export function ProgressClient({
             ? t("dayLabel", { day: toChineseNumeral(selectedDay) })
             : t("dayLabel", { day: selectedDay })}
         </h2>
-        {data.missedDays > 0 ? (
+        {missedDays > 0 ? (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
             <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
-              {t("missedDays", { count: data.missedDays })}
+              {t("missedDays", { count: missedDays })}
             </span>
           </div>
         ) : (
@@ -510,7 +373,7 @@ export function ProgressClient({
       </div>
 
       <TaskList
-        tasks={data.tasks}
+        tasks={tasks}
         onTaskTapAction={handleTaskTap}
         onToggleCompleteAction={handleToggleComplete}
         onAddEntryAction={handleAddEntry}

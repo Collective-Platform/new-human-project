@@ -5,6 +5,7 @@ import { BottomNav } from "./bottom-nav";
 import { NavVisibilityProvider } from "./nav-visibility";
 import { SwRegisterLoader } from "./sw-register-loader";
 import { AuthGate } from "./auth-gate";
+import { ProgressProvider } from "@/src/features/progress/progress-context";
 
 export default async function MemberLayout({
   children,
@@ -17,6 +18,7 @@ export default async function MemberLayout({
   setRequestLocale(locale);
 
   return (
+    <ProgressProvider>
     <div className="flex flex-col h-[100dvh] bg-surface overflow-hidden">
       {/* Splash screen — only shown inside the PWA member shell, not on /live or /landing */}
       <div
@@ -69,5 +71,6 @@ export default async function MemberLayout({
       </NavVisibilityProvider>
       <SwRegisterLoader />
     </div>
+    </ProgressProvider>
   );
 }

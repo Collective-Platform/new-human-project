@@ -4,12 +4,16 @@
 //
 
 import Image from "next/image";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { CountdownTimer } from "./countdown-timer";
 import { DressCodeSection } from "./dress-code-section";
 import { FaqSection } from "./faq-section";
+import { PartnersSection } from "./partners-section";
 import { PillarsSection } from "./pillars-section";
+import { RegisteredBanner } from "./registered-banner";
+import { ScheduleSection } from "./schedule-section";
 import { SpeakersSection } from "./speakers-section";
+import { TrackSection } from "./track-section";
 
 const TICKET_URL = "https://www.ticket2u.com.my/event/50219/rhythm-live";
 
@@ -92,6 +96,12 @@ export default function RhythmLivePage() {
                 Speakers
               </a>
               <a
+                href="#tracks"
+                className="hidden text-sm font-medium text-white/90 transition-colors hover:text-white md:block"
+              >
+                Activation Tracks
+              </a>
+              <a
                 href="#faq"
                 className="hidden text-sm font-medium text-white/90 transition-colors hover:text-white md:block shadow-black shadow-"
               >
@@ -150,6 +160,15 @@ export default function RhythmLivePage() {
 
       {/* ── SPEAKERS ────────────────────────────────────────────────────────── */}
       <SpeakersSection />
+
+      {/* ── SCHEDULE ────────────────────────────────────────────────────────── */}
+      <ScheduleSection />
+
+      {/* ── TRACKS ──────────────────────────────────────────────────────────── */}
+      <TrackSection />
+
+      {/* ── OUR PARTNERS ────────────────────────────────────────────────────── */}
+      <PartnersSection />
 
       {/* ── DRESS CODE ──────────────────────────────────────────────────────── */}
       <DressCodeSection />
@@ -242,6 +261,10 @@ export default function RhythmLivePage() {
           No walk-ins. Once tickets are gone, registration closes.
         </p>
       </section>
+
+      <Suspense>
+        <RegisteredBanner />
+      </Suspense>
     </div>
   );
 }

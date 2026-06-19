@@ -1,4 +1,3 @@
-import { cacheTag, cacheLife } from "next/cache";
 import { getDayContent } from "./get-day-content";
 import { getUserProgressState } from "./get-user-progress-state";
 
@@ -30,6 +29,7 @@ export interface ProgressPayload {
   missedDays: number;
   carousel: ProgressCarouselDay[];
   tasks: ProgressTask[];
+  taskIdsByDay: Record<number, string[]>;
 }
 
 export async function getProgressForUser(
@@ -39,9 +39,6 @@ export async function getProgressForUser(
   locale: "en" | "zh",
   currentDay: number,
 ): Promise<ProgressPayload> {
-  "use cache";
-  cacheTag(`progress:${userId}`);
-  cacheLife("minutes");
   const blockNumber = 1;
   const selectedDay = Math.min(Math.max(requestedDayParam ?? currentDay, 1), 25);
 
@@ -64,5 +61,6 @@ export async function getProgressForUser(
     missedDays: state.missedDays,
     carousel: state.carousel,
     tasks,
+    taskIdsByDay: state.taskIdsByDay,
   };
 }

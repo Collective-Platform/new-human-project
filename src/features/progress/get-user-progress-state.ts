@@ -11,6 +11,7 @@ export interface UserProgressState {
   completions: Record<string, Record<string, unknown> | null>;
   carousel: ProgressCarouselDay[];
   missedDays: number;
+  taskIdsByDay: Record<number, string[]>;
 }
 
 // Not cached — one fast indexed DB query, always returns the freshest completion
@@ -43,10 +44,12 @@ export async function getUserProgressState(
   }
 
   // Which days have every task completed (for carousel fullyCompleted).
+  const taskIdsByDay: Record<number, string[]> = {};
   const fullyCompletedDays = new Set<number>();
   for (let day = 1; day <= 25; day++) {
     const tasks = getRegistryDayTasks(blockNumber, day);
     if (tasks.length === 0) continue;
+    taskIdsByDay[day] = tasks.map((t) => t.id);
     if (tasks.every((t) => completedIds.has(t.id))) fullyCompletedDays.add(day);
   }
 
@@ -60,5 +63,5 @@ export async function getUserProgressState(
     if (!dayHasCompletion.has(d)) missedDays++;
   }
 
-  return { completions, carousel, missedDays };
+  return { completions, carousel, missedDays, taskIdsByDay };
 }

@@ -46,7 +46,7 @@ const SPEAKERS: {
     category: "Mental",
   },
   {
-    name: "Dr Andrew Lim",
+    name: "Dr Andrew Lim\n (林岭啸博士)",
     title: "Academic Dean, Bible College of Malaysia",
     bio: "Rev. Dr. Andrew Lim grew up in a pastor family as his parents are AG ministers. He graduated with a music degree in 1999 and later received his Master of Church Music in 2002. Then he continued his study in Hong Kong Alliance Bible Seminary and graduated in 2012 with a Master of Theology. In 2024, he received a PhD from Alphacrucis University College in Sydney. From 2003-2009, he served as the Worship and Youth pastor under the leadership of Rev. Lawrence Yap, Charis Christian Centre. Since 2012, he has been a full-time lecturer at Bible College of Malaysia and is currently the academic dean. He published a bible study book Pentecostal Beliefs: Full Gospel. He is currently a member of the Executive Committee of the Assembly of God in Malaysia, leading Home Mission Dept and Church Planting Commission. He married with Dr. Helen Lew with two children, Isaac and Hazel Lim.",
     bioZh:
@@ -91,7 +91,9 @@ export function SpeakersSection() {
     <section id="speakers" className="bg-black px-4 py-24 md:px-12">
       <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
-          <h2 className="text-4xl md:text-5xl font-black leading-[1.1] text-white">Voices</h2>
+          <h2 className="text-4xl md:text-5xl font-black leading-[1.1] text-white">
+            Voices
+          </h2>
         </div>
 
         <div className="grid grid-cols-2 gap-6 md:grid-cols-3 md:gap-8">
@@ -114,7 +116,9 @@ export function SpeakersSection() {
               <p className="mb-0.5 text-lg font-black text-white transition-colors duration-200 group-hover:text-white/80 md:text-xl">
                 {speaker.name}
               </p>
-              {speaker.title && <p className="mb-1.5 text-sm text-white/80">{speaker.title}</p>}
+              {speaker.title && (
+                <p className="mb-1.5 text-sm text-white/80">{speaker.title}</p>
+              )}
             </div>
           ))}
         </div>
@@ -146,9 +150,13 @@ export function SpeakersSection() {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-2xl md:text-lg font-black text-white">{selected.name}</p>
+                <p className="text-2xl md:text-lg font-black text-white">
+                  {selected.name}
+                </p>
                 {selected.title && (
-                  <p className="mt-0.5 text-base md:text-sm text-white/80">{selected.title}</p>
+                  <p className="mt-0.5 text-base md:text-sm text-white/80">
+                    {selected.title}
+                  </p>
                 )}
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   <span
