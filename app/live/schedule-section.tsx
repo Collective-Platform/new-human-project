@@ -22,7 +22,7 @@ const SCHEDULE: ScheduleItem[] = [
   { time: "10:30", segment: "Praise & Worship", type: "session" },
   {
     time: "10:50",
-    segment: "Intro - Kevin Loo",
+    segment: "Intro - Rev Kevin Loo",
     type: "keynote",
   },
   {
@@ -40,7 +40,7 @@ const SCHEDULE: ScheduleItem[] = [
   { time: "13:30", segment: "Doors Open", type: "logistics" },
   {
     time: "13:45",
-    segment: "Panel - Tim Tiah & Kysern",
+    segment: "Panel - Tim Tiah & Kysern Lim",
     type: "panel",
   },
   {
@@ -61,7 +61,9 @@ function ScheduleRow({ item }: { item: ScheduleItem }) {
   const isTrack = item.type === "track";
 
   return (
-    <div className={`flex items-start gap-4 py-4 ${!item.noBorderBottom ? "border-b border-white/10" : ""} ${!item.time ? "pt-0" : ""}`}>
+    <div
+      className={`flex items-start gap-4 py-4 ${!item.noBorderBottom ? "border-b border-white/10" : ""} ${!item.time ? "pt-0" : ""}`}
+    >
       <span className="w-14 shrink-0 tabular-nums text-sm font-semibold text-white md:w-18">
         {item.time}
       </span>
