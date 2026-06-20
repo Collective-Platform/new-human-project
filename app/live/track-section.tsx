@@ -30,6 +30,10 @@ const TRACKS = [
     price: 20,
     sessions: ["dawn", "dusk"],
     times: { dawn: "6:45 AM", dusk: "4:00 PM" },
+    sessionNames: {
+      dawn: "Spin - Noise Detox Ride",
+      dusk: "Spin - Collective Soul Ride",
+    },
   },
   {
     name: "5k Run",
@@ -50,7 +54,7 @@ const TRACKS = [
     capacity: 24,
     price: 20,
     sessions: ["dawn", "dusk"],
-    times: { dawn: "6:45 AM", dusk: "4:00 PM" },
+    times: { dawn: "7:45 AM", dusk: "4:00 PM" },
   },
   {
     name: "Reformer Pilates",
@@ -73,6 +77,18 @@ const TRACKS = [
     price: 20,
     sessions: ["dawn"],
     times: { dawn: "8:15 AM" },
+  },
+  {
+    name: "Mental Framing: Renewing Your Internal Narrative",
+    stripeKey: "MentalFraming",
+    description:
+      "Building a resilient mindset requires moving past passive listening—it demands active practice. In this intimate, casual workshop, Dan Blythe will give you the practical, scriptural tools to audit and reframe your internal dialogue. Focused on raw biblical affirmations and using the Word as spoken confession, you will learn how to write down and speak out a new mental baseline. Step out of the noise, grab a pen, and architect a mind designed for peace and performance.",
+    image: "/live/tracks/mental-framing.jpg",
+    capacity: 20,
+    price: 0,
+    sessions: ["dusk"],
+    times: { dusk: "4:00 PM" },
+    sessionNames: { dusk: "Mental Framing - Dan Blythe" },
   },
 ];
 
@@ -104,6 +120,12 @@ const GRID_CARDS = [
     image: "/live/tracks/breathwork.jpg",
     description:
       "Guided breathwork to regulate your nervous system and ending it with an ice plunge.",
+  },
+  {
+    name: "Mental Framing: Renewing Your Internal Narrative",
+    image: "/live/tracks/mental-framing.jpg",
+    description:
+      "An intimate workshop with Pr. Dan Blythe — practical, scriptural tools to audit and reframe your internal dialogue using biblical affirmations and spoken confession.",
   },
 ];
 
@@ -316,7 +338,9 @@ export function TrackSection() {
                           availability?.[track.stripeKey]?.[session.id];
                         const spotsLeft = avail
                           ? avail.capacity - avail.sold
-                          : null;
+                          : availability !== null
+                            ? track.capacity
+                            : null;
 
                         return (
                           <div
@@ -336,10 +360,14 @@ export function TrackSection() {
                             {/* Name + meta */}
                             <div className="flex-1 min-w-0">
                               <p className="text-sm md:text-base font-bold tracking-wide text-white">
-                                {track.name}
+                                {(
+                                  track as {
+                                    sessionNames?: Record<string, string>;
+                                  }
+                                ).sessionNames?.[session.id] ?? track.name}
                               </p>
                               <p className="mt-1 text-xs text-white/60">
-                                {track.times[session.id]} · RM{track.price}
+                                {track.times[session.id]} · {track.price === 0 ? "Free" : `RM${track.price}`}
                                 {spotsLeft !== null && spotsLeft > 0 && (
                                   <span
                                     className={

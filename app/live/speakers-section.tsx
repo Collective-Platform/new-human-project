@@ -53,7 +53,7 @@ const SPEAKERS: {
       "林岭啸牧师博士（Rev. Dr. Andrew Lim）出身自牧者家庭，父母皆为牧师。1999年，毕业自台湾师范大学音乐系，获音乐文学士，主修钢琴。后于2002年，毕业自新加坡神学院，获教会音乐硕士。2009年，赴香港建道神学院进修，并于2012年获得神学硕士，主修旧约（约伯记）。2024年，获得澳洲 Alphacrucis University College哲学博士，主修旧约（以西结书）。2003-2009年，任职于吉隆坡基督恩典中心，担任敬拜和青少年传道七年。2012年至今，任职马来西亚圣经学院（Bible College of Malaysia）全职讲师，并担任教务主任一职，并著有《五旬宗信仰之全备福音》查经书籍。现为马来西亚神召会执委会委员，并带领国内宣教部与植堂。与妻子刘海莲博士育有一男一女。",
     image: "/live/dr-andrew-lim.jpg",
     category: "Mental",
-    language: "Mandarin",
+    language: "Chinese",
   },
   {
     name: "CJ Lee",
@@ -61,6 +61,13 @@ const SPEAKERS: {
     bio: "CJ is the co-founder of MOVE Private Fitness, Southeast Asia's most established premium personal training brand, with 17 branches across Malaysia, Thailand and beyond. He is a recognized voice among fitness professionals across Asia having spoken at events such as Asia Fitness Conference, Beyond Activ, ExPro Fitness Conference, and IDEA Korea. His vision is to create a lasting ripple effect that empowers individuals, coaches and communities to live with purpose, resilience and hope.",
     image: "/live/cj-lee.jpg",
     category: "Physical",
+  },
+  {
+    name: "Dan Blythe",
+    title: "Global Youth Director, Alpha",
+    bio: "Dan is the Global Youth Director for Alpha. His passion is helping people face fear so they can live life to the full. Dan has led creative teams and projects over the last two decades. He loves to write and recently launched his first book 'Facing Fear 365'. Dan lives in London UK and is married to Charlie. They have two boys Knox age 8 and Niko age 4 who Dan is raising to support Chelsea FC.",
+    image: "/live/dan-blythe.jpg",
+    category: "Mental",
   },
   {
     name: "Wendy Vaz",

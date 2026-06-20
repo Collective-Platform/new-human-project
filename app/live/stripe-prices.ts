@@ -26,6 +26,9 @@ export const TRACK_PRICES: Record<
     dawn: { priceId: "price_1TjvWJHJ40gQ7FP8BdXER66O", capacity: 24 },
     dusk: { priceId: "price_1TjvWKHJ40gQ7FP8eyE78bpf", capacity: 24 },
   },
+  MentalFraming: {
+    dusk: { priceId: "price_1TjzzBHJ40gQ7FP8Axdpljhb", capacity: 20 },
+  },
 };
 
 //Test Price

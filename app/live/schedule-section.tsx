@@ -6,6 +6,7 @@ type ScheduleItem = {
   type: "track" | "break" | "session" | "keynote" | "panel" | "logistics";
   pillar?: Pillar;
   note?: string;
+  noBorderBottom?: boolean;
 };
 
 const SCHEDULE: ScheduleItem[] = [
@@ -27,6 +28,12 @@ const SCHEDULE: ScheduleItem[] = [
   {
     time: "11:10",
     segment: "Keynote - Dr. Victor Lee",
+    type: "keynote",
+    noBorderBottom: true,
+  },
+  {
+    time: "",
+    segment: "Keynote - Dr. Andrew Lim 林岭啸博士 (Chinese)",
     type: "keynote",
   },
   { time: "12:00", segment: "Lunch Break", type: "break" },
@@ -54,7 +61,7 @@ function ScheduleRow({ item }: { item: ScheduleItem }) {
   const isTrack = item.type === "track";
 
   return (
-    <div className="flex items-start gap-4 border-b border-white/10 py-4">
+    <div className={`flex items-start gap-4 py-4 ${!item.noBorderBottom ? "border-b border-white/10" : ""} ${!item.time ? "pt-0" : ""}`}>
       <span className="w-14 shrink-0 tabular-nums text-sm font-semibold text-white md:w-18">
         {item.time}
       </span>

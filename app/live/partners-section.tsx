@@ -55,31 +55,31 @@ export function PartnersSection() {
           <p className="mb-8 text-xs md:text-sm font-semibold uppercase tracking-[0.2em] text-white">
             Fitness Partners
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-            <div className="relative h-14 w-44 md:h-16 md:w-52">
+          <div className="grid grid-cols-2 gap-6 md:flex md:flex-wrap md:items-center md:justify-center md:gap-12">
+            <div className="relative h-14 w-full md:h-16 md:w-52">
               <Image
                 src="/live/crossfit-train-blackbox.png"
                 alt="CrossFit Train BlackBox"
                 fill
-                sizes="220px"
+                sizes="(max-width: 768px) 50vw, 220px"
                 className="object-contain"
               />
             </div>
-            <div className="relative h-14 w-44 md:h-16 md:w-52">
+            <div className="relative h-14 w-full md:h-16 md:w-52">
               <Image
                 src="/live/ho-cycle.png"
                 alt="Ho Cycle"
                 fill
-                sizes="220px"
+                sizes="(max-width: 768px) 50vw, 220px"
                 className="object-contain"
               />
             </div>
-            <div className="relative h-14 w-44 md:h-16 md:w-52">
+            <div className="relative h-14 w-full md:h-16 md:w-52">
               <Image
                 src="/live/retune-pilates.png"
                 alt="Retune Physiotherapy & Pilates"
                 fill
-                sizes="220px"
+                sizes="(max-width: 768px) 100vw, 220px"
                 className="object-contain"
               />
             </div>

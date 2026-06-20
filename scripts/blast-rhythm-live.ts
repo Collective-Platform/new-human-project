@@ -62,6 +62,7 @@ For more fun and adventure, we have LIVE activation sessions before and after th
 • Run
 • Pilates
 • Breathwork and cold plunge
+• Mental Framing with Dan Blythe
 
 Ready to have fun with others in the community? Slots are limited. It's first come first serve.
 
@@ -139,6 +140,7 @@ Collective`;
                 <li>Run</li>
                 <li>Pilates</li>
                 <li>Breathwork and cold plunge</li>
+                <li>Mental Framing with Dan Blythe</li>
               </ul>
               <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#171717;">
                 Ready to have fun with others in the community? Slots are limited. It's first come first serve.
