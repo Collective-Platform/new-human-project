@@ -125,7 +125,7 @@ const GRID_CARDS = [
     name: "Mental Framing: Renewing Your Internal Narrative",
     image: "/live/tracks/mental-framing.jpg",
     description:
-      "An intimate workshop with Pr. Dan Blythe — practical, scriptural tools to audit and reframe your internal dialogue using biblical affirmations and spoken confession.",
+      "Focused on raw biblical affirmations and using the Word as spoken confession, you will learn how to write down and speak out a new mental baseline. Step out of the noise, grab a pen, and architect a mind designed for peace and performance.",
   },
 ];
 
@@ -367,7 +367,10 @@ export function TrackSection() {
                                 ).sessionNames?.[session.id] ?? track.name}
                               </p>
                               <p className="mt-1 text-xs text-white/60">
-                                {track.times[session.id]} · {track.price === 0 ? "Free" : `RM${track.price}`}
+                                {track.times[session.id]} ·{" "}
+                                {track.price === 0
+                                  ? "Free"
+                                  : `RM${track.price}`}
                                 {spotsLeft !== null && spotsLeft > 0 && (
                                   <span
                                     className={
