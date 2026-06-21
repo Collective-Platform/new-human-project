@@ -18,7 +18,7 @@ const TRACKS = [
     capacity: 20,
     price: 20,
     sessions: ["dawn", "dusk"],
-    times: { dawn: "6:45 AM", dusk: "4:00 PM" },
+    times: { dawn: "7:00 AM", dusk: "4:00 PM" },
   },
   {
     name: "5k Run",
@@ -28,7 +28,7 @@ const TRACKS = [
     capacity: 30,
     price: 10,
     sessions: ["dawn"],
-    times: { dawn: "6:45 AM" },
+    times: { dawn: "7:00 AM" },
   },
   {
     name: "Breathwork & Ice Plunge",
@@ -39,7 +39,7 @@ const TRACKS = [
     capacity: 24,
     price: 20,
     sessions: ["dawn", "dusk"],
-    times: { dawn: "7:45 AM", dusk: "4:00 PM" },
+    times: { dawn: "8:00 AM", dusk: "4:00 PM" },
   },
   {
     name: "Spin",
@@ -65,7 +65,7 @@ const TRACKS = [
     capacity: 10,
     price: 20,
     sessions: ["dawn"],
-    times: { dawn: "8:15 AM" },
+    times: { dawn: "8:30 AM" },
   },
   {
     name: "Chair Pilates",
@@ -76,7 +76,7 @@ const TRACKS = [
     capacity: 8,
     price: 20,
     sessions: ["dawn"],
-    times: { dawn: "8:15 AM" },
+    times: { dawn: "8:30 AM" },
   },
   {
     name: "Mental Framing: Renewing Your Internal Narrative",
