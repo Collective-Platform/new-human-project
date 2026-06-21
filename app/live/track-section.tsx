@@ -21,21 +21,6 @@ const TRACKS = [
     times: { dawn: "6:45 AM", dusk: "4:00 PM" },
   },
   {
-    name: "Spin",
-    stripeKey: "Spin",
-    description:
-      "The ultimate indoor cycling workout, designed to give you an adrenaline rush of sweat, fun and energy.",
-    image: "/live/tracks/spin.jpg",
-    capacity: 25,
-    price: 20,
-    sessions: ["dawn", "dusk"],
-    times: { dawn: "6:45 AM", dusk: "4:00 PM" },
-    sessionNames: {
-      dawn: "Spin - Noise Detox Ride",
-      dusk: "Spin - Collective Soul Ride",
-    },
-  },
-  {
     name: "5k Run",
     stripeKey: "Run",
     description: "5k outdoor run around church.",
@@ -55,6 +40,21 @@ const TRACKS = [
     price: 20,
     sessions: ["dawn", "dusk"],
     times: { dawn: "7:45 AM", dusk: "4:00 PM" },
+  },
+  {
+    name: "Spin",
+    stripeKey: "Spin",
+    description:
+      "The ultimate indoor cycling workout, designed to give you an adrenaline rush of sweat, fun and energy.",
+    image: "/live/tracks/spin.jpg",
+    capacity: 25,
+    price: 20,
+    sessions: ["dawn", "dusk"],
+    times: { dawn: "8:00 AM", dusk: "4:00 PM" },
+    sessionNames: {
+      dawn: "Spin - Noise Detox Ride",
+      dusk: "Spin - Collective Soul Ride",
+    },
   },
   {
     name: "Reformer Pilates",
