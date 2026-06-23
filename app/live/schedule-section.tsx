@@ -11,7 +11,7 @@ type ScheduleItem = {
 
 const SCHEDULE: ScheduleItem[] = [
   {
-    time: "6:45",
+    time: "7:00",
     segment: "Dawn Activation Track",
     type: "track",
     note: "*Pre-registration required (see below)",

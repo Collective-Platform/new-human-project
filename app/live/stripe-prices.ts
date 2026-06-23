@@ -29,6 +29,9 @@ export const TRACK_PRICES: Record<
   MentalFraming: {
     dusk: { priceId: "price_1TjzzBHJ40gQ7FP8Axdpljhb", capacity: 20 },
   },
+  EmotionalCadence: {
+    dusk: { priceId: "price_1TlNXEHJ40gQ7FP8B64vICGE", capacity: 20 },
+  },
 };
 
 //Test Price

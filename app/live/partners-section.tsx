@@ -79,7 +79,16 @@ export function PartnersSection() {
                 src="/live/retune-pilates.png"
                 alt="Retune Physiotherapy & Pilates"
                 fill
-                sizes="(max-width: 768px) 100vw, 220px"
+                sizes="(max-width: 768px) 50vw, 220px"
+                className="object-contain"
+              />
+            </div>
+            <div className="relative h-14 w-full md:h-16 md:w-52">
+              <Image
+                src="/live/move-private-fitness.png"
+                alt="Move Private Fitness"
+                fill
+                sizes="(max-width: 768px) 50vw, 220px"
                 className="object-contain"
               />
             </div>

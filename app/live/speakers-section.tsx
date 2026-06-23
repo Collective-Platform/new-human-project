@@ -76,6 +76,13 @@ const SPEAKERS: {
     image: "/live/wendy-vaz.jpg",
     category: "Emotional",
   },
+  {
+    name: "Lynnette Chai",
+    title: "Co-founder, re:mind Psychology Center",
+    bio: "As a mental health and human development professional, Lynnette brings a unique blend of expertise to her roles as a licensed counselor, professional coach, and HR consultant. She seamlessly weaves empathy and expertise into every facet of her work, committing to helping individuals and organizations thrive.\n\nWith over a decade of experience in corporate environments and coupled with her knowledge in human psychology, Lynnette's expertise, as a professional coach and HRD certified trainer, lies in translating theoretical concepts into practical, actionable strategies for workplace wellness. Her focus extends beyond productivity; it's about fostering environments that nurture both individual growth and organizational success, contributing to a culture of excellence.\n\nAs the co-founder and consultant therapist at the re:mind Psychology Center, Lynnette specializes in guiding individuals and couples through psychological, mental, and emotional challenges, facilitating authentic self-discovery, and promoting holistic well-being amidst life's complexities.\n\nIn all her roles, Lynnette wears many hats with a common thread—fostering growth, resilience, and well-being. She is driven by a genuine passion for helping others and a commitment to creating meaningful, lasting change. In her words: “It isn’t just about knowledge; it’s about the art of connecting with individuals and organizations on a profound emotional level, creating spaces for transformation and flourishing.”",
+    image: "/live/lynnette-chai.jpg",
+    category: "Emotional",
+  },
 ];
 
 export function SpeakersSection() {
@@ -103,7 +110,7 @@ export function SpeakersSection() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-3 md:gap-8">
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
           {SPEAKERS.map((speaker, i) => (
             <div
               key={i}
@@ -116,7 +123,7 @@ export function SpeakersSection() {
                   alt={speaker.name}
                   fill
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  sizes="(max-width: 768px) 50vw, 33vw"
+                  sizes="(max-width: 768px) 50vw, 25vw"
                 />
                 <div className="absolute inset-0 bg-white/0 transition-colors duration-300 group-hover:bg-white/5" />
               </div>
