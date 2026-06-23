@@ -50,6 +50,8 @@
     "work": "Work",
     "school": "School",
     "health": "Health",
+    "god": "God",
+    "leisure": "Leisure",
     "moreContext": "More context (optional)",
     "submit": "Submit",
     "updateMood": "Update Mood",

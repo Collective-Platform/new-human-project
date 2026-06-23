@@ -4,9 +4,9 @@ const MOOD_ORDER = ["excellent", "good", "okay", "bad", "terrible"] as const;
 const MOOD_EMOJIS: Record<string, string> = {
   terrible: "😡",
   bad: "☹️",
-  okay: "😐",
-  good: "☺️",
-  excellent: "😆",
+  okay: "😶",
+  good: "😄",
+  excellent: "🤩",
 };
 const MOOD_LABELS: Record<string, string> = {
   terrible: "Terrible",

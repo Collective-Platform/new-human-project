@@ -8,19 +8,19 @@ import { TogglePill } from "@/app/components/toggle-pill";
 const moods = [
   { key: "terrible", emoji: "😡" },
   { key: "bad", emoji: "☹️" },
-  { key: "okay", emoji: "😐" },
-  { key: "good", emoji: "☺️" },
-  { key: "excellent", emoji: "😆" },
+  { key: "okay", emoji: "😶" },
+  { key: "good", emoji: "😄" },
+  { key: "excellent", emoji: "🤩" },
 ] as const;
 
-const influenceKeys = ["family", "friends", "love", "work", "school", "health"] as const;
+const influenceKeys = ["god", "family", "friends", "love", "work", "school", "health", "leisure"] as const;
 
 export const MOOD_EMOJI_MAP: Record<string, string> = {
   terrible: "😡",
   bad: "☹️",
-  okay: "😐",
-  good: "☺️",
-  excellent: "😆",
+  okay: "😶",
+  good: "😄",
+  excellent: "🤩",
 };
 
 export type MoodEntry = {
@@ -88,6 +88,8 @@ export function MoodLogRenderer({
     work: tm("work"),
     school: tm("school"),
     health: tm("health"),
+    god: tm("god"),
+    leisure: tm("leisure"),
   };
 
   function toggleMood(key: string) {
