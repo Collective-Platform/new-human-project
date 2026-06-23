@@ -85,7 +85,7 @@ const TRACKS = [
       "EQ isn't a checkbox; it's a sequence. You can't steward a feeling you haven't noticed. In this session you will move past answers like \"fine\" to map your personalized emotion wheel and experience firsthand how precise naming changes your next steps. Sign up today to walk away with a practical, daily practice for self-awareness.",
     image: "/live/tracks/emotional-cadence.jpg",
     capacity: 20,
-    price: 20,
+    price: 0,
     sessions: ["dusk"],
     times: { dusk: "4:00 PM" },
     sessionNames: { dusk: "Emotional Cadence - Lynnette Chai" },
@@ -467,7 +467,7 @@ export function TrackSection() {
                       disabled={loading || !termsAccepted}
                       className="rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
                     >
-                      {loading ? "Loading…" : "Pay now"}
+                      {loading ? "Loading…" : "Register Now"}
                     </button>
                   </div>
                 </div>
