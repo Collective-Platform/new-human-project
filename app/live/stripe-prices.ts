@@ -30,7 +30,7 @@ export const TRACK_PRICES: Record<
     dusk: { priceId: "price_1TjzzBHJ40gQ7FP8Axdpljhb", capacity: 20 },
   },
   EmotionalCadence: {
-    dusk: { priceId: "price_1TlNXEHJ40gQ7FP8B64vICGE", capacity: 20 },
+    dusk: { priceId: "price_1TlOm9HJ40gQ7FP8l7h0Tirp", capacity: 20 },
   },
 };
 
