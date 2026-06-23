@@ -26,7 +26,7 @@ const TRACKS = [
     description: "5k outdoor run around church.",
     image: "/live/tracks/run.jpg",
     capacity: 30,
-    price: 10,
+    price: 0,
     sessions: ["dawn"],
     times: { dawn: "7:00 AM" },
   },
