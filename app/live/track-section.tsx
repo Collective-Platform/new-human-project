@@ -79,6 +79,18 @@ const TRACKS = [
     times: { dawn: "8:30 AM" },
   },
   {
+    name: "Emotional Cadence",
+    stripeKey: "EmotionalCadence",
+    description:
+      "EQ isn't a checkbox; it's a sequence. You can't steward a feeling you haven't noticed. In this session you will move past answers like \"fine\" to map your personalized emotion wheel and experience firsthand how precise naming changes your next steps. Sign up today to walk away with a practical, daily practice for self-awareness.",
+    image: "/live/tracks/emotional-cadence.jpg",
+    capacity: 20,
+    price: 20,
+    sessions: ["dusk"],
+    times: { dusk: "4:00 PM" },
+    sessionNames: { dusk: "Emotional Cadence - Lynnette Chai" },
+  },
+  {
     name: "Mental Framing: Renewing Your Internal Narrative",
     stripeKey: "MentalFraming",
     description:
@@ -120,6 +132,12 @@ const GRID_CARDS = [
     image: "/live/tracks/breathwork.jpg",
     description:
       "Guided breathwork to regulate your nervous system and ending it with an ice plunge.",
+  },
+  {
+    name: "Emotional Cadence",
+    image: "/live/tracks/emotional-cadence.jpg",
+    description:
+      "EQ isn't a checkbox; it's a sequence. Map your personalized emotion wheel and walk away with a practical, daily practice for self-awareness.",
   },
   {
     name: "Mental Framing: Renewing Your Internal Narrative",
@@ -191,8 +209,8 @@ export function TrackSection() {
   async function handleCheckout() {
     setLoading(true);
     const items = Array.from(cart).map((key) => {
-      const [track, session] = key.split("-");
-      return { track, session };
+      const sep = key.lastIndexOf("-");
+      return { track: key.slice(0, sep), session: key.slice(sep + 1) };
     });
 
     try {
@@ -232,7 +250,7 @@ export function TrackSection() {
   }
 
   const total = Array.from(cart).reduce((sum, key) => {
-    const stripeKey = key.split("-")[0];
+    const stripeKey = key.slice(0, key.lastIndexOf("-"));
     const track = TRACKS.find((t) => t.stripeKey === stripeKey);
     return sum + (track?.price ?? 20);
   }, 0);
@@ -251,7 +269,7 @@ export function TrackSection() {
         </p>
 
         {/* Landing grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
           {GRID_CARDS.map((card) => (
             <div
               key={card.name}
@@ -263,7 +281,7 @@ export function TrackSection() {
                   alt={card.name}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 50vw, 33vw"
+                  sizes="(max-width: 768px) 50vw, 25vw"
                 />
               </div>
               <div className="flex flex-1 flex-col gap-3 p-4">
