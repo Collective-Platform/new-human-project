@@ -92,6 +92,15 @@ export function PartnersSection() {
                 className="object-contain"
               />
             </div>
+            <div className="relative h-14 w-full md:h-16 md:w-52">
+              <Image
+                src="/live/amazfit.png"
+                alt="Amazfit"
+                fill
+                sizes="(max-width: 768px) 50vw, 220px"
+                className="object-contain"
+              />
+            </div>
           </div>
         </div>
       </div>

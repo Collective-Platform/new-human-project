@@ -19,6 +19,7 @@ const TRACKS = [
     price: 20,
     sessions: ["dawn", "dusk"],
     times: { dawn: "7:00 AM", dusk: "4:00 PM" },
+    location: "Train by Blackbox",
   },
   {
     name: "5k Run",
@@ -29,6 +30,7 @@ const TRACKS = [
     price: 0,
     sessions: ["dawn"],
     times: { dawn: "7:00 AM" },
+    location: "Lobby @ Collective",
   },
   {
     name: "Breathwork & Ice Plunge",
@@ -40,6 +42,7 @@ const TRACKS = [
     price: 20,
     sessions: ["dawn", "dusk"],
     times: { dawn: "8:00 AM", dusk: "4:00 PM" },
+    location: "Lobby @ Collective",
   },
   {
     name: "Spin",
@@ -55,6 +58,7 @@ const TRACKS = [
       dawn: "Spin - Noise Detox Ride",
       dusk: "Spin - Collective Soul Ride",
     },
+    location: "Stage 8 @ Collective",
   },
   {
     name: "Reformer Pilates",
@@ -66,6 +70,7 @@ const TRACKS = [
     price: 20,
     sessions: ["dawn"],
     times: { dawn: "8:30 AM" },
+    location: "Retune Physio & Pilates",
   },
   {
     name: "Chair Pilates",
@@ -77,6 +82,7 @@ const TRACKS = [
     price: 20,
     sessions: ["dawn"],
     times: { dawn: "8:30 AM" },
+    location: "Retune Physio & Pilates",
   },
   {
     name: "Emotional Cadence",
@@ -89,6 +95,7 @@ const TRACKS = [
     sessions: ["dusk"],
     times: { dusk: "4:00 PM" },
     sessionNames: { dusk: "Emotional Cadence - Lynnette Chai" },
+    location: "Dance Studio @ Collective",
   },
   {
     name: "Mental Framing: Renewing Your Internal Narrative",
@@ -101,6 +108,7 @@ const TRACKS = [
     sessions: ["dusk"],
     times: { dusk: "4:00 PM" },
     sessionNames: { dusk: "Mental Framing - Dan Blythe" },
+    location: "VIP Room @ Collective",
   },
 ];
 
@@ -384,6 +392,11 @@ export function TrackSection() {
                                   }
                                 ).sessionNames?.[session.id] ?? track.name}
                               </p>
+                              {(track as { location?: string }).location && (
+                                <p className="mt-0.5 text-xs text-white/50">
+                                  {(track as { location?: string }).location}
+                                </p>
+                              )}
                               <p className="mt-1 text-xs text-white/60">
                                 {track.times[session.id]} ·{" "}
                                 {track.price === 0
