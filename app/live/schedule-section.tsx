@@ -17,7 +17,7 @@ const SCHEDULE: ScheduleItem[] = [
     note: "*Pre-registration required (see below)",
   },
   { time: "8:30", segment: "Break", type: "break" },
-  { time: "10:00", segment: "Registration", type: "logistics" },
+  { time: "9:30", segment: "Registration", type: "logistics" },
   { time: "10:15", segment: "Doors Open", type: "logistics" },
   { time: "10:30", segment: "Praise & Worship", type: "session" },
   {
