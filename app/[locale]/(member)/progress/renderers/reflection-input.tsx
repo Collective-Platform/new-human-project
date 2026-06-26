@@ -43,12 +43,15 @@ export function ReflectionInput({
     valueRef.current = value;
   }, [value]);
 
-  // Auto-resize to fit content.
+  // Auto-resize to fit content, then scroll the bottom edge into view while typing.
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
+    if (document.activeElement === el) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   }, [value]);
 
   // Debounced autosave.
