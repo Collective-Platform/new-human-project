@@ -165,7 +165,7 @@ export function TaskDetail({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 pb-24 sm:px-6 md:px-8">
+      <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:px-8">
         <div className="mx-auto max-w-3xl">
           {isRegistrySectioned && programTask && (
             <SectionedContentRenderer
@@ -223,7 +223,7 @@ export function TaskDetail({
 
       {/* Footer nav — only for non-mood/exercise tasks */}
       {task.taskType !== "mood_log" && task.taskType !== "exercise" && (
-        <div className="fixed bottom-0 inset-x-0 z-50 border-t border-zinc-200 bg-white pb-[env(safe-area-inset-bottom)]">
+        <div className="shrink-0 border-t border-zinc-200 bg-white pb-[env(safe-area-inset-bottom)]">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-3 py-5">
             {hasPrev ? (
               <button
