@@ -48,6 +48,11 @@ const SCHEDULE: ScheduleItem[] = [
     segment: "Keynote - CJ Lee",
     type: "keynote",
   },
+  {
+    time: "15:30",
+    segment: "Closing - Rev Kevin Loo",
+    type: "keynote",
+  },
 
   {
     time: "16:00",
