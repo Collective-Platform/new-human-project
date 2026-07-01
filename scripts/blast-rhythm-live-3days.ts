@@ -38,7 +38,7 @@ function buildEmail(): { subject: string; html: string; text: string } {
 
   const text = `We're only 3 days away from RHYTHM LIVE.
 
-This Saturday, July 4 (10am-3pm), we're gathering as a community to step out of the app and into the physical, to explore how the pursuit of our mental, emotional and physical health is integral to our spiritual formation.
+This Saturday, July 4 (10am-4pm), we're gathering as a community to step out of the app and into the physical, to explore how the pursuit of our mental, emotional and physical health is integral to our spiritual formation.
 
 This is not just another event.
 
@@ -105,7 +105,7 @@ Collective`;
                 We're only <strong>3 days away</strong> from RHYTHM LIVE.
               </p>
               <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#171717;">
-                This <strong>Saturday, July 4 (10am-3pm)</strong>, we're gathering as a community to step out of the app and into the physical, to explore how the pursuit of our mental, emotional and physical health is integral to our spiritual formation.
+                This <strong>Saturday, July 4 (10am-4pm)</strong>, we're gathering as a community to step out of the app and into the physical, to explore how the pursuit of our mental, emotional and physical health is integral to our spiritual formation.
               </p>
               <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#171717;">
                 This is not just another event.
