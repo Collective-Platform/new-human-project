@@ -19,7 +19,7 @@ const TICKET_URL = "https://www.ticket2u.com.my/event/50219/rhythm-live";
 
 const EVENT_DETAILS = [
   { label: "Date", value: "July 4, 2026" },
-  { label: "Time", value: "10AM – 3PM" },
+  { label: "Time", value: "10AM – 4PM" },
   { label: "Location", value: "Collective" },
   { label: "Ticket", value: "RM109" },
 ];
