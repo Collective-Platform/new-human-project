@@ -148,7 +148,12 @@ export async function AdminData({ locale }: { locale: string }) {
   }));
 
   const streakRows: StreakRow[] = (
-    topStreaksResult.rows as { id: number; email: string; searchHandle: string | null; streak: number }[]
+    topStreaksResult.rows as {
+      id: number;
+      email: string;
+      searchHandle: string | null;
+      streak: number;
+    }[]
   ).map((r) => ({
     id: Number(r.id),
     email: r.email,

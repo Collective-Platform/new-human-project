@@ -28,9 +28,7 @@ export function LiveBanner() {
       }
       return {
         days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: pad(
-          Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        ),
+        hours: pad(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))),
         minutes: pad(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))),
         seconds: pad(Math.floor((diff % (1000 * 60)) / 1000)),
       };
@@ -92,18 +90,13 @@ export function LiveBanner() {
             {units.map(({ label, value }, i) => (
               <div key={label} className="flex items-end gap-3">
                 <div className="flex flex-col items-center">
-                  <span className="tabular-nums text-2xl font-black leading-none">
-                    {value}
-                  </span>
+                  <span className="tabular-nums text-2xl font-black leading-none">{value}</span>
                   <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-white/40">
                     {label}
                   </span>
                 </div>
                 {i < units.length - 1 && (
-                  <span
-                    className="mb-1 text-lg font-bold text-white/25"
-                    aria-hidden
-                  >
+                  <span className="mb-1 text-lg font-bold text-white/25" aria-hidden>
                     :
                   </span>
                 )}

@@ -20,12 +20,14 @@ export function ReflectionInput({
   placeholder,
   rows = 4,
   ariaLabel,
+  readOnly = false,
 }: {
   initialValue: string;
   onSaveAction: (text: string) => void | Promise<void>;
   placeholder?: string;
   rows?: number;
   ariaLabel?: string;
+  readOnly?: boolean;
 }) {
   const [value, setValue] = useState(initialValue);
   const lastSavedRef = useRef(initialValue);
@@ -84,6 +86,19 @@ export function ReflectionInput({
   function handleFocus(e: React.FocusEvent<HTMLTextAreaElement>) {
     const el = e.currentTarget;
     setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "nearest" }), 300);
+  }
+
+  // Read-only (revisiting a past, completed block): render the saved response
+  // as static text. No editing, no autosave.
+  if (readOnly) {
+    if (!value.trim()) {
+      return <p className="text-base italic text-outline">{placeholder}</p>;
+    }
+    return (
+      <p className="whitespace-pre-wrap text-lg leading-loose tracking-tight text-foreground">
+        {value}
+      </p>
+    );
   }
 
   return (

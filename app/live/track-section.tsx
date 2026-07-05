@@ -3,10 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-type Availability = Record<
-  string,
-  Record<string, { sold: number; capacity: number }>
->;
+type Availability = Record<string, Record<string, { sold: number; capacity: number }>>;
 
 const TRACKS = [
   {
@@ -63,8 +60,7 @@ const TRACKS = [
   {
     name: "Reformer Pilates",
     stripeKey: "PilatesReformer",
-    description:
-      "Core-focused movement on the reformer to build strength and body awareness.",
+    description: "Core-focused movement on the reformer to build strength and body awareness.",
     image: "/live/tracks/pilates.jpg",
     capacity: 10,
     price: 20,
@@ -75,8 +71,7 @@ const TRACKS = [
   {
     name: "Chair Pilates",
     stripeKey: "PilatesChair",
-    description:
-      "Targeted strength and stability work using the Pilates chair.",
+    description: "Targeted strength and stability work using the Pilates chair.",
     image: "/live/tracks/pilates.jpg",
     capacity: 8,
     price: 20,
@@ -175,9 +170,7 @@ export function TrackSection() {
         setAvailability(data);
         const out = new Set<string>();
         for (const [track, sessions] of Object.entries(data)) {
-          for (const [session, { sold, capacity }] of Object.entries(
-            sessions,
-          )) {
+          for (const [session, { sold, capacity }] of Object.entries(sessions)) {
             if (sold >= capacity) out.add(`${track}-${session}`);
           }
         }
@@ -272,8 +265,7 @@ export function TrackSection() {
           </h2>
         </div>
         <p className="mx-auto mb-12 max-w-xl text-center text-base leading-relaxed text-white md:text-lg">
-          Optional activations running before and after the main event. Spots
-          are limited.
+          Optional activations running before and after the main event. Spots are limited.
         </p>
 
         {/* Landing grid */}
@@ -354,14 +346,11 @@ export function TrackSection() {
                       <p className="text-sm text-white/60">Optional</p>
                     </div>
                     <div className="flex flex-col divide-y divide-white/10 rounded-xl border border-white/10 overflow-hidden">
-                      {TRACKS.filter((t) =>
-                        t.sessions.includes(session.id),
-                      ).map((track) => {
+                      {TRACKS.filter((t) => t.sessions.includes(session.id)).map((track) => {
                         const key = cartKey(track.stripeKey, session.id);
                         const inCart = cart.has(key);
                         const isSoldOut = soldOut.has(key);
-                        const avail =
-                          availability?.[track.stripeKey]?.[session.id];
+                        const avail = availability?.[track.stripeKey]?.[session.id];
                         const spotsLeft = avail
                           ? avail.capacity - avail.sold
                           : availability !== null
@@ -371,10 +360,7 @@ export function TrackSection() {
                         return (
                           <div
                             key={track.name}
-                            onClick={() =>
-                              !isSoldOut &&
-                              toggleCart(track.stripeKey, session.id)
-                            }
+                            onClick={() => !isSoldOut && toggleCart(track.stripeKey, session.id)}
                             className={`flex items-center gap-4 px-4 py-3 transition-colors ${
                               isSoldOut
                                 ? "opacity-40"
@@ -399,38 +385,26 @@ export function TrackSection() {
                               )}
                               <p className="mt-1 text-xs text-white/60">
                                 {track.times[session.id]} ·{" "}
-                                {track.price === 0
-                                  ? "Free"
-                                  : `RM${track.price}`}
+                                {track.price === 0 ? "Free" : `RM${track.price}`}
                                 {spotsLeft !== null && spotsLeft > 0 && (
                                   <span
-                                    className={
-                                      spotsLeft <= 5
-                                        ? "font-semibold text-amber-400"
-                                        : ""
-                                    }
+                                    className={spotsLeft <= 5 ? "font-semibold text-amber-400" : ""}
                                   >
                                     {" · "}
                                     {spotsLeft} left
                                   </span>
                                 )}
-                                {spotsLeft !== null &&
-                                  spotsLeft <= 0 &&
-                                  " · Sold out"}
+                                {spotsLeft !== null && spotsLeft <= 0 && " · Sold out"}
                               </p>
                             </div>
 
                             {/* Action */}
                             {isSoldOut ? (
-                              <span className="text-xs font-semibold text-white/30">
-                                Sold out
-                              </span>
+                              <span className="text-xs font-semibold text-white/30">Sold out</span>
                             ) : (
                               <div
                                 className={`pointer-events-none flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
-                                  inCart
-                                    ? "bg-primary text-white"
-                                    : "bg-white/10 text-white"
+                                  inCart ? "bg-primary text-white" : "bg-white/10 text-white"
                                 }`}
                               >
                                 {inCart ? "−" : "+"}

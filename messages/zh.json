@@ -127,6 +127,8 @@
     "foundationDescription": "受耶稣为我们赢得的生命启发，这个计划将引导你完成一系列 25 天的挑战，涵盖心智、情绪和身体的成长。每一轮循环都让这些习惯更自然地融入你的生活。"
   },
   "profile": {
+    "tabActivities": "活动",
+    "tabCompleted": "已完成",
     "badges": "徽章",
     "moodHistory": "心情历史",
     "notifications": "通知",

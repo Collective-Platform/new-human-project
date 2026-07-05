@@ -73,11 +73,13 @@ export function ExerciseLogRenderer({
   onSubmitAction,
   loading,
   openMode = "add",
+  readOnly = false,
 }: {
   initialData: Record<string, unknown> | null;
   onSubmitAction: (data: Record<string, unknown>) => void;
   loading: boolean;
   openMode?: "add" | number;
+  readOnly?: boolean;
 }) {
   const t = useTranslations("exercise");
   const existingEntries = normalizeExerciseEntries(initialData);
@@ -151,6 +153,18 @@ export function ExerciseLogRenderer({
     }
   }
 
+  // Read-only rest entry: the sport pills can't represent "rested", so show a
+  // simple confirmation card instead of an empty form.
+  if (readOnly && isEditingRest) {
+    return (
+      <div className="rounded-lg bg-white p-6 text-center shadow-card">
+        <p className="text-xs font-bold uppercase tracking-widest text-outline">
+          {SPORT_EMOJIS.rest} {t("rested")}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-card-hover">
@@ -166,6 +180,7 @@ export function ExerciseLogRenderer({
                 aria-pressed={selectedSport === key}
                 selected={selectedSport === key}
                 variant="physical"
+                disabled={readOnly}
               >
                 <span className="mr-1.5">{SPORT_EMOJIS[key]}</span>
                 {sportLabels[key]}
@@ -179,6 +194,7 @@ export function ExerciseLogRenderer({
               value={customSport}
               onChange={(e) => setCustomSport(e.target.value)}
               placeholder={t("customActivityPlaceholder")}
+              readOnly={readOnly}
             />
           )}
         </section>
@@ -197,6 +213,7 @@ export function ExerciseLogRenderer({
                 value={hours}
                 onChange={(e) => setHours(e.target.value)}
                 placeholder="0"
+                readOnly={readOnly}
               />
             </label>
             <label className="flex flex-1 flex-col gap-1.5">
@@ -208,16 +225,19 @@ export function ExerciseLogRenderer({
                 value={minutes}
                 onChange={(e) => setMinutes(e.target.value)}
                 placeholder="0"
+                readOnly={readOnly}
               />
             </label>
           </div>
         </section>
 
-        <PrimaryButton onClick={handleSubmit} disabled={!canSubmit} variant="physical">
-          {loading ? "…" : t("logActivity")}
-        </PrimaryButton>
+        {!readOnly && (
+          <PrimaryButton onClick={handleSubmit} disabled={!canSubmit} variant="physical">
+            {loading ? "…" : t("logActivity")}
+          </PrimaryButton>
+        )}
       </div>
-      {showRestCard && (
+      {!readOnly && showRestCard && (
         <div className="mt-8 rounded-lg bg-white p-6 shadow-card text-center space-y-4">
           <p className="text-xs font-bold uppercase tracking-widest text-outline">
             🛌 {t("takeRestToday")}

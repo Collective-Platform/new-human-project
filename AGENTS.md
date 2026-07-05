@@ -89,7 +89,7 @@ DESIGN.md             # Visual design system spec
 
 **Feature-based organisation** — all business logic lives in `src/features/<domain>/`. API routes in `app/api/` are thin: they validate input, call into features, and return responses. Never put DB queries directly in route handlers.
 
-**Content-as-markdown** — the daily program lives in `data/program/` as `.md` files with Zod-validated frontmatter, loaded at runtime by the content registry (`src/features/content/`). No program content is stored in the DB. Task IDs (`t_` + 26-char ULID) are immutable — see *Critical Constraints* below.
+**Content-as-markdown** — the daily program lives in `data/program/` as `.md` files with Zod-validated frontmatter, loaded at runtime by the content registry (`src/features/content/`). No program content is stored in the DB. Task IDs (`t_` + 26-char ULID) are immutable — see _Critical Constraints_ below.
 
 **Passwordless OTP auth** — no passwords. Flow: user enters email → 6-digit OTP sent via MailerSend → user verifies → session cookie set. Sessions stored as hashed tokens in the `sessions` table; the `pendingAuth` table holds pre-verification OTPs. Session user is cached per-request via React cache. Rate limiting is custom via the `rateLimitAttempts` table.
 
@@ -107,19 +107,19 @@ DESIGN.md             # Visual design system spec
 
 Key tables in `src/db/schema.ts`:
 
-| Table | Purpose |
-|---|---|
-| `users` | id, email, role (user/admin/superuser), status (guest/active/inactive), displayName, searchHandle, privacyPublic, notificationPrefs (JSON) |
-| `sessions` | hashed token, userId, expiresAt (30-day sliding renewal) |
-| `pendingAuth` | pre-verification OTP records |
-| `rateLimitAttempts` | brute-force protection (5 req / 5 min per action + identifier) |
-| `taskCompletions` | userId + taskId (ULID format `t_…`) + completedAt + data (JSON) |
-| `memberBlockCompletions` | block-level milestone records per user |
-| `friendRequests` | social graph edges (pending / accepted / rejected) |
-| `pushSubscriptions` | per-device Web Push endpoints |
-| `likes` | userId + completionId |
-| `notificationLog` | audit trail for all push notifications sent |
-| `badgeDefinitions` / `memberBadges` | achievement system |
+| Table                               | Purpose                                                                                                                                    |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `users`                             | id, email, role (user/admin/superuser), status (guest/active/inactive), displayName, searchHandle, privacyPublic, notificationPrefs (JSON) |
+| `sessions`                          | hashed token, userId, expiresAt (30-day sliding renewal)                                                                                   |
+| `pendingAuth`                       | pre-verification OTP records                                                                                                               |
+| `rateLimitAttempts`                 | brute-force protection (5 req / 5 min per action + identifier)                                                                             |
+| `taskCompletions`                   | userId + taskId (ULID format `t_…`) + completedAt + data (JSON)                                                                            |
+| `memberBlockCompletions`            | block-level milestone records per user                                                                                                     |
+| `friendRequests`                    | social graph edges (pending / accepted / rejected)                                                                                         |
+| `pushSubscriptions`                 | per-device Web Push endpoints                                                                                                              |
+| `likes`                             | userId + completionId                                                                                                                      |
+| `notificationLog`                   | audit trail for all push notifications sent                                                                                                |
+| `badgeDefinitions` / `memberBadges` | achievement system                                                                                                                         |
 
 ---
 

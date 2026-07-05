@@ -1,9 +1,9 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/src/features/auth";
-import { getCurrentDay } from "@/src/features/dashboard";
 import { getProgressForUser } from "@/src/features/progress";
 import { ProgressClient } from "./progress-client";
-import { isProgramLocked, PROGRAM_START_MS, PROGRAM_BLOCK_START } from "@/src/lib/program-gate";
+import { getActiveBlock } from "@/src/lib/program-gate";
 
 export async function ProgressData({
   locale,
@@ -18,12 +18,14 @@ export async function ProgressData({
 }) {
   const user = await getSessionUser();
   if (!user?.onboardedAt) redirect(`/${locale}/onboarding`);
-  const locked = isProgramLocked();
-  const effectiveStart =
-    user.onboardedAt.getTime() < PROGRAM_BLOCK_START.getTime()
-      ? PROGRAM_BLOCK_START
-      : user.onboardedAt;
-  const currentDay = getCurrentDay(effectiveStart);
+
+  const cookieStore = await cookies();
+  const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
+  const { blockNumber, blockStart, currentDay } = getActiveBlock(
+    user.onboardedAt,
+    new Date(),
+    timezone,
+  );
 
   let selectedDay = currentDay;
   if (initialDay) {
@@ -31,26 +33,19 @@ export async function ProgressData({
   } else if (initialDate) {
     const msPerDay = 86_400_000;
     const clicked = new Date(initialDate + "T00:00:00.000Z");
-    const onboarded = new Date(effectiveStart);
-    onboarded.setUTCHours(0, 0, 0, 0);
-    const elapsed = Math.floor((clicked.getTime() - onboarded.getTime()) / msPerDay);
+    const blockStartMidnight = new Date(blockStart);
+    blockStartMidnight.setUTCHours(0, 0, 0, 0);
+    const elapsed = Math.floor((clicked.getTime() - blockStartMidnight.getTime()) / msPerDay);
     selectedDay = Math.min(Math.max(elapsed + 1, 1), 25);
   }
 
   const initialData = await getProgressForUser(
     user.id,
-    effectiveStart.getTime(),
+    blockStart.getTime(),
     selectedDay,
     locale,
     currentDay,
+    blockNumber,
   );
-  return (
-    <ProgressClient
-      locale={locale}
-      initialData={initialData}
-      initialTaskId={initialTaskId}
-      isLocked={locked}
-      unlockMs={PROGRAM_START_MS}
-    />
-  );
+  return <ProgressClient locale={locale} initialData={initialData} initialTaskId={initialTaskId} />;
 }

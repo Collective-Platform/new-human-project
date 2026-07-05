@@ -29,12 +29,9 @@ export function RegisteredBanner() {
           ✓
         </div>
 
-        <h2 className="mb-1 text-2xl font-black text-white">
-          You&rsquo;re registered!
-        </h2>
+        <h2 className="mb-1 text-2xl font-black text-white">You&rsquo;re registered!</h2>
         <p className="mb-6 text-white/60">
-          See you at Rhythm Live on July 4. A receipt has been sent to your
-          email.
+          See you at Rhythm Live on July 4. A receipt has been sent to your email.
         </p>
 
         <button

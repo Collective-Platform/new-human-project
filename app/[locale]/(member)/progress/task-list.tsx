@@ -211,20 +211,23 @@ export function TaskList({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (isMoodLog || isExercise) {
+                          // Read-only revisit: the circle is a view affordance,
+                          // never a toggle.
+                          if (locked || isMoodLog || isExercise) {
                             onTaskTapAction(task);
                           } else {
                             onToggleCompleteAction(task.id);
                           }
                         }}
-                        disabled={locked}
-                        className={`shrink-0 flex items-center justify-center ${locked ? "cursor-default" : "transition-transform active:scale-90"}`}
+                        className="shrink-0 flex items-center justify-center transition-transform active:scale-90"
                         aria-label={
-                          isMoodLog || isExercise
-                            ? `Open ${isMoodLog ? "mood log" : "exercise log"}`
-                            : task.completed
-                              ? "Mark incomplete"
-                              : "Mark complete"
+                          locked
+                            ? `Open ${task.name}`
+                            : isMoodLog || isExercise
+                              ? `Open ${isMoodLog ? "mood log" : "exercise log"}`
+                              : task.completed
+                                ? "Mark incomplete"
+                                : "Mark complete"
                         }
                       >
                         {task.completed ? (
@@ -235,15 +238,14 @@ export function TaskList({
                       </button>
                       <button
                         onClick={() => onTaskTapAction(task)}
-                        disabled={locked}
-                        className={`flex flex-1 items-center text-left ${locked ? "cursor-default" : "transition-colors hover:opacity-70"}`}
+                        className="flex flex-1 items-center text-left transition-colors hover:opacity-70"
                       >
                         <span
                           className={`flex-1 text-base font-normal ${task.completed ? "text-foreground/50" : "text-foreground"}`}
                         >
                           {task.name}
                         </span>
-                        {!locked && <ChevronRight size={18} className="text-zinc-400 shrink-0" />}
+                        <ChevronRight size={18} className="text-zinc-400 shrink-0" />
                       </button>
                     </div>
                   </div>

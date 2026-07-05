@@ -37,6 +37,7 @@ export function TaskDetail({
   categoryTasks,
   onNavigateAction,
   mode = "add",
+  readOnly = false,
 }: {
   task: TaskData;
   locale: string;
@@ -47,6 +48,7 @@ export function TaskDetail({
   categoryTasks: TaskData[];
   onNavigateAction: (task: TaskData) => void;
   mode?: "add" | number;
+  readOnly?: boolean;
 }) {
   const t = useTranslations("progress");
   const [loading, setLoading] = useState(false);
@@ -65,7 +67,8 @@ export function TaskDetail({
   const hasNext = currentIndex < categoryTasks.length - 1;
 
   const handleNext = useCallback(() => {
-    if (!task.completed) {
+    // Read-only (revisiting a completed block): navigate only, never mutate.
+    if (!readOnly && !task.completed) {
       void onCompleteAction(task.id);
     }
     if (hasNext) {
@@ -74,6 +77,7 @@ export function TaskDetail({
       onCloseAction();
     }
   }, [
+    readOnly,
     onCompleteAction,
     task.id,
     task.completed,
@@ -173,6 +177,7 @@ export function TaskDetail({
               locale={locale}
               completionData={task.completionData}
               onSaveReflectionAction={handleSaveReflection}
+              readOnly={readOnly}
             />
           )}
 
@@ -207,6 +212,7 @@ export function TaskDetail({
               onSubmitAction={handleExerciseSubmit}
               loading={loading}
               openMode={mode}
+              readOnly={readOnly}
             />
           )}
 
@@ -216,6 +222,7 @@ export function TaskDetail({
               onSubmitAction={handleMoodSubmit}
               loading={loading}
               openMode={mode}
+              readOnly={readOnly}
             />
           )}
         </div>

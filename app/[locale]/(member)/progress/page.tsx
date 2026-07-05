@@ -8,12 +8,18 @@ export default async function ProgressPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ date?: string; day?: string; task?: string }>;
+  searchParams: Promise<{
+    date?: string;
+    day?: string;
+    task?: string;
+  }>;
 }) {
   const { locale } = await params;
   const { date, day, task } = await searchParams;
   setRequestLocale(locale);
 
+  // Progress always shows the user's current (active) block. Deep-link params
+  // (?day / ?date / ?task) still select a specific day or open a task.
   return (
     <Suspense fallback={<Loading />}>
       <ProgressData

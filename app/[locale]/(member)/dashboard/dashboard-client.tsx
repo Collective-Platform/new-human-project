@@ -34,6 +34,7 @@ export function DashboardClient({
   }, []);
 
   const data: DashboardData = initialData;
+  const blockLabel = `Block ${data.blockNumber}`;
 
   return (
     <div className="space-y-4 px-4 sm:px-6 md:px-8 pt-4 pb-4">
@@ -73,12 +74,12 @@ export function DashboardClient({
           breakdown={data.emotionBreakdown}
           title={t("emotionBreakdown")}
           emptyLabel={t("noMoodLogs")}
-          blockLabel="Block 1"
+          blockLabel={blockLabel}
         />
 
         <PhysicalActivityChart
           activityByDay={data.physicalActivityByDay}
-          blockLabel="Block 1"
+          blockLabel={blockLabel}
           title={t("physicalActivity")}
           emptyLabel={t("noActivityLogs")}
         />
@@ -88,7 +89,7 @@ export function DashboardClient({
         data={data.calendar}
         startDate={data.blockStartDate}
         title={t("activityCalendar")}
-        blockLabel="Block 1"
+        blockLabel={blockLabel}
       />
     </div>
   );

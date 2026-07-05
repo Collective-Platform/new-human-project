@@ -1,8 +1,8 @@
 "use server";
 
 import { updateTag } from "next/cache";
+import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
-import { isProgramLocked } from "@/src/lib/program-gate";
 import { db } from "@/src/db";
 import {
   taskCompletions,
@@ -13,6 +13,7 @@ import {
 import { eq, and, sql } from "drizzle-orm";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getFriendIdsRaw } from "@/src/features/community/invalidation";
+import { BLOCK_LAUNCH, BLOCK_LENGTH_DAYS, getActiveBlock } from "@/src/lib/program-gate";
 
 export async function completeTask(input: {
   taskId: string;
@@ -20,10 +21,13 @@ export async function completeTask(input: {
 }): Promise<{ success: true; blockCompleted: boolean } | { error: string }> {
   const user = await getSessionUser();
   if (!user) return { error: "Unauthorized" };
-  if (isProgramLocked()) return { error: "Program hasn't started yet" };
 
   const { taskId, data } = input;
   if (!taskId) return { error: "taskId required" };
+
+  const cookieStore = await cookies();
+  const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
+  const { blockNumber } = getActiveBlock(user.onboardedAt ?? BLOCK_LAUNCH[1], new Date(), timezone);
 
   await db
     .insert(taskCompletions)
@@ -50,14 +54,14 @@ export async function completeTask(input: {
   const dayCategories = new Map<number, Set<string>>();
   for (const c of completions) {
     const task = getRegistryTaskById(c.taskId);
-    if (task && task.block === 1) {
+    if (task && task.block === blockNumber) {
       const cats = dayCategories.get(task.day) ?? new Set<string>();
       cats.add(task.category);
       dayCategories.set(task.day, cats);
     }
   }
 
-  const allDaysComplete = Array.from({ length: 25 }, (_, i) => i + 1).every(
+  const allDaysComplete = Array.from({ length: BLOCK_LENGTH_DAYS }, (_, i) => i + 1).every(
     (day) => (dayCategories.get(day)?.size ?? 0) >= 3,
   );
 
@@ -67,20 +71,23 @@ export async function completeTask(input: {
       .select()
       .from(memberBlockCompletions)
       .where(
-        and(eq(memberBlockCompletions.userId, user.id), eq(memberBlockCompletions.blockNumber, 1)),
+        and(
+          eq(memberBlockCompletions.userId, user.id),
+          eq(memberBlockCompletions.blockNumber, blockNumber),
+        ),
       )
       .limit(1);
 
     if (existing.length === 0) {
       await db.insert(memberBlockCompletions).values({
         userId: user.id,
-        blockNumber: 1,
+        blockNumber,
       });
 
       const badge = await db
         .select()
         .from(badgeDefinitions)
-        .where(eq(badgeDefinitions.blockNumber, 1))
+        .where(eq(badgeDefinitions.blockNumber, blockNumber))
         .limit(1);
 
       if (badge.length > 0) {
@@ -112,7 +119,6 @@ export async function uncompleteTask(input: {
 }): Promise<{ success: true } | { error: string }> {
   const user = await getSessionUser();
   if (!user) return { error: "Unauthorized" };
-  if (isProgramLocked()) return { error: "Program hasn't started yet" };
 
   const { taskId } = input;
   if (!taskId) return { error: "taskId required" };

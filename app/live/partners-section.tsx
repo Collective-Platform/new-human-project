@@ -5,9 +5,7 @@ export function PartnersSection() {
     <section id="partners" className="bg-black px-4 pb-24 md:px-12">
       <div className="mx-auto max-w-5xl">
         <div className="mb-16 text-center">
-          <h2 className="text-4xl font-black leading-[1.1] text-white md:text-5xl">
-            Our Partners
-          </h2>
+          <h2 className="text-4xl font-black leading-[1.1] text-white md:text-5xl">Our Partners</h2>
         </div>
 
         {/* Wellness Partner */}

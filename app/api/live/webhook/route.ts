@@ -33,14 +33,12 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const stripe = new Stripe(env.STRIPE_SECRET_KEY);
-    const session = await stripe.checkout.sessions.retrieve(
-      event.data.object.id,
-      { expand: ["line_items"] },
-    );
+    const session = await stripe.checkout.sessions.retrieve(event.data.object.id, {
+      expand: ["line_items"],
+    });
 
     const fields = session.custom_fields ?? [];
-    const getField = (key: string) =>
-      fields.find((f) => f.key === key)?.text?.value ?? "";
+    const getField = (key: string) => fields.find((f) => f.key === key)?.text?.value ?? "";
 
     const name = getField("full_name");
     const ticketId = getField("ticket_id");
@@ -58,7 +56,15 @@ export async function POST(req: NextRequest) {
       }));
 
     if (items.length > 0) {
-      await recordSales({ stripeSessionId: session.id, name, phone, ticketId, termsAccepted, termsAcceptedAt, items });
+      await recordSales({
+        stripeSessionId: session.id,
+        name,
+        phone,
+        ticketId,
+        termsAccepted,
+        termsAcceptedAt,
+        items,
+      });
     }
   }
 

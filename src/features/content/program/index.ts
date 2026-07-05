@@ -1,4 +1,11 @@
-export { loadProgram, getTaskById, getDayTasks, getAllTasks, _resetRegistry } from "./registry";
+export {
+  loadProgram,
+  getTaskById,
+  getDayTasks,
+  getAllTasks,
+  getMaxContentBlock,
+  _resetRegistry,
+} from "./registry";
 export {
   TaskCategory,
   TaskType,

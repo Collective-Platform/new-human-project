@@ -1,5 +1,8 @@
+import { cookies } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { getSessionUser } from "@/src/features/auth";
+import { getBlockOverviewForUser } from "@/src/features/progress";
+import { getActiveBlock } from "@/src/lib/program-gate";
 import { getProfileForUser } from "@/src/features/profile/get-profile-for-user";
 import {
   getFriendIds,
@@ -16,17 +19,26 @@ import {
   getExerciseEntries,
 } from "@/src/features/community/exercise-format";
 
-export async function ProfileData() {
+export async function ProfileData({ initialTab }: { initialTab: "activities" | "completed" }) {
   const user = await getSessionUser();
   if (!user) return null;
 
   const locale = await getLocale();
   const { restText, formatExerciseEntry } = await createExerciseFormatter(locale);
 
-  const [initialData, friendIds, activityRows] = await Promise.all([
+  const cookieStore = await cookies();
+  const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
+  const { currentDay, effectiveStart } = user.onboardedAt
+    ? getActiveBlock(user.onboardedAt, new Date(), timezone)
+    : { currentDay: 1, effectiveStart: new Date() };
+
+  const [initialData, friendIds, activityRows, blockOverview] = await Promise.all([
     getProfileForUser(user.id),
     getFriendIds(user.id),
     getUserActivitiesCached(user.id, user.id),
+    user.onboardedAt
+      ? getBlockOverviewForUser(user.id, effectiveStart.getTime(), currentDay, timezone)
+      : null,
   ]);
   if (!initialData) return null;
 
@@ -96,6 +108,8 @@ export async function ProfileData() {
       friendCount={friendIds.length}
       activities={activities}
       selfUserId={user.id}
+      completedBlocks={blockOverview?.completedBlocks ?? []}
+      initialTab={initialTab}
     />
   );
 }

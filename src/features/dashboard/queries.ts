@@ -1,16 +1,6 @@
-export function getCurrentDay(onboardedAt: Date): number {
-  const msPerDay = 86_400_000;
-  // Normalize both to UTC midnight so day boundaries align with calendar days,
-  // not rolling 24h windows from the onboarding timestamp.
-  const todayMidnight = new Date();
-  todayMidnight.setUTCHours(0, 0, 0, 0);
-  const onboardedMidnight = new Date(onboardedAt);
-  onboardedMidnight.setUTCHours(0, 0, 0, 0);
-  const daysElapsed = Math.floor(
-    (todayMidnight.getTime() - onboardedMidnight.getTime()) / msPerDay,
-  );
-  return Math.min(Math.max(daysElapsed + 1, 1), 25);
-}
+// getCurrentDay now lives in program-gate (pure date math shared by the block
+// scheduling helpers). Re-exported here so existing import sites keep working.
+export { getCurrentDay } from "@/src/lib/program-gate";
 
 // XP weight by task type — mirrors the `xp_weight` column in the legacy seed.
 // Used when resolving Mental XP for registry tasks that have no DB content JSON.

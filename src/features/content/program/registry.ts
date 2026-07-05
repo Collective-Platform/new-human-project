@@ -139,6 +139,16 @@ export function getAllTasks(): ProgramTask[] {
   return Array.from(loadProgram().byId.values());
 }
 
+/** Highest authored block number across all program content (>= 1). */
+export function getMaxContentBlock(): number {
+  let max = 1;
+  for (const key of loadProgram().byDay.keys()) {
+    const block = Number(key.split(":")[0]);
+    if (block > max) max = block;
+  }
+  return max;
+}
+
 /** Test/dev helper: drop the cache so the next call re-scans the FS. */
 export function _resetRegistry(): void {
   cached = null;

@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
 import { taskCompletions } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   getDayTasks as getRegistryDayTasks,
   getTaskById as getRegistryTaskById,
@@ -30,6 +30,96 @@ export interface DayTask {
   passageRef?: string;
   scriptureRef?: string;
   inputs?: string[];
+}
+
+function safeTimezone(tz: string): string {
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tz });
+    return tz;
+  } catch {
+    return "UTC";
+  }
+}
+
+/**
+ * Current streak within a block's date window. Resets to 0 if the user
+ * missed both today and yesterday. Scoped so it can't bleed across blocks.
+ */
+export async function getBlockCurrentStreak(
+  userId: number,
+  blockStart: Date,
+  blockEnd: Date,
+  timezone = "UTC",
+): Promise<number> {
+  const tz = safeTimezone(timezone);
+  const start = blockStart.toISOString().slice(0, 10);
+  const end = blockEnd.toISOString().slice(0, 10);
+
+  const result = await db.execute<{ streak: number }>(sql`
+    WITH completion_dates AS (
+      SELECT DISTINCT (tc.completed_at AT TIME ZONE ${tz})::date AS d
+      FROM nhp.task_completions tc
+      WHERE tc.user_id = ${userId}
+        AND (tc.completed_at AT TIME ZONE ${tz})::date >= ${start}::date
+        AND (tc.completed_at AT TIME ZONE ${tz})::date
+              <= LEAST(${end}::date, (NOW() AT TIME ZONE ${tz})::date)
+    ),
+    numbered AS (
+      SELECT d, d - (ROW_NUMBER() OVER (ORDER BY d ASC))::int AS grp
+      FROM completion_dates
+    )
+    SELECT COALESCE(COUNT(*)::int, 0) AS streak
+    FROM numbered
+    WHERE grp = (
+      SELECT grp FROM numbered
+      WHERE d >= (NOW() AT TIME ZONE ${tz})::date - 1
+      ORDER BY d DESC LIMIT 1
+    )
+  `);
+
+  const rows = (result as unknown as { rows: { streak: number }[] }).rows;
+  return rows[0] ? Number(rows[0].streak) : 0;
+}
+
+/**
+ * Final streak of a completed block: the length of the consecutive chain
+ * ending on the last active day in the block. Not the maximum — if the user
+ * had a 15-day streak, broke it, then finished with a 3-day streak, this
+ * returns 3.
+ */
+export async function getBlockFinalStreak(
+  userId: number,
+  blockStart: Date,
+  blockEnd: Date,
+  timezone = "UTC",
+): Promise<number> {
+  const tz = safeTimezone(timezone);
+  const start = blockStart.toISOString().slice(0, 10);
+  const end = blockEnd.toISOString().slice(0, 10);
+
+  const result = await db.execute<{ final_streak: number }>(sql`
+    WITH completion_dates AS (
+      SELECT DISTINCT (tc.completed_at AT TIME ZONE ${tz})::date AS d
+      FROM nhp.task_completions tc
+      WHERE tc.user_id = ${userId}
+        AND (tc.completed_at AT TIME ZONE ${tz})::date >= ${start}::date
+        AND (tc.completed_at AT TIME ZONE ${tz})::date <= ${end}::date
+    ),
+    numbered AS (
+      SELECT d, d - (ROW_NUMBER() OVER (ORDER BY d ASC))::int AS grp
+      FROM completion_dates
+    )
+    SELECT COALESCE(COUNT(*)::int, 0) AS final_streak
+    FROM numbered
+    WHERE grp = (
+      SELECT grp FROM numbered
+      ORDER BY d DESC
+      LIMIT 1
+    )
+  `);
+
+  const rows = (result as unknown as { rows: { final_streak: number }[] }).rows;
+  return rows[0] ? Number(rows[0].final_streak) : 0;
 }
 
 /**

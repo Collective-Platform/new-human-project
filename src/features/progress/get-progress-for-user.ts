@@ -41,8 +41,8 @@ export async function getProgressForUser(
   requestedDayParam: number | null,
   locale: "en" | "zh",
   currentDay: number,
+  blockNumber: number,
 ): Promise<ProgressPayload> {
-  const blockNumber = 1;
   const selectedDay = Math.min(Math.max(requestedDayParam ?? currentDay, 1), 25);
 
   const [content, state] = await Promise.all([

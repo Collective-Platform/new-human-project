@@ -38,11 +38,13 @@ export function SectionedContentRenderer({
   locale,
   completionData,
   onSaveReflectionAction,
+  readOnly = false,
 }: {
   task: ProgramTask;
   locale: string;
   completionData: Record<string, unknown> | null;
   onSaveReflectionAction: (slug: string, text: string) => void | Promise<void>;
+  readOnly?: boolean;
 }) {
   const passageRef = localizeScriptureRef(task.passageRef ?? task.scriptureRef ?? "", locale);
   const sections = splitSections(getLocalizedString(task.body, locale));
@@ -63,6 +65,7 @@ export function SectionedContentRenderer({
           completionData={completionData}
           locale={locale}
           onSaveReflectionAction={onSaveReflectionAction}
+          readOnly={readOnly}
         />
       ))}
     </div>
@@ -76,6 +79,7 @@ function Section({
   completionData,
   locale,
   onSaveReflectionAction,
+  readOnly,
 }: {
   heading: string | null;
   markdown: string;
@@ -83,6 +87,7 @@ function Section({
   completionData: Record<string, unknown> | null;
   locale: string;
   onSaveReflectionAction: (slug: string, text: string) => void | Promise<void>;
+  readOnly: boolean;
 }) {
   // Preamble (no heading) → plain markdown.
   if (heading === null) {
@@ -126,7 +131,16 @@ function Section({
           initialValue={readInitialValue(completionData, inputSlug)}
           onSaveAction={(text) => onSaveReflectionAction(inputSlug, text)}
           ariaLabel={heading}
-          placeholder={locale === "zh" ? "写下你的回应…" : "Write your response…"}
+          placeholder={
+            readOnly
+              ? locale === "zh"
+                ? "没有回应"
+                : "No response"
+              : locale === "zh"
+                ? "写下你的回应…"
+                : "Write your response…"
+          }
+          readOnly={readOnly}
         />
       )}
     </div>
@@ -175,8 +189,8 @@ function splitSections(body: string): ParsedSection[] {
 const CHINESE_HEADING_SLUGS: Record<string, string> = {
   今日焦点: "today-s-focus",
   阅读笔记: "reading-notes",
-  核心信息: "key-idea",
-  反思时刻: "reflection",
+  核心思想: "key-idea",
+  今日反思: "reflection",
   今日操练: "today-s-practice",
   "反思问题：": "question",
   "最后反思：": "final-reflection",
