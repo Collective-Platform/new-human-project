@@ -1,8 +1,7 @@
 import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
-import { getCurrentDay } from "@/src/features/dashboard";
 import { getProgressForUser } from "@/src/features/progress";
-import { PROGRAM_BLOCK_START } from "@/src/lib/program-gate";
+import { getActiveBlock } from "@/src/lib/program-gate";
 
 export async function GET(request: Request) {
   const user = await getSessionUser();
@@ -18,19 +17,21 @@ export async function GET(request: Request) {
   const cookieStore = await cookies();
   const localeCookie = cookieStore.get("locale")?.value;
   const locale = (localeParam ?? localeCookie) === "zh" ? "zh" : "en";
+  const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
 
-  const effectiveStart =
-    user.onboardedAt.getTime() < PROGRAM_BLOCK_START.getTime()
-      ? PROGRAM_BLOCK_START
-      : user.onboardedAt;
-  const currentDay = getCurrentDay(effectiveStart);
+  const { blockNumber, blockStart, currentDay } = getActiveBlock(
+    user.onboardedAt,
+    new Date(),
+    timezone,
+  );
 
   const payload = await getProgressForUser(
     user.id,
-    effectiveStart.getTime(),
+    blockStart.getTime(),
     requestedDayParam,
     locale,
     currentDay,
+    blockNumber,
   );
 
   return Response.json(payload, {

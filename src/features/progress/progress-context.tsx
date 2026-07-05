@@ -130,7 +130,16 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <ProgressContext.Provider value={{ state, initialize, updateCurrentDay, updateSelectedDay, markComplete, markIncomplete }}>
+    <ProgressContext.Provider
+      value={{
+        state,
+        initialize,
+        updateCurrentDay,
+        updateSelectedDay,
+        markComplete,
+        markIncomplete,
+      }}
+    >
       {children}
     </ProgressContext.Provider>
   );

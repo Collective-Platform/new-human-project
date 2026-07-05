@@ -3,10 +3,7 @@
 // Then replace the placeholder price_xxx values below with the printed output.
 
 //Live Price
-export const TRACK_PRICES: Record<
-  string,
-  Record<string, { priceId: string; capacity: number }>
-> = {
+export const TRACK_PRICES: Record<string, Record<string, { priceId: string; capacity: number }>> = {
   Hyrox: {
     dawn: { priceId: "price_1TjvWEHJ40gQ7FP8UG2P863o", capacity: 20 },
     dusk: { priceId: "price_1TjvWFHJ40gQ7FP8of0cShES", capacity: 20 },

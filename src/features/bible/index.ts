@@ -2,11 +2,12 @@ import { env } from "@/src/env";
 
 /**
  * Map of book names (lowercase, no spaces) to USFM book codes.
- * Currently only includes the books used in Phase 1 content. Extend as needed.
+ * Add the book here whenever new program content references it.
  */
 const BOOK_TO_USFM: Record<string, string> = {
   ephesians: "EPH",
   acts: "ACT",
+  philippians: "PHP",
 };
 
 /**
@@ -23,6 +24,15 @@ export function referenceToUsfm(reference: string): string | null {
     const usfmBook = BOOK_TO_USFM[bookRaw.replace(/\s+/g, "").toLowerCase()];
     if (!usfmBook) return null;
     return `${usfmBook}.${chapter}`;
+  }
+
+  // Cross-chapter verse range: "Philippians 3:15-4:1"
+  const crossChapterMatch = trimmed.match(/^([1-3]?\s*[A-Za-z]+)\s+(\d+):(\d+)\s*-\s*(\d+):(\d+)$/);
+  if (crossChapterMatch) {
+    const [, bookRaw, startChapter, startVerse, endChapter, endVerse] = crossChapterMatch;
+    const usfmBook = BOOK_TO_USFM[bookRaw.replace(/\s+/g, "").toLowerCase()];
+    if (!usfmBook) return null;
+    return `${usfmBook}.${startChapter}.${startVerse}-${usfmBook}.${endChapter}.${endVerse}`;
   }
 
   // Verse reference: "Ephesians 1:1-2" or "Ephesians 1:1"

@@ -13,7 +13,16 @@ const moods = [
   { key: "excellent", emoji: "🤩" },
 ] as const;
 
-const influenceKeys = ["god", "family", "friends", "love", "work", "school", "health", "leisure"] as const;
+const influenceKeys = [
+  "god",
+  "family",
+  "friends",
+  "love",
+  "work",
+  "school",
+  "health",
+  "leisure",
+] as const;
 
 export const MOOD_EMOJI_MAP: Record<string, string> = {
   terrible: "😡",
@@ -52,11 +61,13 @@ export function MoodLogRenderer({
   onSubmitAction,
   loading,
   openMode = "add",
+  readOnly = false,
 }: {
   initialData: Record<string, unknown> | null;
   onSubmitAction: (data: Record<string, unknown>) => void;
   loading: boolean;
   openMode?: "add" | number;
+  readOnly?: boolean;
 }) {
   const tm = useTranslations("mood");
   const existingEntries = normalizeEntries(initialData);
@@ -139,7 +150,7 @@ export function MoodLogRenderer({
                 type="button"
                 key={m.key}
                 onClick={() => toggleMood(m.key)}
-                disabled={isMaxed}
+                disabled={isMaxed || readOnly}
                 aria-label={moodLabels[m.key]}
                 aria-pressed={isSelected}
                 title={moodLabels[m.key]}
@@ -170,6 +181,7 @@ export function MoodLogRenderer({
               aria-pressed={formInfluences.includes(key)}
               selected={formInfluences.includes(key)}
               variant="emotional"
+              disabled={readOnly}
             >
               {influenceLabels[key]}
             </TogglePill>
@@ -185,6 +197,7 @@ export function MoodLogRenderer({
           ref={contextRef}
           value={formContext}
           onChange={(e) => setFormContext(e.target.value)}
+          readOnly={readOnly}
           onFocus={(e) => {
             const el = e.currentTarget;
             setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "nearest" }), 300);
@@ -194,9 +207,11 @@ export function MoodLogRenderer({
         />
       </section>
 
-      <PrimaryButton onClick={handleSubmit} disabled={!canSubmit} variant="emotional">
-        {loading ? "…" : isEditing ? tm("updateMood") : tm("submit")}
-      </PrimaryButton>
+      {!readOnly && (
+        <PrimaryButton onClick={handleSubmit} disabled={!canSubmit} variant="emotional">
+          {loading ? "…" : isEditing ? tm("updateMood") : tm("submit")}
+        </PrimaryButton>
+      )}
     </div>
   );
 }

@@ -49,20 +49,16 @@ export function ProgressClient({
   locale,
   initialData,
   initialTaskId,
-  isLocked: initialLocked,
-  unlockMs,
 }: {
   locale: string;
   initialData: ProgressPayload;
   initialTaskId?: string;
-  isLocked?: boolean;
-  unlockMs?: number;
 }) {
   const pathname = usePathname();
   const t = useTranslations("progress");
   const ctx = useProgressContext();
 
-  const [locked, setLocked] = useState(initialLocked ?? false);
+  const [locked, setLocked] = useState(false);
 
   // Restore to the day the user was on before navigating away. ctx.state is
   // already set on soft navigation back (layout provider persists). Fall back
@@ -75,8 +71,8 @@ export function ProgressClient({
   // On soft navigation back, ctx.state.selectedDay may differ from initialData
   // (user had navigated to a different day). The restore effect below fetches
   // the correct day's content if needed.
-  const [dayTasks, setDayTasks] = useState<DayContentTask[]>(
-    () => initialData.tasks.map(stripCompletion),
+  const [dayTasks, setDayTasks] = useState<DayContentTask[]>(() =>
+    initialData.tasks.map(stripCompletion),
   );
 
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
@@ -120,8 +116,13 @@ export function ProgressClient({
     const restoredDay = ctx.state?.selectedDay;
     if (!restoredDay || restoredDay === initialData.selectedDay) return;
     const cached = dayCacheRef.current.get(restoredDay);
-    if (cached) { setDayTasks(cached); return; }
-    void loadDayContent(restoredDay).then((content) => { if (content) setDayTasks(content); });
+    if (cached) {
+      setDayTasks(cached);
+      return;
+    }
+    void loadDayContent(restoredDay).then((content) => {
+      if (content) setDayTasks(content);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // mount-only — ctx.state is synchronously available on soft nav back
 
@@ -173,16 +174,11 @@ export function ProgressClient({
   }, []);
 
   useEffect(() => {
-    if (!locked || !unlockMs) return;
-    const remaining = unlockMs - Date.now();
-    if (remaining <= 0) { setLocked(false); return; }
-    const id = setTimeout(() => setLocked(false), remaining);
-    return () => clearTimeout(id);
-  }, [locked, unlockMs]);
-
-  useEffect(() => {
     function onPopState() {
-      if (skipNextPopRef.current) { skipNextPopRef.current = false; return; }
+      if (skipNextPopRef.current) {
+        skipNextPopRef.current = false;
+        return;
+      }
       taskNavStack.current.pop();
       const prev = taskNavStack.current[taskNavStack.current.length - 1];
       if (prev) {
@@ -208,7 +204,9 @@ export function ProgressClient({
 
     const promise = (async () => {
       try {
-        const res = await fetch(`/api/progress/day?day=${day}&locale=${locale}`);
+        const res = await fetch(
+          `/api/progress/day?day=${day}&locale=${locale}&block=${initialData.blockNumber}`,
+        );
         if (!res.ok) return null;
         const data = (await res.json()) as { tasks: DayContentTask[] };
         dayCacheRef.current.set(day, data.tasks);
@@ -324,16 +322,7 @@ export function ProgressClient({
   }
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 pt-4">
-      {locked && (
-        <div className="mb-4 flex border border-primary rounded-2xl bg-primary/10 items-center justify-center px-4 py-3 text-center">
-          <span className="text-base font-medium tracking-wider text-primary">
-            {locale === "zh"
-              ? "我们将于 1 June 2026 一起开始"
-              : "We will start together on 1 June 2026"}
-          </span>
-        </div>
-      )}
+    <div className="px-4 sm:px-6 md:px-8 pt-4 pb-8">
       <DayCarousel
         days={carousel}
         selectedDay={selectedDay}

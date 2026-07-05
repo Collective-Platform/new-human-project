@@ -1,6 +1,7 @@
 const ZH_BOOK_NAMES: Record<string, string> = {
   ephesians: "以弗所书",
   acts: "使徒行传",
+  philippians: "腓立比书",
 };
 
 /**

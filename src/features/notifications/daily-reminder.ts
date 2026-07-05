@@ -2,8 +2,7 @@ import { db } from "@/src/db";
 import { taskCompletions } from "@/src/db/schema";
 import { sql, inArray } from "drizzle-orm";
 import { getDayTasks as getRegistryDayTasks } from "@/src/features/content/program";
-import { getCurrentDay } from "@/src/features/dashboard";
-import { PROGRAM_BLOCK_START } from "@/src/lib/program-gate";
+import { getActiveBlock } from "@/src/lib/program-gate";
 import { sendPushToUser } from "./push";
 
 const messages: Record<string, { title: string; body: string }> = {
@@ -83,36 +82,37 @@ export async function getDailyReminderPreview(): Promise<ReminderEligibilityResu
     const timezone = prefs.reminder_timezone ?? "UTC";
     const reminderHour = `${reminderTime.slice(0, 2)}:00`;
 
+    const { blockNumber, currentDay } = getActiveBlock(new Date(row.onboarded_at), now, timezone);
+
     if (localHourForUser(now, timezone) !== reminderHour) {
-      // Compute currentDay anyway so the preview shows it regardless.
-      const onboardedAt = new Date(row.onboarded_at);
-      const effectiveStart =
-        onboardedAt.getTime() < PROGRAM_BLOCK_START.getTime()
-          ? PROGRAM_BLOCK_START
-          : onboardedAt;
+      // Report currentDay anyway so the preview shows it regardless.
       return {
         userId: Number(row.id),
-        currentDay: getCurrentDay(effectiveStart),
+        currentDay,
         willSend: false,
         skipReason: "wrong_hour" as ReminderSkipReason,
       };
     }
 
-    const onboardedAt = new Date(row.onboarded_at);
-    const effectiveStart =
-      onboardedAt.getTime() < PROGRAM_BLOCK_START.getTime()
-        ? PROGRAM_BLOCK_START
-        : onboardedAt;
-    const currentDay = getCurrentDay(effectiveStart);
-    const todayTasks = getRegistryDayTasks(1, currentDay);
+    const todayTasks = getRegistryDayTasks(blockNumber, currentDay);
 
     if (todayTasks.length === 0) {
-      return { userId: Number(row.id), currentDay, willSend: false, skipReason: "no_tasks_today" as ReminderSkipReason };
+      return {
+        userId: Number(row.id),
+        currentDay,
+        willSend: false,
+        skipReason: "no_tasks_today" as ReminderSkipReason,
+      };
     }
 
     const completedIds = completionsByUser.get(Number(row.id)) ?? new Set<string>();
     if (todayTasks.every((t) => completedIds.has(t.id))) {
-      return { userId: Number(row.id), currentDay, willSend: false, skipReason: "day_complete" as ReminderSkipReason };
+      return {
+        userId: Number(row.id),
+        currentDay,
+        willSend: false,
+        skipReason: "day_complete" as ReminderSkipReason,
+      };
     }
 
     return { userId: Number(row.id), currentDay, willSend: true };
@@ -168,14 +168,10 @@ export async function sendDailyReminders() {
 
   let sent = 0;
   for (const row of eligibleRows) {
-    const onboardedAt = new Date(row.onboarded_at);
-    const effectiveStart =
-      onboardedAt.getTime() < PROGRAM_BLOCK_START.getTime()
-        ? PROGRAM_BLOCK_START
-        : onboardedAt;
-    const currentDay = getCurrentDay(effectiveStart);
+    const timezone = row.notification_prefs?.reminder_timezone ?? "UTC";
+    const { blockNumber, currentDay } = getActiveBlock(new Date(row.onboarded_at), now, timezone);
 
-    const todayTasks = getRegistryDayTasks(1, currentDay);
+    const todayTasks = getRegistryDayTasks(blockNumber, currentDay);
 
     // No tasks authored for today — block is complete or content not yet released.
     if (todayTasks.length === 0) continue;
