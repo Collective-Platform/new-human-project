@@ -132,34 +132,6 @@ function openDB() {
   });
 }
 
-async function getBadgeCount() {
-  try {
-    const db = await openDB();
-    return await new Promise((resolve) => {
-      const tx = db.transaction("badge-count", "readonly");
-      const req = tx.objectStore("badge-count").get("count");
-      req.onsuccess = () => resolve(req.result ?? 0);
-      req.onerror = () => resolve(0);
-    });
-  } catch {
-    return 0;
-  }
-}
-
-async function setBadgeCount(count) {
-  try {
-    const db = await openDB();
-    await new Promise((resolve, reject) => {
-      const tx = db.transaction("badge-count", "readwrite");
-      tx.objectStore("badge-count").put(count, "count");
-      tx.oncomplete = resolve;
-      tx.onerror = reject;
-    });
-  } catch {
-    // ignore
-  }
-}
-
 async function saveToOfflineQueue(body) {
   const db = await openDB();
   const tx = db.transaction(OFFLINE_QUEUE_STORE, "readwrite");
@@ -225,9 +197,6 @@ self.addEventListener("push", (event) => {
 
   event.waitUntil(
     (async () => {
-      const count = await getBadgeCount();
-      const newCount = count + 1;
-      await setBadgeCount(newCount);
       await self.registration.showNotification(data.title, {
         body: data.body,
         icon: "/icons/icon-192x192.png",
@@ -235,8 +204,15 @@ self.addEventListener("push", (event) => {
         vibrate: [200, 100, 200],
         data: { url: data.url || "/" },
       });
-      if (self.navigator?.setAppBadge) {
-        await self.navigator.setAppBadge(newCount).catch(() => {});
+      // The badge mirrors the server's unread social count, passed in the
+      // payload. Only social pushes include `badge`; reminders/broadcasts omit
+      // it, so we leave the OS badge untouched for those.
+      if (typeof data.badge === "number" && self.navigator) {
+        if (data.badge > 0) {
+          await self.navigator.setAppBadge?.(data.badge).catch(() => {});
+        } else {
+          await self.navigator.clearAppBadge?.().catch(() => {});
+        }
       }
     })(),
   );
@@ -247,10 +223,10 @@ self.addEventListener("notificationclick", (event) => {
 
   const url = event.notification.data?.url || "/";
 
-  setBadgeCount(0).catch(() => {});
-  if (self.navigator?.clearAppBadge) {
-    self.navigator.clearAppBadge().catch(() => {});
-  }
+  // The badge is reconciled to the true server count when the app foregrounds
+  // and cleared when the user opens the in-app bell (which marks notifications
+  // read). Tapping a push only navigates — it doesn't mark read — so we don't
+  // force-clear here, which would leave the badge out of sync with the bell.
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
