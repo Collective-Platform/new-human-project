@@ -155,6 +155,11 @@ const SESSIONS = [
   { id: "dusk", label: "Dusk Track" },
 ] as const;
 
+// Post-event: the July 4, 2026 activations are over, so registration/checkout is
+// closed. The track cards below stay as a recap. Flip this to `true` to re-open
+// purchasing for the next Rhythm Live (also restore the Stripe/Sheets env vars).
+const REGISTRATION_OPEN = false;
+
 export function TrackSection() {
   const [modalOpen, setModalOpen] = useState(false);
   const [cart, setCart] = useState<Set<string>>(new Set());
@@ -164,6 +169,7 @@ export function TrackSection() {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
+    if (!REGISTRATION_OPEN) return;
     fetch("/api/live/availability")
       .then((r) => r.json())
       .then((data: Availability) => {
@@ -299,12 +305,18 @@ export function TrackSection() {
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-4">
-          <button
-            onClick={() => setModalOpen(true)}
-            className="rounded-full bg-primary px-8 py-3.5 text-base font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
-          >
-            Join A Track
-          </button>
+          {REGISTRATION_OPEN ? (
+            <button
+              onClick={() => setModalOpen(true)}
+              className="rounded-full bg-primary px-8 py-3.5 text-base font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
+            >
+              Join A Track
+            </button>
+          ) : (
+            <p className="rounded-full border border-white/15 px-8 py-3.5 text-base font-bold text-white/50">
+              Registration closed
+            </p>
+          )}
           <p className="mx-auto mb-12 max-w-xl text-center text-base leading-relaxed  md:text-lg text-white/60">
             Location for all activation tracks will be at Collective.
           </p>
@@ -312,7 +324,7 @@ export function TrackSection() {
       </div>
 
       {/* Purchase modal */}
-      {modalOpen && (
+      {REGISTRATION_OPEN && modalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setModalOpen(false)}

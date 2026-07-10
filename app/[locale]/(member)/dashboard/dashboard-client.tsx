@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
-import { LiveBanner } from "./live-banner";
 import { RadarChart } from "./radar-chart";
 import { StreakBadge } from "./streak-badge";
 import { ActivityCalendar } from "./activity-calendar";
@@ -47,8 +46,6 @@ export function DashboardClient({
           }}
         />
       )}
-
-      <LiveBanner />
 
       <div className="relative">
         <div className="absolute left-auto top-3 right-3">
