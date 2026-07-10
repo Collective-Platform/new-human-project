@@ -38,6 +38,9 @@ export function NotificationPanel({
     setOpen(true);
     if (localUnread > 0) {
       setLocalUnread(0);
+      // Clear the home-screen badge in the same gesture that clears the bell —
+      // marking read zeroes the server's unread count, so the badge follows.
+      navigator.clearAppBadge?.().catch(() => {});
       await fetch("/api/notifications/read", { method: "POST" });
       router.refresh();
     }

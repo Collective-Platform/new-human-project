@@ -12,11 +12,30 @@ export function SwRegister() {
   const [showIOSInstall, setShowIOSInstall] = useState(false);
 
   useEffect(() => {
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") {
-        navigator.clearAppBadge?.().catch(() => {});
+    // Reconcile the home-screen badge with the server's unread social count
+    // whenever the app is opened or foregrounded. This is the single source of
+    // truth, so a stale badge (e.g. left over after dismissing a push) self-
+    // corrects — dropping to 0 clears it, matching the in-app bell.
+    const reconcileBadge = async () => {
+      try {
+        const res = await fetch("/api/notifications/unread-count");
+        if (!res.ok) return;
+        const { count } = await res.json();
+        if (typeof count !== "number") return;
+        if (count > 0) {
+          navigator.setAppBadge?.(count).catch(() => {});
+        } else {
+          navigator.clearAppBadge?.().catch(() => {});
+        }
+      } catch {
+        // ignore — best-effort
       }
     };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") reconcileBadge();
+    };
+    reconcileBadge();
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, []);

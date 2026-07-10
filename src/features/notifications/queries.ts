@@ -1,8 +1,8 @@
 import { db } from "@/src/db";
 import { notificationLog, users } from "@/src/db/schema";
-import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
 
-const SOCIAL_TYPES = ["friend_request", "friend_accepted", "like"];
+export const SOCIAL_TYPES = ["friend_request", "friend_accepted", "like"];
 
 export async function getNotificationsForUser(userId: number) {
   return db
@@ -11,6 +11,20 @@ export async function getNotificationsForUser(userId: number) {
     .where(and(eq(notificationLog.userId, userId), inArray(notificationLog.type, SOCIAL_TYPES)))
     .orderBy(desc(notificationLog.sentAt))
     .limit(30);
+}
+
+export async function getUnreadSocialCount(userId: number) {
+  const rows = await db
+    .select({ value: count() })
+    .from(notificationLog)
+    .where(
+      and(
+        eq(notificationLog.userId, userId),
+        inArray(notificationLog.type, SOCIAL_TYPES),
+        isNull(notificationLog.readAt),
+      ),
+    );
+  return rows[0]?.value ?? 0;
 }
 
 export async function markNotificationsRead(userId: number) {
