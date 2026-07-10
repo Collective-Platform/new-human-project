@@ -1,30 +1,42 @@
 export default function Loading() {
   return (
-    <div className="animate-pulse space-y-4 px-4 sm:px-6 md:px-8 pt-4 pb-4">
+    <div className="animate-pulse px-4 sm:px-6 md:px-8 pt-4 pb-8">
       {/* Day carousel */}
       <div className="flex gap-2 overflow-hidden">
         {Array.from({ length: 7 }, (_, i) => (
-          <div key={i} className="h-16 w-14 shrink-0 rounded-xl bg-zinc-100" />
+          <div key={i} className="h-14 w-14 shrink-0 rounded-full bg-zinc-50" />
         ))}
       </div>
 
-      {/* Task list header */}
-      <div className="h-6 w-24 rounded bg-zinc-200" />
+      {/* Header row: "Day N" title + status pill */}
+      <div className="flex items-center justify-between mt-6 mb-6">
+        <div className="h-8 w-28 rounded bg-zinc-200" />
+        <div className="h-7 w-20 rounded-full border border-foreground/20" />
+      </div>
 
-      {/* Task cards */}
-      <div className="space-y-3">
-        {Array.from({ length: 5 }, (_, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-4 rounded-md bg-white p-4 shadow-[0_4px_16px_rgba(53,50,47,0.03)]"
-          >
-            <div className="h-10 w-10 shrink-0 rounded-full bg-zinc-100" />
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <div className="h-4 w-3/4 rounded bg-zinc-100" />
-              <div className="h-3 w-1/2 rounded bg-zinc-100" />
+      {/* Category sections */}
+      <div className="space-y-8 pb-6">
+        {Array.from({ length: 3 }, (_, s) => (
+          <section key={s} className="space-y-3">
+            {/* Section header: icon + title */}
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 shrink-0 rounded-lg bg-zinc-100" />
+              <div className="h-6 w-24 rounded bg-zinc-200" />
             </div>
-            <div className="h-6 w-6 shrink-0 rounded-full bg-zinc-100" />
-          </div>
+
+            {/* Grouped task card */}
+            <div className="rounded-3xl bg-white shadow-card overflow-hidden">
+              {Array.from({ length: 2 }, (_, r) => (
+                <div key={r} className={r === 0 ? "" : "border-t border-zinc-50"}>
+                  <div className="flex w-full items-center gap-3 px-5 py-3.5">
+                    <div className="h-5 w-5 shrink-0 rounded-full bg-zinc-100" />
+                    <div className="h-4 flex-1 rounded bg-zinc-100" />
+                    <div className="h-4 w-4 shrink-0 rounded bg-zinc-100" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         ))}
       </div>
     </div>

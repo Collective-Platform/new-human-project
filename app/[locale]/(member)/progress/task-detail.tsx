@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { ProgramTask } from "@/src/features/content/program";
@@ -53,6 +53,13 @@ export function TaskDetail({
   const t = useTranslations("progress");
   const [loading, setLoading] = useState(false);
   const { setHidden } = useNavVisibility();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Reset scroll to the top whenever we navigate to a different task, so
+  // moving from a long passage to the next devotion doesn't start scrolled down.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, [task.id]);
 
   // Hide bottom nav while inside a Mental or Emotional activity
   useEffect(() => {
@@ -169,7 +176,7 @@ export function TaskDetail({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:px-8">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 md:px-8">
         <div className="mx-auto max-w-3xl">
           {isRegistrySectioned && programTask && (
             <SectionedContentRenderer

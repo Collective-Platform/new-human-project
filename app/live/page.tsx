@@ -1,22 +1,21 @@
 // Rhythm Live — standalone event landing page (served at live.rhythm.you).
-// No backend: the ticket CTA links out to ticket2u. Copy is from the
-// Rhythm Live marketing copy.
+// The July 4, 2026 event has ended; this page is now a post-event recap /
+// "see you next time" holding state. Ticketing/checkout CTAs are removed and
+// the live backend (Stripe + Google Sheets) is disabled via env vars in Vercel.
+// Kept intact so it can be re-activated for the next Rhythm Live.
 //
 
 import Image from "next/image";
-import { Suspense, type ReactNode } from "react";
-import { CountdownTimer } from "./countdown-timer";
 import { DressCodeSection } from "./dress-code-section";
 import { FaqSection } from "./faq-section";
 import { PartnersSection } from "./partners-section";
 import { PillarsSection } from "./pillars-section";
-import { RegisteredBanner } from "./registered-banner";
 import { ScheduleSection } from "./schedule-section";
 import { SpeakersSection } from "./speakers-section";
 import { TrackSection } from "./track-section";
 
-const TICKET_URL = "https://www.ticket2u.com.my/event/50219/rhythm-live";
-
+// Event-details strips are commented out post-event (see the two sections below).
+// Restore this and those sections to re-activate for the next Rhythm Live.
 const EVENT_DETAILS = [
   { label: "Date", value: "July 4, 2026" },
   { label: "Time", value: "10AM – 4PM" },
@@ -32,29 +31,6 @@ const EXPERIENCES = [
   "Moments of celebration and reflection.",
   "Practical next steps for the journey ahead.",
 ];
-
-function CtaButton({
-  href,
-  children,
-  fullWidth = false,
-}: {
-  href: string;
-  children: ReactNode;
-  fullWidth?: boolean;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-block rounded-full bg-primary py-4 text-center text-base font-bold text-white  transition-opacity hover:opacity-90 active:scale-[0.98] ${
-        fullWidth ? "w-full" : "w-full md:w-auto md:px-12"
-      }`}
-    >
-      {children}
-    </a>
-  );
-}
 
 export default function RhythmLivePage() {
   return (
@@ -103,17 +79,9 @@ export default function RhythmLivePage() {
               </a>
               <a
                 href="#faq"
-                className="hidden text-sm font-medium text-white/90 transition-colors hover:text-white md:block shadow-black shadow-"
+                className="text-sm font-medium text-white/90 transition-colors hover:text-white shadow-black shadow-"
               >
                 FAQ
-              </a>
-              <a
-                href={TICKET_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full bg-primary px-5 py-2 text-sm font-bold text-white  transition-opacity hover:opacity-90 active:scale-[0.98]"
-              >
-                Get Tickets
               </a>
             </div>
           </nav>
@@ -134,9 +102,9 @@ export default function RhythmLivePage() {
               A one-day gathering where the community comes together to learn, grow, worship,
               connect, and continue the journey together.
             </p>
-            <CountdownTimer />
-            <CtaButton href={TICKET_URL}>Reserve My Seat</CtaButton>
-            <p className="mt-3 text-sm text-white/60">Limited to 300 Members</p>
+            <p className="mx-auto mt-5 max-w-2xl text-lg md:text-xl font-bold text-white">
+              See you at the next Rhythm Live.
+            </p>
           </div>
         </section>
       </div>
@@ -196,9 +164,6 @@ export default function RhythmLivePage() {
               This isn&rsquo;t about sitting in a room and taking notes. It&rsquo;s about
               experiencing the movement you&rsquo;re already part of.
             </p>
-            <div className="mt-8">
-              <CtaButton href={TICKET_URL}>Reserve My Seat</CtaButton>
-            </div>
           </div>
 
           {/* Photo grid */}
@@ -253,17 +218,10 @@ export default function RhythmLivePage() {
             </div>
           ))}
         </dl>
-        <div className="flex justify-center">
-          <CtaButton href={TICKET_URL}>Reserve My Seat</CtaButton>
-        </div>
-        <p className="mt-6 text-sm text-white/80">
-          No walk-ins. Once tickets are gone, registration closes.
+        <p className="mx-auto max-w-2xl text-lg md:text-xl font-bold text-white">
+          See you at the next Rhythm Live.
         </p>
       </section>
-
-      <Suspense>
-        <RegisteredBanner />
-      </Suspense>
     </div>
   );
 }

@@ -111,7 +111,7 @@ export function ReflectionInput({
       style={{ minHeight: `${rows * 1.5}rem` }}
       placeholder={placeholder}
       aria-label={ariaLabel}
-      className="w-full resize-none overflow-hidden rounded-sm border-0 bg-surface-container-low px-3 py-2 text-lg tracking-tight leading-loose text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
+      className="w-full resize-none overflow-hidden rounded-sm border-0 bg-surface-container-low px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
     />
   );
 }
