@@ -93,7 +93,7 @@ export async function getBlockOverviewForUser(
     }
   }
   const allCompletedRows = [...completedRows, ...syntheticRows].sort(
-    (a, b) => a.blockNumber - b.blockNumber,
+    (a, b) => b.blockNumber - a.blockNumber,
   );
 
   const finalStreaks = await Promise.all(

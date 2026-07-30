@@ -215,7 +215,7 @@ function headingSlug(heading: string): string {
  */
 function inputSlugFor(slug: string): string | null {
   if (slug === "reflection") return "reflection";
-  if (slug === "today-s-practice" || slug === "todays-practice") {
+  if (slug === "practice" || slug === "today-s-practice" || slug === "todays-practice") {
     return "practice";
   }
   if (slug === "question" || slug === "final-reflection") return "question";

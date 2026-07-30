@@ -10,8 +10,8 @@ import {
   badgeDefinitions,
   memberBadges,
 } from "@/src/db/schema";
-import { eq, and, sql } from "drizzle-orm";
-import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
+import { eq, and, sql, inArray } from "drizzle-orm";
+import { getTaskById as getRegistryTaskById, getDayTasks } from "@/src/features/content/program";
 import { getFriendIdsRaw } from "@/src/features/community/invalidation";
 import { BLOCK_LAUNCH, BLOCK_LENGTH_DAYS, getActiveBlock } from "@/src/lib/program-gate";
 
@@ -126,6 +126,56 @@ export async function uncompleteTask(input: {
   await db
     .delete(taskCompletions)
     .where(and(eq(taskCompletions.userId, user.id), eq(taskCompletions.taskId, taskId)));
+
+  const friendIds = await getFriendIdsRaw(user.id);
+  updateTag(`dashboard:${user.id}`);
+  updateTag(`progress:${user.id}`);
+  updateTag(`feed:${user.id}`);
+  for (const fid of friendIds) updateTag(`feed:${fid}`);
+
+  return { success: true };
+}
+
+export async function redoBlock(
+  blockNumber: number,
+): Promise<{ success: true } | { error: string }> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Unauthorized" };
+
+  // Collect all task IDs for this block from the registry
+  const taskIds: string[] = [];
+  for (let day = 1; day <= BLOCK_LENGTH_DAYS; day++) {
+    for (const task of getDayTasks(blockNumber, day)) {
+      taskIds.push(task.id);
+    }
+  }
+
+  if (taskIds.length > 0) {
+    await db
+      .delete(taskCompletions)
+      .where(and(eq(taskCompletions.userId, user.id), inArray(taskCompletions.taskId, taskIds)));
+  }
+
+  await db
+    .delete(memberBlockCompletions)
+    .where(
+      and(
+        eq(memberBlockCompletions.userId, user.id),
+        eq(memberBlockCompletions.blockNumber, blockNumber),
+      ),
+    );
+
+  const badge = await db
+    .select({ id: badgeDefinitions.id })
+    .from(badgeDefinitions)
+    .where(eq(badgeDefinitions.blockNumber, blockNumber))
+    .limit(1);
+
+  if (badge.length > 0) {
+    await db
+      .delete(memberBadges)
+      .where(and(eq(memberBadges.userId, user.id), eq(memberBadges.badgeId, badge[0].id)));
+  }
 
   const friendIds = await getFriendIdsRaw(user.id);
   updateTag(`dashboard:${user.id}`);

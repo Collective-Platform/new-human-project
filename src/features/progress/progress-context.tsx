@@ -18,6 +18,7 @@ export interface CompletionState {
 interface ProgressContextValue {
   state: CompletionState | null;
   initialize: (state: CompletionState) => void;
+  reset: () => void;
   updateCurrentDay: (day: number) => void;
   updateSelectedDay: (day: number) => void;
   markComplete: (taskId: string, data?: Record<string, unknown>) => Promise<void>;
@@ -101,6 +102,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setState(newState);
   }
 
+  function reset() {
+    initializedRef.current = false;
+    setState(null);
+  }
+
   function updateCurrentDay(day: number) {
     setState((prev) => (prev ? { ...prev, currentDay: day } : prev));
   }
@@ -134,6 +140,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       value={{
         state,
         initialize,
+        reset,
         updateCurrentDay,
         updateSelectedDay,
         markComplete,

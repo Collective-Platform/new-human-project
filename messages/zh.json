@@ -34,7 +34,12 @@
     "completed": "已完成",
     "today": "今天",
     "onTrack": "按时进行！",
-    "missedDays": "延误 {count} 天"
+    "missedDays": "延误 {count} 天",
+    "restartBlock": "重置",
+    "restartBlockTitle": "重新开始此周期？",
+    "restartBlockBody": "本周期的所有进度将被清除，你可以从第1天重新完成所有任务。",
+    "restartBlockConfirm": "重新开始",
+    "restartBlockCancel": "取消"
   },
   "mood": {
     "pickEmoji": "你今天感觉怎么样？",
@@ -150,7 +155,12 @@
     "shareProfile": "分享资料",
     "copyLink": "复制链接",
     "copied": "已复制！",
-    "shareVia": "分享"
+    "shareVia": "分享",
+    "redoBlock": "重做",
+    "redoBlockTitle": "重做第{blockNumber}周期？",
+    "redoBlockBody": "这将清除你在第{blockNumber}周期的所有进度记录，统计数据将被重置。",
+    "redoBlockConfirm": "重做",
+    "redoBlockCancel": "取消"
   },
   "auth": {
     "enterEmail": "输入你的邮箱",
