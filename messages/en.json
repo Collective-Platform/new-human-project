@@ -34,7 +34,12 @@
     "completed": "Completed",
     "today": "Today",
     "onTrack": "On Track!",
-    "missedDays": "{count} missed {count, plural, one {day} other {days}}"
+    "missedDays": "{count} missed {count, plural, one {day} other {days}}",
+    "restartBlock": "Restart",
+    "restartBlockTitle": "Restart this block?",
+    "restartBlockBody": "All your progress for this block will be cleared. You can redo all the tasks from Day 1.",
+    "restartBlockConfirm": "Restart",
+    "restartBlockCancel": "Cancel"
   },
   "mood": {
     "pickEmoji": "How are you feeling today?",
@@ -150,7 +155,12 @@
     "shareProfile": "Share Profile",
     "copyLink": "Copy Link",
     "copied": "Copied!",
-    "shareVia": "Share"
+    "shareVia": "Share",
+    "redoBlock": "Redo",
+    "redoBlockTitle": "Redo Block {blockNumber}?",
+    "redoBlockBody": "This will clear all your recorded progress for Block {blockNumber}. Your stats and activity will be reset.",
+    "redoBlockConfirm": "Redo",
+    "redoBlockCancel": "Cancel"
   },
   "auth": {
     "enterEmail": "Enter your email",

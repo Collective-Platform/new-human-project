@@ -192,13 +192,13 @@ export function TaskDetail({
             <div className="space-y-6">
               <div>
                 <p className="mb-3 font-headline text-lg font-bold text-foreground">
-                  {(
-                    content.prefetched_passage as {
-                      reference: string;
-                      content: string;
-                    } | null
-                  )?.reference ??
-                    localizeScriptureRef((content.scripture_reference as string) ?? "", locale)}
+                  {localizeScriptureRef(
+                    (content.prefetched_passage as { reference: string; content: string } | null)
+                      ?.reference ??
+                      (content.scripture_reference as string) ??
+                      "",
+                    locale,
+                  )}
                 </p>
                 <BilingualPassage
                   passage={

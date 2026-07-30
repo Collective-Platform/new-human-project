@@ -5,9 +5,26 @@ import { env } from "@/src/env";
  * Add the book here whenever new program content references it.
  */
 const BOOK_TO_USFM: Record<string, string> = {
-  ephesians: "EPH",
+  genesis: "GEN",
+  exodus: "EXO",
+  psalm: "PSA",
+  psalms: "PSA",
+  isaiah: "ISA",
+  ezekiel: "EZK",
+  luke: "LUK",
+  john: "JHN",
   acts: "ACT",
+  romans: "ROM",
+  "1corinthians": "1CO",
+  "2corinthians": "2CO",
+  galatians: "GAL",
+  ephesians: "EPH",
+  colossians: "COL",
+  "1thessalonians": "1TH",
   philippians: "PHP",
+  "1peter": "1PE",
+  "1john": "1JN",
+  revelation: "REV",
 };
 
 /**

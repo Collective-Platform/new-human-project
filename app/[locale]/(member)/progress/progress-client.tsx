@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
 import { TaskDetail } from "./task-detail";
 import type { ProgressPayload, ProgressTask, DayContentTask } from "@/src/features/progress";
 import { useProgressContext } from "@/src/features/progress/progress-context";
+import { redoBlock } from "@/src/features/tasks/actions";
 
 type TaskData = ProgressTask;
 
@@ -55,10 +56,12 @@ export function ProgressClient({
   initialTaskId?: string;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const t = useTranslations("progress");
   const ctx = useProgressContext();
 
   const [locked, setLocked] = useState(false);
+  const [isRestarting, startRestartTransition] = useTransition();
 
   // Restore to the day the user was on before navigating away. ctx.state is
   // already set on soft navigation back (layout provider persists). Fall back
@@ -279,6 +282,16 @@ export function ProgressClient({
     setActiveTask(task);
   }
 
+  function handleRestartConfirm() {
+    startRestartTransition(async () => {
+      const result = await redoBlock(initialData.blockNumber);
+      if ("success" in result) {
+        ctx.reset();
+        router.refresh();
+      }
+    });
+  }
+
   // Derive rendered state: context when available, SSR fallback on first paint.
   // On soft navigation back, ctx.state is already set (layout provider persists).
   // On first load, ctx.state is null until the mount effect fires; SSR data fills in.
@@ -368,6 +381,8 @@ export function ProgressClient({
         }}
         locked={locked}
       />
+
+
     </div>
   );
 }

@@ -16,7 +16,8 @@
     "db:reset-local": "dropdb new_human_dev && createdb new_human_dev && pnpm db:setup-local && pnpm db:migrate && pnpm db:seed && pnpm db:seed-dev",
     "db:seed": "tsx src/db/seed.ts",
     "content:new": "tsx scripts/new-content.ts",
-    "content:check": "tsx scripts/check-content-ids.ts"
+    "content:check": "tsx scripts/check-content-ids.ts",
+    "content:import": "tsx scripts/import-content.ts"
   },
   "dependencies": {
     "@khmyznikov/pwa-install": "^0.6.3",
@@ -52,6 +53,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "mammoth": "^1.12.0",
     "oxfmt": "^0.49.0",
     "oxlint": "^1.63.0",
     "sharp": "^0.34.5",

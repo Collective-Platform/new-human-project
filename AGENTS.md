@@ -32,9 +32,31 @@ pnpm db:generate     # Generate new migration from schema changes
 pnpm db:reset-local  # Drop → recreate → migrate → seed local DB
 pnpm content:new     # Scaffold a new markdown task file with a fresh immutable ULID
 pnpm content:check   # Verify ULID content IDs are intact (run in CI)
+pnpm content:import  # Import content verbatim from docx files (see below)
 ```
 
 > Content authoring workflow: see `data/program/README.md`.
+
+### Importing block content from docx
+
+**Never write or paraphrase program content by hand.** All devotional and emotional content comes from Word documents authored by the content team. Use `pnpm content:import` to copy it verbatim into the markdown files:
+
+```bash
+pnpm content:import \
+  --mental-en  path/to/holy-spirit-en.docx \
+  --mental-zh  path/to/holy-spirit-zh.docx \
+  --emotional-en path/to/emotional-en.docx \
+  --emotional-zh path/to/emotional-zh.docx \
+  --block 4
+```
+
+Each flag is optional — supply only the files you have. Run with `--dry-run` first to preview. The script:
+- Parses section labels from the docx as structural markers (`TODAY'S FOCUS`, `READING NOTES`, etc.)
+- Copies all body text verbatim — no edits, no summarising
+- Preserves frontmatter (`id:` and all other fields) in existing files
+- Maps Chinese ZH section labels to the correct renderer headings (`核心思想`, `今日反思`, etc.)
+
+The matching files must already exist in `data/program/block-{N}/` (created earlier by `pnpm content:new`). The script finds them by `block`, `day`, `category`, and `type: devotional`.
 
 ---
 

@@ -67,7 +67,7 @@ export const BLOCK_LAUNCH: Record<number, Date> = {
   // the intended day from the source string (env value carries a +08:00 offset).
   1: localDateMarker(new Date(env.PROGRAM_START_AT), PROGRAM_DEFAULT_TZ), // June 1, 2026
   2: localDateMarker(new Date("2026-07-06"), PROGRAM_DEFAULT_TZ), // block 2 launch
-  // 3: localDateMarker(new Date("2026-08-09"), PROGRAM_DEFAULT_TZ), // add when scheduled
+  3: localDateMarker(new Date("2026-07-31"), PROGRAM_DEFAULT_TZ), // block 3 launch
 };
 
 export function getBlockLaunchDate(blockNumber: number): Date | null {
