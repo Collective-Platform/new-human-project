@@ -8,6 +8,7 @@ import { DayCarousel } from "../progress/day-carousel";
 import { TaskList } from "../progress/task-list";
 import { TaskDetail } from "../progress/task-detail";
 import type { ProgressPayload, DayContentTask, ProgressTask } from "@/src/features/progress";
+import { updateCompletedTaskData } from "@/src/features/tasks/actions";
 
 function stripCompletion(t: ProgressTask): DayContentTask {
   const { completed: _c, completionData: _d, ...rest } = t;
@@ -44,13 +45,35 @@ export function CompletedBlockClient({
   const [activeTask, setActiveTask] = useState<ProgressTask | null>(null);
   const [activeTaskMode, setActiveTaskMode] = useState<"add" | number>("add");
 
-  const noop = async () => {};
+  // Local copy of completions so edits are reflected immediately without a full
+  // page reload. Only the `data` field is mutated — `completed` presence is fixed
+  // for a finished block and never changes here.
+  const [completions, setCompletions] = useState<Record<string, Record<string, unknown> | null>>(
+    () => initialData.completions,
+  );
 
   const dayCacheRef = useRef<Map<number, DayContentTask[]>>(
     new Map([[initialData.selectedDay, initialData.tasks.map(stripCompletion)]]),
   );
   const inFlightRef = useRef<Map<number, Promise<DayContentTask[] | null>>>(new Map());
-  const completions = initialData.completions;
+
+  const blockEndDate = (() => {
+    const d = new Date(initialData.blockStartDate);
+    d.setDate(d.getDate() + 24);
+    return d.toISOString();
+  })();
+
+  async function handleComplete(taskId: string, data?: Record<string, unknown>) {
+    const result = await updateCompletedTaskData({ taskId, data: data ?? {}, blockEndDate });
+    if ("error" in result) return;
+    // Merge into local state so reopening the task immediately shows the saved
+    // content without a full page reload. For a first-time save (isNew), the
+    // key is added so the task flips to completed in the task list.
+    setCompletions((prev) => ({
+      ...prev,
+      [taskId]: { ...(prev[taskId] ?? {}), ...(data ?? {}) },
+    }));
+  }
 
   async function loadDayContent(day: number): Promise<DayContentTask[] | null> {
     const cached = dayCacheRef.current.get(day);
@@ -105,7 +128,7 @@ export function CompletedBlockClient({
         locale={locale}
         blockNumber={initialData.blockNumber}
         dayNumber={selectedDay}
-        onCompleteAction={noop}
+        onCompleteAction={handleComplete}
         onCloseAction={() => {
           setActiveTask(null);
           setActiveTaskMode("add");
@@ -113,7 +136,6 @@ export function CompletedBlockClient({
         categoryTasks={categoryTasks}
         onNavigateAction={(t) => openTask(t, "add")}
         mode={activeTaskMode}
-        readOnly
       />
     );
   }
@@ -155,14 +177,14 @@ export function CompletedBlockClient({
           tasks={tasks}
           onTaskTapAction={(task) => openTask(task, "add")}
           onToggleCompleteAction={() => {}}
-          onAddEntryAction={() => {}}
+          onAddEntryAction={(task) => openTask(task, "add")}
           onViewEntryAction={(task, entryIndex) => openTask(task, entryIndex)}
           labels={{
             mental: t("mental"),
             emotional: t("emotional"),
             physical: t("physical"),
           }}
-          locked={true}
+          completionFrozen
         />
       </div>
     </div>

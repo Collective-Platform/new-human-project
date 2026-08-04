@@ -47,6 +47,10 @@ export function VerifyForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    await submitOtp(otp);
+  }
+
+  async function submitOtp(code: string) {
     setError("");
     setLoading(true);
 
@@ -54,7 +58,7 @@ export function VerifyForm({
       const res = await fetch("/api/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp, mode }),
+        body: JSON.stringify({ email, otp: code, mode }),
       });
 
       if (res.status === 429) {
@@ -133,6 +137,7 @@ export function VerifyForm({
         <OTPInput
           value={otp}
           onChange={setOtp}
+          onComplete={submitOtp}
           maxLength={6}
           className="w-full"
           render={({ slots }) => (
