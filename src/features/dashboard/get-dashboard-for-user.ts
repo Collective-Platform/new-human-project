@@ -207,11 +207,13 @@ export async function getDashboardForUser(
     .where(eq(taskCompletions.userId, userId));
 
   const tz = safeTimezone(timezone);
+  const blockStartDate = blockStart.toISOString().slice(0, 10);
   const streakQ = db.execute<{ streak: number }>(sql`
     WITH completion_dates AS (
       SELECT DISTINCT (tc.completed_at AT TIME ZONE ${tz})::date AS d
       FROM nhp.task_completions tc
       WHERE tc.user_id = ${userId}
+        AND (tc.completed_at AT TIME ZONE ${tz})::date >= ${blockStartDate}::date
         AND (tc.completed_at AT TIME ZONE ${tz})::date
               <= (NOW() AT TIME ZONE ${tz})::date
     ),

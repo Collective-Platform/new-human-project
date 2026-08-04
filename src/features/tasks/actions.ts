@@ -136,6 +136,63 @@ export async function uncompleteTask(input: {
   return { success: true };
 }
 
+/**
+ * Upsert data for a task in a completed block.
+ *
+ * - On first save (task never individually completed): inserts a new row so the
+ *   task becomes visible as completed on next load.
+ * - On subsequent saves: merges the data field only — `completedAt` is never
+ *   updated, so the block's streak remains frozen even after content edits.
+ *
+ * Does NOT recheck block-completion (the block is already done).
+ */
+export async function updateCompletedTaskData(input: {
+  taskId: string;
+  data: Record<string, unknown>;
+  blockEndDate?: string;
+}): Promise<{ success: true; isNew: boolean } | { error: string }> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const { taskId, data, blockEndDate } = input;
+  if (!taskId) return { error: "taskId required" };
+
+  const existing = await db
+    .select({ id: taskCompletions.id })
+    .from(taskCompletions)
+    .where(and(eq(taskCompletions.userId, user.id), eq(taskCompletions.taskId, taskId)))
+    .limit(1);
+
+  const isNew = existing.length === 0;
+  // For skipped tasks completed while revisiting a finished block, stamp with the
+  // block's end date so the completion doesn't affect the current streak or feed.
+  const completedAt = isNew && blockEndDate ? new Date(blockEndDate) : new Date();
+
+  await db
+    .insert(taskCompletions)
+    .values({
+      userId: user.id,
+      taskId,
+      data,
+      completedAt,
+    })
+    .onConflictDoUpdate({
+      target: [taskCompletions.userId, taskCompletions.taskId],
+      set: {
+        data: sql`COALESCE(${taskCompletions.data}, '{}') || ${JSON.stringify(data)}::jsonb`,
+        // completedAt intentionally omitted — streak is frozen for completed blocks
+      },
+    });
+
+  const friendIds = await getFriendIdsRaw(user.id);
+  updateTag(`dashboard:${user.id}`);
+  updateTag(`progress:${user.id}`);
+  updateTag(`feed:${user.id}`);
+  for (const fid of friendIds) updateTag(`feed:${fid}`);
+
+  return { success: true, isNew };
+}
+
 export async function redoBlock(
   blockNumber: number,
 ): Promise<{ success: true } | { error: string }> {

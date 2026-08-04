@@ -31,6 +31,7 @@ export function TaskList({
   onViewEntryAction,
   labels,
   locked,
+  completionFrozen,
 }: {
   tasks: TaskItem[];
   onTaskTapAction: (task: TaskItem) => void;
@@ -39,6 +40,8 @@ export function TaskList({
   onViewEntryAction: (task: TaskItem, entryIndex: number) => void;
   labels: { mental: string; emotional: string; physical: string };
   locked?: boolean;
+  /** Like locked for toggle behaviour, but still shows "Add entry" pills. */
+  completionFrozen?: boolean;
 }) {
   const te = useTranslations("exercise");
   const tm = useTranslations("mood");
@@ -213,7 +216,7 @@ export function TaskList({
                           e.stopPropagation();
                           // Read-only revisit: the circle is a view affordance,
                           // never a toggle.
-                          if (locked || isMoodLog || isExercise) {
+                          if (locked || completionFrozen || isMoodLog || isExercise) {
                             onTaskTapAction(task);
                           } else {
                             onToggleCompleteAction(task.id);
@@ -221,7 +224,7 @@ export function TaskList({
                         }}
                         className="shrink-0 flex items-center justify-center transition-transform active:scale-90"
                         aria-label={
-                          locked
+                          locked || completionFrozen
                             ? `Open ${task.name}`
                             : isMoodLog || isExercise
                               ? `Open ${isMoodLog ? "mood log" : "exercise log"}`

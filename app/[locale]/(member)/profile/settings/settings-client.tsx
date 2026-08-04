@@ -16,6 +16,7 @@ import {
   type LucideIcon,
   Bell,
   Clock,
+  Mail,
 } from "lucide-react";
 import NextImage from "next/image";
 import { updateProfile } from "@/src/features/profile/actions";
@@ -429,6 +430,15 @@ export function SettingsClient() {
             onChange={updatePrivacy}
           />
         </div>
+
+        {/* Contact Support */}
+        <a
+          href="mailto:developer@collective.my"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3.5 text-sm font-semibold text-foreground shadow-[0_4px_20px_rgba(53,50,47,0.04)]"
+        >
+          <Mail size={16} className="text-foreground/60" />
+          {st("contactSupportLabel")}
+        </a>
 
         {/* Logout */}
         <button
