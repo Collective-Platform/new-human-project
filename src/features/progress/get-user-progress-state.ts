@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
 import { taskCompletions } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import {
   getDayTasks as getRegistryDayTasks,
   getTaskById as getRegistryTaskById,
@@ -22,12 +22,18 @@ export async function getUserProgressState(
   userId: number,
   blockNumber: number,
   currentDay: number,
+  planId: string | null = null,
 ): Promise<UserProgressState> {
   // Single DB round-trip for all three derived values.
   const rows = await db
     .select({ taskId: taskCompletions.taskId, data: taskCompletions.data })
     .from(taskCompletions)
-    .where(eq(taskCompletions.userId, userId));
+    .where(
+      and(
+        eq(taskCompletions.userId, userId),
+        planId ? eq(taskCompletions.planId, planId) : isNull(taskCompletions.planId),
+      ),
+    );
 
   const completions: Record<string, Record<string, unknown> | null> = {};
   const completedIds = new Set<string>();

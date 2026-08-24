@@ -29,6 +29,20 @@
       "when": 1780154043658,
       "tag": "0003_flippant_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787550936283,
+      "tag": "0004_purple_lyja",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787553060428,
+      "tag": "0005_early_warpath",
+      "breakpoints": true
     }
   ]
 }

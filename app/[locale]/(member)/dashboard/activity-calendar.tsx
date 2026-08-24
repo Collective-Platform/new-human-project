@@ -25,11 +25,13 @@ export function ActivityCalendar({
   startDate,
   title,
   blockLabel,
+  planId,
 }: {
   data: { date: string; categories: string[] }[];
   startDate: string;
   title: string;
   blockLabel: string;
+  planId?: string;
 }) {
   const dateMap = new Map(data.map((d) => [d.date, d.categories]));
 
@@ -54,7 +56,7 @@ export function ActivityCalendar({
           return (
             <Link
               key={day}
-              href={`/progress?date=${dateStr}`}
+              href={planId ? `/progress/${planId}?day=${day}` : "/progress"}
               className={`flex items-center justify-center rounded-sm p-0.5 transition-colors ${hasActivity ? "hover:bg-zinc-50" : ""}`}
             >
               <div className="relative flex h-10 w-10 items-center justify-center">

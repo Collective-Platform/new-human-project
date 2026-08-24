@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 interface EarnedBadge {
+  memberBadgeId: string;
   name: string;
   description: string | null;
   iconUrl: string | null;
@@ -14,13 +15,16 @@ interface EarnedBadge {
 
 export function BlockCelebration({
   badge,
+  blockNumber,
   onDismissAction,
 }: {
-  badge: EarnedBadge;
+  badge?: EarnedBadge;
+  blockNumber?: number;
   onDismissAction: () => void;
 }) {
   const t = useTranslations("block");
   const [visible, setVisible] = useState(false);
+  const completedBlockNumber = badge?.blockNumber ?? blockNumber ?? 0;
 
   useEffect(() => {
     // Trigger entrance animation on next frame
@@ -49,7 +53,7 @@ export function BlockCelebration({
       >
         {/* Badge icon / emoji */}
         <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
-          {badge.iconUrl ? (
+          {badge?.iconUrl ? (
             <Image
               src={badge.iconUrl}
               alt={badge.name}
@@ -65,7 +69,7 @@ export function BlockCelebration({
 
         {/* Title */}
         <h2 className="mb-2 text-center font-headline text-2xl font-bold text-foreground">
-          {t("blockComplete", { block: badge.blockNumber })}
+          {t("blockComplete", { block: completedBlockNumber })}
         </h2>
 
         {/* Dismiss button */}
