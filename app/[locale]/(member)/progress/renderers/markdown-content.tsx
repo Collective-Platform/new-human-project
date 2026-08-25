@@ -22,7 +22,13 @@ const inlineMarkdownComponents: Components = {
 
 type MarkdownBlock = { type: "markdown"; value: string } | { type: "table"; rows: string[][] };
 
-export function MarkdownContent({ children }: { children: string }) {
+export function MarkdownContent({
+  children,
+  tableLayout = "default",
+}: {
+  children: string;
+  tableLayout?: "default" | "stacked-overview";
+}) {
   if (!children.trim()) return null;
 
   return (
@@ -31,6 +37,24 @@ export function MarkdownContent({ children }: { children: string }) {
         if (block.type === "table") {
           const [header, separator, ...rows] = block.rows;
           const alignments = separator.map(getAlignment);
+
+          if (tableLayout === "stacked-overview" && header.length === 4 && rows.length === 1) {
+            return (
+              <div key={index} className="my-4 overflow-hidden rounded-2xl">
+                <table className="w-full border-collapse text-left">
+                  <tbody>
+                    {header.map((cell, cellIndex) => (
+                      <MovementOverviewRow
+                        key={cellIndex}
+                        heading={cell}
+                        markdown={rows[0][cellIndex] ?? ""}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          }
 
           return (
             <div key={index} className="my-4 overflow-x-auto">
@@ -78,6 +102,45 @@ export function MarkdownContent({ children }: { children: string }) {
       })}
     </>
   );
+}
+
+function MovementOverviewRow({ heading, markdown }: { heading: string; markdown: string }) {
+  const { movement, title, days } = splitMovementHeading(heading);
+
+  return (
+    <>
+      <tr>
+        <th
+          scope="col"
+          className="border border-zinc-200 bg-surface-container-high px-4 py-4 text-left align-top"
+        >
+          <span className="block text-sm font-semibold leading-5 text-primary">{movement}</span>
+          <span className="mt-1 block font-headline text-lg font-semibold leading-6 text-foreground">
+            {title}
+          </span>
+          <span className="mt-1 block text-sm font-medium leading-5 text-on-surface-variant">
+            {days}
+          </span>
+        </th>
+      </tr>
+      <tr>
+        <td className="border border-zinc-200 px-4 py-4 text-base leading-7 text-foreground align-top">
+          <Markdown components={inlineMarkdownComponents}>{markdown}</Markdown>
+        </td>
+      </tr>
+    </>
+  );
+}
+
+function splitMovementHeading(heading: string): {
+  movement: string;
+  title: string;
+  days: string;
+} {
+  const match = /^(MOVEMENT\s+\d+|行动[一二三四])\s+(.+?)\s+_([^_]+)_$/.exec(heading.trim());
+  if (!match) return { movement: heading, title: "", days: "" };
+
+  return { movement: match[1], title: match[2], days: match[3] };
 }
 
 function parseMarkdownBlocks(markdown: string): MarkdownBlock[] {
