@@ -49,6 +49,7 @@ export function SectionedContentRenderer({
   const passageRef = localizeScriptureRef(task.passageRef ?? task.scriptureRef ?? "", locale);
   const sections = splitSections(getLocalizedString(task.body, locale));
   const inputs = new Set(task.inputs ?? []);
+  const isBlock4Introduction = task.id === "t_01M0F5SMSTE07DBXVD4W4JBKQP";
 
   return (
     <div className="space-y-6">
@@ -63,6 +64,7 @@ export function SectionedContentRenderer({
           markdown={section.markdown}
           inputs={inputs}
           completionData={completionData}
+          stackedOverview={isBlock4Introduction}
           locale={locale}
           onSaveReflectionAction={onSaveReflectionAction}
           readOnly={readOnly}
@@ -77,6 +79,7 @@ function Section({
   markdown,
   inputs,
   completionData,
+  stackedOverview,
   locale,
   onSaveReflectionAction,
   readOnly,
@@ -85,6 +88,7 @@ function Section({
   markdown: string;
   inputs: Set<string>;
   completionData: Record<string, unknown> | null;
+  stackedOverview: boolean;
   locale: string;
   onSaveReflectionAction: (slug: string, text: string) => void | Promise<void>;
   readOnly: boolean;
@@ -94,7 +98,9 @@ function Section({
     if (!markdown) return null;
     return (
       <div className="space-y-2 text-xl leading-8 text-foreground">
-        <MarkdownContent>{markdown}</MarkdownContent>
+        <MarkdownContent tableLayout={stackedOverview ? "stacked-overview" : "default"}>
+          {markdown}
+        </MarkdownContent>
       </div>
     );
   }
