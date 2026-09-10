@@ -216,14 +216,23 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
     setBookPosition(position < 1 / 3 ? -1 : position > 2 / 3 ? 1 : 0);
   };
 
+  const resetToTiltControl = () => {
+    manualPositionRef.current = false;
+    setBookPosition(0);
+  };
+
+  const isVisibleBookArea = (clientY: number) => {
+    const bounds = bookRef.current?.getBoundingClientRect();
+    return bounds ? (clientY - bounds.top) / bounds.height >= 0.55 : false;
+  };
+
   return (
     <section
       className={compact ? "flex w-full justify-center" : "bg-[#F1A100] px-3 py-3 md:px-4"}
       onPointerUp={(event) => {
         if (event.pointerType !== "touch" || bookRef.current?.contains(event.target as Node))
           return;
-        manualPositionRef.current = false;
-        setBookPosition(0);
+        resetToTiltControl();
       }}
     >
       <div
@@ -268,7 +277,11 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
           }}
           onPointerUp={(event) => {
             if (event.pointerType === "touch" && !touchMovedRef.current) {
-              moveToTappedPosition(event.clientX);
+              if (isVisibleBookArea(event.clientY)) {
+                moveToTappedPosition(event.clientX);
+              } else {
+                resetToTiltControl();
+              }
             }
             touchStartRef.current = null;
           }}
