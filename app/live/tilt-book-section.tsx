@@ -217,7 +217,15 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
   };
 
   return (
-    <section className={compact ? "flex w-full justify-center" : "bg-[#F1A100] px-3 py-3 md:px-4"}>
+    <section
+      className={compact ? "flex w-full justify-center" : "bg-[#F1A100] px-3 py-3 md:px-4"}
+      onPointerUp={(event) => {
+        if (event.pointerType !== "touch" || bookRef.current?.contains(event.target as Node))
+          return;
+        manualPositionRef.current = false;
+        setBookPosition(0);
+      }}
+    >
       <div
         className={
           compact
