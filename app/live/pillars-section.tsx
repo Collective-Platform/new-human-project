@@ -226,10 +226,10 @@ export function PillarsSection() {
   }, []);
 
   return (
-    <section className="relative bg-primary">
+    <section className="relative bg-[#F1A100]">
       <div ref={zoneRef} style={{ height: "320svh" }}>
         <div className="sticky top-0 h-screen overflow-hidden">
-          <div className="absolute inset-0 bg-primary" />
+          <div className="absolute inset-0 bg-[#F1A100]" />
 
           {/* ── Phase A: intro text ─────────────────────────────────────────── */}
           <div
@@ -237,19 +237,19 @@ export function PillarsSection() {
             className="absolute inset-0 flex items-center justify-center px-8 text-center"
           >
             <div className="max-w-xl">
-              <h2 className="mb-5 text-4xl md:text-5xl font-black leading-[1.1] text-white">
+              <h2 className="mb-5 text-4xl font-black leading-[1.1] text-black md:text-5xl">
                 Three Pillars.
                 <br />
                 One Whole Life.
               </h2>
               <div className="space-y-2">
-                <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
+                <p className="text-base leading-normal text-black md:text-lg md:leading-relaxed">
                   We often separate life into different compartments.
                 </p>
-                <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
+                <p className="text-base leading-normal text-black md:text-lg md:leading-relaxed">
                   But God created us as whole people.
                 </p>
-                <p className="text-base md:text-lg leading-normal md:leading-relaxed text-white">
+                <p className="text-base leading-normal text-black md:text-lg md:leading-relaxed">
                   At Rhythm Live, we explore together how the pursuit of our
                   <strong> mental, emotional and physical</strong> health is integral to our
                   spiritual formation.
@@ -313,8 +313,8 @@ export function PillarsSection() {
                       }}
                     >
                       <span
-                        className="text-base md:text-xl font-semibold tracking-wide text-black transition-colors duration-200 group-hover:text-primary"
-                        style={isActive ? { color: "var(--color-primary)" } : undefined}
+                        className="text-base font-semibold tracking-wide text-black transition-colors duration-200 group-hover:text-[#F1A100] md:text-xl"
+                        style={isActive ? { color: "#F1A100" } : undefined}
                       >
                         {circle.label}
                       </span>

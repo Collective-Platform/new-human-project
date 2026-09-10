@@ -1,57 +1,31 @@
 // Rhythm Live — standalone event landing page (served at live.rhythm.you).
-// The July 4, 2026 event has ended; this page is now a post-event recap /
-// "see you next time" holding state. Ticketing/checkout CTAs are removed and
-// the live backend (Stripe + Google Sheets) is disabled via env vars in Vercel.
-// Kept intact so it can be re-activated for the next Rhythm Live.
+// Ticketing is handled by the external Ticket2U sign-up page.
 //
 
 import Image from "next/image";
-import { DressCodeSection } from "./dress-code-section";
 import { FaqSection } from "./faq-section";
-import { PartnersSection } from "./partners-section";
-import { PillarsSection } from "./pillars-section";
 import { ScheduleSection } from "./schedule-section";
-import { SpeakersSection } from "./speakers-section";
-import { TrackSection } from "./track-section";
+import { TiltBookSection } from "./tilt-book-section";
 
-// Event-details strips are commented out post-event (see the two sections below).
-// Restore this and those sections to re-activate for the next Rhythm Live.
 const EVENT_DETAILS = [
-  { label: "Date", value: "July 4, 2026" },
-  { label: "Time", value: "10AM – 4PM" },
+  { label: "Date", value: "3rd October 2026" },
+  { label: "Time", value: "9:00AM - 12:00PM" },
   { label: "Location", value: "Collective" },
-  { label: "Ticket", value: "RM109" },
+  { label: "Ticket", value: "RM49" },
 ];
 
-const EXPERIENCES = [
-  "Inspiring keynote sessions.",
-  "Interactive community experiences.",
-  "Practical activations.",
-  "Opportunities to connect with like-minded participants.",
-  "Moments of celebration and reflection.",
-  "Practical next steps for the journey ahead.",
+const PROGRAMME_HIGHLIGHTS = [
+  "Teaching: Spirit & Scripture Unpacked",
+  "Interactive Q&A: Questions & Discussions",
+  "Practical Handles: Rhythms for Daily Life",
 ];
 
 export default function RhythmLivePage() {
   return (
     <div className="flex flex-col">
       {/* ── HERO ────────────────────────────────────────────────────────────── */}
-      {/* Black outer frame gives the "card floating on dark canvas" feel */}
-      <div className="bg-black p-3 md:p-4">
-        <section className="relative flex min-h-[calc(100vh-24px)] flex-col overflow-hidden rounded-4xl bg-on-surface md:min-h-[calc(100vh-32px)]">
-          {/* Hero background video */}
-          {/* scale(21/16) zooms past the letterbox bars baked into the 16:9 frame */}
-          <video
-            className="absolute inset-0 h-full w-full scale-[1.3125] object-cover"
-            src="https://mqyxc4xvodvuodmx.public.blob.vercel-storage.com/Rhythm%20Live%20Teaser.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-          />
-          {/* Gradient so text at the bottom stays legible */}
-          <div className="absolute inset-x-0 bottom-0 h-3/4 bg-linear-to-t from-on-surface via-on-surface/80 to-transparent" />
-
+      <div className="bg-[#F1A100] p-3 md:p-4">
+        <section className="relative flex min-h-[calc(100vh-24px)] flex-col overflow-hidden rounded-4xl bg-[#F1A100] md:min-h-[calc(100vh-32px)]">
           {/* Nav bar */}
           <nav className="relative flex items-center justify-between px-6 py-5 md:px-8">
             <div className="relative h-7 md:w-24 w-20">
@@ -66,104 +40,103 @@ export default function RhythmLivePage() {
             </div>
             <div className="flex items-center gap-3 md:gap-5">
               <a
-                href="#speakers"
-                className="hidden text-sm font-medium text-white/90 transition-colors hover:text-white md:block"
-              >
-                Speakers
-              </a>
-              <a
-                href="#tracks"
-                className="hidden text-sm font-medium text-white/90 transition-colors hover:text-white md:block"
-              >
-                Activation Tracks
-              </a>
-              <a
                 href="#faq"
-                className="text-sm font-medium text-white/90 transition-colors hover:text-white shadow-black shadow-"
+                className="text-sm font-medium text-black/80 transition-colors hover:text-black"
               >
                 FAQ
               </a>
             </div>
           </nav>
 
-          {/* Content anchored to the bottom */}
-          <div className="relative mt-auto px-6 pb-5 text-center md:px-12 md:pb-6">
-            <div className="relative mx-auto h-16 w-72 md:h-24 md:w-120">
-              <Image
-                src="/live/rhythm-live-title.png"
-                alt="Rhythm Live"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
+          <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-2 px-6 pb-5 text-center md:grid-cols-[1.15fr_0.85fr] md:gap-12 md:px-12 md:pb-6 md:text-left">
+            <div>
+              <h1 className="font-nowstalgic text-5xl font-black leading-none text-black md:text-7xl">
+                Rhythm Live II
+              </h1>
 
-            <p className="mx-auto mb-3 max-w-2xl text-base md:text-lg leading-normal md:leading-relaxed text-white">
-              A one-day gathering where the community comes together to learn, grow, worship,
-              connect, and continue the journey together.
-            </p>
-            <p className="mx-auto mt-5 max-w-2xl text-lg md:text-xl font-bold text-white">
-              See you at the next Rhythm Live.
-            </p>
+              <p className="mt-4 text-2xl font-black leading-tight text-black md:text-4xl">
+                THE WIND IN THE WORD: A DEEP DIVE
+              </p>
+              <p className="mx-auto mt-3 max-w-3xl text-sm leading-normal text-black md:mx-0 md:text-lg md:leading-relaxed">
+                The Scripture isn&rsquo;t just a book to study, it&rsquo;s a living word breathed by
+                the Holy Spirit. We&rsquo;re gathering for a deep dive into the relationship between
+                the Spirit and the Word.
+              </p>
+              <dl className="mx-auto mt-5 grid max-w-4xl grid-cols-2 gap-x-6 gap-y-3 md:mx-0 md:grid-cols-4">
+                {EVENT_DETAILS.map((item) => (
+                  <div key={item.label} className="flex flex-col gap-1">
+                    <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-black/65">
+                      {item.label}
+                    </dt>
+                    <dd className="text-base font-bold text-black">{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <a
+                href="https://www.ticket2u.com.my/event/51871_f6ead535ca2b4ceb9801fbb68554b516"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-5 inline-flex rounded-full bg-black px-6 py-3 text-sm font-semibold text-[#F1A100] transition-colors hover:bg-black/85"
+              >
+                Sign up now
+              </a>
+            </div>
+            <TiltBookSection compact />
           </div>
         </section>
       </div>
 
-      {/* ── EVENT DETAILS STRIP ─────────────────────────────────────────────── */}
-      <section className="bg-black px-4 py-10 md:px-12">
-        <dl className="mx-auto grid max-w-4xl grid-cols-2 gap-6 md:grid-cols-4 text-center">
-          {EVENT_DETAILS.map((item) => (
-            <div key={item.label} className="flex flex-col gap-1">
-              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-                {item.label}
-              </dt>
-              <dd className="text-lg font-bold text-white">{item.value}</dd>
+      {/* ── SPEAKER ─────────────────────────────────────────────────────────── */}
+      <section className="overflow-hidden bg-[#F1A100] px-6 py-20 md:px-12 md:py-28">
+        <div className="mx-auto grid max-w-6xl items-end gap-10 md:grid-cols-[1fr_minmax(19rem,0.72fr)] md:gap-16">
+          <div className="pb-2 text-center md:text-left">
+            <h2 className="max-w-3xl text-4xl font-black leading-[1.04] text-black md:text-6xl">
+              The Wind In The Word: A Deep Dive
+            </h2>
+            <div className="mt-8">
+              <p className="text-2xl font-black leading-tight text-black md:text-3xl">
+                Dr Victor Lee
+              </p>
+              <p className="mt-2 text-base font-medium text-black/75 md:text-lg">
+                President, Bible College Malaysia
+              </p>
             </div>
-          ))}
-        </dl>
+          </div>
+          <div className="relative mx-auto w-full max-w-[26rem] self-end">
+            <Image
+              src="/live/victor-lee.png"
+              alt="Dr Victor Lee, President of Bible College Malaysia"
+              width={899}
+              height={1132}
+              sizes="(max-width: 767px) 85vw, 35vw"
+              className="h-auto w-full"
+            />
+          </div>
+        </div>
       </section>
-
-      {/* ── THREE PILLARS ───────────────────────────────────────────────────── */}
-      <PillarsSection />
-
-      {/* ── SPEAKERS ────────────────────────────────────────────────────────── */}
-      <SpeakersSection />
 
       {/* ── SCHEDULE ────────────────────────────────────────────────────────── */}
       <ScheduleSection />
 
-      {/* ── TRACKS ──────────────────────────────────────────────────────────── */}
-      <TrackSection />
-
-      {/* ── OUR PARTNERS ────────────────────────────────────────────────────── */}
-      <PartnersSection />
-
-      {/* ── DRESS CODE ──────────────────────────────────────────────────────── */}
-      <DressCodeSection />
-
-      {/* ── EXPERIENCE THE DAY ──────────────────────────────────────────────── */}
-      <section className="bg-black px-4 py-24 md:px-12">
+      {/* ── PROGRAMME HIGHLIGHTS ────────────────────────────────────────────── */}
+      <section className="bg-[#F1A100] px-4 py-24 md:px-12">
         <div className="mx-auto grid max-w-5xl items-center gap-12 md:grid-cols-2">
           <div>
-            <h2 className="mb-8 text-4xl md:text-5xl font-black leading-[1.1] text-white">
-              Experience
+            <h2 className="mb-8 text-4xl md:text-5xl font-black leading-[1.1] text-black">
+              What to
               <br />
-              Rhythm.You Live
+              expect
             </h2>
             <ul className="list-disc space-y-4 pl-5">
-              {EXPERIENCES.map((item) => (
+              {PROGRAMME_HIGHLIGHTS.map((item) => (
                 <li
                   key={item}
-                  className="text-base md:text-lg leading-normal md:leading-relaxed text-white"
+                  className="text-base md:text-lg leading-normal md:leading-relaxed text-black"
                 >
                   {item}
                 </li>
               ))}
             </ul>
-            <p className="mt-8 text-base md:text-lg leading-normal md:leading-relaxed italic text-white">
-              This isn&rsquo;t about sitting in a room and taking notes. It&rsquo;s about
-              experiencing the movement you&rsquo;re already part of.
-            </p>
           </div>
 
           {/* Photo grid */}
@@ -202,25 +175,30 @@ export default function RhythmLivePage() {
       </section>
 
       {/* ── FAQ ─────────────────────────────────────────────────────────────── */}
-      <div className="bg-black px-4 md:px-24 py-4">
+      <div className="bg-[#F1A100] px-4 py-4 md:px-24">
         <FaqSection />
       </div>
 
       {/* ── EVENT DETAILS ───────────────────────────────────────────────────── */}
-      <section className="bg-black px-4 py-16 md:px-12 text-center">
+      <section className="bg-[#F1A100] px-4 py-16 text-center md:px-12">
         <dl className="mx-auto grid max-w-4xl grid-cols-2 gap-8 text-center md:grid-cols-4 mb-10">
           {EVENT_DETAILS.map((item) => (
             <div key={item.label}>
-              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
                 {item.label}
               </dt>
-              <dd className="text-lg font-bold text-white">{item.value}</dd>
+              <dd className="text-lg font-bold text-black">{item.value}</dd>
             </div>
           ))}
         </dl>
-        <p className="mx-auto max-w-2xl text-lg md:text-xl font-bold text-white">
-          See you at the next Rhythm Live.
-        </p>
+        <a
+          href="https://www.ticket2u.com.my/event/51871_f6ead535ca2b4ceb9801fbb68554b516"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-black/90"
+        >
+          Sign up now
+        </a>
       </section>
     </div>
   );
