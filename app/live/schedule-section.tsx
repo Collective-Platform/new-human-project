@@ -1,51 +1,28 @@
-type Pillar = "Mental" | "Emotional" | "Physical";
-
 type ScheduleItem = {
   time: string;
   segment: string;
-  type: "track" | "break" | "session" | "keynote" | "panel" | "logistics";
-  pillar?: Pillar;
-  note?: string;
-  noBorderBottom?: boolean;
 };
 
 const SCHEDULE: ScheduleItem[] = [
-  { time: "8:30", segment: "Registration", type: "logistics" },
-  { time: "8:45", segment: "Doors Open", type: "logistics" },
-  { time: "9:00", segment: "Praise & Worship", type: "session" },
-  {
-    time: "9:30",
-    segment: "Mental - Dr. Victor Lee",
-    type: "keynote",
-  },
-  { time: "12:00", segment: "End", type: "break" },
+  { time: "8:30 AM", segment: "Registration" },
+  { time: "8:45 AM", segment: "Doors Open" },
+  { time: "9:00 AM", segment: "Praise & Worship" },
+  { time: "9:30 AM", segment: "Session 1" },
+  { time: "10:30 AM", segment: "Break" },
+  { time: "10:45 AM", segment: "Session 2" },
+  { time: "11:45 AM", segment: "Ask the expert - Q&A" },
 ];
 
 function ScheduleRow({ item }: { item: ScheduleItem }) {
-  const isTrack = item.type === "track";
-
   return (
-    <div
-      className={`flex items-start gap-4 py-4 ${!item.noBorderBottom ? "border-b border-black/20" : ""} ${!item.time ? "pt-0" : ""}`}
-    >
-      <span className="w-14 shrink-0 tabular-nums text-sm font-semibold text-black md:w-18">
+    <div className="flex items-start gap-4 border-b border-black/20 py-4">
+      <span className="w-20 shrink-0 whitespace-nowrap tabular-nums text-sm font-semibold text-black md:w-24">
         {item.time}
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span
-            className={`text-base leading-snug text-black ${isTrack ? "font-black" : "font-semibold"}`}
-          >
-            {item.segment}
-          </span>
-
-          {isTrack && (
-            <span className="rounded-full bg-black px-2 py-0.5 text-xs font-semibold text-[#F1A100]">
-              Optional
-            </span>
-          )}
+          <span className="text-base leading-snug font-semibold text-black">{item.segment}</span>
         </div>
-        {item.note && <span className="text-sm text-black/65">{item.note}</span>}
       </div>
     </div>
   );

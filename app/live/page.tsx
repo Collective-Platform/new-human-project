@@ -83,18 +83,31 @@ export default function RhythmLivePage() {
               </div>
             </div>
             <div className="mx-auto w-full max-w-[22rem] self-end md:max-w-[30rem] md:self-center">
-              <p className="mb-0 text-center text-xs font-semibold uppercase tracking-[0.16em] text-black/65 md:hidden">
+              <p className="mb-12 text-center text-4xl font-black leading-[1.1] text-black md:hidden">
                 Our speaker
               </p>
-              <div className="relative">
+              <div className="relative aspect-square overflow-hidden">
                 <Image
                   src="/live/victor-lee.png"
                   alt="Dr Victor Lee, President of Bible College Malaysia"
-                  width={899}
-                  height={998}
+                  fill
                   sizes="(max-width: 767px) 75vw, 42vw"
-                  className="h-auto w-full mix-blend-multiply"
+                  className="object-cover object-top mix-blend-multiply"
                   priority
+                />
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-[url('/live/rhythm-live-texture.png')] bg-[length:960px_540px] bg-repeat mix-blend-multiply opacity-25"
+                  style={{
+                    maskImage: "url('/live/victor-lee.png')",
+                    maskRepeat: "no-repeat",
+                    maskSize: "100% auto",
+                    maskPosition: "top center",
+                    WebkitMaskImage: "url('/live/victor-lee.png')",
+                    WebkitMaskRepeat: "no-repeat",
+                    WebkitMaskSize: "100% auto",
+                    WebkitMaskPosition: "top center",
+                  }}
                 />
               </div>
               <div className="mt-3 text-center">
