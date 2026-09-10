@@ -45,6 +45,8 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
   const animationRef = useRef<number | null>(null);
   const orientationListenerRef = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
   const orientationEnabledRef = useRef(false);
+  const orientationRequestPendingRef = useRef(false);
+  const permissionGestureRef = useRef(false);
   const manualPositionRef = useRef(false);
   const touchStartRef = useRef<number | null>(null);
   const touchMovedRef = useRef(false);
@@ -142,24 +144,27 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
   );
 
   const enableOrientation = useCallback(async () => {
-    if (orientationEnabledRef.current) return;
+    if (orientationEnabledRef.current || orientationRequestPendingRef.current) return;
+    orientationRequestPendingRef.current = true;
     const orientation = window.DeviceOrientationEvent as MotionPermissionEvent;
-    if (typeof orientation.requestPermission === "function") {
-      try {
+    try {
+      if (typeof orientation.requestPermission === "function") {
         if ((await orientation.requestPermission()) !== "granted") {
           return;
         }
-      } catch {
-        return;
       }
-    }
 
-    orientationEnabledRef.current = true;
-    const listener = (event: DeviceOrientationEvent) => {
-      if (!manualPositionRef.current) setBookPosition((event.gamma ?? 0) / 18);
-    };
-    orientationListenerRef.current = listener;
-    window.addEventListener("deviceorientation", listener, { passive: true });
+      orientationEnabledRef.current = true;
+      const listener = (event: DeviceOrientationEvent) => {
+        if (!manualPositionRef.current) setBookPosition((event.gamma ?? 0) / 18);
+      };
+      orientationListenerRef.current = listener;
+      window.addEventListener("deviceorientation", listener, { passive: true });
+    } catch {
+      // Touch controls remain available when the device blocks sensor access.
+    } finally {
+      orientationRequestPendingRef.current = false;
+    }
   }, [setBookPosition]);
 
   useEffect(
@@ -257,6 +262,7 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
               event.currentTarget.setPointerCapture(event.pointerId);
               touchStartRef.current = event.clientX;
               touchMovedRef.current = false;
+              permissionGestureRef.current = !orientationEnabledRef.current;
               void enableOrientation();
             }
           }}
@@ -277,15 +283,20 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
           }}
           onPointerUp={(event) => {
             if (event.pointerType === "touch" && !touchMovedRef.current) {
-              if (isVisibleBookArea(event.clientY)) {
+              if (permissionGestureRef.current) {
+                permissionGestureRef.current = false;
+                resetToTiltControl();
+              } else if (isVisibleBookArea(event.clientY)) {
                 moveToTappedPosition(event.clientX);
               } else {
                 resetToTiltControl();
               }
             }
+            if (event.pointerType === "touch") permissionGestureRef.current = false;
             touchStartRef.current = null;
           }}
           onPointerCancel={() => {
+            permissionGestureRef.current = false;
             touchStartRef.current = null;
             touchMovedRef.current = false;
           }}
