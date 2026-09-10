@@ -45,9 +45,13 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
   const animationRef = useRef<number | null>(null);
   const orientationListenerRef = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
   const orientationEnabledRef = useRef(false);
+  const manualPositionRef = useRef(false);
+  const touchStartRef = useRef<number | null>(null);
+  const touchMovedRef = useRef(false);
+  const bookVisibleRef = useRef(false);
+  const lastMouseXRef = useRef<number | null>(null);
   const activeHighlightRef = useRef<Highlight>("centre");
   const [ready, setReady] = useState(false);
-  const [motionStatus, setMotionStatus] = useState<"idle" | "enabled" | "unavailable">("idle");
   const [activeHighlight, setActiveHighlight] = useState<Highlight>("centre");
 
   useEffect(() => {
@@ -143,20 +147,19 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
     if (typeof orientation.requestPermission === "function") {
       try {
         if ((await orientation.requestPermission()) !== "granted") {
-          setMotionStatus("unavailable");
           return;
         }
       } catch {
-        setMotionStatus("unavailable");
         return;
       }
     }
 
     orientationEnabledRef.current = true;
-    const listener = (event: DeviceOrientationEvent) => setBookPosition((event.gamma ?? 0) / 18);
+    const listener = (event: DeviceOrientationEvent) => {
+      if (!manualPositionRef.current) setBookPosition((event.gamma ?? 0) / 18);
+    };
     orientationListenerRef.current = listener;
     window.addEventListener("deviceorientation", listener, { passive: true });
-    setMotionStatus("enabled");
   }, [setBookPosition]);
 
   useEffect(
@@ -173,19 +176,58 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
     if (bounds) setBookPosition(((clientX - bounds.left) / bounds.width) * 2 - 1);
   };
 
+  useEffect(() => {
+    const book = bookRef.current;
+    if (!book || !window.matchMedia("(pointer: fine)").matches) return;
+
+    const updateFromMouse = (clientX: number) => {
+      const bounds = book.getBoundingClientRect();
+      setBookPosition(((clientX - bounds.left) / bounds.width) * 2 - 1);
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      lastMouseXRef.current = event.clientX;
+      if (bookVisibleRef.current) updateFromMouse(event.clientX);
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        bookVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting && lastMouseXRef.current !== null) {
+          updateFromMouse(lastMouseXRef.current);
+        }
+      },
+      { threshold: 0.2 },
+    );
+
+    observer.observe(book);
+    document.addEventListener("pointermove", onPointerMove, { passive: true });
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("pointermove", onPointerMove);
+    };
+  }, [setBookPosition]);
+
+  const moveToTappedPosition = (clientX: number) => {
+    const bounds = bookRef.current?.getBoundingClientRect();
+    if (!bounds) return;
+
+    const position = (clientX - bounds.left) / bounds.width;
+    manualPositionRef.current = true;
+    setBookPosition(position < 1 / 3 ? -1 : position > 2 / 3 ? 1 : 0);
+  };
+
   return (
     <section className={compact ? "flex w-full justify-center" : "bg-[#F1A100] px-3 py-3 md:px-4"}>
       <div
         className={
           compact
-            ? "relative flex w-full items-center justify-center"
-            : "relative mx-auto flex min-h-[44rem] max-w-6xl items-center justify-center overflow-hidden rounded-4xl bg-[#F1A100] px-5 py-10 md:min-h-[48rem]"
+            ? "relative flex w-full flex-col items-center justify-center"
+            : "relative mx-auto flex min-h-[44rem] max-w-6xl flex-col items-center justify-center overflow-hidden rounded-4xl bg-[#F1A100] px-5 py-10 md:min-h-[48rem]"
         }
       >
         <button
           ref={bookRef}
           type="button"
-          aria-describedby="tilt-book-instructions"
           aria-label="Interactive open-book illustration"
           className={
             compact
@@ -196,16 +238,35 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
           onPointerDown={(event) => {
             if (event.pointerType === "touch") {
               event.currentTarget.setPointerCapture(event.pointerId);
+              touchStartRef.current = event.clientX;
+              touchMovedRef.current = false;
               void enableOrientation();
-              moveWithPointer(event.clientX);
             }
           }}
           onPointerMove={(event) => {
-            if (
-              event.pointerType === "mouse" ||
-              event.currentTarget.hasPointerCapture(event.pointerId)
-            )
+            if (event.pointerType === "mouse") {
               moveWithPointer(event.clientX);
+              return;
+            }
+            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+              if (Math.abs(event.clientX - (touchStartRef.current ?? event.clientX)) > 12) {
+                touchMovedRef.current = true;
+              }
+              if (touchMovedRef.current) {
+                manualPositionRef.current = true;
+                moveWithPointer(event.clientX);
+              }
+            }
+          }}
+          onPointerUp={(event) => {
+            if (event.pointerType === "touch" && !touchMovedRef.current) {
+              moveToTappedPosition(event.clientX);
+            }
+            touchStartRef.current = null;
+          }}
+          onPointerCancel={() => {
+            touchStartRef.current = null;
+            touchMovedRef.current = false;
           }}
         >
           {!ready && (
@@ -223,33 +284,19 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
             className="absolute inset-0 h-full w-full"
             aria-hidden="true"
           />
-          <span
-            className={`pointer-events-none absolute inset-x-0 top-[31%] text-center font-semibold text-black/70 ${compact ? "text-xs md:text-sm" : "text-sm"}`}
-          >
-            Tilt to explore
-          </span>
+          <h2 className="pointer-events-none absolute left-1/2 top-[19%] w-[90vw] -translate-x-1/2 text-center text-4xl font-black leading-[1.1] text-black md:text-5xl">
+            What to Expect
+          </h2>
           <span
             key={activeHighlight}
-            className="pointer-events-none absolute left-1/2 top-[39%] w-[90vw] -translate-x-1/2 px-4 text-center text-2xl font-black leading-[1.08] text-black motion-safe:animate-[live-highlight-in_360ms_cubic-bezier(0.16,1,0.3,1)] md:text-3xl"
+            className="pointer-events-none absolute left-1/2 top-[40%] w-[90vw] -translate-x-1/2 px-4 text-center text-2xl font-black leading-[1.08] text-black motion-safe:animate-[live-highlight-in_360ms_cubic-bezier(0.16,1,0.3,1)] md:text-3xl"
           >
             {HIGHLIGHTS[activeHighlight]}
           </span>
-          {motionStatus !== "idle" && (
-            <span
-              id="tilt-book-instructions"
-              className={`pointer-events-none absolute inset-x-0 top-[49%] text-center font-medium text-black/75 ${compact ? "text-xs md:text-sm" : "text-sm"}`}
-            >
-              {motionStatus === "enabled"
-                ? "Tilt your phone to open the book"
-                : "Drag the book left and right to explore"}
-            </span>
-          )}
-          <span
-            className={`pointer-events-none absolute inset-x-0 top-[53%] hidden text-center text-black/65 ${compact ? "text-xs" : "text-xs md:block"}`}
-          >
-            Or move your cursor across it
-          </span>
         </button>
+        <div className="mt-4 w-[90vw] px-4 text-center md:hidden">
+          <p className="text-xs font-semibold text-black/70">Tilt or tap to explore</p>
+        </div>
       </div>
     </section>
   );

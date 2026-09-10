@@ -15,16 +15,10 @@ const SCHEDULE: ScheduleItem[] = [
   { time: "9:00", segment: "Praise & Worship", type: "session" },
   {
     time: "9:30",
-    segment: "Keynote - Dr. Victor Lee",
-    type: "keynote",
-    noBorderBottom: true,
-  },
-  {
-    time: "",
-    segment: "Keynote - Dr. Andrew Lim 林岭啸博士 (Chinese)",
+    segment: "Mental - Dr. Victor Lee",
     type: "keynote",
   },
-  { time: "12:00", segment: "Lunch Break", type: "break" },
+  { time: "12:00", segment: "End", type: "break" },
 ];
 
 function ScheduleRow({ item }: { item: ScheduleItem }) {
