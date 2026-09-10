@@ -27,18 +27,10 @@ export default function RhythmLivePage() {
       <div className="bg-[#F1A100] px-2 py-3 md:px-3 md:py-4">
         <section className="relative flex min-h-[calc(100vh-24px)] flex-col overflow-hidden rounded-4xl bg-[#F1A100] md:min-h-[calc(100vh-32px)]">
           {/* Nav bar */}
-          <nav className="relative flex items-center justify-between px-3 py-5 md:px-4">
+          <nav className="relative mx-auto flex w-full max-w-6xl justify-center px-3 py-5 md:px-4">
             <span className="font-nowstalgic text-xl font-black leading-none text-black md:text-2xl">
               Rhythm Live II
             </span>
-            <div className="flex items-center gap-3 md:gap-5">
-              <a
-                href="#faq"
-                className="text-sm font-medium text-black/80 transition-colors hover:text-black"
-              >
-                FAQ
-              </a>
-            </div>
           </nav>
 
           <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-8 px-3 pb-5 text-center md:grid-cols-[0.7fr_1.3fr] md:gap-10 md:px-4 md:pb-6">
@@ -56,7 +48,8 @@ export default function RhythmLivePage() {
                   <p className="mt-8 max-w-2xl text-base leading-relaxed text-black md:text-lg">
                     The Scripture isn&rsquo;t just a book to study, it&rsquo;s a living word
                     breathed by the Holy Spirit.
-                    <br />
+                    <br className="md:hidden" />
+                    <span className="hidden md:inline"> </span>
                     We&rsquo;re gathering for a deep dive into the relationship between the Spirit
                     and the Word.
                   </p>
