@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
 // No NextIntlClientProvider / locale: this is a single-language marketing page
 // with no backend. The root app/layout.tsx still provides fonts + globals.css.
 export const metadata: Metadata = {
-  title: "Rhythm Live - July 4, 2026",
-  description: "Rhythm Live: a 5-hour gathering for the rhythm.you community.",
+  title: "Rhythm Live II - 3rd October 2026",
+  description: "The Wind in the Word: A Deep Dive at Rhythm Live II.",
 };
 
 export default function LiveLayout({ children }: { children: ReactNode }) {
@@ -18,11 +18,11 @@ export default function LiveLayout({ children }: { children: ReactNode }) {
         style={{
           position: "fixed",
           inset: 0,
-          backgroundImage: "url(/live/noise.png)",
+          backgroundImage: "url(/live/rhythm-live-texture.png)",
           backgroundRepeat: "repeat",
-          backgroundSize: "800px 800px",
-          mixBlendMode: "soft-light",
-          opacity: 0.55,
+          backgroundSize: "960px 540px",
+          mixBlendMode: "multiply",
+          opacity: 0.2,
           pointerEvents: "none",
           zIndex: 9999,
         }}

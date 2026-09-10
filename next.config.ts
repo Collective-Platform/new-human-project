@@ -37,7 +37,10 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   cacheComponents: true,
   output: "standalone",
-  allowedDevOrigins: process.env.DEV_ORIGIN ? process.env.DEV_ORIGIN.split(",") : [],
+  allowedDevOrigins: [
+    "192.168.0.193",
+    ...(process.env.DEV_ORIGIN ? process.env.DEV_ORIGIN.split(",") : []),
+  ],
   experimental: {
     optimizePackageImports: ["next-intl", "swr"],
     instantNavigationDevToolsToggle: true,

@@ -30,13 +30,14 @@ export function proxy(request: NextRequest) {
 
   const firstSegment = pathname.split("/")[1] ?? "";
 
-  // Canonicalise the live landing page onto the live subdomain:
-  // rhythm.you/live (and /<locale>/live) -> live.rhythm.you
+  // Canonicalise the production live landing page onto the live subdomain.
+  // Preview domains cannot serve a generated `live.` subdomain, so keep /live there.
   const isLocale = (routing.locales as readonly string[]).includes(firstSegment);
   const livePathSegment = isLocale ? (pathname.split("/")[2] ?? "") : firstSegment;
   if (livePathSegment === "live") {
+    if (host !== "rhythm.you" && host !== "www.rhythm.you") return NextResponse.next();
     const url = request.nextUrl.clone();
-    url.hostname = `${LIVE_HOST_LABEL}.${url.hostname}`;
+    url.hostname = "live.rhythm.you";
     url.pathname = "/";
     return NextResponse.redirect(url);
   }

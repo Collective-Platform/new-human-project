@@ -1,226 +1,156 @@
 // Rhythm Live — standalone event landing page (served at live.rhythm.you).
-// The July 4, 2026 event has ended; this page is now a post-event recap /
-// "see you next time" holding state. Ticketing/checkout CTAs are removed and
-// the live backend (Stripe + Google Sheets) is disabled via env vars in Vercel.
-// Kept intact so it can be re-activated for the next Rhythm Live.
+// Ticketing is handled by the external Ticket2U sign-up page.
 //
 
 import Image from "next/image";
-import { DressCodeSection } from "./dress-code-section";
 import { FaqSection } from "./faq-section";
-import { PartnersSection } from "./partners-section";
-import { PillarsSection } from "./pillars-section";
 import { ScheduleSection } from "./schedule-section";
-import { SpeakersSection } from "./speakers-section";
-import { TrackSection } from "./track-section";
+import { TiltBookSection } from "./tilt-book-section";
 
-// Event-details strips are commented out post-event (see the two sections below).
-// Restore this and those sections to re-activate for the next Rhythm Live.
 const EVENT_DETAILS = [
-  { label: "Date", value: "July 4, 2026" },
-  { label: "Time", value: "10AM – 4PM" },
+  { label: "Date", value: "3rd October 2026" },
+  { label: "Time", value: "9:00AM - 12:00PM" },
   { label: "Location", value: "Collective" },
-  { label: "Ticket", value: "RM109" },
+  { label: "Ticket", value: "RM49" },
 ];
 
-const EXPERIENCES = [
-  "Inspiring keynote sessions.",
-  "Interactive community experiences.",
-  "Practical activations.",
-  "Opportunities to connect with like-minded participants.",
-  "Moments of celebration and reflection.",
-  "Practical next steps for the journey ahead.",
+const PROGRAMME_HIGHLIGHTS = [
+  "Teaching: Spirit & Scripture Unpacked",
+  "Interactive Q&A: Questions & Discussions",
+  "Practical Handles: Rhythms for Daily Life",
 ];
 
 export default function RhythmLivePage() {
   return (
     <div className="flex flex-col">
       {/* ── HERO ────────────────────────────────────────────────────────────── */}
-      {/* Black outer frame gives the "card floating on dark canvas" feel */}
-      <div className="bg-black p-3 md:p-4">
-        <section className="relative flex min-h-[calc(100vh-24px)] flex-col overflow-hidden rounded-4xl bg-on-surface md:min-h-[calc(100vh-32px)]">
-          {/* Hero background video */}
-          {/* scale(21/16) zooms past the letterbox bars baked into the 16:9 frame */}
-          <video
-            className="absolute inset-0 h-full w-full scale-[1.3125] object-cover"
-            src="https://mqyxc4xvodvuodmx.public.blob.vercel-storage.com/Rhythm%20Live%20Teaser.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-          />
-          {/* Gradient so text at the bottom stays legible */}
-          <div className="absolute inset-x-0 bottom-0 h-3/4 bg-linear-to-t from-on-surface via-on-surface/80 to-transparent" />
-
+      <div className="bg-[#F1A100] px-2 py-3 md:px-3 md:py-4">
+        <section className="relative flex min-h-[calc(100vh-24px)] flex-col overflow-hidden rounded-4xl bg-[#F1A100] md:min-h-[calc(100vh-32px)]">
           {/* Nav bar */}
-          <nav className="relative flex items-center justify-between px-6 py-5 md:px-8">
-            <div className="relative h-7 md:w-24 w-20">
-              <Image
-                src="/live/rhythm-logo.png"
-                alt="Rhythm"
-                fill
-                sizes="96px"
-                className="object-contain object-left"
-                priority
-              />
-            </div>
-            <div className="flex items-center gap-3 md:gap-5">
-              <a
-                href="#speakers"
-                className="hidden text-sm font-medium text-white/90 transition-colors hover:text-white md:block"
-              >
-                Speakers
-              </a>
-              <a
-                href="#tracks"
-                className="hidden text-sm font-medium text-white/90 transition-colors hover:text-white md:block"
-              >
-                Activation Tracks
-              </a>
-              <a
-                href="#faq"
-                className="text-sm font-medium text-white/90 transition-colors hover:text-white shadow-black shadow-"
-              >
-                FAQ
-              </a>
-            </div>
+          <nav className="relative mx-auto flex w-full max-w-6xl justify-center px-3 py-5 md:px-4">
+            <span className="font-nowstalgic text-xl font-black leading-none text-black md:text-2xl">
+              Rhythm Live II
+            </span>
           </nav>
 
-          {/* Content anchored to the bottom */}
-          <div className="relative mt-auto px-6 pb-5 text-center md:px-12 md:pb-6">
-            <div className="relative mx-auto h-16 w-72 md:h-24 md:w-120">
-              <Image
-                src="/live/rhythm-live-title.png"
-                alt="Rhythm Live"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
+          <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-8 px-3 pb-5 text-center md:grid-cols-[0.7fr_1.3fr] md:gap-10 md:px-4 md:pb-6">
+            <div className="flex min-h-[calc(100svh-7rem)] flex-col justify-center py-8 md:block md:min-h-0 md:py-0 md:text-left">
+              <div>
+                <div className="mt-4 md:mt-7">
+                  <h1 className="inline-block max-w-3xl bg-[#171616] px-3 py-3 text-[#F1A100]">
+                    <span className="block whitespace-nowrap font-nowstalgic text-[clamp(1.7rem,4.5vw,3.5rem)] font-black leading-none">
+                      The Wind In The Word:
+                    </span>
+                    <span className="mt-2 block text-md font-bold leading-none tracking-[0.16em] md:text-3xl">
+                      A DEEP DIVE
+                    </span>
+                  </h1>
+                  <p className="mt-8 max-w-2xl text-base leading-relaxed text-black md:text-lg">
+                    The Scripture isn&rsquo;t just a book to study, it&rsquo;s a living word
+                    breathed by the Holy Spirit.
+                    <br className="md:hidden" />
+                    <span className="hidden md:inline"> </span>
+                    We&rsquo;re gathering for a deep dive into the relationship between the Spirit
+                    and the Word.
+                  </p>
+                </div>
 
-            <p className="mx-auto mb-3 max-w-2xl text-base md:text-lg leading-normal md:leading-relaxed text-white">
-              A one-day gathering where the community comes together to learn, grow, worship,
-              connect, and continue the journey together.
-            </p>
-            <p className="mx-auto mt-5 max-w-2xl text-lg md:text-xl font-bold text-white">
-              See you at the next Rhythm Live.
-            </p>
+                <dl className="mx-auto mt-8 grid max-w-4xl grid-cols-2 gap-x-6 gap-y-5 md:mx-0 md:gap-y-3">
+                  {EVENT_DETAILS.map((item) => (
+                    <div key={item.label} className="flex flex-col gap-1">
+                      <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-black/65">
+                        {item.label}
+                      </dt>
+                      <dd className="text-base font-bold text-black">{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <a
+                  href="https://www.ticket2u.com.my/event/51871_f6ead535ca2b4ceb9801fbb68554b516"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-8 inline-flex self-center rounded-full bg-black px-8 py-4 text-base font-semibold text-[#F1A100] transition-colors hover:bg-black/85 md:self-auto"
+                >
+                  Sign up now
+                </a>
+              </div>
+            </div>
+            <div className="mx-auto w-full max-w-[22rem] self-end md:max-w-[30rem] md:self-center">
+              <p className="mb-12 text-center text-4xl font-black leading-[1.1] text-black md:hidden">
+                Our speaker
+              </p>
+              <div className="relative aspect-square overflow-hidden">
+                <Image
+                  src="/live/victor-lee.png"
+                  alt="Dr Victor Lee, President of Bible College Malaysia"
+                  fill
+                  sizes="(max-width: 767px) 75vw, 42vw"
+                  className="object-cover object-top mix-blend-multiply"
+                  priority
+                />
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-[url('/live/rhythm-live-texture.png')] bg-[length:960px_540px] bg-repeat mix-blend-multiply opacity-25"
+                  style={{
+                    maskImage: "url('/live/victor-lee.png')",
+                    maskRepeat: "no-repeat",
+                    maskSize: "100% auto",
+                    maskPosition: "top center",
+                    WebkitMaskImage: "url('/live/victor-lee.png')",
+                    WebkitMaskRepeat: "no-repeat",
+                    WebkitMaskSize: "100% auto",
+                    WebkitMaskPosition: "top center",
+                  }}
+                />
+              </div>
+              <div className="mt-3 text-center">
+                <p className="text-2xl font-black leading-tight text-black md:text-3xl">
+                  Dr Victor Lee
+                </p>
+                <p className="mt-1 text-sm font-medium text-black/75 md:text-base">
+                  President, Bible College Malaysia
+                </p>
+              </div>
+            </div>
           </div>
         </section>
       </div>
 
-      {/* ── EVENT DETAILS STRIP ─────────────────────────────────────────────── */}
-      <section className="bg-black px-4 py-10 md:px-12">
-        <dl className="mx-auto grid max-w-4xl grid-cols-2 gap-6 md:grid-cols-4 text-center">
-          {EVENT_DETAILS.map((item) => (
-            <div key={item.label} className="flex flex-col gap-1">
-              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-                {item.label}
-              </dt>
-              <dd className="text-lg font-bold text-white">{item.value}</dd>
-            </div>
-          ))}
-        </dl>
+      {/* ── INTERACTIVE BOOK ───────────────────────────────────────────────── */}
+      <section className="overflow-hidden bg-[#F1A100] px-4 pb-16 md:px-6 md:pb-20">
+        <div className="mx-auto flex w-full justify-center">
+          <TiltBookSection compact />
+        </div>
       </section>
-
-      {/* ── THREE PILLARS ───────────────────────────────────────────────────── */}
-      <PillarsSection />
-
-      {/* ── SPEAKERS ────────────────────────────────────────────────────────── */}
-      <SpeakersSection />
 
       {/* ── SCHEDULE ────────────────────────────────────────────────────────── */}
       <ScheduleSection />
 
-      {/* ── TRACKS ──────────────────────────────────────────────────────────── */}
-      <TrackSection />
-
-      {/* ── OUR PARTNERS ────────────────────────────────────────────────────── */}
-      <PartnersSection />
-
-      {/* ── DRESS CODE ──────────────────────────────────────────────────────── */}
-      <DressCodeSection />
-
-      {/* ── EXPERIENCE THE DAY ──────────────────────────────────────────────── */}
-      <section className="bg-black px-4 py-24 md:px-12">
-        <div className="mx-auto grid max-w-5xl items-center gap-12 md:grid-cols-2">
-          <div>
-            <h2 className="mb-8 text-4xl md:text-5xl font-black leading-[1.1] text-white">
-              Experience
-              <br />
-              Rhythm.You Live
-            </h2>
-            <ul className="list-disc space-y-4 pl-5">
-              {EXPERIENCES.map((item) => (
-                <li
-                  key={item}
-                  className="text-base md:text-lg leading-normal md:leading-relaxed text-white"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-8 text-base md:text-lg leading-normal md:leading-relaxed italic text-white">
-              This isn&rsquo;t about sitting in a room and taking notes. It&rsquo;s about
-              experiencing the movement you&rsquo;re already part of.
-            </p>
-          </div>
-
-          {/* Photo grid */}
-          <div className="flex flex-col gap-4">
-            <div className="relative aspect-video w-full overflow-hidden rounded-[--radius-md]">
-              <Image
-                src="/live/speaker.jpg"
-                alt="Speaker presenting at Rhythm Live event"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="relative aspect-square w-full overflow-hidden rounded-[--radius-md]">
-                <Image
-                  src="/live/interaction.jpg"
-                  alt="Community interaction at Rhythm Live"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                />
-              </div>
-              <div className="relative aspect-square w-full overflow-hidden rounded-[--radius-md]">
-                <Image
-                  src="/live/speaking.jpg"
-                  alt="Panel discussion at Rhythm Live"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ── FAQ ─────────────────────────────────────────────────────────────── */}
-      <div className="bg-black px-4 md:px-24 py-4">
+      <div className="bg-[#F1A100] px-4 py-4 md:px-24">
         <FaqSection />
       </div>
 
       {/* ── EVENT DETAILS ───────────────────────────────────────────────────── */}
-      <section className="bg-black px-4 py-16 md:px-12 text-center">
+      <section className="bg-[#F1A100] px-4 py-16 text-center md:px-12">
         <dl className="mx-auto grid max-w-4xl grid-cols-2 gap-8 text-center md:grid-cols-4 mb-10">
           {EVENT_DETAILS.map((item) => (
             <div key={item.label}>
-              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
                 {item.label}
               </dt>
-              <dd className="text-lg font-bold text-white">{item.value}</dd>
+              <dd className="text-lg font-bold text-black">{item.value}</dd>
             </div>
           ))}
         </dl>
-        <p className="mx-auto max-w-2xl text-lg md:text-xl font-bold text-white">
-          See you at the next Rhythm Live.
-        </p>
+        <a
+          href="https://www.ticket2u.com.my/event/51871_f6ead535ca2b4ceb9801fbb68554b516"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-black/90"
+        >
+          Sign up now
+        </a>
       </section>
     </div>
   );
