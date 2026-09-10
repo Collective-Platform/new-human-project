@@ -7,6 +7,7 @@ type MotionPermissionEvent = typeof DeviceOrientationEvent & {
   requestPermission?: () => Promise<"granted" | "denied">;
 };
 type Frame = { lines: Element[]; paths: Element[] };
+type Highlight = "centre" | "left" | "right";
 
 const FRAME_URLS = [
   "/live/tilt-book/book-left.svg",
@@ -17,6 +18,19 @@ const FRAME_URLS = [
 const clamp = (value: number) => Math.max(-1, Math.min(1, value));
 const between = (from: number, to: number, progress: number) => from + (to - from) * progress;
 const MOTION_EASING = 0.03;
+const HIGHLIGHTS: Record<Highlight, string> = {
+  centre: "Teaching: Spirit & Scripture Unpacked",
+  left: "Interactive Q&A: Questions & Discussions",
+  right: "Practical Handles: Rhythms for Daily Life",
+};
+
+function highlightForTilt(tilt: number, active: Highlight): Highlight {
+  if (active === "left") return tilt < -0.14 ? "left" : "centre";
+  if (active === "right") return tilt > 0.14 ? "right" : "centre";
+  if (tilt < -0.26) return "left";
+  if (tilt > 0.26) return "right";
+  return "centre";
+}
 
 function numbers(path: string) {
   return path.match(/-?\d+(?:\.\d+)?/g)?.map(Number) ?? [];
@@ -31,8 +45,10 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
   const animationRef = useRef<number | null>(null);
   const orientationListenerRef = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
   const orientationEnabledRef = useRef(false);
+  const activeHighlightRef = useRef<Highlight>("centre");
   const [ready, setReady] = useState(false);
   const [motionStatus, setMotionStatus] = useState<"idle" | "enabled" | "unavailable">("idle");
+  const [activeHighlight, setActiveHighlight] = useState<Highlight>("centre");
 
   useEffect(() => {
     let cancelled = false;
@@ -105,6 +121,11 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
         currentTiltRef.current =
           Math.abs(next - targetTiltRef.current) < 0.002 ? targetTiltRef.current : next;
         paint(currentTiltRef.current);
+        const nextHighlight = highlightForTilt(currentTiltRef.current, activeHighlightRef.current);
+        if (nextHighlight !== activeHighlightRef.current) {
+          activeHighlightRef.current = nextHighlight;
+          setActiveHighlight(nextHighlight);
+        }
         if (currentTiltRef.current !== targetTiltRef.current) {
           animationRef.current = requestAnimationFrame(animate);
         } else {
@@ -153,11 +174,11 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
   };
 
   return (
-    <section className={compact ? "flex justify-center" : "bg-[#F1A100] px-3 py-3 md:px-4"}>
+    <section className={compact ? "flex w-full justify-center" : "bg-[#F1A100] px-3 py-3 md:px-4"}>
       <div
         className={
           compact
-            ? "relative flex items-center justify-center"
+            ? "relative flex w-full items-center justify-center"
             : "relative mx-auto flex min-h-[44rem] max-w-6xl items-center justify-center overflow-hidden rounded-4xl bg-[#F1A100] px-5 py-10 md:min-h-[48rem]"
         }
       >
@@ -168,7 +189,7 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
           aria-label="Interactive open-book illustration"
           className={
             compact
-              ? "relative h-64 w-auto aspect-[393/852] cursor-grab touch-pan-y select-none outline-none active:cursor-grabbing focus-visible:ring-4 focus-visible:ring-black/75 focus-visible:ring-offset-4 focus-visible:ring-offset-[#F1A100] md:h-[min(64vh,36rem)]"
+              ? "relative w-[90%] aspect-[393/852] cursor-grab touch-pan-y select-none outline-none active:cursor-grabbing focus-visible:ring-4 focus-visible:ring-black/75 focus-visible:ring-offset-4 focus-visible:ring-offset-[#F1A100] md:h-[min(60vh,40rem)] md:w-auto"
               : "relative aspect-[393/852] w-full max-w-[24.5625rem] cursor-grab touch-pan-y select-none outline-none active:cursor-grabbing focus-visible:ring-4 focus-visible:ring-black/75 focus-visible:ring-offset-4 focus-visible:ring-offset-[#F1A100]"
           }
           onClick={enableOrientation}
@@ -203,22 +224,28 @@ export function TiltBookSection({ compact = false }: { compact?: boolean }) {
             aria-hidden="true"
           />
           <span
-            className={`pointer-events-none absolute inset-x-0 top-[16%] text-center font-black leading-none text-black ${compact ? "text-lg md:text-4xl" : "text-3xl md:text-4xl"}`}
+            className={`pointer-events-none absolute inset-x-0 top-[31%] text-center font-semibold text-black/70 ${compact ? "text-xs md:text-sm" : "text-sm"}`}
           >
             Tilt to explore
           </span>
           <span
-            id="tilt-book-instructions"
-            className={`pointer-events-none absolute inset-x-0 top-[24%] text-center font-medium text-black/75 ${compact ? "text-[0.625rem] md:text-sm" : "text-sm"}`}
+            key={activeHighlight}
+            className="pointer-events-none absolute left-1/2 top-[39%] w-[90vw] -translate-x-1/2 px-4 text-center text-2xl font-black leading-[1.08] text-black motion-safe:animate-[live-highlight-in_360ms_cubic-bezier(0.16,1,0.3,1)] md:text-3xl"
           >
-            {motionStatus === "enabled"
-              ? "Tilt your phone to open the book"
-              : motionStatus === "unavailable"
-                ? "Drag the book left and right to explore"
-                : "Tap or drag the book to explore"}
+            {HIGHLIGHTS[activeHighlight]}
           </span>
+          {motionStatus !== "idle" && (
+            <span
+              id="tilt-book-instructions"
+              className={`pointer-events-none absolute inset-x-0 top-[49%] text-center font-medium text-black/75 ${compact ? "text-xs md:text-sm" : "text-sm"}`}
+            >
+              {motionStatus === "enabled"
+                ? "Tilt your phone to open the book"
+                : "Drag the book left and right to explore"}
+            </span>
+          )}
           <span
-            className={`pointer-events-none absolute inset-x-0 top-[28%] hidden text-center text-black/65 md:block ${compact ? "text-[0.625rem] md:text-xs" : "text-xs"}`}
+            className={`pointer-events-none absolute inset-x-0 top-[53%] hidden text-center text-black/65 ${compact ? "text-xs" : "text-xs md:block"}`}
           >
             Or move your cursor across it
           </span>
