@@ -64,7 +64,7 @@ export function BottomNav() {
                 <TabIcon size={22} className={active ? "text-white" : "text-on-surface-variant"} />
               </span>
               <span
-                className={`text-[10px] font-medium ${active ? "text-primary" : "text-on-surface-variant"}`}
+                className={`text-xs font-medium ${active ? "text-primary" : "text-on-surface-variant"}`}
               >
                 {t(tab.key)}
               </span>
