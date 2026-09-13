@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
@@ -7,6 +8,13 @@ import { routing } from "@/src/i18n/routing";
 type Props = {
   children: ReactNode;
   params: Promise<{ locale: string }>;
+};
+
+export const metadata: Metadata = {
+  icons: {
+    icon: "/rhythm-favicon.ico",
+    apple: "/rhythm-apple-icon.png",
+  },
 };
 
 export function generateStaticParams() {
