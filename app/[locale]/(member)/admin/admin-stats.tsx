@@ -1,5 +1,6 @@
 import { DailySignupsChart } from "./daily-signups-chart";
 import { WeeklyActiveUsersChart } from "./weekly-active-users-chart";
+import { BlockCompletionDistributionChart } from "./block-completion-distribution-chart";
 
 interface MonthRow {
   month: string;
@@ -16,6 +17,17 @@ interface WeekRow {
   count: number;
 }
 
+interface BlockCompletionRow {
+  block: number;
+  completedAllDays: number;
+  meanDaysCompleted: number;
+  medianDaysCompleted: number;
+  completed1To4Days: number;
+  completed5To14Days: number;
+  completed15To19Days: number;
+  completed20To24Days: number;
+}
+
 export interface AdminStatsData {
   total: number;
   active: number;
@@ -23,6 +35,7 @@ export interface AdminStatsData {
   monthlyActive: MonthRow[];
   dailySignups: DayRow[];
   weeklyActiveUsers: WeekRow[];
+  blockCompletions: BlockCompletionRow[];
 }
 
 function formatMonth(yyyyMM: string): string {
@@ -62,9 +75,51 @@ export function AdminStats({ stats }: { stats: AdminStatsData }) {
         />
       </div>
 
+      <div className="rounded-md bg-white shadow-card overflow-hidden">
+        <div className="px-4 py-3 border-b border-zinc-100">
+          <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
+            Block Completions
+          </p>
+        </div>
+        <BlockStatRow
+          label="Mean days completed"
+          rows={stats.blockCompletions}
+          value={(row) => Math.round(row.meanDaysCompleted)}
+        />
+        <BlockStatRow
+          label="Median days completed"
+          rows={stats.blockCompletions}
+          value={(row) => Math.round(row.medianDaysCompleted)}
+        />
+        <BlockCompletionDistributionChart rows={stats.blockCompletions} />
+      </div>
+
       <DailySignupsChart rows={stats.dailySignups} />
 
       <WeeklyActiveUsersChart rows={stats.weeklyActiveUsers} />
+    </div>
+  );
+}
+
+function BlockStatRow({
+  label,
+  rows,
+  value,
+}: {
+  label: string;
+  rows: BlockCompletionRow[];
+  value: (row: BlockCompletionRow) => number;
+}) {
+  return (
+    <div className="border-t border-zinc-100">
+      <p className="px-4 pt-3 text-xs font-medium uppercase tracking-wider text-foreground/50">
+        {label}
+      </p>
+      <div className="grid grid-cols-2 divide-x divide-y divide-zinc-100 sm:grid-cols-4">
+        {rows.map((row) => (
+          <StatCard key={row.block} label={`Block ${row.block}`} value={value(row)} />
+        ))}
+      </div>
     </div>
   );
 }
