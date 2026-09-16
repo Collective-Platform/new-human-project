@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { sql, desc } from "drizzle-orm";
 import { getSessionUser, isAdmin } from "@/src/features/auth";
+import { getAllTasks } from "@/src/features/content/program";
 import { db } from "@/src/db";
 import { users } from "@/src/db/schema";
 import { AdminClient } from "./admin-client";
@@ -9,12 +10,25 @@ import type { UserRow } from "./admin-users-table";
 import type { StreakRow } from "./admin-streak-table";
 
 type StatsRow = { kind: string; period: string | null; count: number };
+type BlockCompletionRow = {
+  blockNumber: number;
+  completedAllDays: number;
+  meanDaysCompleted: number;
+  medianDaysCompleted: number;
+  completed1To4Days: number;
+  completed5To14Days: number;
+  completed15To19Days: number;
+  completed20To24Days: number;
+};
 
 export async function AdminData({ locale }: { locale: string }) {
   const user = await getSessionUser();
   if (!user || !isAdmin(user)) redirect(`/${locale}`);
 
-  const [statsResult, allUsers, topStreaksResult] = await Promise.all([
+  const programTasks = getAllTasks();
+  const blocks = [...new Set(programTasks.map((task) => task.block))].sort((a, b) => a - b);
+
+  const [statsResult, allUsers, topStreaksResult, blockCompletionResult] = await Promise.all([
     db.execute(sql`
       WITH
         totals AS (
@@ -113,10 +127,37 @@ export async function AdminData({ locale }: { locale: string }) {
       ORDER BY streak DESC, u.id ASC
       LIMIT 200
     `),
+    db.execute(sql`
+      WITH program_tasks(task_id, block_number, day_number) AS (
+        VALUES ${sql.join(
+          programTasks.map((task) => sql`(${task.id}, ${task.block}, ${task.day})`),
+          sql`, `,
+        )}
+      ),
+      member_block_days AS (
+        SELECT tc.user_id, pt.block_number, count(DISTINCT pt.day_number)::int AS days_completed
+        FROM program_tasks pt
+        INNER JOIN nhp.task_completions tc ON tc.task_id = pt.task_id
+        GROUP BY tc.user_id, pt.block_number
+      )
+      SELECT
+        block_number::int AS "blockNumber",
+        count(*) FILTER (WHERE days_completed = 25)::int AS "completedAllDays",
+        avg(days_completed) AS "meanDaysCompleted",
+        percentile_cont(0.5) WITHIN GROUP (ORDER BY days_completed) AS "medianDaysCompleted",
+        count(*) FILTER (WHERE days_completed BETWEEN 1 AND 4)::int AS "completed1To4Days",
+        count(*) FILTER (WHERE days_completed BETWEEN 5 AND 14)::int AS "completed5To14Days",
+        count(*) FILTER (WHERE days_completed BETWEEN 15 AND 19)::int AS "completed15To19Days",
+        count(*) FILTER (WHERE days_completed BETWEEN 20 AND 24)::int AS "completed20To24Days"
+      FROM member_block_days
+      GROUP BY block_number
+      ORDER BY block_number
+    `),
   ]);
 
   const rows = statsResult.rows as StatsRow[];
   const byKind = (kind: string) => rows.filter((r) => r.kind === kind);
+  const blockCompletionRows = blockCompletionResult.rows as BlockCompletionRow[];
 
   const stats: AdminStatsData = {
     total: Number(byKind("total")[0]?.count ?? 0),
@@ -133,6 +174,19 @@ export async function AdminData({ locale }: { locale: string }) {
     weeklyActiveUsers: byKind("weekly_active")
       .sort((a, b) => (a.period ?? "").localeCompare(b.period ?? ""))
       .map((r) => ({ week: r.period!, count: Number(r.count) })),
+    blockCompletions: blocks.map((block) => {
+      const row = blockCompletionRows.find((r) => Number(r.blockNumber) === block);
+      return {
+        block,
+        completedAllDays: Number(row?.completedAllDays ?? 0),
+        meanDaysCompleted: Number(row?.meanDaysCompleted ?? 0),
+        medianDaysCompleted: Number(row?.medianDaysCompleted ?? 0),
+        completed1To4Days: Number(row?.completed1To4Days ?? 0),
+        completed5To14Days: Number(row?.completed5To14Days ?? 0),
+        completed15To19Days: Number(row?.completed15To19Days ?? 0),
+        completed20To24Days: Number(row?.completed20To24Days ?? 0),
+      };
+    }),
   };
 
   const userRows: UserRow[] = allUsers.map((u) => ({
