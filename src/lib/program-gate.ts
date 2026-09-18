@@ -69,6 +69,7 @@ export const BLOCK_LAUNCH: Record<number, Date> = {
   2: localDateMarker(new Date("2026-07-06"), PROGRAM_DEFAULT_TZ), // block 2 launch
   3: localDateMarker(new Date("2026-07-31"), PROGRAM_DEFAULT_TZ), // block 3 launch
   4: localDateMarker(new Date("2026-08-25"), PROGRAM_DEFAULT_TZ), // block 4 launch
+  5: localDateMarker(new Date("2026-09-19"), PROGRAM_DEFAULT_TZ), // block 5 launch
 };
 
 export function getBlockLaunchDate(blockNumber: number): Date | null {
