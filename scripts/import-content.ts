@@ -87,8 +87,53 @@ const ZH_MENTAL_LABELS: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 async function extractText(filePath: string): Promise<string> {
+  if (filePath.endsWith(".md")) {
+    return normalizeMarkdownSource(readFileSync(filePath, "utf8"));
+  }
+
   const result = await mammoth.extractRawText({ path: filePath });
   return result.value;
+}
+
+/**
+ * Attached source files are sometimes Markdown exports rather than DOCX files.
+ * Remove Markdown only from structural day/label lines so every content
+ * paragraph (including its original Markdown emphasis) remains verbatim.
+ */
+function normalizeMarkdownSource(text: string): string {
+  const chineseDayNumbers: Record<string, string> = {
+    一: "1",
+    二: "2",
+    三: "3",
+    四: "4",
+    五: "5",
+    六: "6",
+    七: "7",
+    八: "8",
+    九: "9",
+    十: "10",
+  };
+
+  return text
+    .replace(/^(?:#{1,6}[ \t]+)(.*)$/gm, "$1")
+    .replace(
+      /^\*\*(DAY\s+\d{1,2}\s+[—–-]{1,2}\s+.+|第\s*\d{1,2}\s*天\s*[—–-]{1,2}\s+.+|第[一二三四五六七八九十]日\s*[—–-]{1,2}\s+.+)\*\*\s*$/gmu,
+      "$1\n",
+    )
+    .replace(
+      /^(第)([一二三四五六七八九十])日(\s*[—–-]{1,2}\s+.+)$/gmu,
+      (_, prefix, numeral, suffix) => `${prefix}${chineseDayNumbers[numeral]}天${suffix}`,
+    )
+    .replace(/^\*\*经文[：:]\s*(.+)\*\*\s*$/gmu, "经文: $1")
+    .replace(
+      /^\*\*(Scripture|Practice|Questions?|经文|操练|实践|省思问题|问题)[：:]\*\*\s*/gimu,
+      "$1: ",
+    )
+    .replace(
+      /^\*\*(Scripture|Practice|Questions?|经文|操练|实践|省思问题|问题)\*\*[：:]\s*/gimu,
+      "$1: ",
+    )
+    .replace(/^(Practice|Questions?|操练|实践|省思问题|问题):/gimu, "\n\n$1:");
 }
 
 // ---------------------------------------------------------------------------
@@ -100,7 +145,7 @@ function toParagraphs(text: string): string[] {
   return text
     .replace(/\r\n/g, "\n")
     .replace(/\r/g, "\n")
-    .split(/\n{2,}/)
+    .split(/\n\s*\n+/)
     .map((p) => p.trim())
     .filter((p) => p.length > 0);
 }
@@ -189,7 +234,10 @@ function isMovementIntro(para: string): boolean {
     /^Days?\s+\d{1,2}[–\-]\d{1,2}/i.test(para) ||
     /^第[一二三四五六七八九十]+动作/u.test(para) ||
     // Single-word movement subtitles that appear alone (e.g. "The Person", "of the Spirit")
-    (para.split(/\s+/).length <= 4 && /^[A-Z]/.test(para) && /^[A-Za-z\s&]+$/.test(para) && para.length < 40)
+    (para.split(/\s+/).length <= 4 &&
+      /^[A-Z]/.test(para) &&
+      /^[A-Za-z\s&]+$/.test(para) &&
+      para.length < 40)
   );
 }
 
@@ -207,7 +255,7 @@ function parseEmotionalEN(text: string): ParsedDay[] {
     const para = paragraphs[i];
 
     // Day boundary: "DAY N — Title"
-    const dayMatch = para.match(/^DAY\s+(\d{1,2})\s+[—–-]\s+(.+)$/i);
+    const dayMatch = para.match(/^DAY\s+(\d{1,2})\s+[—–-]{1,2}\s+(.+)$/i);
     if (!dayMatch) {
       i++;
       continue;
@@ -222,11 +270,15 @@ function parseEmotionalEN(text: string): ParsedDay[] {
     const scriptureLines: string[] = [];
     if (i < paragraphs.length && /^Scripture:/i.test(paragraphs[i])) {
       const scriptureContent = paragraphs[i].replace(/^Scripture:\s*/i, "").trim();
-      const dashIdx = scriptureContent.indexOf(" - ");
-      if (dashIdx !== -1) {
+      if (/^(?:\*\*)?\d+(?:\*\*)?\s/.test(scriptureContent)) {
+        scriptureLines.push(scriptureContent);
+      } else if (scriptureContent.match(/\s\\?-\s/)) {
+        const separator = scriptureContent.match(/\s\\?-\s/);
+        const dashIdx = separator?.index ?? -1;
+        const separatorLength = separator?.[0].length ?? 0;
         // Format: "Ref - verse text..."
         passageRef = scriptureContent.substring(0, dashIdx).trim();
-        scriptureLines.push(scriptureContent.substring(dashIdx + 3).trim());
+        scriptureLines.push(scriptureContent.substring(dashIdx + separatorLength).trim());
       } else {
         passageRef = scriptureContent;
       }
@@ -285,7 +337,7 @@ function parseEmotionalEN(text: string): ParsedDay[] {
     // Question / Reflection paragraph
     let reflectionText = "";
     if (i < paragraphs.length && isQuestionLabel(paragraphs[i], "en")) {
-      reflectionText = paragraphs[i].replace(/^Question:\s*/i, "").trim();
+      reflectionText = paragraphs[i].replace(/^Questions?:\s*/i, "").trim();
       i++;
     }
 
@@ -295,6 +347,8 @@ function parseEmotionalEN(text: string): ParsedDay[] {
       preamble = `**${passageRef}**\n\n${scriptureLines.join("\n\n")}`;
     } else if (passageRef) {
       preamble = `**${passageRef}**`;
+    } else if (scriptureLines.length > 0) {
+      preamble = scriptureLines.join("\n\n");
     }
 
     const sections: { heading: string; content: string }[] = [];
@@ -328,7 +382,7 @@ function parseEmotionalZH(text: string): ParsedDay[] {
     const para = paragraphs[i];
 
     // Day boundary: "第N天 — Title"
-    const dayMatch = para.match(/^第\s*(\d{1,2})\s*天\s*[—–-]\s*(.+)$/u);
+    const dayMatch = para.match(/^第\s*(\d{1,2})\s*天\s*[—–-]{1,2}\s*(.+)$/u);
     if (!dayMatch) {
       i++;
       continue;
@@ -392,7 +446,7 @@ function parseEmotionalZH(text: string): ParsedDay[] {
     // Question
     let reflectionText = "";
     if (i < paragraphs.length && isQuestionLabel(paragraphs[i], "zh")) {
-      reflectionText = paragraphs[i].replace(/^问题[：:]\s*/, "").trim();
+      reflectionText = paragraphs[i].replace(/^(省思问题|问题)[：:]\s*/, "").trim();
       i++;
     }
 
@@ -430,13 +484,13 @@ function isPracticeLabel(para: string, lang: "en" | "zh"): boolean {
 }
 
 function isQuestionLabel(para: string, lang: "en" | "zh"): boolean {
-  if (lang === "en") return /^Question:/i.test(para);
-  return /^问题[：:]/.test(para);
+  if (lang === "en") return /^Questions?:/i.test(para);
+  return /^(省思问题|问题)[：:]/.test(para);
 }
 
 function isEmotionalDayStart(para: string, lang: "en" | "zh"): boolean {
-  if (lang === "en") return /^DAY\s+\d{1,2}\s+[—–-]/i.test(para);
-  return /^第\s*\d{1,2}\s*天\s*[—–-]/u.test(para);
+  if (lang === "en") return /^DAY\s+\d{1,2}\s+[—–-]{1,2}/i.test(para);
+  return /^第\s*\d{1,2}\s*天\s*[—–-]{1,2}/u.test(para);
 }
 
 // ---------------------------------------------------------------------------
@@ -513,11 +567,7 @@ function replaceENBody(filepath: string, newBody: string): void {
  * Update name.en or name.zh in an EN .md file's frontmatter without touching
  * any other field. Uses a targeted regex so YAML formatting is preserved.
  */
-function updateFrontmatterTitle(
-  filepath: string,
-  field: "en" | "zh",
-  title: string,
-): void {
+function updateFrontmatterTitle(filepath: string, field: "en" | "zh", title: string): void {
   const content = readFileSync(filepath, "utf8");
   const re = new RegExp(`^(\\s+${field}:\\s*").*?("\\s*)$`, "m");
   if (!re.test(content)) {
@@ -529,13 +579,8 @@ function updateFrontmatterTitle(
   if (updated !== content && !dryRun) writeFileSync(filepath, updated);
 }
 
-/** Replace (or write) a ZH .zh.md file (no frontmatter, body only). */
+/** Replace (or create) a ZH .zh.md file (no frontmatter, body only). */
 function replaceZHBody(filepath: string, newBody: string): void {
-  if (!existsSync(filepath)) {
-    console.warn(`  ⚠ ZH file not found: ${filepath}`);
-    return;
-  }
-
   if (dryRun) {
     console.log(`  [dry-run] would write ${filepath}`);
     console.log("  --- first 400 chars of new body ---");
@@ -550,11 +595,7 @@ function replaceZHBody(filepath: string, newBody: string): void {
 // Apply parsed days to files
 // ---------------------------------------------------------------------------
 
-function applyDays(
-  days: ParsedDay[],
-  category: "Mental" | "Emotional",
-  lang: "en" | "zh",
-): void {
+function applyDays(days: ParsedDay[], category: "Mental" | "Emotional", lang: "en" | "zh"): void {
   let updated = 0;
   let skipped = 0;
 
