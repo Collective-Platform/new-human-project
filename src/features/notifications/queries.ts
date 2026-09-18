@@ -2,7 +2,13 @@ import { db } from "@/src/db";
 import { notificationLog, users } from "@/src/db/schema";
 import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
 
-export const SOCIAL_TYPES = ["friend_request", "friend_accepted", "like"];
+export const SOCIAL_TYPES = [
+  "friend_request",
+  "friend_accepted",
+  "like",
+  "discussion_reply",
+  "plan_member_added",
+];
 
 export async function getNotificationsForUser(userId: number) {
   return db

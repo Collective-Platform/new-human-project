@@ -1,7 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
-import { PlansData } from "../plans/plans-data";
+import { redirect } from "next/navigation";
 
-export default async function ProgressPage({
+export default async function PlansPage({
   params,
   searchParams,
 }: {
@@ -10,10 +10,5 @@ export default async function ProgressPage({
 }) {
   const [{ locale }, { tab }] = await Promise.all([params, searchParams]);
   setRequestLocale(locale);
-  return (
-    <PlansData
-      locale={locale as "en" | "zh"}
-      initialTab={tab === "completed" ? "completed" : "active"}
-    />
-  );
+  redirect(`/${locale}/progress${tab === "completed" ? "?tab=completed" : ""}`);
 }

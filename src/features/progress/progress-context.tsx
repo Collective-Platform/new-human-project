@@ -5,6 +5,7 @@ import { completeTask, uncompleteTask } from "@/src/features/tasks/actions";
 import type { ProgressCarouselDay } from "./get-progress-for-user";
 
 export interface CompletionState {
+  planId?: string;
   blockNumber: number;
   blockStartDate: string;
   currentDay: number;
@@ -21,7 +22,10 @@ interface ProgressContextValue {
   reset: () => void;
   updateCurrentDay: (day: number) => void;
   updateSelectedDay: (day: number) => void;
-  markComplete: (taskId: string, data?: Record<string, unknown>) => Promise<void>;
+  markComplete: (
+    taskId: string,
+    data?: Record<string, unknown>,
+  ) => Promise<{ blockCompleted: boolean; earnedBadgeId?: string }>;
   markIncomplete: (taskId: string) => Promise<void>;
 }
 
@@ -94,16 +98,17 @@ function applyIncomplete(prev: CompletionState, taskId: string): CompletionState
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<CompletionState | null>(null);
-  const initializedRef = useRef(false);
+  const initializedRef = useRef<string | null>(null);
 
   function initialize(newState: CompletionState) {
-    if (initializedRef.current) return;
-    initializedRef.current = true;
+    const identity = `${newState.planId ?? "legacy"}:${newState.blockNumber}:${newState.blockStartDate}`;
+    if (initializedRef.current === identity) return;
+    initializedRef.current = identity;
     setState(newState);
   }
 
   function reset() {
-    initializedRef.current = false;
+    initializedRef.current = null;
     setState(null);
   }
 
@@ -116,20 +121,25 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }
 
   async function markComplete(taskId: string, data?: Record<string, unknown>) {
-    if (!state) return;
+    if (!state) return { blockCompleted: false };
     const prev = state;
     setState(applyComplete(prev, taskId, data));
-    const result = await completeTask({ taskId, data: data ?? {} });
+    const result = await completeTask({ taskId, data: data ?? {}, planId: state.planId });
     if ("error" in result) {
       setState(prev);
+      return { blockCompleted: false };
     }
+    return {
+      blockCompleted: result.blockCompleted,
+      ...(result.earnedBadgeId ? { earnedBadgeId: result.earnedBadgeId } : {}),
+    };
   }
 
   async function markIncomplete(taskId: string) {
     if (!state) return;
     const prev = state;
     setState(applyIncomplete(prev, taskId));
-    const result = await uncompleteTask({ taskId });
+    const result = await uncompleteTask({ taskId, planId: state.planId });
     if ("error" in result) {
       setState(prev);
     }

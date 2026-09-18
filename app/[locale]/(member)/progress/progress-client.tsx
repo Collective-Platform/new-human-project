@@ -1,14 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { ArrowLeft } from "lucide-react";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
 import { TaskDetail } from "./task-detail";
+import { GroupDiscussionTask } from "./group-discussion-task";
+import { PlanOverflowMenu } from "./plan-overflow-menu";
+import { PlanDaySocial } from "../plans/plan-day-social";
+import { BlockCelebration } from "../dashboard/block-celebration";
+import { markBadgeSeen } from "@/src/features/badges/actions";
 import type { ProgressPayload, ProgressTask, DayContentTask } from "@/src/features/progress";
 import { useProgressContext } from "@/src/features/progress/progress-context";
-import { redoBlock } from "@/src/features/tasks/actions";
+import type { PlanDiscussionThread, PlanMember } from "@/src/features/plans/queries";
+import { useRouter } from "@/src/i18n/navigation";
 
 type TaskData = ProgressTask;
 
@@ -50,18 +57,26 @@ export function ProgressClient({
   locale,
   initialData,
   initialTaskId,
+  planSocial,
+  planControls,
 }: {
   locale: string;
   initialData: ProgressPayload;
   initialTaskId?: string;
+  planSocial?: {
+    selfUserId: number;
+    isOwner: boolean;
+    inviteCode?: string;
+    initialData: { members: PlanMember[]; discussion: PlanDiscussionThread[] };
+  };
+  planControls?: { isGroup: boolean; isOwner: boolean };
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("progress");
   const ctx = useProgressContext();
 
-  const [locked, setLocked] = useState(false);
-  const [isRestarting, startRestartTransition] = useTransition();
+  const locked = false;
 
   // Restore to the day the user was on before navigating away. ctx.state is
   // already set on soft navigation back (layout provider persists). Fall back
@@ -80,6 +95,8 @@ export function ProgressClient({
 
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
   const [activeTaskMode, setActiveTaskMode] = useState<"add" | number>("add");
+  const [showBlockCelebration, setShowBlockCelebration] = useState(false);
+  const [completedBadgeId, setCompletedBadgeId] = useState<string | null>(null);
 
   // Static day content cache: day → DayContentTask[].
   // Content never changes so cache entries never need invalidation.
@@ -100,6 +117,7 @@ export function ProgressClient({
   // this is a no-op on soft navigation back (context already has correct state).
   useEffect(() => {
     ctx.initialize({
+      planId: initialData.planId,
       blockNumber: initialData.blockNumber,
       blockStartDate: initialData.blockStartDate,
       currentDay: computeLocalCurrentDay(initialData.blockStartDate),
@@ -246,7 +264,11 @@ export function ProgressClient({
 
   async function handleComplete(taskId: string, taskData?: Record<string, unknown>) {
     if (locked) return;
-    await ctx.markComplete(taskId, taskData);
+    const result = await ctx.markComplete(taskId, taskData);
+    if (result.blockCompleted) {
+      setCompletedBadgeId(result.earnedBadgeId ?? null);
+      setShowBlockCelebration(true);
+    }
   }
 
   async function handleToggleComplete(taskId: string) {
@@ -255,7 +277,11 @@ export function ProgressClient({
     if (taskId in completions) {
       await ctx.markIncomplete(taskId);
     } else {
-      await ctx.markComplete(taskId);
+      const result = await ctx.markComplete(taskId);
+      if (result.blockCompleted) {
+        setCompletedBadgeId(result.earnedBadgeId ?? null);
+        setShowBlockCelebration(true);
+      }
     }
   }
 
@@ -282,16 +308,6 @@ export function ProgressClient({
     setActiveTask(task);
   }
 
-  function handleRestartConfirm() {
-    startRestartTransition(async () => {
-      const result = await redoBlock(initialData.blockNumber);
-      if ("success" in result) {
-        ctx.reset();
-        router.refresh();
-      }
-    });
-  }
-
   // Derive rendered state: context when available, SSR fallback on first paint.
   // On soft navigation back, ctx.state is already set (layout provider persists).
   // On first load, ctx.state is null until the mount effect fires; SSR data fills in.
@@ -301,41 +317,115 @@ export function ProgressClient({
   const currentDay = ctx.state?.currentDay ?? initialData.currentDay;
 
   const tasks = mergedTasks(dayTasks, completions);
+  const talkItOutTask: TaskData | null =
+    planSocial && initialData.planId
+      ? {
+          id: `group-discussion-${initialData.planId}`,
+          category: "Mental",
+          taskType: "group_discussion",
+          name: t("talkItOut"),
+          content: null,
+          completed: false,
+          completionData: null,
+        }
+      : null;
+  const listTasks = talkItOutTask ? [...tasks, talkItOutTask] : tasks;
 
   if (activeTask) {
     const current = tasks.find((t) => t.id === activeTask.id) ?? activeTask;
-    const categoryTasks = tasks.filter((t) => t.category === current.category);
+    const categoryTasks = listTasks.filter((t) => t.category === current.category);
     return (
-      <TaskDetail
-        task={current}
-        locale={locale}
-        blockNumber={initialData.blockNumber}
-        dayNumber={selectedDay}
-        onCompleteAction={handleComplete}
-        onCloseAction={() => {
-          const depth = taskNavStack.current.length;
-          taskNavStack.current = [];
-          setActiveTask(null);
-          setActiveTaskMode("add");
-          if (depth > 0) {
-            skipNextPopRef.current = true;
-            window.history.go(-depth);
-          }
-        }}
-        categoryTasks={categoryTasks}
-        onNavigateAction={(t) => {
-          taskNavStack.current.push({ task: t, mode: "add" });
-          window.history.pushState({ taskNav: true }, "");
-          setActiveTaskMode("add");
-          setActiveTask(t);
-        }}
-        mode={activeTaskMode}
-      />
+      <>
+        {current.taskType === "group_discussion" && planSocial && initialData.planId ? (
+          <GroupDiscussionTask
+            locale={locale === "zh" ? "zh" : "en"}
+            planId={initialData.planId}
+            selectedDay={selectedDay}
+            selfUserId={planSocial.selfUserId}
+            isOwner={planSocial.isOwner}
+            initialData={planSocial.initialData}
+            blockNumber={initialData.blockNumber}
+            categoryTasks={categoryTasks}
+            onNavigateAction={(task) => {
+              taskNavStack.current.push({ task, mode: "add" });
+              window.history.pushState({ taskNav: true }, "");
+              setActiveTaskMode("add");
+              setActiveTask(task);
+            }}
+            onCloseAction={() => {
+              const depth = taskNavStack.current.length;
+              taskNavStack.current = [];
+              setActiveTask(null);
+              setActiveTaskMode("add");
+              if (depth > 0) {
+                skipNextPopRef.current = true;
+                window.history.go(-depth);
+              }
+            }}
+          />
+        ) : (
+          <TaskDetail
+            task={current}
+            locale={locale}
+            blockNumber={initialData.blockNumber}
+            dayNumber={selectedDay}
+            onCompleteAction={handleComplete}
+            onCloseAction={() => {
+              const depth = taskNavStack.current.length;
+              taskNavStack.current = [];
+              setActiveTask(null);
+              setActiveTaskMode("add");
+              if (depth > 0) {
+                skipNextPopRef.current = true;
+                window.history.go(-depth);
+              }
+            }}
+            categoryTasks={categoryTasks}
+            onNavigateAction={(t) => {
+              taskNavStack.current.push({ task: t, mode: "add" });
+              window.history.pushState({ taskNav: true }, "");
+              setActiveTaskMode("add");
+              setActiveTask(t);
+            }}
+            mode={activeTaskMode}
+          />
+        )}
+        {showBlockCelebration && (
+          <BlockCelebration
+            blockNumber={initialData.blockNumber}
+            onDismissAction={() => {
+              if (completedBadgeId) void markBadgeSeen(completedBadgeId);
+              setCompletedBadgeId(null);
+              setShowBlockCelebration(false);
+            }}
+          />
+        )}
+      </>
     );
   }
 
   return (
     <div className="px-4 sm:px-6 md:px-8 pt-4 pb-8">
+      {initialData.planId && planControls && (
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-surface-container-high active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-container"
+            aria-label={t("backToPlans")}
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <PlanOverflowMenu
+            locale={locale === "zh" ? "zh" : "en"}
+            planId={initialData.planId}
+            blockNumber={initialData.blockNumber}
+            isGroup={planControls.isGroup}
+            isOwner={planControls.isOwner}
+            inviteCode={planSocial?.inviteCode}
+          />
+        </div>
+      )}
       <DayCarousel
         days={carousel}
         selectedDay={selectedDay}
@@ -347,7 +437,9 @@ export function ProgressClient({
         todayLabel={t("today")}
       />
 
-      <div className="flex items-center justify-between mt-6 mb-6">
+      <div
+        className={`mt-6 flex items-center justify-between ${planSocial && initialData.planId ? "mb-4" : "mb-6"}`}
+      >
         <h2 className="text-2xl font-headline font-bold text-foreground">
           {locale === "zh"
             ? t("dayLabel", { day: toChineseNumeral(selectedDay) })
@@ -355,21 +447,33 @@ export function ProgressClient({
         </h2>
         {missedDays > 0 ? (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
+            <span className="text-xs font-medium uppercase tracking-wider text-foreground">
               {t("missedDays", { count: missedDays })}
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
+            <span className="text-xs font-medium uppercase tracking-wider text-foreground">
               {t("onTrack")}
             </span>
           </div>
         )}
       </div>
 
+      {planSocial && initialData.planId && (
+        <PlanDaySocial
+          locale={locale === "zh" ? "zh" : "en"}
+          planId={initialData.planId}
+          selectedDay={selectedDay}
+          selfUserId={planSocial.selfUserId}
+          isOwner={planSocial.isOwner}
+          initialData={planSocial.initialData}
+          showDiscussion={false}
+        />
+      )}
+
       <TaskList
-        tasks={tasks}
+        tasks={listTasks}
         onTaskTapAction={handleTaskTap}
         onToggleCompleteAction={handleToggleComplete}
         onAddEntryAction={handleAddEntry}
@@ -382,7 +486,16 @@ export function ProgressClient({
         locked={locked}
       />
 
-
+      {showBlockCelebration && (
+        <BlockCelebration
+          blockNumber={initialData.blockNumber}
+          onDismissAction={() => {
+            if (completedBadgeId) void markBadgeSeen(completedBadgeId);
+            setCompletedBadgeId(null);
+            setShowBlockCelebration(false);
+          }}
+        />
+      )}
     </div>
   );
 }
