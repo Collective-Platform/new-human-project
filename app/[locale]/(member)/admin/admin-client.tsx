@@ -7,10 +7,12 @@ import { AdminStreakTable } from "./admin-streak-table";
 import type { StreakRow } from "./admin-streak-table";
 
 export function AdminClient({
+  locale,
   stats,
   users,
   streaks,
 }: {
+  locale: string;
   stats: AdminStatsData;
   users: UserRow[];
   streaks: StreakRow[];
@@ -19,7 +21,7 @@ export function AdminClient({
     <div className="px-4 pt-4 pb-4 space-y-4">
       <h1 className="font-headline text-xl font-bold text-foreground">Admin</h1>
 
-      <AdminStats stats={stats} />
+      <AdminStats locale={locale} stats={stats} />
 
       <AdminStreakTable users={streaks} />
 
