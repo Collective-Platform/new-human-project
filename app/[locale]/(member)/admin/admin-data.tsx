@@ -20,6 +20,12 @@ type BlockCompletionRow = {
   completed15To19Days: number;
   completed20To24Days: number;
 };
+type ComponentCompletionRow = {
+  blockNumber: number;
+  category: "Mental" | "Emotional" | "Physical";
+  completedTasks: number;
+  membersStarted: number;
+};
 
 export async function AdminData({ locale }: { locale: string }) {
   const user = await getSessionUser();
@@ -28,7 +34,13 @@ export async function AdminData({ locale }: { locale: string }) {
   const programTasks = getAllTasks();
   const blocks = [...new Set(programTasks.map((task) => task.block))].sort((a, b) => a - b);
 
-  const [statsResult, allUsers, topStreaksResult, blockCompletionResult] = await Promise.all([
+  const [
+    statsResult,
+    allUsers,
+    topStreaksResult,
+    blockCompletionResult,
+    componentCompletionResult,
+  ] = await Promise.all([
     db.execute(sql`
       WITH
         totals AS (
@@ -153,11 +165,53 @@ export async function AdminData({ locale }: { locale: string }) {
       GROUP BY block_number
       ORDER BY block_number
     `),
+    db.execute(sql`
+      WITH program_tasks(task_id, block_number, category) AS (
+        VALUES ${sql.join(
+          programTasks.map((task) => sql`(${task.id}, ${task.block}, ${task.category})`),
+          sql`, `,
+        )}
+      ),
+      block_members AS (
+        SELECT DISTINCT tc.user_id, pt.block_number
+        FROM program_tasks pt
+        INNER JOIN nhp.task_completions tc ON tc.task_id = pt.task_id
+      ),
+      member_counts AS (
+        SELECT block_number, count(*)::int AS members_started
+        FROM block_members
+        GROUP BY block_number
+      ),
+      component_completions AS (
+        SELECT
+          pt.block_number,
+          pt.category,
+          count(tc.task_id)::int AS completed_tasks
+        FROM program_tasks pt
+        LEFT JOIN nhp.task_completions tc ON tc.task_id = pt.task_id
+        GROUP BY pt.block_number, pt.category
+      )
+      SELECT
+        cc.block_number::int AS "blockNumber",
+        cc.category,
+        cc.completed_tasks::int AS "completedTasks",
+        coalesce(mc.members_started, 0)::int AS "membersStarted"
+      FROM component_completions cc
+      LEFT JOIN member_counts mc ON mc.block_number = cc.block_number
+      ORDER BY cc.block_number, cc.category
+    `),
   ]);
 
   const rows = statsResult.rows as StatsRow[];
   const byKind = (kind: string) => rows.filter((r) => r.kind === kind);
   const blockCompletionRows = blockCompletionResult.rows as BlockCompletionRow[];
+  const componentCompletionRows = componentCompletionResult.rows as ComponentCompletionRow[];
+  const categories = ["Mental", "Emotional", "Physical"] as const;
+  const taskCountsByComponent = new Map<string, number>();
+  for (const task of programTasks) {
+    const key = `${task.block}:${task.category}`;
+    taskCountsByComponent.set(key, (taskCountsByComponent.get(key) ?? 0) + 1);
+  }
 
   const stats: AdminStatsData = {
     total: Number(byKind("total")[0]?.count ?? 0),
@@ -187,6 +241,27 @@ export async function AdminData({ locale }: { locale: string }) {
         completed20To24Days: Number(row?.completed20To24Days ?? 0),
       };
     }),
+    componentCompletions: blocks.flatMap((block) =>
+      categories.map((category) => {
+        const row = componentCompletionRows.find(
+          (component) => component.blockNumber === block && component.category === category,
+        );
+        const taskCount = taskCountsByComponent.get(`${block}:${category}`) ?? 0;
+        const completedTasks = Number(row?.completedTasks ?? 0);
+        const membersStarted = Number(row?.membersStarted ?? 0);
+        return {
+          block,
+          category,
+          completedTasks,
+          taskCount,
+          membersStarted,
+          completionRate:
+            membersStarted > 0 && taskCount > 0
+              ? Math.round((completedTasks / (membersStarted * taskCount)) * 100)
+              : 0,
+        };
+      }),
+    ),
   };
 
   const userRows: UserRow[] = allUsers.map((u) => ({
@@ -215,5 +290,5 @@ export async function AdminData({ locale }: { locale: string }) {
     streak: Number(r.streak),
   }));
 
-  return <AdminClient stats={stats} users={userRows} streaks={streakRows} />;
+  return <AdminClient locale={locale} stats={stats} users={userRows} streaks={streakRows} />;
 }

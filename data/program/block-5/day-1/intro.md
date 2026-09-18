@@ -29,7 +29,7 @@ _Who He Is · How He Lived · What He Taught · The Cross, Resurrection, and Com
 
 ## A Word Before You Begin
 
-Every volume of the New Human Project has been, in one way or another, about Jesus. Ephesians showed us what God has done in Christ to create a new humanity. Philippians showed us what it looks like to live that life under pressure, from the mind of Christ. The Holy Spirit showed us the one who forms Christ in us. Romans showed us the gospel through which Christ's righteousness becomes ours. Genesis showed us the long story that made Christ's coming necessary and inevitable.
+Every volume of the New Human Project has been, in one way or another, about Jesus. Ephesians showed us what God has done in Christ to create a new humanity. Philippians showed us what it looks like to live that life under pressure, from the mind of Christ. The Holy Spirit showed us the one who forms Christ in us. Romans showed us the gospel through which Christ's righteousness becomes ours.
 
 Now we come to Jesus himself.
 
