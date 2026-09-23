@@ -65,8 +65,8 @@ export function LiveBanner() {
           <Image
             src="/live/rhythm-live-ii-logo.png"
             alt="Rhythm Live II"
-            width={80}
-            height={80}
+            width={64}
+            height={64}
             className="object-contain"
           />
         </div>
@@ -75,7 +75,7 @@ export function LiveBanner() {
           <div className="flex items-center justify-between gap-2">
             <div>
               <p className="text-xs text-black/70">{t("dateAndTime")}</p>
-              <p className="mt-1 font-nowstalgic text-2xl font-black leading-none">
+              <p className="mt-1 font-nowstalgic text-xl font-black leading-none">
                 Rhythm Live II
               </p>
             </div>
@@ -84,11 +84,11 @@ export function LiveBanner() {
             </span>
           </div>
 
-          <div className="mt-1 flex gap-3">
+          <div className="mt-2 flex gap-3">
             {units.map(({ label, value }, i) => (
               <div key={label} className="flex items-end gap-3">
                 <div className="flex flex-col items-center">
-                  <span className="tabular-nums text-2xl font-black leading-none">{value}</span>
+                  <span className="tabular-nums text-xl font-black leading-none">{value}</span>
                   <span className="mt-0.5 text-xs font-semibold uppercase tracking-[0.15em] text-black/65">
                     {label}
                   </span>
