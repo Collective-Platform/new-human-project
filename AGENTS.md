@@ -51,6 +51,7 @@ pnpm content:import \
 ```
 
 Each flag is optional — supply only the files you have. Run with `--dry-run` first to preview. The script:
+
 - Parses section labels from the docx as structural markers (`TODAY'S FOCUS`, `READING NOTES`, etc.)
 - Copies all body text verbatim — no edits, no summarising
 - Preserves frontmatter (`id:` and all other fields) in existing files
@@ -122,6 +123,8 @@ DESIGN.md             # Visual design system spec
 **DB client** — import from `src/db/index.ts`. Uses Neon's HTTP driver — no raw TCP `pg` connection pooling. All tables are in the `nhp` Postgres schema, not `public`.
 
 **Optimistic updates** — the progress page uses optimistic UI via `ProgressContext` (`src/features/progress/progress-context.tsx`) with rollback on API error. Preserve the `markComplete` / `markIncomplete` pattern when modifying this area.
+
+**Rhythm Live event launches** — when creating or updating a Rhythm Live event in `app/live/`, ask the user whether the member-dashboard event banner should be added or updated too. The banner lives at `app/[locale]/(member)/dashboard/live-banner.tsx`, is rendered by `dashboard-client.tsx`, and needs the current event date, time, ticket URL, artwork, and EN/ZH strings.
 
 ---
 
