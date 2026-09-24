@@ -20,7 +20,7 @@ import pg from "pg";
 config({ path: ".env.local" });
 
 const EVENT_IMAGE_URL = "https://live.rhythm.you/live/rhythm-live-ii-kv.jpg";
-const RHYTHM_LOGO_URL = "https://live.rhythm.you/live/rhythm-logo.png";
+const MENTAL_RHYTHM_LOGO_URL = "https://live.rhythm.you/live/rhythm-logo-mental.png";
 const REGISTRATION_URL = "https://www.ticket2u.com.my/event/51871_f6ead535ca2b4ceb9801fbb68554b516";
 const RHYTHM_LIVE_YELLOW = "#F1A100";
 
@@ -36,7 +36,10 @@ const FROM_NAME = process.env.MAILERSEND_FROM_NAME ?? "Collective";
 if (!DATABASE_URL) throw new Error("DATABASE_URL is not set");
 if (!MAILERSEND_KEY) throw new Error("MAILERSEND_API_KEY is not set");
 
-function buildEmail(eventImageUrl = EVENT_IMAGE_URL): {
+function buildEmail(
+  eventImageUrl = EVENT_IMAGE_URL,
+  logoUrl = MENTAL_RHYTHM_LOGO_URL,
+): {
   subject: string;
   html: string;
   text: string;
@@ -78,7 +81,7 @@ Collective`;
           <table width="100%" style="max-width:560px;" cellpadding="0" cellspacing="0" role="presentation">
             <tr>
               <td align="center" style="padding-bottom:16px;">
-                <img src="${RHYTHM_LOGO_URL}" alt="Rhythm" width="140" style="display:block;width:140px;max-width:100%;height:auto;" />
+                <img src="${logoUrl}" alt="Rhythm" width="140" style="display:block;width:140px;max-width:100%;height:auto;" />
               </td>
             </tr>
             <tr><td style="border-top:1px solid #e5e5e5;"></td></tr>
@@ -94,21 +97,24 @@ Collective`;
                   We&rsquo;re gathering for a deep dive into the relationship between the Spirit and the Word. Learn how the Holy Spirit illuminates truth, cuts through mental noise, and gives you the power to actually live out what you read.
                 </p>
 
-                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 0 24px;">
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 0 24px;font-size:15px;line-height:1.35;color:#171717;">
                   <tr>
-                    <td style="padding:0;">
-                      <ul style="margin:0;padding:0;list-style-position:inside;font-size:15px;line-height:1.35;color:#171717;">
-                        <li style="margin:0 0 4px;"><strong>Teaching:</strong> Spirit &amp; Scripture Unpacked</li>
-                        <li style="margin:0 0 4px;"><strong>Interactive Q&amp;A:</strong> Questions &amp; Discussions</li>
-                        <li><strong>Practical Handles:</strong> Rhythms for Daily Life</li>
-                      </ul>
-                    </td>
+                    <td width="16" valign="top" style="padding:0 0 4px;">&bull;</td>
+                    <td valign="top" style="padding:0 0 4px;"><strong>Teaching:</strong> Spirit &amp; Scripture Unpacked</td>
+                  </tr>
+                  <tr>
+                    <td width="16" valign="top" style="padding:0 0 4px;">&bull;</td>
+                    <td valign="top" style="padding:0 0 4px;"><strong>Interactive Q&amp;A:</strong> Questions &amp; Discussions</td>
+                  </tr>
+                  <tr>
+                    <td width="16" valign="top" style="padding:0;">&bull;</td>
+                    <td valign="top" style="padding:0;"><strong>Practical Handles:</strong> Rhythms for Daily Life</td>
                   </tr>
                 </table>
 
                 <p style="margin:0 0 2px;font-size:15px;line-height:1.35;color:#171717;">📅 Saturday, 3rd October 2026</p>
                 <p style="margin:0 0 2px;font-size:15px;line-height:1.35;color:#171717;">🕘 9:00AM - 12:00PM</p>
-                <p style="margin:0 0 16px;font-size:15px;line-height:1.35;color:#171717;">📍 Collective Central</p>
+                <p style="margin:0 0 24px;font-size:15px;line-height:1.35;color:#171717;">📍 Collective Central</p>
                 <p style="margin:0 0 2px;font-size:16px;line-height:1.35;font-weight:700;color:#171717;">Seats are limited!</p>
                 <p style="margin:0 0 28px;font-size:15px;line-height:1.35;color:#171717;">RM49 per person</p>
 
@@ -181,7 +187,11 @@ async function main() {
   if (DRY_RUN) console.log("🔍 DRY RUN — no emails will be sent\n");
 
   const previewImageUrl = pathToFileURL(`${process.cwd()}/public/live/rhythm-live-ii-kv.jpg`).href;
-  const { subject, html, text } = buildEmail(PREVIEW ? previewImageUrl : EVENT_IMAGE_URL);
+  const previewLogoUrl = pathToFileURL(`${process.cwd()}/public/live/rhythm-logo-mental.png`).href;
+  const { subject, html, text } = buildEmail(
+    PREVIEW ? previewImageUrl : EVENT_IMAGE_URL,
+    PREVIEW ? previewLogoUrl : MENTAL_RHYTHM_LOGO_URL,
+  );
 
   if (PREVIEW) {
     const output = "/tmp/blast-rhythm-live-ii-preview.html";
