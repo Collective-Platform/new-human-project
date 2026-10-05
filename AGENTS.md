@@ -1,5 +1,11 @@
 # Rhythm — Agent Context
 
+## Agent Replies
+
+Use ASD-STE100 (Simplified Technical English) when replying to the user.
+Use short, direct sentences and approved or simple words where practical.
+Keep exact technical terms, code, commands, file paths, quoted text, and names unchanged when needed for correctness.
+
 ## What Is This?
 
 **Rhythm** is a bilingual (EN/ZH) Progressive Web App for building healthy habits across three dimensions: Mental, Emotional, and Physical. Community members follow a structured multi-week program of daily devotionals, scripture readings, mood logs, and exercises. Deployed on Vercel; installable as a mobile PWA.
