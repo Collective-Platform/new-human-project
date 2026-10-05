@@ -1,6 +1,4 @@
 // Rhythm Live — standalone event landing page (served at live.rhythm.you).
-// Ticketing is handled by the external Ticket2U sign-up page.
-//
 
 import Image from "next/image";
 import { FaqSection } from "./faq-section";
@@ -65,14 +63,9 @@ export default function RhythmLivePage() {
                     </div>
                   ))}
                 </dl>
-                <a
-                  href="https://www.ticket2u.com.my/event/51871_f6ead535ca2b4ceb9801fbb68554b516"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-8 inline-flex self-center rounded-full bg-black px-8 py-4 text-base font-semibold text-[#F1A100] transition-colors hover:bg-black/85 md:self-auto"
-                >
-                  Sign up now
-                </a>
+                <p className="mt-8 text-base font-semibold text-black">
+                  See you in the next Rhythm Live
+                </p>
               </div>
             </div>
             <div className="mx-auto w-full max-w-[22rem] self-end md:max-w-[30rem] md:self-center">
@@ -143,14 +136,7 @@ export default function RhythmLivePage() {
             </div>
           ))}
         </dl>
-        <a
-          href="https://www.ticket2u.com.my/event/51871_f6ead535ca2b4ceb9801fbb68554b516"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-black/90"
-        >
-          Sign up now
-        </a>
+        <p className="text-base font-semibold text-black">See you in the next Rhythm Live</p>
       </section>
     </div>
   );
