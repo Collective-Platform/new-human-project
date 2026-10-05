@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { CircleCheck, Circle, ChevronRight } from "lucide-react";
+import { CircleCheck, Circle, ChevronRight, MessageCircle } from "lucide-react";
 import { MOOD_EMOJI_MAP, normalizeEntries } from "./renderers/mood-log";
 import { SPORT_EMOJIS, normalizeExerciseEntries, formatDuration } from "./renderers/exercise-log";
 
@@ -108,6 +108,7 @@ export function TaskList({
               {catTasks.map((task, taskIdx) => {
                 const isExercise = task.taskType === "exercise";
                 const isMoodLog = task.taskType === "mood_log";
+                const isGroupDiscussion = task.taskType === "group_discussion";
 
                 const moodEntries = isMoodLog ? normalizeEntries(task.completionData) : [];
                 const exerciseEntries = isExercise
@@ -214,6 +215,10 @@ export function TaskList({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          if (isGroupDiscussion) {
+                            onTaskTapAction(task);
+                            return;
+                          }
                           // Read-only revisit: the circle is a view affordance,
                           // never a toggle.
                           if (locked || completionFrozen || isMoodLog || isExercise) {
@@ -226,14 +231,18 @@ export function TaskList({
                         aria-label={
                           locked || completionFrozen
                             ? `Open ${task.name}`
-                            : isMoodLog || isExercise
-                              ? `Open ${isMoodLog ? "mood log" : "exercise log"}`
-                              : task.completed
-                                ? "Mark incomplete"
-                                : "Mark complete"
+                            : isGroupDiscussion
+                              ? `Open ${task.name}`
+                              : isMoodLog || isExercise
+                                ? `Open ${isMoodLog ? "mood log" : "exercise log"}`
+                                : task.completed
+                                  ? "Mark incomplete"
+                                  : "Mark complete"
                         }
                       >
-                        {task.completed ? (
+                        {isGroupDiscussion ? (
+                          <MessageCircle size={20} className="text-category-mental" />
+                        ) : task.completed ? (
                           <CircleCheck size={20} className={categoryCheckColor[cat]} />
                         ) : (
                           <Circle size={20} className="text-zinc-300" />

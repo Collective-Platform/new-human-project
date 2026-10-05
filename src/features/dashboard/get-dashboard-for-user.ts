@@ -6,6 +6,7 @@ import { getTaskById as getRegistryTaskById } from "@/src/features/content/progr
 import { XP_WEIGHT_BY_TYPE } from "./queries";
 
 export interface DashboardData {
+  planId?: string;
   blockNumber: number;
   currentDay: number;
   radar: { mental: number; emotional: number; physical: number };
@@ -13,6 +14,7 @@ export interface DashboardData {
   streak: number;
   calendar: { date: string; categories: string[] }[];
   earnedBadge: {
+    memberBadgeId: string;
     badgeId: string;
     name: string;
     description: string | null;
@@ -186,6 +188,7 @@ export async function getBlockDashboardForUser(
 
 export async function getDashboardForUser(
   userId: number,
+  planId: string,
   blockNumber: number,
   blockStartMs: number,
   locale: "en" | "zh",
@@ -204,7 +207,7 @@ export async function getDashboardForUser(
   const allCompletionsQ = db
     .select({ taskId: taskCompletions.taskId, data: taskCompletions.data })
     .from(taskCompletions)
-    .where(eq(taskCompletions.userId, userId));
+    .where(and(eq(taskCompletions.userId, userId), eq(taskCompletions.planId, planId)));
 
   const tz = safeTimezone(timezone);
   const blockStartDate = blockStart.toISOString().slice(0, 10);
@@ -212,7 +215,7 @@ export async function getDashboardForUser(
     WITH completion_dates AS (
       SELECT DISTINCT (tc.completed_at AT TIME ZONE ${tz})::date AS d
       FROM nhp.task_completions tc
-      WHERE tc.user_id = ${userId}
+      WHERE tc.user_id = ${userId} AND tc.plan_id = ${planId}::uuid
         AND (tc.completed_at AT TIME ZONE ${tz})::date >= ${blockStartDate}::date
         AND (tc.completed_at AT TIME ZONE ${tz})::date
               <= (NOW() AT TIME ZONE ${tz})::date
@@ -234,6 +237,7 @@ export async function getDashboardForUser(
   const badgeQ = db
     .select({
       badgeId: memberBadges.badgeId,
+      memberBadgeId: memberBadges.id,
       earnedAt: memberBadges.earnedAt,
       name: badgeDefinitions.name,
       description: badgeDefinitions.description,
@@ -245,6 +249,7 @@ export async function getDashboardForUser(
     .where(
       and(
         eq(memberBadges.userId, userId),
+        eq(memberBadges.planId, planId),
         eq(badgeDefinitions.blockNumber, blockNumber),
         isNull(memberBadges.seenAt),
       ),
@@ -271,12 +276,14 @@ export async function getDashboardForUser(
   );
 
   return {
+    planId,
     blockNumber,
     currentDay,
     streak,
     earnedBadge: earnedBadge
       ? {
           badgeId: earnedBadge.badgeId,
+          memberBadgeId: earnedBadge.memberBadgeId,
           name: earnedBadge.name,
           description: earnedBadge.description,
           iconUrl: earnedBadge.iconUrl,
