@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "appRoot": "/Users/aleader/conductor/workspaces/new-human-project/bratislava",
+  "repoRoot": "/Users/aleader/conductor/workspaces/new-human-project/bratislava",
+  "contextRoot": "/Users/aleader/conductor/workspaces/new-human-project/bratislava",
+  "sessionRoot": "/Users/aleader/conductor/workspaces/new-human-project/bratislava/.impeccable/live",
+  "productPath": "/Users/aleader/conductor/workspaces/new-human-project/bratislava/PRODUCT.md",
+  "designPath": "/Users/aleader/conductor/workspaces/new-human-project/bratislava/DESIGN.md",
+  "resolvedFrom": "target:app/[locale]/landing/page.tsx"
+}
