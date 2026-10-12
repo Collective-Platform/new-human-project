@@ -101,39 +101,44 @@ async function extractText(filePath: string): Promise<string> {
  * paragraph (including its original Markdown emphasis) remains verbatim.
  */
 function normalizeMarkdownSource(text: string): string {
-  const chineseDayNumbers: Record<string, string> = {
-    一: "1",
-    二: "2",
-    三: "3",
-    四: "4",
-    五: "5",
-    六: "6",
-    七: "7",
-    八: "8",
-    九: "9",
-    十: "10",
+  const chineseDigits: Record<string, number> = {
+    一: 1,
+    二: 2,
+    三: 3,
+    四: 4,
+    五: 5,
+    六: 6,
+    七: 7,
+    八: 8,
+    九: 9,
+  };
+  // Converts 1–99 written in Chinese numerals (e.g. 九, 十一, 二十, 二十五).
+  const chineseToNumber = (numeral: string): number => {
+    const [tens, ones] = numeral.split("十");
+    if (ones === undefined) return chineseDigits[numeral];
+    return (tens ? chineseDigits[tens] : 1) * 10 + (ones ? chineseDigits[ones] : 0);
   };
 
   return text
     .replace(/^(?:#{1,6}[ \t]+)(.*)$/gm, "$1")
     .replace(
-      /^\*\*(DAY\s+\d{1,2}\s+[—–-]{1,2}\s+.+|第\s*\d{1,2}\s*天\s*[—–-]{1,2}\s+.+|第[一二三四五六七八九十]日\s*[—–-]{1,2}\s+.+)\*\*\s*$/gmu,
+      /^\*\*(DAY\s+\d{1,2}\s+[—–-]{1,2}\s+.+|第\s*\d{1,2}\s*天\s*[—–-]{1,2}\s+.+|第[一二三四五六七八九十]+日\s*[—–-]{1,2}\s+.+)\*\*\s*$/gimu,
       "$1\n",
     )
     .replace(
-      /^(第)([一二三四五六七八九十])日(\s*[—–-]{1,2}\s+.+)$/gmu,
-      (_, prefix, numeral, suffix) => `${prefix}${chineseDayNumbers[numeral]}天${suffix}`,
+      /^(第)([一二三四五六七八九十]+)日(\s*[—–-]{1,2}\s+.+)$/gmu,
+      (_, prefix, numeral, suffix) => `${prefix}${chineseToNumber(numeral)}天${suffix}`,
     )
     .replace(/^\*\*经文[：:]\s*(.+)\*\*\s*$/gmu, "经文: $1")
     .replace(
-      /^\*\*(Scripture|Practice|Questions?|经文|操练|实践|省思问题|问题)[：:]\*\*\s*/gimu,
+      /^\*\*(Scripture|Practice|Questions?|经文|操练|实践|反思问题|省思问题|问题)[：:]\*\*\s*/gimu,
       "$1: ",
     )
     .replace(
-      /^\*\*(Scripture|Practice|Questions?|经文|操练|实践|省思问题|问题)\*\*[：:]\s*/gimu,
+      /^\*\*(Scripture|Practice|Questions?|经文|操练|实践|反思问题|省思问题|问题)\*\*[：:]\s*/gimu,
       "$1: ",
     )
-    .replace(/^(Practice|Questions?|操练|实践|省思问题|问题):/gimu, "\n\n$1:");
+    .replace(/^(Practice|Questions?|操练|实践|反思问题|省思问题|问题)[：:]/gimu, "\n\n$1:");
 }
 
 // ---------------------------------------------------------------------------
@@ -393,8 +398,17 @@ function parseEmotionalZH(text: string): ParsedDay[] {
 
     // Scripture reference: "经文：Ref"
     let passageRef: string | undefined;
+    let zhVerseText = "";
     if (i < paragraphs.length && /^经文[：:]/.test(paragraphs[i])) {
-      passageRef = paragraphs[i].replace(/^经文[：:]\s*/, "").trim();
+      const scriptureContent = paragraphs[i].replace(/^经文[：:]\s*/, "").trim();
+      // Format: "Ref —— verse text" (verse text is optional)
+      const separator = scriptureContent.match(/\s[—–]{1,2}\s/);
+      if (separator?.index !== undefined) {
+        passageRef = scriptureContent.substring(0, separator.index).trim();
+        zhVerseText = scriptureContent.substring(separator.index + separator[0].length).trim();
+      } else {
+        passageRef = scriptureContent;
+      }
       i++;
     }
 
@@ -446,11 +460,20 @@ function parseEmotionalZH(text: string): ParsedDay[] {
     // Question
     let reflectionText = "";
     if (i < paragraphs.length && isQuestionLabel(paragraphs[i], "zh")) {
-      reflectionText = paragraphs[i].replace(/^(省思问题|问题)[：:]\s*/, "").trim();
+      reflectionText = paragraphs[i].replace(/^(反思问题|省思问题|问题)[：:]\s*/, "").trim();
       i++;
+      // Numbered follow-up questions belong to the same reflection.
+      const followUps: string[] = [];
+      while (i < paragraphs.length && !isEmotionalDayStart(paragraphs[i], "zh")) {
+        followUps.push(paragraphs[i]);
+        i++;
+      }
+      if (followUps.length > 0)
+        reflectionText = [reflectionText, ...followUps].filter(Boolean).join("\n\n");
     }
 
     let preamble = "";
+    if (zhVerseText) scriptureLines.unshift(zhVerseText);
     if (passageRef && scriptureLines.length > 0) {
       preamble = `**${passageRef}**\n\n${scriptureLines.join("\n\n")}`;
     } else if (passageRef) {
@@ -485,7 +508,7 @@ function isPracticeLabel(para: string, lang: "en" | "zh"): boolean {
 
 function isQuestionLabel(para: string, lang: "en" | "zh"): boolean {
   if (lang === "en") return /^Questions?:/i.test(para);
-  return /^(省思问题|问题)[：:]/.test(para);
+  return /^(反思问题|省思问题|问题)[：:]/.test(para);
 }
 
 function isEmotionalDayStart(para: string, lang: "en" | "zh"): boolean {
@@ -657,7 +680,8 @@ function applyDays(days: ParsedDay[], category: "Mental" | "Emotional", lang: "e
 
   if (emotionalZhFile) {
     console.log(`\nProcessing emotional ZH: ${emotionalZhFile}`);
-    const text = await extractText(emotionalZhFile);
+    // Chinese source paragraphs are separated by Markdown hard line breaks.
+    const text = (await extractText(emotionalZhFile)).replace(/[ \t]{2,}\n/g, "\n\n");
     const days = parseEmotionalZH(text);
     console.log(`  Parsed ${days.length} days`);
     applyDays(days, "Emotional", "zh");
