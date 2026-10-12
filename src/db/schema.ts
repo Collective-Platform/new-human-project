@@ -11,6 +11,7 @@
 
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   pgSchema,
   serial,
   uuid,
@@ -42,6 +43,9 @@ export const users = nhp.table(
     avatarUrl: text(),
     churchId: uuid(),
     onboardedAt: timestamp({ withTimezone: true }),
+    // The member-selected plan that powers their Home dashboard and daily reminder.
+    // Access is validated through plan_members before this value is used.
+    dashboardPlanId: uuid(),
     // Preferences
     notificationPrefs: jsonb()
       .$type<{
@@ -146,6 +150,10 @@ export const taskCompletions = nhp.table(
     userId: integer()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    // A completion belongs to one explicit plan run. It remains nullable while
+    // the one-time legacy-program migration assigns existing rows to their
+    // preserved personal runs.
+    planId: uuid().references(() => plans.id, { onDelete: "cascade" }),
     // `task_id` is `text` to hold both legacy UUIDs (string-cast) and the
     // ULID-prefixed IDs that come from the markdown program registry
     // (`data/program/**/*.md`). The FK to `block_day_tasks(id)` is
@@ -157,9 +165,96 @@ export const taskCompletions = nhp.table(
     completedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
-    uniqueIndex("task_completions_user_id_task_id_idx").on(t.userId, t.taskId),
+    index("task_completions_plan_user_task_idx").on(t.planId, t.userId, t.taskId),
     // Supports ORDER BY completed_at DESC queries (recent feed, activity calendar pre-filter).
     index("task_completions_user_completed_at_idx").on(t.userId, t.completedAt),
+  ],
+);
+
+// --- Plans -----------------------------------------------------------------
+
+/** A member-started copy of one authored 25-day content block. */
+export const plans = nhp.table(
+  "plans",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    blockNumber: integer().notNull(),
+    createdBy: integer()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    inviteCode: varchar({ length: 32 }).notNull(),
+    isGroup: boolean().notNull().default(false),
+    title: text(),
+    startedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("plans_invite_code_idx").on(t.inviteCode),
+    index("plans_created_by_started_at_idx").on(t.createdBy, t.startedAt),
+  ],
+);
+
+/** A member finishing every task in one explicit plan run. */
+export const planCompletions = nhp.table(
+  "plan_completions",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    planId: uuid()
+      .notNull()
+      .references(() => plans.id, { onDelete: "cascade" }),
+    userId: integer()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    completedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("plan_completions_plan_user_idx").on(t.planId, t.userId)],
+);
+
+/** Current access to a plan. Removed members are retained for audit/history. */
+export const planMembers = nhp.table(
+  "plan_members",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    planId: uuid()
+      .notNull()
+      .references(() => plans.id, { onDelete: "cascade" }),
+    userId: integer()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: text().notNull().default("member"), // owner | member
+    status: text().notNull().default("active"), // active | removed
+    joinedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    removedAt: timestamp({ withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("plan_members_plan_user_idx").on(t.planId, t.userId),
+    index("plan_members_user_status_idx").on(t.userId, t.status),
+    index("plan_members_plan_status_idx").on(t.planId, t.status),
+  ],
+);
+
+/** A plain-text discussion message, scoped to a plan day. Replies are one level deep. */
+export const planDiscussionPosts = nhp.table(
+  "plan_discussion_posts",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    planId: uuid()
+      .notNull()
+      .references(() => plans.id, { onDelete: "cascade" }),
+    dayNumber: integer().notNull(),
+    userId: integer()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    parentId: uuid().references((): AnyPgColumn => planDiscussionPosts.id, {
+      onDelete: "cascade",
+    }),
+    body: varchar({ length: 1_000 }).notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp({ withTimezone: true }),
+  },
+  (t) => [
+    index("plan_discussion_posts_plan_day_created_idx").on(t.planId, t.dayNumber, t.createdAt),
+    index("plan_discussion_posts_parent_created_idx").on(t.parentId, t.createdAt),
   ],
 );
 
@@ -208,10 +303,12 @@ export const memberBadges = nhp.table(
     badgeId: uuid()
       .notNull()
       .references(() => badgeDefinitions.id),
+    // Legacy awards remain null; new awards belong to one plan run.
+    planId: uuid().references(() => plans.id, { onDelete: "cascade" }),
     earnedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     seenAt: timestamp({ withTimezone: true }),
   },
-  (t) => [uniqueIndex("member_badges_user_id_badge_id_idx").on(t.userId, t.badgeId)],
+  (t) => [uniqueIndex("member_badges_user_badge_plan_idx").on(t.userId, t.badgeId, t.planId)],
 );
 
 // --- Friend Requests -------------------------------------------------------

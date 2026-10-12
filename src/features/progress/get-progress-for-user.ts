@@ -22,6 +22,7 @@ export interface ProgressCarouselDay {
 }
 
 export interface ProgressPayload {
+  planId?: string;
   blockNumber: number;
   currentDay: number;
   selectedDay: number;
@@ -42,12 +43,13 @@ export async function getProgressForUser(
   locale: "en" | "zh",
   currentDay: number,
   blockNumber: number,
+  planId?: string,
 ): Promise<ProgressPayload> {
   const selectedDay = Math.min(Math.max(requestedDayParam ?? currentDay, 1), 25);
 
   const [content, state] = await Promise.all([
     getDayContent(blockNumber, selectedDay, locale),
-    getUserProgressState(userId, blockNumber, currentDay),
+    getUserProgressState(userId, blockNumber, currentDay, planId ?? null),
   ]);
 
   const tasks: ProgressTask[] = content.tasks.map((t) => ({
@@ -57,6 +59,7 @@ export async function getProgressForUser(
   }));
 
   return {
+    ...(planId ? { planId } : {}),
     blockNumber,
     currentDay,
     selectedDay,
