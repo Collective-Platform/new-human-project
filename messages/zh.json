@@ -47,7 +47,18 @@
     "restartBlockTitle": "重新开始此周期？",
     "restartBlockBody": "本周期的所有进度将被清除，你可以从第1天重新完成所有任务。",
     "restartBlockConfirm": "重新开始",
-    "restartBlockCancel": "取消"
+    "restartBlockCancel": "取消",
+    "completeButtonLast": "完成第{block}卷",
+    "completeConfirmTitle": "完成第{block}卷？",
+    "completeConfirmBody": "你将进入下一卷。未完成的任务可在「个人」→ 已完成中继续完成。",
+    "completeConfirm": "完成",
+    "completeCancel": "取消",
+    "blockName1": "以弗所书",
+    "blockName2": "腓立比书",
+    "blockName3": "圣灵",
+    "blockName4": "罗马书",
+    "blockName5": "耶稣",
+    "blockName6": "加拉太书与歌罗西书"
   },
   "mood": {
     "pickEmoji": "你今天感觉怎么样？",

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
 import { getProgressForUser } from "@/src/features/progress";
-import { getActiveBlock } from "@/src/lib/program-gate";
+import { getActiveBlockForUser } from "@/src/features/progress/block-attempts";
 
 export async function GET(request: Request) {
   const user = await getSessionUser();
@@ -19,8 +19,8 @@ export async function GET(request: Request) {
   const locale = (localeParam ?? localeCookie) === "zh" ? "zh" : "en";
   const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
 
-  const { blockNumber, blockStart, currentDay } = getActiveBlock(
-    user.onboardedAt,
+  const { blockNumber, blockStart, currentDay } = await getActiveBlockForUser(
+    user,
     new Date(),
     timezone,
   );

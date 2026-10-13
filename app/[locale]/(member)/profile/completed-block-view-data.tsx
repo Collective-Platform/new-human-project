@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/src/features/auth";
 import { getProgressForUser } from "@/src/features/progress";
 import { getBlockStart } from "@/src/lib/program-gate";
+import { getAttempts } from "@/src/features/progress/block-attempts";
 import { CompletedBlockClient } from "./completed-block-client";
 
 export async function CompletedBlockViewData({
@@ -20,7 +21,8 @@ export async function CompletedBlockViewData({
   const cookieStore = await cookies();
   const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
   // getBlockStart returns a UTC-midnight marker so the SQL ::date cast / calendar math aligns.
-  const blockStart = getBlockStart(user.onboardedAt, blockNumber, timezone);
+  const attempts = await getAttempts(user.id);
+  const blockStart = getBlockStart(user.onboardedAt, attempts, blockNumber, timezone);
 
   const selectedDay = initialDay ?? 1;
 

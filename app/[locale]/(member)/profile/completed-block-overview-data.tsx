@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/src/features/auth";
 import { getBlockDashboardForUser } from "@/src/features/dashboard";
 import { getBlockFinalStreak } from "@/src/features/progress";
-import { BLOCK_LENGTH_DAYS, getBlockStart } from "@/src/lib/program-gate";
+import { getBlockStart, getBlockWindowEnd } from "@/src/lib/program-gate";
+import { getAttempts } from "@/src/features/progress/block-attempts";
 import { CompletedBlockOverviewClient } from "./completed-block-overview-client";
 
 export async function CompletedBlockOverviewData({
@@ -19,8 +20,10 @@ export async function CompletedBlockOverviewData({
   const cookieStore = await cookies();
   const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
   // getBlockStart returns a UTC-midnight marker so the streak ::date cast and calendar arithmetic align.
-  const blockStart = getBlockStart(user.onboardedAt, blockNumber, timezone);
-  const blockEnd = new Date(blockStart.getTime() + BLOCK_LENGTH_DAYS * 86_400_000);
+  const attempts = await getAttempts(user.id);
+  const now = new Date();
+  const blockStart = getBlockStart(user.onboardedAt, attempts, blockNumber, timezone);
+  const blockEnd = getBlockWindowEnd(user.onboardedAt, attempts, blockNumber, now, timezone);
 
   const finalStreak = await getBlockFinalStreak(user.id, blockStart, blockEnd, timezone);
   const data = await getBlockDashboardForUser(

@@ -7,13 +7,24 @@ import { db } from "@/src/db";
 import {
   taskCompletions,
   memberBlockCompletions,
+  memberBlockAttempts,
   badgeDefinitions,
   memberBadges,
 } from "@/src/db/schema";
 import { eq, and, sql, inArray } from "drizzle-orm";
-import { getTaskById as getRegistryTaskById, getDayTasks } from "@/src/features/content/program";
+import {
+  getTaskById as getRegistryTaskById,
+  getDayTasks,
+  getMaxContentBlock,
+} from "@/src/features/content/program";
+import { getActiveBlockForUser, fetchAttempts } from "@/src/features/progress/block-attempts";
 import { getFriendIdsRaw } from "@/src/features/community/invalidation";
-import { BLOCK_LAUNCH, BLOCK_LENGTH_DAYS, getActiveBlock } from "@/src/lib/program-gate";
+import {
+  BLOCK_LENGTH_DAYS,
+  getActiveBlock,
+  getBlockStart,
+  getLocalDateMarker,
+} from "@/src/lib/program-gate";
 
 export async function completeTask(input: {
   taskId: string;
@@ -27,7 +38,7 @@ export async function completeTask(input: {
 
   const cookieStore = await cookies();
   const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
-  const { blockNumber } = getActiveBlock(user.onboardedAt ?? BLOCK_LAUNCH[1], new Date(), timezone);
+  const { blockNumber } = await getActiveBlockForUser(user, new Date(), timezone);
 
   await db
     .insert(taskCompletions)
@@ -112,6 +123,71 @@ export async function completeTask(input: {
   for (const fid of friendIds) updateTag(`feed:${fid}`);
 
   return { success: true, blockCompleted };
+}
+
+/**
+ * "Complete block" button. Marks the active block's attempt completed and opens the
+ * next block today. Only allowed once that block has content and has launched. Gives no badge — that still needs all 25 days done
+ * (see `completeTask`).
+ */
+export async function completeBlock(): Promise<{ success: true } | { error: string }> {
+  const user = await getSessionUser();
+  if (!user?.onboardedAt) return { error: "Unauthorized" };
+
+  const cookieStore = await cookies();
+  const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
+  const now = new Date();
+
+  // Fresh read (not the per-request cache) so a double tap sees the first write.
+  const attempts = await fetchAttempts(user.id);
+  const active = getActiveBlock(user.onboardedAt, attempts, now, timezone, getMaxContentBlock());
+  if (active.state !== "can-complete") return { error: "Block cannot be completed yet" };
+
+  const { blockNumber } = active;
+  const nextBlockNumber = blockNumber + 1;
+  const startsOn = (d: Date) => d.toISOString().slice(0, 10);
+
+  await db.transaction(async (tx) => {
+    // Block 1 has no row until now (derived from onboarding). Create it so it can be closed.
+    await tx
+      .insert(memberBlockAttempts)
+      .values({
+        userId: user.id,
+        blockNumber,
+        attempt: 1,
+        startsOn: startsOn(getBlockStart(user.onboardedAt!, attempts, blockNumber, timezone)),
+      })
+      .onConflictDoNothing();
+
+    await tx
+      .update(memberBlockAttempts)
+      .set({ completedAt: now })
+      .where(
+        and(
+          eq(memberBlockAttempts.userId, user.id),
+          eq(memberBlockAttempts.blockNumber, blockNumber),
+          eq(memberBlockAttempts.attempt, 1),
+          sql`${memberBlockAttempts.completedAt} IS NULL`,
+        ),
+      );
+
+    {
+      await tx
+        .insert(memberBlockAttempts)
+        .values({
+          userId: user.id,
+          blockNumber: nextBlockNumber,
+          attempt: 1,
+          startsOn: startsOn(getLocalDateMarker(now, timezone)),
+        })
+        .onConflictDoNothing();
+    }
+  });
+
+  updateTag(`dashboard:${user.id}`);
+  updateTag(`progress:${user.id}`);
+
+  return { success: true };
 }
 
 export async function uncompleteTask(input: {
