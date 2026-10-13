@@ -173,6 +173,16 @@ Key tables in `src/db/schema.ts`:
 
 ---
 
+## Test Documentation
+
+- The current test catalog and setup guide are in [`tests/e2e/README.md`](tests/e2e/README.md). Read it before changing browser tests or their setup.
+- When adding, changing, removing, or renaming tests, update that README in the same change. Keep the test catalog, count, device and language coverage, commands, environment requirements, output paths, and known limits current.
+- When app behavior changes, check the catalog for missing coverage. Add relevant tests within the task scope, or record the gap in the README's **Limits and pending checks** section. Keep planned tests separate from implemented tests.
+- Run `pnpm test:e2e --list` after changing tests or configured projects. Record actual validation results and blockers. Never describe tests as passing without running them.
+- Keep real credentials, private data, and generated test output out of test documentation. Database migrations still require the user's approval.
+
+---
+
 ## Design System
 
 See `DESIGN.md` — the full visual spec lives there (colors, typography, spacing, shadows, component specs). Always read DESIGN.md before touching UI. Do not duplicate it here.

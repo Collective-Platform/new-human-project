@@ -47,10 +47,9 @@ export function proxy(request: NextRequest) {
   const secondSegment = pathname.split("/")[2] ?? "";
   const hasSession = !!request.cookies.get("__session")?.value;
 
-  // Logged-in users bypass login/signup
-  if ((secondSegment === "login" || secondSegment === "signup") && hasSession) {
-    return NextResponse.redirect(new URL(`/${locale}`, request.url));
-  }
+  // A cookie can outlive its database session (for example after a DB switch),
+  // so login/signup are not redirected here. GuestGate in their layouts checks
+  // the session and sends members with a valid one to the dashboard.
 
   // Unauthenticated users can't reach onboarding
   if (secondSegment === "onboarding" && !hasSession) {
