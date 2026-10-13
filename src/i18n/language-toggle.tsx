@@ -11,7 +11,7 @@ export function LanguageToggle() {
 
   function handleToggle() {
     const next: Locale = locale === "en" ? "zh" : "en";
-    router.replace(pathname, { locale: next });
+    router.replace(`${pathname}${window.location.search}${window.location.hash}`, { locale: next });
   }
 
   return (

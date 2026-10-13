@@ -11,13 +11,16 @@
     "fmt:check": "oxfmt --check",
     "db:setup-local": "psql new_human_dev < scripts/setup-local-db.sql",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:test": "drizzle-kit migrate --config=drizzle.test.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:seed-dev": "tsx src/db/seed-dev.ts",
     "db:reset-local": "dropdb new_human_dev && createdb new_human_dev && pnpm db:setup-local && pnpm db:migrate && pnpm db:seed && pnpm db:seed-dev",
     "db:seed": "tsx src/db/seed.ts",
     "content:new": "tsx scripts/new-content.ts",
     "content:check": "tsx scripts/check-content-ids.ts",
-    "content:import": "tsx scripts/import-content.ts"
+    "content:import": "tsx scripts/import-content.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@khmyznikov/pwa-install": "^0.6.3",
@@ -41,6 +44,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
