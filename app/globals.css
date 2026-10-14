@@ -108,6 +108,15 @@ html {
   background: var(--background);
 }
 
+/* Member shell is an app-style layout: only <main> scrolls. Lock the
+   document so the header and bottom nav never move in the PWA. */
+html:has(.member-shell),
+html:has(.member-shell) body {
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

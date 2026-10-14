@@ -99,7 +99,7 @@ export function ProfileClient({
   const handle = profile.searchHandle ? `@${profile.searchHandle}` : "User";
 
   return (
-    <div className="min-h-screen bg-surface antialiased">
+    <div className="min-h-full bg-surface antialiased">
       {/* Header */}
       <header className="w-full sticky top-0 z-40 bg-surface">
         <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 h-14 max-w-2xl mx-auto">

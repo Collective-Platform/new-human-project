@@ -64,7 +64,7 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
   }
 
   return (
-    <div className="min-h-screen bg-surface antialiased">
+    <div className="min-h-full bg-surface antialiased">
       {/* Header */}
       <header className="w-full sticky top-0 z-40 bg-surface">
         <div className="grid grid-cols-[1fr_auto_1fr] items-center px-6 h-14 max-w-2xl mx-auto">
