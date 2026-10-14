@@ -19,7 +19,7 @@ export default async function MemberLayout({
 
   return (
     <ProgressProvider>
-      <div className="flex flex-col h-[100dvh] bg-surface overflow-hidden">
+      <div className="member-shell flex flex-col h-[100dvh] bg-surface overflow-hidden">
         {/* Splash screen — only shown inside the PWA member shell, not on /live or /landing */}
         <div
           id="splash"
