@@ -8,7 +8,13 @@ import { TaskList } from "./task-list";
 import { TaskDetail } from "./task-detail";
 import type { ProgressPayload, ProgressTask, DayContentTask } from "@/src/features/progress";
 import { useProgressContext } from "@/src/features/progress/progress-context";
-import { redoBlock } from "@/src/features/tasks/actions";
+import { completeBlock, redoBlock } from "@/src/features/tasks/actions";
+import { toChineseNumeral } from "@/src/lib/chinese-numeral";
+import { CompleteBlockButton } from "./complete-block-button";
+
+export interface BlockCompletionInfo {
+  state: "active" | "can-complete";
+}
 
 type TaskData = ProgressTask;
 
@@ -19,15 +25,6 @@ function computeLocalCurrentDay(blockStartDate: string): number {
   const start = new Date(blockStartDate);
   const startMs = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
   return Math.min(Math.max(Math.floor((todayMs - startMs) / msPerDay) + 1, 1), 25);
-}
-
-function toChineseNumeral(n: number): string {
-  const ones = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
-  if (n <= 9) return ones[n];
-  if (n === 10) return "十";
-  if (n < 20) return "十" + ones[n % 10];
-  if (n === 20) return "二十";
-  return "二十" + ones[n % 10];
 }
 
 function stripCompletion(t: ProgressTask): DayContentTask {
@@ -50,10 +47,12 @@ export function ProgressClient({
   locale,
   initialData,
   initialTaskId,
+  blockCompletion,
 }: {
   locale: string;
   initialData: ProgressPayload;
   initialTaskId?: string;
+  blockCompletion: BlockCompletionInfo;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -358,19 +357,33 @@ export function ProgressClient({
             ? t("dayLabel", { day: toChineseNumeral(selectedDay) })
             : t("dayLabel", { day: selectedDay })}
         </h2>
-        {missedDays > 0 ? (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
-              {t("missedDays", { count: missedDays })}
-            </span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
-              {t("onTrack")}
-            </span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {missedDays > 0 ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
+                {t("missedDays", { count: missedDays })}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
+                {t("onTrack")}
+              </span>
+            </div>
+          )}
+          {blockCompletion.state === "can-complete" && (
+            <CompleteBlockButton
+              blockNumber={initialData.blockNumber}
+              onCompleteAction={completeBlock}
+              onCompletedAction={() => {
+                ctx.reset();
+                // Drop ?day=N so the next block opens on its Day 1, not the old day.
+                router.replace(pathname);
+                router.refresh();
+              }}
+            />
+          )}
+        </div>
       </div>
 
       <TaskList
@@ -386,8 +399,6 @@ export function ProgressClient({
         }}
         locked={locked}
       />
-
-
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
 import { getDashboardForUser } from "@/src/features/dashboard";
 import { DashboardClient } from "./dashboard-client";
-import { getActiveBlock } from "@/src/lib/program-gate";
+import { getActiveBlockForUser } from "@/src/features/progress/block-attempts";
 
 export async function DashboardData({
   locale,
@@ -16,8 +16,8 @@ export async function DashboardData({
   const cookieStore = await cookies();
   const rawTz = cookieStore.get("tz")?.value ?? "UTC";
   const timezone = decodeURIComponent(rawTz);
-  const { blockNumber, blockStart, currentDay } = getActiveBlock(
-    user.onboardedAt,
+  const { blockNumber, blockStart, currentDay } = await getActiveBlockForUser(
+    user,
     new Date(),
     timezone,
   );

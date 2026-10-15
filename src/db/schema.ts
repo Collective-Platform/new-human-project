@@ -19,6 +19,7 @@ import {
   integer,
   boolean,
   timestamp,
+  date,
   jsonb,
   uniqueIndex,
   index,
@@ -177,6 +178,34 @@ export const memberBlockCompletions = nhp.table(
   },
   (t) => [
     uniqueIndex("member_block_completions_user_id_block_number_idx").on(t.userId, t.blockNumber),
+  ],
+);
+
+// --- Member Block Attempts -------------------------------------------------
+// Which block a user is in. `startsOn` is the user's local calendar day the
+// attempt began; the active block is the latest attempt whose start has arrived.
+// `completedAt` is set when the user presses "Complete block" (not when all tasks
+// are done — that is `memberBlockCompletions`). Phase 1 only uses attempt = 1.
+
+export const memberBlockAttempts = nhp.table(
+  "member_block_attempts",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    userId: integer()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    blockNumber: integer().notNull(),
+    attempt: integer().notNull().default(1),
+    startsOn: date({ mode: "string" }).notNull(),
+    completedAt: timestamp({ withTimezone: true }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("member_block_attempts_user_block_attempt_idx").on(
+      t.userId,
+      t.blockNumber,
+      t.attempt,
+    ),
   ],
 );
 
