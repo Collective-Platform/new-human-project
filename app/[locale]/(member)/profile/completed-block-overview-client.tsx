@@ -103,11 +103,11 @@ export function CompletedBlockOverviewClient({
 
       {showRedoConfirm && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
+          className="anim-overlay fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
           onClick={() => !isRedoing && setShowRedoConfirm(false)}
         >
           <div
-            className="relative w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-surface p-6 shadow-xl"
+            className="anim-sheet relative w-full max-w-sm rounded-t-2xl sm:rounded-2xl bg-surface p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="mb-2 font-headline text-lg font-bold text-on-surface">

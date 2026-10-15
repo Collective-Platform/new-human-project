@@ -44,33 +44,49 @@ export function BottomNav() {
     return pathname.startsWith(href);
   }
 
+  const activeIndex = tabs.findIndex((tab) => isActive(tab.href));
+
   return (
-    <nav className="shrink-0 bg-white pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-3xl items-center justify-around px-4 sm:px-6 md:px-8 pt-3 pb-3">
-        {tabs.map((tab) => {
-          const active = isActive(tab.href);
-          const TabIcon = tab.Icon;
-          return (
-            <Link
-              key={tab.key}
-              href={tab.href}
-              className="flex flex-col items-center gap-1 min-w-16"
-            >
-              <span
-                className={`flex items-center justify-center w-14 h-9 rounded-full transition-colors ${
-                  active ? "bg-primary" : ""
-                }`}
+    <nav className="shrink-0 bg-white/90 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 md:px-8 pt-3 pb-3">
+        <div className="relative grid grid-cols-4">
+          {/* One shared pill that glides to the active tab. A CSS transition
+              re-targets from the current position, so a quick second tap
+              redirects it mid-flight. Critically damped, no overshoot. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute top-0 left-0 flex h-9 w-1/4 justify-center transition-[transform,opacity] duration-350 ease-[cubic-bezier(0.32,0.72,0,1)]"
+            style={{
+              transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`,
+              opacity: activeIndex === -1 ? 0 : 1,
+            }}
+          >
+            <span className="h-9 w-14 rounded-full bg-primary" />
+          </div>
+          {tabs.map((tab, i) => {
+            const active = i === activeIndex;
+            const TabIcon = tab.Icon;
+            return (
+              <Link
+                key={tab.key}
+                href={tab.href}
+                className="press relative flex flex-col items-center gap-1"
               >
-                <TabIcon size={22} className={active ? "text-white" : "text-on-surface-variant"} />
-              </span>
-              <span
-                className={`text-[10px] font-medium ${active ? "text-primary" : "text-on-surface-variant"}`}
-              >
-                {t(tab.key)}
-              </span>
-            </Link>
-          );
-        })}
+                <span className="flex h-9 w-14 items-center justify-center">
+                  <TabIcon
+                    size={22}
+                    className={`transition-colors duration-200 ${active ? "text-white" : "text-on-surface-variant"}`}
+                  />
+                </span>
+                <span
+                  className={`text-[10px] font-medium transition-colors duration-200 ${active ? "text-primary" : "text-on-surface-variant"}`}
+                >
+                  {t(tab.key)}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

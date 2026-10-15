@@ -139,6 +139,8 @@ export function VerifyForm({
           onChange={setOtp}
           onComplete={submitOtp}
           maxLength={6}
+          inputMode="numeric"
+          autoComplete="one-time-code"
           className="w-full"
           render={({ slots }) => (
             <div className="grid w-full auto-rows-fr grid-cols-6">

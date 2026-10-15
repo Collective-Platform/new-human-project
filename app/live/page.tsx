@@ -23,7 +23,7 @@ export default function RhythmLivePage() {
     <div className="flex flex-col">
       {/* ── HERO ────────────────────────────────────────────────────────────── */}
       <div className="bg-[#F1A100] px-2 py-3 md:px-3 md:py-4">
-        <section className="relative flex min-h-[calc(100vh-24px)] flex-col overflow-hidden rounded-4xl bg-[#F1A100] md:min-h-[calc(100vh-32px)]">
+        <section className="relative flex min-h-[calc(100svh-24px)] flex-col overflow-hidden rounded-4xl bg-[#F1A100] md:min-h-[calc(100svh-32px)]">
           {/* Nav bar */}
           <nav className="relative mx-auto flex w-full max-w-6xl justify-center px-3 py-5 md:px-4">
             <span className="font-nowstalgic text-xl font-black leading-none text-black md:text-2xl">

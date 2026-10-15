@@ -62,7 +62,7 @@ export function NotificationPanel({
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-surface">
+        <div className="anim-slide-right fixed inset-0 z-50 flex flex-col bg-surface">
           <div className="border-b border-zinc-100 bg-white">
             <div className="mx-auto flex max-w-93.75 items-center gap-3 px-4 py-3">
               <button

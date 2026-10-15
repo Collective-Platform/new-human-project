@@ -71,7 +71,7 @@ export function DayCarousel({
     <div className="mb-4">
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto pb-2 scrollbar-none py-2 -mx-2 px-2"
+        className="flex gap-4 overflow-x-auto snap-x snap-proximity scroll-px-2 pb-2 scrollbar-none py-2 -mx-2 px-2"
       >
         {days.map((d) => {
           const isSelected = d.day === selectedDay;
@@ -88,10 +88,10 @@ export function DayCarousel({
               onMouseEnter={warm}
               onTouchStart={warm}
               onFocus={warm}
-              className="shrink-0 flex flex-col items-center gap-1.5 group"
+              className="shrink-0 snap-center flex flex-col items-center gap-1.5 group"
             >
               <div
-                className={`w-14 h-14 rounded-full flex flex-col items-center justify-center transition-all duration-200 active:scale-95 ${
+                className={`w-14 h-14 rounded-full flex flex-col items-center justify-center press ${
                   isSelected
                     ? "bg-primary text-white shadow-lg"
                     : d.fullyCompleted
