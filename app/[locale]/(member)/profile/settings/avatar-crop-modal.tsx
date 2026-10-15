@@ -61,7 +61,7 @@ export function AvatarCropModal({ imageSrc, onConfirm, onCancel }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black">
+    <div className="anim-overlay fixed inset-0 z-50 flex flex-col bg-black">
       <div className="flex items-center justify-between px-4 py-3 text-white">
         <button
           type="button"

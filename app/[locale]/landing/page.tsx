@@ -9,7 +9,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative flex min-h-screen flex-col overflow-hidden">
+      <section className="relative flex min-h-svh flex-col overflow-hidden">
         <video
           src="https://mqyxc4xvodvuodmx.public.blob.vercel-storage.com/running-compressed.mp4"
           autoPlay

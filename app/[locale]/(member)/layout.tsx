@@ -32,7 +32,7 @@ export default async function MemberLayout({
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: "#f4f5f5",
-            animation: "splashFadeOut 0.4s ease 1.2s forwards",
+            animation: "splashFadeOut 0.3s ease 0.4s forwards",
             pointerEvents: "none",
           }}
         >

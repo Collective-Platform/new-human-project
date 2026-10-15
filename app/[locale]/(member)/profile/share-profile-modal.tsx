@@ -37,11 +37,11 @@ export function ShareProfileModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="anim-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={onCloseAction}
     >
       <div
-        className="relative mx-4 w-full max-w-sm rounded-2xl bg-surface p-6 shadow-xl"
+        className="anim-pop relative mx-4 w-full max-w-sm rounded-2xl bg-surface p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <button

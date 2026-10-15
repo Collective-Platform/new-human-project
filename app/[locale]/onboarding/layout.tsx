@@ -13,7 +13,7 @@ export default async function OnboardingLayout({
   setRequestLocale(locale);
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface">
+    <div className="min-h-svh flex flex-col bg-surface">
       <Suspense fallback={null}>
         <OnboardingGate locale={locale} />
       </Suspense>

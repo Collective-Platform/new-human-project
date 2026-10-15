@@ -159,11 +159,11 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
       {/* Unfriend confirmation dialog */}
       {pendingRemove && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          className="anim-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           onClick={() => setPendingRemove(null)}
         >
           <div
-            className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5"
+            className="anim-pop w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div>

@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = "nhp-v4";
-const STATIC_ASSETS = ["/manifest.json"];
+const CACHE_NAME = "nhp-v5";
+const STATIC_ASSETS = ["/manifest.json", "/offline.html"];
 const API_CACHE_NAME = "nhp-api-v1";
 const OFFLINE_QUEUE_STORE = "offline-completions";
 
@@ -42,6 +42,12 @@ self.addEventListener("fetch", (event) => {
   // Offline task completion queue (Background Sync)
   if (url.pathname === "/api/tasks/complete" && event.request.method === "POST") {
     event.respondWith(handleTaskComplete(event));
+    return;
+  }
+
+  // Page navigations: network, with an offline fallback page
+  if (event.request.mode === "navigate") {
+    event.respondWith(fetch(event.request).catch(() => caches.match("/offline.html")));
     return;
   }
 
@@ -199,8 +205,8 @@ self.addEventListener("push", (event) => {
     (async () => {
       await self.registration.showNotification(data.title, {
         body: data.body,
-        icon: "/icons/icon-192x192.png",
-        badge: "/icons/icon-192x192.png",
+        icon: "/icons/rhythm-192x192.png",
+        badge: "/icons/rhythm-192x192.png",
         vibrate: [200, 100, 200],
         data: { url: data.url || "/" },
       });

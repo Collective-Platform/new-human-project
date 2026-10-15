@@ -2,26 +2,42 @@
   "name": "Rhythm",
   "short_name": "Rhythm",
   "description": "A community-wide commitment to building healthy rhythms across three dimensions.",
+  "id": "/",
+  "scope": "/",
+  "lang": "en",
+  "orientation": "portrait",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#c10014",
+  "theme_color": "#f4f5f5",
   "background_color": "#fef8f5",
   "icons": [
     {
       "src": "/icons/rhythm-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/rhythm-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/rhythm-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/rhythm-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Progress",
+      "url": "/progress"
+    },
+    {
+      "name": "Community",
+      "url": "/community"
     }
   ]
 }

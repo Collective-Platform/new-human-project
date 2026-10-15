@@ -154,7 +154,7 @@ export function MoodLogRenderer({
                 aria-label={moodLabels[m.key]}
                 aria-pressed={isSelected}
                 title={moodLabels[m.key]}
-                className={`flex h-14 w-12 items-center justify-center rounded-full text-3xl transition-all duration-300 ease-out active:scale-95 ${
+                className={`flex h-14 w-12 items-center justify-center rounded-full text-3xl press ${
                   isSelected
                     ? "scale-125 text-4xl drop-shadow-lg"
                     : isMaxed

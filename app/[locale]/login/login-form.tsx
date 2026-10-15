@@ -76,6 +76,11 @@ export function LoginForm() {
         <input
           id="email"
           type="email"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          enterKeyHint="go"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
