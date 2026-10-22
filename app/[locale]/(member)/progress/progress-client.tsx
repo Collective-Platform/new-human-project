@@ -386,8 +386,6 @@ export function ProgressClient({
         }}
         locked={locked}
       />
-
-
     </div>
   );
 }
