@@ -1,6 +1,6 @@
 import { db } from "@/src/db";
 import { pendingAuth } from "@/src/db/schema";
-import { buildOtpEmail } from "@/src/features/auth/send-otp";
+import { buildOtpEmail, buildOtpSubject } from "@/src/features/auth/send-otp";
 import { env } from "@/src/env";
 import { and, gt, inArray, isNotNull, isNull } from "drizzle-orm";
 
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
       return {
         from: { email: env.MAILERSEND_FROM_EMAIL, name: env.MAILERSEND_FROM_NAME },
         to: [{ email }],
-        subject: "Your login code",
+        subject: buildOtpSubject(otpPlaintext!),
         html,
         text,
       };

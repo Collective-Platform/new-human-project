@@ -75,9 +75,7 @@ export function LiveBanner() {
           <div className="flex items-center justify-between gap-2">
             <div>
               <p className="text-xs text-black/70">{t("dateAndTime")}</p>
-              <p className="mt-1 font-nowstalgic text-xl font-black leading-none">
-                Rhythm Live II
-              </p>
+              <p className="mt-1 font-nowstalgic text-xl font-black leading-none">Rhythm Live II</p>
             </div>
             <span className="shrink-0 rounded-full bg-black px-3 py-1 text-xs font-bold text-[#F1A100]">
               {t("cta")}

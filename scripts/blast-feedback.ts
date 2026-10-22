@@ -33,8 +33,7 @@ if (!DATABASE_URL) throw new Error("DATABASE_URL is not set");
 if (!MAILERSEND_KEY) throw new Error("MAILERSEND_API_KEY is not set");
 
 function buildEmail(): { subject: string; html: string; text: string } {
-  const subject =
-    "You finished your first 25-day Rhythm block - tell us how it went 🎉";
+  const subject = "You finished your first 25-day Rhythm block - tell us how it went 🎉";
 
   const text = `Congratulations on completing your first 25-day Rhythm block! 🎉
 
@@ -188,9 +187,7 @@ async function sendBatch(
   }
 
   const json = (await res.json()) as { bulk_email_id?: string };
-  console.log(
-    `  ✓ batch queued — bulk_email_id: ${json.bulk_email_id ?? "n/a"}`,
-  );
+  console.log(`  ✓ batch queued — bulk_email_id: ${json.bulk_email_id ?? "n/a"}`);
 }
 
 async function main() {
@@ -224,9 +221,7 @@ async function main() {
     if (DRY_RUN) {
       console.log("First 5:", emails.slice(0, 5));
       console.log("\nEmail subject:", subject);
-      console.log(
-        "✅ Dry run complete — looks good. Re-run without --dry-run to send.",
-      );
+      console.log("✅ Dry run complete — looks good. Re-run without --dry-run to send.");
       return;
     }
 
@@ -234,9 +229,7 @@ async function main() {
 
     for (let i = 0; i < emails.length; i += BATCH_SIZE) {
       const batch = emails.slice(i, i + BATCH_SIZE);
-      console.log(
-        `Sending batch ${Math.floor(i / BATCH_SIZE) + 1} (${batch.length} emails)…`,
-      );
+      console.log(`Sending batch ${Math.floor(i / BATCH_SIZE) + 1} (${batch.length} emails)…`);
       await sendBatch(batch, subject, html, text);
       if (i + BATCH_SIZE < emails.length) {
         await new Promise((r) => setTimeout(r, 1000));
