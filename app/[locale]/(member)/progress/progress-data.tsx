@@ -2,8 +2,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/src/features/auth";
 import { getProgressForUser } from "@/src/features/progress";
-import { ProgressClient } from "./progress-client";
-import { getActiveBlock } from "@/src/lib/program-gate";
+import { ProgressClient, type BlockCompletionInfo } from "./progress-client";
+import { getActiveBlockForUser } from "@/src/features/progress/block-attempts";
 
 export async function ProgressData({
   locale,
@@ -21,11 +21,14 @@ export async function ProgressData({
 
   const cookieStore = await cookies();
   const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
-  const { blockNumber, blockStart, currentDay } = getActiveBlock(
-    user.onboardedAt,
-    new Date(),
+  const now = new Date();
+  const { blockNumber, blockStart, currentDay, state } = await getActiveBlockForUser(
+    user,
+    now,
     timezone,
   );
+
+  const blockCompletion: BlockCompletionInfo = { state };
 
   let selectedDay = currentDay;
   if (initialDay) {
@@ -47,5 +50,13 @@ export async function ProgressData({
     currentDay,
     blockNumber,
   );
-  return <ProgressClient locale={locale} initialData={initialData} initialTaskId={initialTaskId} />;
+  return (
+    <ProgressClient
+      key={blockNumber}
+      locale={locale}
+      initialData={initialData}
+      initialTaskId={initialTaskId}
+      blockCompletion={blockCompletion}
+    />
+  );
 }

@@ -3,6 +3,7 @@ import { taskCompletions } from "@/src/db/schema";
 import { sql, inArray } from "drizzle-orm";
 import { getDayTasks as getRegistryDayTasks } from "@/src/features/content/program";
 import { getActiveBlock } from "@/src/lib/program-gate";
+import { getAttemptsForUsers } from "@/src/features/progress/block-attempts";
 import { sendPushToUser } from "./push";
 
 const messages: Record<string, { title: string; body: string }> = {
@@ -75,6 +76,7 @@ export async function getDailyReminderPreview(): Promise<ReminderEligibilityResu
     if (!completionsByUser.has(c.userId)) completionsByUser.set(c.userId, new Set());
     completionsByUser.get(c.userId)!.add(c.taskId);
   }
+  const attemptsByUser = await getAttemptsForUsers(userIds);
 
   return allRows.map((row) => {
     const prefs = row.notification_prefs ?? {};
@@ -82,7 +84,12 @@ export async function getDailyReminderPreview(): Promise<ReminderEligibilityResu
     const timezone = prefs.reminder_timezone ?? "UTC";
     const reminderHour = `${reminderTime.slice(0, 2)}:00`;
 
-    const { blockNumber, currentDay } = getActiveBlock(new Date(row.onboarded_at), now, timezone);
+    const { blockNumber, currentDay } = getActiveBlock(
+      new Date(row.onboarded_at),
+      attemptsByUser.get(Number(row.id)) ?? [],
+      now,
+      timezone,
+    );
 
     if (localHourForUser(now, timezone) !== reminderHour) {
       // Report currentDay anyway so the preview shows it regardless.
@@ -165,11 +172,17 @@ export async function sendDailyReminders() {
     if (!completionsByUser.has(c.userId)) completionsByUser.set(c.userId, new Set());
     completionsByUser.get(c.userId)!.add(c.taskId);
   }
+  const attemptsByUser = await getAttemptsForUsers(userIds);
 
   let sent = 0;
   for (const row of eligibleRows) {
     const timezone = row.notification_prefs?.reminder_timezone ?? "UTC";
-    const { blockNumber, currentDay } = getActiveBlock(new Date(row.onboarded_at), now, timezone);
+    const { blockNumber, currentDay } = getActiveBlock(
+      new Date(row.onboarded_at),
+      attemptsByUser.get(Number(row.id)) ?? [],
+      now,
+      timezone,
+    );
 
     const todayTasks = getRegistryDayTasks(blockNumber, currentDay);
 

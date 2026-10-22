@@ -97,55 +97,122 @@ export function getEffectiveStart(onboardedAt: Date, tz: string = PROGRAM_DEFAUL
   return onboardDate.getTime() < floor.getTime() ? floor : onboardDate;
 }
 
+/** One stored attempt at a block, with dates as UTC-midnight markers. */
+export interface BlockAttempt {
+  blockNumber: number;
+  attempt: number;
+  startsOn: Date; // user's local calendar day the attempt began
+  completedAt: Date | null;
+}
+
+/** Converts a `YYYY-MM-DD` date string (DB `date` column) to a UTC-midnight marker. */
+export function dateStringToMarker(value: string): Date {
+  return new Date(`${value}T00:00:00.000Z`);
+}
+
+/** The latest attempt per block (highest `attempt`). */
+function latestAttempts(attempts: BlockAttempt[]): Map<number, BlockAttempt> {
+  const byBlock = new Map<number, BlockAttempt>();
+  for (const a of attempts) {
+    const prev = byBlock.get(a.blockNumber);
+    if (!prev || a.attempt > prev.attempt) byBlock.set(a.blockNumber, a);
+  }
+  return byBlock;
+}
+
+/** An attempt's real start: its stored day, floored to the block's global launch date. */
+function attemptStart(a: BlockAttempt): Date {
+  const launch = getBlockLaunchDate(a.blockNumber);
+  return launch && launch.getTime() > a.startsOn.getTime() ? launch : a.startsOn;
+}
+
 /**
- * UTC-midnight marker of block N's start for a user: `max(finish previous block
- * personally, the block's global launch date)`. Generalises to N blocks.
+ * UTC-midnight marker of block N's start for a user. Uses the stored attempt when
+ * there is one; otherwise block 1 starts at onboarding and later blocks fall back
+ * to their launch date (a block the user never entered).
  */
 export function getBlockStart(
   onboardedAt: Date,
+  attempts: BlockAttempt[],
   blockNumber: number,
   tz: string = PROGRAM_DEFAULT_TZ,
 ): Date {
+  const attempt = latestAttempts(attempts).get(blockNumber);
+  if (attempt) return attemptStart(attempt);
   if (blockNumber <= 1) return getEffectiveStart(onboardedAt, tz);
-  const personalEarliest = new Date(
-    getBlockStart(onboardedAt, blockNumber - 1, tz).getTime() + BLOCK_LENGTH_MS,
-  );
-  const launch = getBlockLaunchDate(blockNumber);
-  return launch && launch.getTime() > personalEarliest.getTime() ? launch : personalEarliest;
+  return getBlockLaunchDate(blockNumber) ?? getEffectiveStart(onboardedAt, tz);
 }
+
+/**
+ * Inclusive end of the date window that counts toward block N (streak, calendar).
+ * A block never ends before day 25. Past that it runs until the next block starts
+ * (or, for the open/last block, until tomorrow / the completion day).
+ */
+export function getBlockWindowEnd(
+  onboardedAt: Date,
+  attempts: BlockAttempt[],
+  blockNumber: number,
+  now: Date = new Date(),
+  tz: string = PROGRAM_DEFAULT_TZ,
+): Date {
+  const start = getBlockStart(onboardedAt, attempts, blockNumber, tz);
+  const minEnd = start.getTime() + BLOCK_LENGTH_MS;
+  const byBlock = latestAttempts(attempts);
+  const next = byBlock.get(blockNumber + 1);
+  if (next) return new Date(Math.max(minEnd, attemptStart(next).getTime()));
+  const own = byBlock.get(blockNumber);
+  const anchor = own?.completedAt ?? now;
+  return new Date(Math.max(minEnd, localDateMarker(anchor, tz).getTime() + DAY_MS));
+}
+
+export type BlockState = "active" | "can-complete";
 
 export interface ActiveBlock {
   blockNumber: number; // 1-indexed
   blockStart: Date; // UTC-midnight marker of the active block's day 1
-  currentDay: number; // 1..BLOCK_LENGTH_DAYS within the active block
+  currentDay: number; // 1..BLOCK_LENGTH_DAYS within the active block (clamped)
   effectiveStart: Date; // block-1 start (UTC-midnight marker)
+  completedAt: Date | null; // set once the user pressed "Complete block"
+  state: BlockState;
 }
 
 /**
  * Canonical "where is this user right now" — the ONLY place block boundaries are
- * decided. The active block is the highest one whose start has arrived for this
- * user (their own 25-day pacing, floored to each block's global launch date),
- * evaluated on their local calendar days.
+ * decided. The active block is the highest stored attempt whose start has arrived
+ * (evaluated on the user's local calendar days). With no attempts the user is in
+ * block 1, started at onboarding. Blocks never advance by time alone: the user
+ * moves on by completing the block (see `completeBlock`), which is only offered
+ * from Day 25 once the next block has content (`maxBlock`) and has launched.
  */
 export function getActiveBlock(
   onboardedAt: Date,
+  attempts: BlockAttempt[],
   now: Date = new Date(),
   tz: string = PROGRAM_DEFAULT_TZ,
+  maxBlock: number = Infinity,
 ): ActiveBlock {
   const effectiveStart = getEffectiveStart(onboardedAt, tz);
   const today = epochDay(localDateMarker(now, tz));
-  let blockNumber = 1;
-  // Advance while the NEXT block has already started (in the user's local days).
-  while (epochDay(getBlockStart(onboardedAt, blockNumber + 1, tz)) <= today) {
-    blockNumber++;
+
+  let active: BlockAttempt | null = null;
+  for (const a of latestAttempts(attempts).values()) {
+    if (epochDay(attemptStart(a)) > today) continue;
+    if (!active || a.blockNumber > active.blockNumber) active = a;
   }
-  const blockStart = getBlockStart(onboardedAt, blockNumber, tz);
-  return {
-    blockNumber,
-    blockStart,
-    currentDay: getCurrentDay(blockStart, now, tz),
-    effectiveStart,
-  };
+
+  const blockNumber = active?.blockNumber ?? 1;
+  const blockStart = active ? attemptStart(active) : effectiveStart;
+  const completedAt = active?.completedAt ?? null;
+  const currentDay = getCurrentDay(blockStart, now, tz);
+  const nextOpen = blockNumber + 1 <= maxBlock && isBlockReleased(blockNumber + 1, now, tz);
+  const state: BlockState =
+    !completedAt && currentDay >= BLOCK_LENGTH_DAYS && nextOpen ? "can-complete" : "active";
+  return { blockNumber, blockStart, currentDay, effectiveStart, completedAt, state };
+}
+
+/** Local calendar day of `instant` as a UTC-midnight marker (for storing `startsOn`). */
+export function getLocalDateMarker(instant: Date, tz: string = PROGRAM_DEFAULT_TZ): Date {
+  return localDateMarker(instant, tz);
 }
 
 /** True once a block's content is released in the given timezone (no entry = always released). */

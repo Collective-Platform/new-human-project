@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { getSessionUser } from "@/src/features/auth";
 import { getBlockOverviewForUser } from "@/src/features/progress";
-import { getActiveBlock } from "@/src/lib/program-gate";
+import { getActiveBlockForUser } from "@/src/features/progress/block-attempts";
 import { getProfileForUser } from "@/src/features/profile/get-profile-for-user";
 import {
   getFriendIds,
@@ -28,16 +28,16 @@ export async function ProfileData({ initialTab }: { initialTab: "activities" | "
 
   const cookieStore = await cookies();
   const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
-  const { currentDay, effectiveStart } = user.onboardedAt
-    ? getActiveBlock(user.onboardedAt, new Date(), timezone)
-    : { currentDay: 1, effectiveStart: new Date() };
+  const currentDay = user.onboardedAt
+    ? (await getActiveBlockForUser(user, new Date(), timezone)).currentDay
+    : 1;
 
   const [initialData, friendIds, activityRows, blockOverview] = await Promise.all([
     getProfileForUser(user.id),
     getFriendIds(user.id),
     getUserActivitiesCached(user.id, user.id),
     user.onboardedAt
-      ? getBlockOverviewForUser(user.id, effectiveStart.getTime(), currentDay, timezone)
+      ? getBlockOverviewForUser(user.id, user.onboardedAt, currentDay, timezone)
       : null,
   ]);
   if (!initialData) return null;
