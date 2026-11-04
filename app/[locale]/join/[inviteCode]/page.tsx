@@ -1,15 +1,24 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { getSessionUser } from "@/src/features/auth";
 import { getPlanByInviteCode, getPlanCurrentDay } from "@/src/features/plans/queries";
 import { JoinPlanClient } from "./join-plan-client";
 
-export default async function JoinPlanPage({
-  params,
-}: {
+type JoinPlanPageProps = {
   params: Promise<{ locale: string; inviteCode: string }>;
-}) {
+};
+
+export default function JoinPlanPage({ params }: JoinPlanPageProps) {
+  return (
+    <Suspense fallback={null}>
+      <JoinPlanContent params={params} />
+    </Suspense>
+  );
+}
+
+async function JoinPlanContent({ params }: JoinPlanPageProps) {
   const { locale, inviteCode } = await params;
   setRequestLocale(locale);
   const user = await getSessionUser();

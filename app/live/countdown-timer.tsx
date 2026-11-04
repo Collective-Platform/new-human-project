@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-// July 4 2026, 10 AM MYT (UTC+8)
-const EVENT_DATE = new Date("2026-07-04T10:00:00+08:00");
+// October 3 2026, 9 AM MYT (UTC+8)
+const EVENT_DATE = new Date("2026-10-03T09:00:00+08:00");
 
 function pad(n: number) {
   return String(n).padStart(2, "0");

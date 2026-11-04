@@ -8,6 +8,7 @@ import { StreakBadge } from "./streak-badge";
 import { ActivityCalendar } from "./activity-calendar";
 import { EmotionBreakdownChart } from "./emotion-breakdown-chart";
 import { PhysicalActivityChart } from "./physical-activity-chart";
+// import { LiveBanner } from "./live-banner";
 import type { DashboardData } from "@/src/features/dashboard";
 import { markBadgeSeen } from "@/src/features/badges/actions";
 import { createPlan, selectDashboardPlan } from "@/src/features/plans/actions";
@@ -135,6 +136,9 @@ export function DashboardClient({
           }}
         />
       )}
+
+      {/* Uncomment the import and banner after updating the next Rhythm Live event details. */}
+      {/* <LiveBanner /> */}
 
       <div className="relative">
         <div className="absolute left-auto top-3 right-3">

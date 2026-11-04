@@ -135,7 +135,12 @@ export function ProgressClient({
   // content so the task list matches the restored carousel selection.
   useEffect(() => {
     const restoredDay = ctx.state?.selectedDay;
-    if (!restoredDay || restoredDay === initialData.selectedDay) return;
+    if (!restoredDay) return;
+    // Keep a hard reload on the day restored from the persistent context.
+    const url = new URL(window.location.href);
+    url.searchParams.set("day", String(restoredDay));
+    window.history.replaceState(null, "", url);
+    if (restoredDay === initialData.selectedDay) return;
     const cached = dayCacheRef.current.get(restoredDay);
     if (cached) {
       setDayTasks(cached);
@@ -405,7 +410,7 @@ export function ProgressClient({
   }
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 pt-4 pb-8">
+    <div inert={!ctx.state} className="px-4 sm:px-6 md:px-8 pt-4 pb-8">
       {initialData.planId && planControls && (
         <div className="mb-4 flex items-center justify-between">
           <button
@@ -447,13 +452,13 @@ export function ProgressClient({
         </h2>
         {missedDays > 0 ? (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
-            <span className="text-xs font-medium uppercase tracking-wider text-foreground">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
               {t("missedDays", { count: missedDays })}
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-foreground/80 backdrop-blur-sm">
-            <span className="text-xs font-medium uppercase tracking-wider text-foreground">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-foreground">
               {t("onTrack")}
             </span>
           </div>
@@ -485,7 +490,6 @@ export function ProgressClient({
         }}
         locked={locked}
       />
-
       {showBlockCelebration && (
         <BlockCelebration
           blockNumber={initialData.blockNumber}

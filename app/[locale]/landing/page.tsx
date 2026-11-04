@@ -9,7 +9,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative flex min-h-screen flex-col overflow-hidden">
+      <section className="relative flex min-h-svh flex-col overflow-hidden">
         <video
           src="https://mqyxc4xvodvuodmx.public.blob.vercel-storage.com/running-compressed.mp4"
           autoPlay
@@ -21,8 +21,8 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         {/* Mobile: dark only at bottom. Desktop: uniform dark overlay */}
         <div className="absolute inset-0 bg-linear-to-b from-black/0 via-black/20 to-black/85 md:from-black/30 md:via-black/40 md:to-black/80" />
 
-        {/* Mobile: content at bottom-left. Desktop: content centred */}
-        <div className="relative z-10 mt-auto flex flex-col px-8 pb-16 md:m-auto md:items-center md:px-12 md:pb-0 md:text-center">
+        {/* Mobile: content centred vertically and left-aligned. Desktop: centred. */}
+        <div className="relative z-10 my-auto flex flex-col px-8 pb-16 md:m-auto md:items-center md:px-12 md:pb-0 md:text-center">
           <p className="mb-6 hidden text-xs font-semibold uppercase tracking-[0.25em] text-white/70 md:block">
             The New Human Project
           </p>

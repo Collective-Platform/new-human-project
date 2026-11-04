@@ -161,7 +161,7 @@ export function TaskDetail({
     : null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-surface">
+    <div className="anim-overlay fixed inset-0 z-50 flex flex-col bg-surface">
       {/* Header */}
       <div className="border-b border-zinc-100 bg-white px-4 sm:px-6 md:px-8">
         <div className="mx-auto flex max-w-3xl items-center gap-3 py-3">

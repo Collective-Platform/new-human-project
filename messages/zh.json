@@ -25,6 +25,14 @@
     "yourActiveBlocks": "你的进行中计划",
     "startAnotherBlock": "开始新计划"
   },
+  "liveBanner": {
+    "dateAndTime": "10月3日 · 上午9时至中午12时",
+    "cta": "立即报名",
+    "days": "天",
+    "hours": "时",
+    "minutes": "分",
+    "seconds": "秒"
+  },
   "progress": {
     "dayLabel": "第{day}天",
     "blockLabel": "第 {block} 阶段",

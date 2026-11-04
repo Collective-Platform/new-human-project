@@ -1,6 +1,6 @@
 export default function ActivationTrackTermsPage() {
   return (
-    <div className="min-h-screen bg-black px-6 py-16 md:px-12">
+    <div className="min-h-svh bg-black px-6 py-16 md:px-12">
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-2 text-3xl font-black text-white">Terms &amp; Conditions</h1>
 

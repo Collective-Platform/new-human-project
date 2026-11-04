@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes } from "react";
 type Variant = "default" | "emotional" | "physical";
 
 const BASE =
-  "w-full rounded-full py-3.5 text-sm font-semibold text-white shadow-lg transition-all hover:opacity-90 active:scale-[0.99] disabled:cursor-default disabled:opacity-50 disabled:shadow-none";
+  "w-full rounded-full py-3.5 text-sm font-semibold text-white shadow-lg press hover:opacity-90 disabled:cursor-default disabled:opacity-50 disabled:shadow-none";
 
 const VARIANT_CLASS: Record<Variant, string> = {
   default: "bg-primary shadow-red-200",

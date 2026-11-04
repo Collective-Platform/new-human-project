@@ -99,7 +99,7 @@ export function ProfileClient({
   const handle = profile.searchHandle ? `@${profile.searchHandle}` : "User";
 
   return (
-    <div className="min-h-screen bg-surface antialiased">
+    <div className="min-h-full bg-surface antialiased">
       {/* Header */}
       <header className="w-full sticky top-0 z-40 bg-surface">
         <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 h-14 max-w-2xl mx-auto">
@@ -206,11 +206,11 @@ export function ProfileClient({
       {/* Unfriend confirmation dialog */}
       {unfriendOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          className="anim-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           onClick={() => setUnfriendOpen(false)}
         >
           <div
-            className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5"
+            className="anim-pop w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div>
@@ -244,11 +244,11 @@ export function ProfileClient({
       {/* Friends popup */}
       {friendsOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          className="anim-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           onClick={() => setFriendsOpen(false)}
         >
           <div
-            className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl overflow-hidden"
+            className="anim-pop w-full max-w-sm bg-surface rounded-3xl shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 pt-5 pb-3">

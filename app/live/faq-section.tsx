@@ -32,10 +32,6 @@ const FAQ_ITEMS: FaqItem[] = [
     ),
   },
   {
-    q: "Will there be more speakers?",
-    a: "Yes, the speaker line-up will be updated on our website as and when they are confirmed. Be sure to sign up as soon as possible so you don't miss out on anything!",
-  },
-  {
     q: "How do I get to the venue?",
     a: (
       <div className="space-y-2">
@@ -67,41 +63,6 @@ const FAQ_ITEMS: FaqItem[] = [
     ),
   },
   {
-    q: "Are there accommodation options nearby?",
-    a: (
-      <>
-        <p>Here are a few hotels near the venue with food and shopping options close by.</p>
-        <ul className="list-disc space-y-1 pl-5">
-          {[
-            {
-              label: "Sunway Lagoon Hotel",
-              href: "https://www.sunwayhotels.com/sunway-lagoon",
-            },
-            {
-              label: "Sunway Resort Hotel",
-              href: "https://www.sunwayhotels.com/sunway-resort",
-            },
-            {
-              label: "Grand Dorsett Subang Jaya",
-              href: "https://www.dorsetthotels.com/dorsett-grand-subang/index.html",
-            },
-          ].map(({ label, href }) => (
-            <li key={label}>
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-secondary underline underline-offset-2"
-              >
-                {label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </>
-    ),
-  },
-  {
     q: "Are there parking facilities within the event venue?",
     a: (
       <div className="space-y-2">
@@ -121,48 +82,6 @@ const FAQ_ITEMS: FaqItem[] = [
           </a>{" "}
           which is just right across the street.
         </p>
-      </div>
-    ),
-  },
-  {
-    q: "Will meals be provided during the event?",
-    a: (
-      <div className="space-y-2">
-        <p>
-          Meals will not be provided during the event but here are some options for food and
-          beverages that are in the event venue or within walking distance.
-        </p>
-        <ul className="list-disc space-y-1 pl-5">
-          {[
-            {
-              label: "Rinjin Shokudo",
-              href: "https://maps.app.goo.gl/9gY4Kx8vD7emtoYM6",
-            },
-            {
-              label: "GreySkyMorning",
-              href: "https://www.instagram.com/greyskymorningkl/",
-            },
-            {
-              label: "Restaurant New Sea View",
-              href: "https://maps.app.goo.gl/F7qUyYNooTz4Rmd19",
-            },
-            {
-              label: "Restaurant Al-Baik",
-              href: "https://maps.app.goo.gl/5TBfhFdRhmr9h4aa8",
-            },
-          ].map(({ label, href }) => (
-            <li key={label}>
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-secondary underline underline-offset-2"
-              >
-                {label}
-              </a>
-            </li>
-          ))}
-        </ul>
       </div>
     ),
   },

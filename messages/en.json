@@ -25,6 +25,14 @@
     "yourActiveBlocks": "Your active blocks",
     "startAnotherBlock": "Start a new block"
   },
+  "liveBanner": {
+    "dateAndTime": "October 3 · 9AM–12PM",
+    "cta": "Sign up now",
+    "days": "Days",
+    "hours": "Hrs",
+    "minutes": "Min",
+    "seconds": "Sec"
+  },
   "progress": {
     "dayLabel": "Day {day}",
     "blockLabel": "Block {block}",

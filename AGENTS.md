@@ -1,5 +1,11 @@
 # Rhythm — Agent Context
 
+## Agent Replies
+
+Use ASD-STE100 (Simplified Technical English) when replying to the user.
+Use short, direct sentences and approved or simple words where practical.
+Keep exact technical terms, code, commands, file paths, quoted text, and names unchanged when needed for correctness.
+
 ## What Is This?
 
 **Rhythm** is a bilingual (EN/ZH) Progressive Web App for building healthy habits across three dimensions: Mental, Emotional, and Physical. Community members follow a structured multi-week program of daily devotionals, scripture readings, mood logs, and exercises. Deployed on Vercel; installable as a mobile PWA.
@@ -51,6 +57,7 @@ pnpm content:import \
 ```
 
 Each flag is optional — supply only the files you have. Run with `--dry-run` first to preview. The script:
+
 - Parses section labels from the docx as structural markers (`TODAY'S FOCUS`, `READING NOTES`, etc.)
 - Copies all body text verbatim — no edits, no summarising
 - Preserves frontmatter (`id:` and all other fields) in existing files
@@ -123,6 +130,8 @@ DESIGN.md             # Visual design system spec
 
 **Optimistic updates** — the progress page uses optimistic UI via `ProgressContext` (`src/features/progress/progress-context.tsx`) with rollback on API error. Preserve the `markComplete` / `markIncomplete` pattern when modifying this area.
 
+**Rhythm Live event launches** — when creating or updating a Rhythm Live event in `app/live/`, ask the user whether the member-dashboard event banner should be added or updated too. The banner lives at `app/[locale]/(member)/dashboard/live-banner.tsx`, is rendered by `dashboard-client.tsx`, and needs the current event date, time, ticket URL, artwork, and EN/ZH strings.
+
 ---
 
 ## Database Tables
@@ -161,6 +170,16 @@ Key tables in `src/db/schema.ts`:
 /[locale]/admin                Admin panel (role: admin only)
 /live                          Rhythm Live event (no auth, no locale)
 ```
+
+---
+
+## Test Documentation
+
+- The current test catalog and setup guide are in [`tests/e2e/README.md`](tests/e2e/README.md). Read it before changing browser tests or their setup.
+- When adding, changing, removing, or renaming tests, update that README in the same change. Keep the test catalog, count, device and language coverage, commands, environment requirements, output paths, and known limits current.
+- When app behavior changes, check the catalog for missing coverage. Add relevant tests within the task scope, or record the gap in the README's **Limits and pending checks** section. Keep planned tests separate from implemented tests.
+- Run `pnpm test:e2e --list` after changing tests or configured projects. Record actual validation results and blockers. Never describe tests as passing without running them.
+- Keep real credentials, private data, and generated test output out of test documentation. Database migrations still require the user's approval.
 
 ---
 

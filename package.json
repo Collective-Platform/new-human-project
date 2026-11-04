@@ -10,7 +10,8 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "db:setup-local": "psql new_human_dev < scripts/setup-local-db.sql",
-    "db:migrate": "drizzle-kit migrate && DOTENV_CONFIG_PATH=.env.local tsx --require dotenv/config scripts/migrate-legacy-plans.ts",
+    "db:migrate": "drizzle-kit migrate",
+    "db:migrate:test": "drizzle-kit migrate --config=drizzle.test.config.ts",
     "db:generate": "drizzle-kit generate",
     "plans:migrate-legacy": "DOTENV_CONFIG_PATH=.env.local tsx --require dotenv/config scripts/migrate-legacy-plans.ts",
     "db:seed-dev": "tsx src/db/seed-dev.ts",
@@ -18,14 +19,15 @@
     "db:seed": "tsx src/db/seed.ts",
     "content:new": "tsx scripts/new-content.ts",
     "content:check": "tsx scripts/check-content-ids.ts",
-    "content:import": "tsx scripts/import-content.ts"
+    "content:import": "tsx scripts/import-content.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@khmyznikov/pwa-install": "^0.6.3",
     "@neondatabase/serverless": "^1.0.2",
     "@vercel/analytics": "^2.0.1",
     "drizzle-orm": "^0.45.2",
-    "googleapis": "^173.0.0",
     "gray-matter": "^4.0.3",
     "input-otp": "^1.4.2",
     "lucide-react": "^1.14.0",
@@ -37,13 +39,13 @@
     "react-easy-crop": "^5.5.7",
     "react-markdown": "^10.1.0",
     "react-qr-code": "^2.0.21",
-    "stripe": "^22.2.1",
     "swr": "^2.4.1",
     "ulid": "^3.0.2",
     "web-push": "^3.6.7",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",

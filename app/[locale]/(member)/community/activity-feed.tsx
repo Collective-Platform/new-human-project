@@ -229,11 +229,11 @@ function ActivityCard({
 
       {likersOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          className="anim-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           onClick={() => setLikersOpen(false)}
         >
           <div
-            className="w-full max-w-sm bg-surface rounded-3xl shadow-2xl overflow-hidden"
+            className="anim-pop w-full max-w-sm bg-surface rounded-3xl shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 pt-5 pb-3">

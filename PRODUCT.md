@@ -8,42 +8,53 @@ web
 
 ## Users
 
-Rhythm members building habits across mental, emotional, and physical dimensions. Members follow daily multi-week blocks by themselves or alongside friends. Administrators manage the program and community.
+Rhythm serves community members who want to build sustainable habits that transform their daily lives. They follow a structured, multi-week daily programme in English or Simplified Chinese, using it primarily on mobile.
 
 ## Product Purpose
 
-Rhythm is a bilingual English and Simplified Chinese PWA that helps its members keep a sustainable daily rhythm through devotionals, scripture, reflection, mood logs, and physical exercises.
+Rhythm helps people establish sustainable rhythms for their mental, emotional, and physical wellbeing while drawing closer to God. Success means members can return to meaningful daily practices and carry them into everyday life.
 
 ## Positioning
 
-Its structured program joins three dimensions of health with daily spiritual formation and optional shared plans, rather than treating habits as isolated trackers.
+Rhythm combines a God-centred devotional journey with practical daily habit-building across three connected dimensions: Mental, Emotional, and Physical. Its daily programme brings together devotionals, scripture, reflection, mood logging, and exercises instead of treating spiritual growth and daily wellbeing as separate tracks.
 
 ## Operating Context
 
-The mobile-first app is used daily, usually in a portrait phone viewport. Members can start solo or shared blocks, invite friends, complete daily tasks, and discuss each day with their plan.
+Members progress through a structured programme of blocks and daily tasks in an installable mobile PWA. Daily work can include devotionals, scripture readings, mood logs, and exercises; members can track completion and progress, join community activity, and manage their profile and notification preferences. The product has English and Simplified Chinese locale-aware flows.
 
 ## Capabilities and Constraints
 
-- Locale-parameterized member routes support English and Simplified Chinese.
-- Authentication is passwordless email OTP; member routes are protected.
-- Program content lives in immutable-ID markdown files, not the database.
+- The product is a Next.js web application and PWA with locale-parameterised English and Simplified Chinese routes.
+- Authentication is passwordless email OTP; passwords are not part of the product.
+- Programme content is stored as Markdown, not in the database. Its immutable `t_` + ULID task identifiers must be preserved because progress records reference them.
+- Devotional and emotional programme content is supplied by the content team in Word documents and must be imported verbatim rather than rewritten.
+- Member progress supports optimistic updates; the programme’s Mental, Emotional, and Physical dimensions are fixed product terminology.
 - Group-plan members can join, leave, invite friends, and post day-specific discussions.
 - A hidden member-only UI lab may use representative preview data but must not persist data or expose actions in the live product.
 
 ## Brand Commitments
 
-Rhythm is warm, grounded, and editorial. It uses its established visual system and bilingual typography. The brand red is reserved for primary actions; category colors remain semantic.
+- The product name is Rhythm.
+- The product must support both English and Simplified Chinese throughout its member experience.
+- The spiritual purpose is explicit: Rhythm helps people get closer to God.
+- Existing brand and product assets include the Rhythm app icons and logo under `public/icons/` and `public/live/`, along with licensed local typefaces under `public/fonts/`.
 
 ## Evidence on Hand
 
-Program content, production UI, and EN/ZH translations live in this repository. No invented testimonials, results, or user data may be added.
+- Product and technical context: `AGENTS.md`.
+- Existing public landing and app routes: `app/[locale]/`.
+- Programme source content: `data/program/`.
+- Translation strings: `messages/en.json` and `messages/zh.json`.
+- Existing mobile/PWA assets and manifest: `public/manifest.json`, `public/icons/`, and `public/splash/`.
+- Existing visual system: `DESIGN.md`.
 
 ## Product Principles
 
-- Make daily practice feel calm and achievable.
-- Keep progress, relationships, and reflection connected.
-- Preserve member trust through clear, reversible interactions wherever possible.
-- Design every member-facing surface for both supported languages.
+1. Build practices members can sustain in ordinary daily life.
+2. Let every core journey support deeper closeness to God.
+3. Treat mental, emotional, and physical wellbeing as connected parts of one rhythm.
+4. Keep the programme faithful to its authored content and continuous across member progress.
+5. Give English- and Simplified-Chinese-speaking members equivalent access to the experience.
 
 ## Accessibility & Inclusion
 

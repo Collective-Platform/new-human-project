@@ -7,6 +7,10 @@ export class MailerSendRateLimitError extends Error {
   }
 }
 
+export function buildOtpSubject(otp: string): string {
+  return `Your Rhythm code: ${otp}`;
+}
+
 export function buildOtpEmail(otp: string, fromName: string): { html: string; text: string } {
   const text = `Your verification code is: ${otp}\n\nThis code expires in 10 minutes.\n\nYou've received this email as part of the log in process. This is a mandatory service email from ${fromName}.`;
 
@@ -88,7 +92,7 @@ export async function sendOtp(email: string, otp: string): Promise<void> {
         name: env.MAILERSEND_FROM_NAME,
       },
       to: [{ email }],
-      subject: "Your login code",
+      subject: buildOtpSubject(otp),
       html,
       text,
     }),
