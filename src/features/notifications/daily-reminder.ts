@@ -2,7 +2,7 @@ import { db } from "@/src/db";
 import { taskCompletions } from "@/src/db/schema";
 import { sql, inArray } from "drizzle-orm";
 import { getDayTasks as getRegistryDayTasks } from "@/src/features/content/program";
-import { getActiveBlock } from "@/src/lib/program-gate";
+import { getPlanCurrentDay } from "@/src/features/plans/queries";
 import { sendPushToUser } from "./push";
 
 const messages: Record<string, { title: string; body: string }> = {
@@ -48,32 +48,42 @@ export async function getDailyReminderPreview(): Promise<ReminderEligibilityResu
   const now = new Date();
 
   const result = await db.execute(sql`
-    SELECT DISTINCT u.id, u.notification_prefs, u.onboarded_at
+    SELECT DISTINCT u.id, u.notification_prefs, p.id AS plan_id, p.block_number, p.started_at
     FROM nhp.users u
     JOIN nhp.push_subscriptions ps ON ps.user_id = u.id
-    WHERE u.onboarded_at IS NOT NULL
-      AND (u.notification_prefs->>'daily_reminder')::boolean = true
+    JOIN nhp.plans p ON p.id = u.dashboard_plan_id
+    JOIN nhp.plan_members pm ON pm.plan_id = p.id AND pm.user_id = u.id AND pm.status = 'active'
+    WHERE (u.notification_prefs->>'daily_reminder')::boolean = true
   `);
 
   const allRows = result.rows as {
     id: number;
     notification_prefs: Record<string, string>;
-    onboarded_at: string;
+    plan_id: string;
+    block_number: number;
+    started_at: string;
   }[];
 
   const userIds = allRows.map((r) => Number(r.id));
   const completionRows =
     userIds.length > 0
       ? await db
-          .select({ userId: taskCompletions.userId, taskId: taskCompletions.taskId })
+          .select({
+            userId: taskCompletions.userId,
+            planId: taskCompletions.planId,
+            taskId: taskCompletions.taskId,
+          })
           .from(taskCompletions)
           .where(inArray(taskCompletions.userId, userIds))
       : [];
 
-  const completionsByUser = new Map<number, Set<string>>();
+  const completionsByPlanMember = new Map<string, Set<string>>();
   for (const c of completionRows) {
-    if (!completionsByUser.has(c.userId)) completionsByUser.set(c.userId, new Set());
-    completionsByUser.get(c.userId)!.add(c.taskId);
+    if (!c.planId) continue;
+    const key = `${c.userId}:${c.planId}`;
+    const ids = completionsByPlanMember.get(key) ?? new Set<string>();
+    ids.add(c.taskId);
+    completionsByPlanMember.set(key, ids);
   }
 
   return allRows.map((row) => {
@@ -82,7 +92,8 @@ export async function getDailyReminderPreview(): Promise<ReminderEligibilityResu
     const timezone = prefs.reminder_timezone ?? "UTC";
     const reminderHour = `${reminderTime.slice(0, 2)}:00`;
 
-    const { blockNumber, currentDay } = getActiveBlock(new Date(row.onboarded_at), now, timezone);
+    const blockNumber = Number(row.block_number);
+    const currentDay = getPlanCurrentDay(new Date(row.started_at), timezone, now);
 
     if (localHourForUser(now, timezone) !== reminderHour) {
       // Report currentDay anyway so the preview shows it regardless.
@@ -105,7 +116,8 @@ export async function getDailyReminderPreview(): Promise<ReminderEligibilityResu
       };
     }
 
-    const completedIds = completionsByUser.get(Number(row.id)) ?? new Set<string>();
+    const completedIds =
+      completionsByPlanMember.get(`${Number(row.id)}:${row.plan_id}`) ?? new Set<string>();
     if (todayTasks.every((t) => completedIds.has(t.id))) {
       return {
         userId: Number(row.id),
@@ -129,17 +141,20 @@ export async function sendDailyReminders() {
   const now = new Date();
 
   const result = await db.execute(sql`
-    SELECT DISTINCT u.id, u.notification_prefs, u.onboarded_at
+    SELECT DISTINCT u.id, u.notification_prefs, p.id AS plan_id, p.block_number, p.started_at
     FROM nhp.users u
     JOIN nhp.push_subscriptions ps ON ps.user_id = u.id
-    WHERE u.onboarded_at IS NOT NULL
-      AND (u.notification_prefs->>'daily_reminder')::boolean = true
+    JOIN nhp.plans p ON p.id = u.dashboard_plan_id
+    JOIN nhp.plan_members pm ON pm.plan_id = p.id AND pm.user_id = u.id AND pm.status = 'active'
+    WHERE (u.notification_prefs->>'daily_reminder')::boolean = true
   `);
 
   const allRows = result.rows as {
     id: number;
     notification_prefs: Record<string, string>;
-    onboarded_at: string;
+    plan_id: string;
+    block_number: number;
+    started_at: string;
   }[];
 
   // Filter to users whose reminder hour matches the current hour.
@@ -156,20 +171,28 @@ export async function sendDailyReminders() {
   // Batch-fetch completions for all eligible users in one query.
   const userIds = eligibleRows.map((r) => Number(r.id));
   const completionRows = await db
-    .select({ userId: taskCompletions.userId, taskId: taskCompletions.taskId })
+    .select({
+      userId: taskCompletions.userId,
+      planId: taskCompletions.planId,
+      taskId: taskCompletions.taskId,
+    })
     .from(taskCompletions)
     .where(inArray(taskCompletions.userId, userIds));
 
-  const completionsByUser = new Map<number, Set<string>>();
+  const completionsByPlanMember = new Map<string, Set<string>>();
   for (const c of completionRows) {
-    if (!completionsByUser.has(c.userId)) completionsByUser.set(c.userId, new Set());
-    completionsByUser.get(c.userId)!.add(c.taskId);
+    if (!c.planId) continue;
+    const key = `${c.userId}:${c.planId}`;
+    const ids = completionsByPlanMember.get(key) ?? new Set<string>();
+    ids.add(c.taskId);
+    completionsByPlanMember.set(key, ids);
   }
 
   let sent = 0;
   for (const row of eligibleRows) {
     const timezone = row.notification_prefs?.reminder_timezone ?? "UTC";
-    const { blockNumber, currentDay } = getActiveBlock(new Date(row.onboarded_at), now, timezone);
+    const blockNumber = Number(row.block_number);
+    const currentDay = getPlanCurrentDay(new Date(row.started_at), timezone, now);
 
     const todayTasks = getRegistryDayTasks(blockNumber, currentDay);
 
@@ -177,14 +200,15 @@ export async function sendDailyReminders() {
     if (todayTasks.length === 0) continue;
 
     // All of today's tasks already done — nothing left to remind about.
-    const completedIds = completionsByUser.get(Number(row.id)) ?? new Set<string>();
+    const completedIds =
+      completionsByPlanMember.get(`${Number(row.id)}:${row.plan_id}`) ?? new Set<string>();
     if (todayTasks.every((t) => completedIds.has(t.id))) continue;
 
     const msg = messages.en;
     try {
       await sendPushToUser(
         Number(row.id),
-        { title: msg.title, body: msg.body, url: "/" },
+        { title: msg.title, body: msg.body, url: `/progress/${row.plan_id}` },
         "daily_reminder",
       );
       sent++;
