@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
 import { Check, Search, Send, Trash2, User, UserPlus, Users, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { SlidingTabs } from "@/app/components/sliding-tabs";
 import {
   addFriendToPlan,
   createPlanDiscussionPost,
@@ -15,12 +16,15 @@ import type { PlanDiscussionThread, PlanFriend, PlanMember } from "@/src/feature
 
 type DayData = { members: PlanMember[]; discussion: PlanDiscussionThread[] };
 
-function Avatar({
+export function Avatar({
   member,
   size = "md",
+  placeholderClassName = "bg-surface-container-high",
 }: {
   member: PlanMember | PlanDiscussionThread["user"] | PlanFriend;
   size?: "sm" | "md";
+  /** Background of the circle when the member has no photo. */
+  placeholderClassName?: string;
 }) {
   const pixels = size === "sm" ? 32 : 40;
   const label = member.searchHandle ? `@${member.searchHandle}` : member.displayName || "Member";
@@ -38,7 +42,7 @@ function Avatar({
   }
   return (
     <div
-      className={`${size === "sm" ? "h-8 w-8" : "h-10 w-10"} rounded-full bg-surface-container-high flex items-center justify-center`}
+      className={`${size === "sm" ? "h-8 w-8" : "h-10 w-10"} rounded-full ${placeholderClassName} flex items-center justify-center`}
     >
       <User size={size === "sm" ? 15 : 18} className="text-on-surface-variant" />
     </div>
@@ -58,6 +62,7 @@ export function PlanDaySocial({
   initialData,
   showControls = true,
   showDiscussion = true,
+  compact = false,
 }: {
   locale: "en" | "zh";
   planId: string;
@@ -67,6 +72,8 @@ export function PlanDaySocial({
   initialData: DayData;
   showControls?: boolean;
   showDiscussion?: boolean;
+  /** Overlapping avatar stack with a tick under finished members. */
+  compact?: boolean;
 }) {
   const t = useTranslations("plans");
   const [data, setData] = useState<DayData>(initialData);
@@ -194,6 +201,10 @@ export function PlanDaySocial({
     data.members.length === 1
       ? t("member", { count: 1 })
       : t("members", { count: data.members.length });
+  // Finished members first, then the rest. Array sort is stable, so order inside each group holds.
+  const stackMembers = [...data.members]
+    .sort((x, y) => Number(y.completed) - Number(x.completed))
+    .slice(0, 5);
   const activeMemberIds = new Set(data.members.map((member) => member.id));
   const normalizedFriendQuery = friendQuery.trim().replace(/^@+/, "").toLowerCase();
   const availableFriends = (friends ?? []).filter((friend) => {
@@ -205,7 +216,10 @@ export function PlanDaySocial({
   });
 
   return (
-    <section className="pb-4" aria-label={showDiscussion ? t("talkItOut") : t("membersTitle")}>
+    <section
+      className={compact ? "mb-6" : "pb-4"}
+      aria-label={showDiscussion ? t("talkItOut") : t("membersTitle")}
+    >
       {showControls && (
         <>
           <button
@@ -214,11 +228,42 @@ export function PlanDaySocial({
               setMemberTab("members");
               setMembersOpen(true);
             }}
-            className="mb-6 flex items-center gap-1.5 rounded-full border border-foreground/80 px-3 py-1.5 text-foreground transition-colors hover:bg-surface-container-high active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-container"
+            className={
+              compact
+                ? "flex items-start gap-3 rounded-2xl text-left transition-opacity active:opacity-70"
+                : "mb-6 flex items-center gap-1.5 rounded-full border border-foreground/80 px-3 py-1.5 text-foreground transition-colors hover:bg-surface-container-high active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-container"
+            }
             aria-haspopup="dialog"
+            aria-label={memberLabel}
           >
-            <Users size={15} aria-hidden="true" />
-            <span className="text-xs font-medium uppercase tracking-wider">{memberLabel}</span>
+            {compact ? (
+              <>
+                <span className="flex -space-x-2">
+                  {stackMembers.map((member) => (
+                    <span key={member.id} className="relative flex h-8 w-8 justify-center">
+                      <span className="flex rounded-full ring-2 ring-surface">
+                        <Avatar
+                          member={member}
+                          size="sm"
+                          placeholderClassName="bg-white shadow-[0_1px_4px_rgba(53,50,47,0.12)]"
+                        />
+                      </span>
+                      {member.completed && (
+                        <span className="absolute -bottom-1.5 flex h-4 w-4 items-center justify-center text-on-surface">
+                          <Check size={14} strokeWidth={2} aria-hidden="true" />
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </span>
+                <span className="mt-1.5 text-sm text-on-surface-variant">{memberLabel}</span>
+              </>
+            ) : (
+              <>
+                <Users size={15} aria-hidden="true" />
+                <span className="text-xs font-medium uppercase tracking-wider">{memberLabel}</span>
+              </>
+            )}
           </button>
         </>
       )}
@@ -357,38 +402,18 @@ export function PlanDaySocial({
               </button>
             </div>
             {isOwner && (
-              <div
-                role="tablist"
-                aria-label={t("membersTitle")}
-                className="mb-4 grid grid-cols-2 gap-1 rounded-full bg-surface-container-high p-1"
-              >
-                <button
-                  type="button"
-                  onClick={() => setMemberTab("members")}
-                  className={`rounded-full px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-container ${
-                    memberTab === "members"
-                      ? "bg-white text-on-surface shadow-[0_4px_12px_rgba(53,50,47,0.08)]"
-                      : "text-on-surface-variant hover:text-on-surface"
-                  }`}
-                  role="tab"
-                  aria-selected={memberTab === "members"}
-                >
-                  {t("membersTab")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMemberTab("add")}
-                  className={`rounded-full px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-container ${
-                    memberTab === "add"
-                      ? "bg-white text-on-surface shadow-[0_4px_12px_rgba(53,50,47,0.08)]"
-                      : "text-on-surface-variant hover:text-on-surface"
-                  }`}
-                  role="tab"
-                  aria-selected={memberTab === "add"}
-                >
-                  {t("addMembers")}
-                </button>
-              </div>
+              <SlidingTabs
+                ariaLabel={t("membersTitle")}
+                className="mb-4"
+                pillClassName="bg-white shadow-[0_4px_12px_rgba(53,50,47,0.08)]"
+                activeTextClassName="text-on-surface"
+                tabs={[
+                  { value: "members", label: t("membersTab") },
+                  { value: "add", label: t("addMembers") },
+                ]}
+                value={memberTab}
+                onChange={setMemberTab}
+              />
             )}
             {actionError && (
               <p
@@ -410,17 +435,7 @@ export function PlanDaySocial({
                           : member.displayName || t("you")}
                         {member.id === selfUserId ? ` · ${t("you")}` : ""}
                       </p>
-                      <p className="text-xs text-on-surface-variant">
-                        {member.completed ? t("completedDay") : t("notCompletedDay")}
-                      </p>
                     </div>
-                    {member.completed && (
-                      <Check
-                        size={19}
-                        className="text-category-emotional"
-                        aria-label={t("completedDay")}
-                      />
-                    )}
                     {isOwner && member.id !== selfUserId && (
                       <button
                         type="button"
@@ -431,6 +446,15 @@ export function PlanDaySocial({
                         {t("remove")}
                       </button>
                     )}
+                    <span className="flex w-5 shrink-0 justify-end">
+                      {member.completed && (
+                        <Check
+                          size={19}
+                          className="text-category-emotional"
+                          aria-label={t("completedDay")}
+                        />
+                      )}
+                    </span>
                   </div>
                 ))}
               </div>

@@ -157,7 +157,8 @@ export function DashboardClient({
         />
       </div>
 
-      {children}
+      {/* The Foundation card only shows for block 1 (or before a plan is chosen). */}
+      {data.blockNumber <= 1 && children}
 
       <div className="grid md:grid-cols-2 gap-4">
         <EmotionBreakdownChart

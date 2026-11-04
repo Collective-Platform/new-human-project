@@ -44,6 +44,7 @@ export async function createPlan(input: {
   blockNumber: number;
   title?: string;
   mode: "solo" | "friends";
+  friendIds?: number[];
 }): Promise<ActionResult<{ planId: string; inviteCode: string }> | ActionError> {
   const user = await getSessionUser();
   if (!user) return { error: "Unauthorized" };
@@ -51,6 +52,13 @@ export async function createPlan(input: {
   if (input.mode !== "solo" && input.mode !== "friends") return { error: "Choose how to start." };
   if (!isBlockReleased(input.blockNumber, new Date(), PROGRAM_DEFAULT_TZ)) {
     return { error: "This block has not been released yet." };
+  }
+
+  if (input.mode === "friends") {
+    const friendIds = new Set((await getFriendsForPlanMember(user.id)).map((f) => f.id));
+    if (!input.friendIds?.some((id) => friendIds.has(id))) {
+      return { error: "Choose at least one friend." };
+    }
   }
 
   const title = input.title?.trim().slice(0, 80) || null;
@@ -66,6 +74,35 @@ export async function createPlan(input: {
     })
     .returning();
   await db.insert(planMembers).values({ planId: plan.id, userId: user.id, role: "owner" });
+
+  // Only accepted friends can be added at creation. Unknown ids are ignored.
+  if (input.mode === "friends" && input.friendIds?.length) {
+    const friendIds = new Set((await getFriendsForPlanMember(user.id)).map((friend) => friend.id));
+    const selected = [...new Set(input.friendIds)].filter((id) => friendIds.has(id));
+    if (selected.length > 0) {
+      await db
+        .insert(planMembers)
+        .values(selected.map((friendId) => ({ planId: plan.id, userId: friendId })));
+      const senderName = user.searchHandle
+        ? `@${user.searchHandle}`
+        : (user.displayName ?? "Someone");
+      const planName = title || `Block ${input.blockNumber}`;
+      await Promise.all(
+        selected.map((friendId) => {
+          updateTag(`plans:${friendId}`);
+          return sendPushToUser(
+            friendId,
+            {
+              title: "Rhythm",
+              body: `${senderName} added you to ${planName}`,
+              url: `/progress/${plan.id}`,
+            },
+            "plan_member_added",
+          ).catch(() => {});
+        }),
+      );
+    }
+  }
   // A first usable plan gives Home a useful default without overriding a
   // deliberate active selection. This also repairs stale legacy preferences.
   if (!(await getDashboardPlanForUser(user.id))) {
@@ -159,6 +196,13 @@ export async function removePlanMember(input: {
   updateTag(`dashboard:${input.memberId}`);
   updateTag(`plan:${input.planId}`);
   return { success: true };
+}
+
+/** Friends the user can pick while creating a new group plan. */
+export async function getFriendsForNewPlan(): Promise<ActionResult<PlanFriend[]> | ActionError> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Unauthorized" };
+  return { success: true, data: await getFriendsForPlanMember(user.id) };
 }
 
 export async function getPlanFriendsForAdding(input: {

@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { ChevronRight, LogOut, Plus, X } from "lucide-react";
+import { Check, ChevronRight, LogOut, Plus, Search, Users, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/src/i18n/navigation";
-import { createPlan, leaveGroupPlan } from "@/src/features/plans/actions";
-import { getBlockLabel } from "@/src/lib/block-names";
+import { createPlan, getFriendsForNewPlan, leaveGroupPlan } from "@/src/features/plans/actions";
+import type { PlanFriend } from "@/src/features/plans/queries";
+import { SlidingTabs } from "@/app/components/sliding-tabs";
+import { Avatar } from "./plan-day-social";
+import { getBlockLabel, getBlockName, getBlockPrefix } from "@/src/lib/block-names";
 
 type PlanCard = {
   id: string;
@@ -36,6 +39,10 @@ export function PlansClient({
   const [blockNumber, setBlockNumber] = useState(() => availableBlocks[0] ?? 1);
   const [mode, setMode] = useState<"solo" | "friends">("solo");
   const [title, setTitle] = useState("");
+  const [friends, setFriends] = useState<PlanFriend[] | null>(null);
+  const [friendsLoading, setFriendsLoading] = useState(false);
+  const [friendQuery, setFriendQuery] = useState("");
+  const [selectedFriendIds, setSelectedFriendIds] = useState<Set<number>>(new Set());
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [planToLeave, setPlanToLeave] = useState<PlanCard | null>(null);
@@ -68,9 +75,55 @@ export function PlansClient({
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [createOpen, isPending, planToLeave]);
 
+  useEffect(() => {
+    if (!createOpen || mode !== "friends" || friends !== null) return;
+    let cancelled = false;
+    setFriendsLoading(true);
+    void getFriendsForNewPlan()
+      .then((result) => {
+        if (cancelled) return;
+        if ("success" in result) setFriends(result.data);
+        else setError(t("actionError"));
+      })
+      .catch(() => {
+        if (!cancelled) setError(t("actionError"));
+      })
+      .finally(() => {
+        if (!cancelled) setFriendsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [createOpen, friends, mode, t]);
+
+  function toggleFriend(friendId: number) {
+    setSelectedFriendIds((current) => {
+      const next = new Set(current);
+      if (!next.delete(friendId)) next.add(friendId);
+      return next;
+    });
+  }
+
+  const normalizedFriendQuery = friendQuery.trim().replace(/^@+/, "").toLowerCase();
+  const visibleFriends = (friends ?? []).filter((friend) => {
+    if (!normalizedFriendQuery) return true;
+    return [friend.searchHandle, friend.displayName]
+      .filter((value): value is string => Boolean(value))
+      .some((value) => value.toLowerCase().includes(normalizedFriendQuery));
+  });
+
   function submit() {
+    if (mode === "friends" && selectedFriendIds.size === 0) {
+      setError(t("selectFriendRequired"));
+      return;
+    }
     startTransition(async () => {
-      const result = await createPlan({ blockNumber, title, mode });
+      const result = await createPlan({
+        blockNumber,
+        title,
+        mode,
+        friendIds: mode === "friends" ? [...selectedFriendIds] : undefined,
+      });
       if ("error" in result) {
         setError(result.error);
         return;
@@ -96,22 +149,14 @@ export function PlansClient({
   return (
     <div className="mx-auto max-w-2xl px-4 pb-8 pt-6 sm:px-6 md:px-8">
       <div className="mb-5 flex items-center justify-between gap-3">
-        <div className="inline-flex rounded-full bg-surface-container-high p-1">
-          {(["active", "completed"] as const).map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setTab(value)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2 focus:ring-offset-surface ${
-                tab === value
-                  ? "bg-primary text-on-primary shadow-[0_4px_12px_rgba(190,43,23,0.2)]"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
-            >
-              {value === "active" ? t("active") : t("completed")}
-            </button>
-          ))}
-        </div>
+        <SlidingTabs
+          tabs={[
+            { value: "active", label: t("active") },
+            { value: "completed", label: t("completed") },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
         <button
           type="button"
           onClick={openCreateDialog}
@@ -141,7 +186,7 @@ export function PlansClient({
           {visiblePlans.map((plan) => (
             <article
               key={plan.id}
-              className="group relative rounded-3xl bg-white p-5 shadow-[0_12px_32px_rgba(53,50,47,0.06)] transition-shadow hover:shadow-card"
+              className="group relative rounded-2xl border border-outline/30 bg-surface px-5 py-4 transition-colors hover:bg-outline/5"
             >
               <button
                 type="button"
@@ -149,36 +194,37 @@ export function PlansClient({
                 className="w-full pr-8 text-left focus:outline-none focus:ring-2 focus:ring-primary-container"
                 aria-label={`${t("open")}: ${getBlockLabel(plan.blockNumber, locale)}`}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0 space-y-1">
+                    <p className="truncate text-xs font-medium text-on-surface-variant">
+                      {getBlockPrefix(plan.blockNumber, locale)}
+                    </p>
                     <h2 className="font-headline truncate text-lg font-medium text-on-surface">
-                      {getBlockLabel(plan.blockNumber, locale)}
+                      {getBlockName(plan.blockNumber, locale) ?? plan.title}
                     </h2>
-                    {plan.title && (
-                      <p className="mt-1 truncate text-sm text-on-surface">{plan.title}</p>
+                    {plan.title && getBlockName(plan.blockNumber, locale) && (
+                      <p className="truncate text-sm text-on-surface">{plan.title}</p>
                     )}
-                    {(plan.completedAt || plan.isGroup) && (
-                      <p className="mt-2 text-sm text-on-surface-variant">
-                        {plan.completedAt
-                          ? t("completedOn", {
-                              date: new Intl.DateTimeFormat(locale, {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }).format(new Date(plan.completedAt)),
-                            })
-                          : plan.memberCount === 1
-                            ? t("member", { count: 1 })
-                            : t("members", { count: plan.memberCount })}
-                      </p>
-                    )}
+                    <p className="text-xs text-on-surface-variant">
+                      {new Intl.DateTimeFormat(locale, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      }).format(new Date(plan.completedAt ?? plan.startedAt))}
+                    </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className="rounded-full bg-tertiary-container px-3 py-1 text-xs font-medium text-on-tertiary-fixed-variant">
-                      {new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(
-                        new Date(plan.startedAt),
-                      )}
-                    </span>
+                    {plan.isGroup && !plan.completedAt && (
+                      <span
+                        className="flex items-center gap-1 text-xs font-medium text-on-surface-variant"
+                        aria-label={t(plan.memberCount === 1 ? "member" : "members", {
+                          count: plan.memberCount,
+                        })}
+                      >
+                        <Users size={15} aria-hidden="true" />
+                        {plan.memberCount}
+                      </span>
+                    )}
                     <ChevronRight
                       size={18}
                       aria-hidden="true"
@@ -272,9 +318,74 @@ export function PlansClient({
             </fieldset>
             {mode === "friends" && (
               <>
+                <p className="mt-4 text-sm font-medium text-on-surface">
+                  {t("addFriends")}
+                  {selectedFriendIds.size > 0 && (
+                    <span className="ml-2 text-xs text-on-surface-variant">
+                      {t("selectedCount", { count: selectedFriendIds.size })}
+                    </span>
+                  )}
+                </p>
+                <div className="relative mt-2">
+                  <Search
+                    size={18}
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
+                  />
+                  <input
+                    type="search"
+                    value={friendQuery}
+                    onChange={(event) => setFriendQuery(event.target.value)}
+                    placeholder={t("searchFriendsPlaceholder")}
+                    aria-label={t("searchFriends")}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-sm text-on-surface placeholder:text-outline-variant outline-none ring-1 ring-outline-variant/40 focus:ring-2 focus:ring-primary-container"
+                  />
+                </div>
+                {friendsLoading ? (
+                  <div className="flex justify-center py-6">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  </div>
+                ) : visibleFriends.length > 0 ? (
+                  <div className="mt-3 max-h-[28dvh] space-y-3 overflow-y-auto">
+                    <p className="text-xs font-medium text-on-surface-variant">
+                      {t("yourFriends")}
+                    </p>
+                    {visibleFriends.map((friend) => {
+                      const selected = selectedFriendIds.has(friend.id);
+                      return (
+                        <div key={friend.id} className="flex items-center gap-3">
+                          <Avatar member={friend} />
+                          <p className="min-w-0 flex-1 truncate text-sm font-medium text-on-surface">
+                            {friend.searchHandle
+                              ? `@${friend.searchHandle}`
+                              : friend.displayName || t("you")}
+                          </p>
+                          <button
+                            type="button"
+                            aria-pressed={selected}
+                            onClick={() => toggleFriend(friend.id)}
+                            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition ${
+                              selected
+                                ? "bg-surface-container-high text-on-surface"
+                                : "bg-primary text-white shadow-[0_8px_16px_rgba(190,43,23,0.2)] hover:opacity-90"
+                            }`}
+                          >
+                            {selected ? <Check size={14} /> : <Plus size={14} />}
+                            {selected ? t("added") : t("add")}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="py-6 text-center text-sm text-on-surface-variant">
+                    {normalizedFriendQuery ? t("noFriendMatches") : t("noFriendsYet")}
+                  </p>
+                )}
                 <label
                   htmlFor="plan-title"
-                  className="mt-4 block text-sm font-medium text-on-surface"
+                  className="mt-5 block text-sm font-medium text-on-surface"
                 >
                   {t("planName")}
                 </label>

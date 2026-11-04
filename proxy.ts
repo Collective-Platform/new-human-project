@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "@/src/i18n/routing";
+import { isBoardEnabled } from "@/src/dev-board/enabled";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -14,6 +15,11 @@ const LIVE_HOST_LABEL = "live";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Design board pages exist only in local development.
+  if (!isBoardEnabled() && /^\/([a-z]{2}\/)?dev(\/|$)/.test(pathname)) {
+    return new NextResponse("Not found", { status: 404 });
+  }
 
   // Host-based routing: live.rhythm.you -> /live route (no locale, no auth).
   // The /live page has no backend; the ticket CTA links out to ticket2u.

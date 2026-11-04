@@ -183,6 +183,12 @@ Key tables in `src/db/schema.ts`:
 
 ---
 
+## Design Board
+
+A dev-only canvas at `/en/dev/board` shows every screen and popup as a live frame and can write text, class and colour edits into the code. Its "Local DB" mode shows real rows, but only from a local database (`DATABASE_PROVIDER=local`). When you add, rename or remove a page or popup, update `src/dev-board/registry.ts` (and `fixtures.ts` / `frames.tsx` for sample-data frames). See `src/dev-board/README.md`.
+
+---
+
 ## Design System
 
 See `DESIGN.md` — the full visual spec lives there (colors, typography, spacing, shadows, component specs). Always read DESIGN.md before touching UI. Do not duplicate it here.

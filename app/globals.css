@@ -325,3 +325,11 @@ body {
     transform: translate(9px, -6px);
   }
 }
+
+/* No focus ring after a mouse or touch click on buttons, links and tabs.
+   Keyboard focus (:focus-visible) still shows the ring. Text inputs keep theirs. */
+:is(button, a, [role="tab"], [role="button"]):focus:not(:focus-visible) {
+  outline: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+}

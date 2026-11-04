@@ -474,6 +474,7 @@ export function ProgressClient({
           isOwner={planSocial.isOwner}
           initialData={planSocial.initialData}
           showDiscussion={false}
+          compact
         />
       )}
 

@@ -11,3 +11,13 @@ export function getBlockLabel(blockNumber: number, locale: "en" | "zh"): string 
   const name = BLOCK_NAMES[blockNumber as keyof typeof BLOCK_NAMES]?.[locale];
   return name ? `${prefix} - ${name}` : prefix;
 }
+
+/** The short name of a numbered program block (e.g. "Ephesians"), or null if it has none. */
+export function getBlockName(blockNumber: number, locale: "en" | "zh"): string | null {
+  return BLOCK_NAMES[blockNumber as keyof typeof BLOCK_NAMES]?.[locale] ?? null;
+}
+
+/** Just the "Block 1" part of the label, without the name. */
+export function getBlockPrefix(blockNumber: number, locale: "en" | "zh"): string {
+  return locale === "zh" ? `计划 ${blockNumber}` : `Block ${blockNumber}`;
+}
