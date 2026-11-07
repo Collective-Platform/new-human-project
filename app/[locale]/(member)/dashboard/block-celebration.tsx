@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Overlay } from "@/app/components/overlay";
 
 interface EarnedBadge {
+  memberBadgeId: string;
   name: string;
   description: string | null;
   iconUrl: string | null;
@@ -14,42 +16,28 @@ interface EarnedBadge {
 
 export function BlockCelebration({
   badge,
+  blockNumber,
   onDismissAction,
 }: {
-  badge: EarnedBadge;
+  badge?: EarnedBadge;
+  blockNumber?: number;
   onDismissAction: () => void;
 }) {
   const t = useTranslations("block");
-  const [visible, setVisible] = useState(false);
+  const [open, setOpen] = useState(true);
+  const completedBlockNumber = badge?.blockNumber ?? blockNumber ?? 0;
 
-  useEffect(() => {
-    // Trigger entrance animation on next frame
-    requestAnimationFrame(() => setVisible(true));
-  }, []);
-
+  // Dismissing plays the exit animation first; the parent is told once it is done.
   function handleDismiss() {
-    setVisible(false);
-    setTimeout(onDismissAction, 300);
+    setOpen(false);
   }
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${
-        visible ? "opacity-100" : "opacity-0"
-      }`}
-    >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={handleDismiss} />
-
-      {/* Content */}
-      <div
-        className={`relative mx-6 flex max-w-sm flex-col items-center rounded-md bg-white px-8 py-10 shadow-card transition-transform duration-300 ${
-          visible ? "scale-100" : "scale-90"
-        }`}
-      >
+    <Overlay variant="center" open={open} onClose={handleDismiss} onExited={onDismissAction}>
+      <div className="relative flex w-full max-w-sm flex-col items-center rounded-sheet bg-white px-8 py-10 shadow-card">
         {/* Badge icon / emoji */}
         <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
-          {badge.iconUrl ? (
+          {badge?.iconUrl ? (
             <Image
               src={badge.iconUrl}
               alt={badge.name}
@@ -64,18 +52,18 @@ export function BlockCelebration({
         </div>
 
         {/* Title */}
-        <h2 className="mb-2 text-center font-headline text-2xl font-bold text-foreground">
-          {t("blockComplete", { block: badge.blockNumber })}
+        <h2 className="mb-2 text-center font-headline text-2xl font-semibold text-foreground">
+          {t("blockComplete", { block: completedBlockNumber })}
         </h2>
 
         {/* Dismiss button */}
         <button
           onClick={handleDismiss}
-          className="mt-2 rounded-full bg-primary px-8 py-3 font-headline text-sm font-semibold text-white transition-colors active:bg-primary/80"
+          className="press mt-2 rounded-full bg-primary px-8 py-3 font-headline text-sm font-semibold text-white transition-colors active:bg-primary/80"
         >
           {t("continue")}
         </button>
       </div>
-    </div>
+    </Overlay>
   );
 }

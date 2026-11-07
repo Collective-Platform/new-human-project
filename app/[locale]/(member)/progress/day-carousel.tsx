@@ -93,14 +93,14 @@ export function DayCarousel({
               <div
                 className={`w-14 h-14 rounded-full flex flex-col items-center justify-center press ${
                   isSelected
-                    ? "bg-primary text-white shadow-lg"
+                    ? "bg-primary text-white shadow-glow"
                     : d.fullyCompleted
                       ? "bg-primary/15 text-primary hover:bg-primary/25"
-                      : "border-[0.5px] border-outline/50 text-outline hover:bg-zinc-200"
+                      : "border-[0.5px] border-outline/50 text-outline hover:bg-on-surface/5"
                 }`}
               >
                 <span
-                  className={`text-[10px] font-light tracking-tighter ${
+                  className={`text-xs font-normal tracking-tighter ${
                     isSelected
                       ? "text-white/70"
                       : d.fullyCompleted
@@ -123,7 +123,7 @@ export function DayCarousel({
                 </span>
               </div>
               <span
-                className={`text-[11px] px-2 py-0.5 ${
+                className={`text-xs px-2 py-0.5 ${
                   isToday
                     ? "rounded-full border-primary/80 text-primary/80 border font-medium"
                     : isSelected

@@ -12,6 +12,7 @@ import {
   withdrawFriendRequest,
   removeFriend,
 } from "@/src/features/community/actions";
+import { Overlay } from "@/app/components/overlay";
 
 interface FriendSummary {
   id: number;
@@ -105,7 +106,7 @@ export function ProfileClient({
         <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 h-14 max-w-2xl mx-auto">
           <button
             onClick={() => router.back()}
-            className="text-primary font-bold active:scale-95 transition-transform"
+            className="tap-target text-primary font-semibold press transition-transform"
           >
             <ChevronRight size={22} className="rotate-180" />
           </button>
@@ -127,7 +128,7 @@ export function ProfileClient({
                 {localStatus === "friends" && (
                   <button
                     onClick={() => setFriendsOpen(true)}
-                    className="self-start mt-4 inline-flex items-center gap-1.5 px-3 py-1 border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container hover:border-primary/30 hover:text-primary transition-all active:scale-95"
+                    className="tap-target self-start mt-4 inline-flex items-center gap-1.5 px-3 py-1 border border-outline-variant rounded-full text-on-surface-variant hover:bg-on-surface/5 hover:border-primary/30 hover:text-primary transition-all press"
                   >
                     <User size={14} />
                     <span className="text-sm font-medium font-headline">
@@ -139,7 +140,7 @@ export function ProfileClient({
               {localStatus === "friends" ? (
                 <button
                   onClick={() => setUnfriendOpen(true)}
-                  className="self-start flex items-center gap-2 mt-4 px-5 py-2 rounded-full border border-outline-variant text-on-surface-variant text-xs font-bold font-headline active:scale-95 transition-transform"
+                  className="tap-target self-start flex items-center gap-2 mt-4 px-5 py-2 rounded-full border border-outline-variant text-on-surface-variant text-xs font-semibold font-headline press transition-transform"
                 >
                   <CheckCircle size={16} className="text-primary" />
                   {t("friend")}
@@ -150,7 +151,7 @@ export function ProfileClient({
                     setLocalStatus("none");
                     await withdrawFriendRequest({ receiverId: profile.id });
                   }}
-                  className="self-start flex items-center gap-2 px-5 py-2 rounded-full border border-outline-variant text-on-surface-variant text-xs font-bold font-headline active:scale-95 transition-transform"
+                  className="tap-target self-start flex items-center gap-2 px-5 py-2 rounded-full border border-outline-variant text-on-surface-variant text-xs font-semibold font-headline press transition-transform"
                 >
                   {t("withdrawRequest")}
                 </button>
@@ -160,14 +161,14 @@ export function ProfileClient({
                     setLocalStatus("sent");
                     await requestFriend({ receiverId: profile.id });
                   }}
-                  className="self-start flex items-center justify-center px-5 py-2.5 rounded-full bg-primary text-surface text-sm font-bold font-headline active:scale-95 transition-transform"
+                  className="tap-target self-start flex items-center justify-center px-5 py-2.5 rounded-full bg-primary text-surface text-sm font-semibold font-headline press transition-transform"
                 >
                   {t("addFriend")}
                 </button>
               )}
             </div>
             <div className="relative shrink-0">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-surface shadow-xl flex items-center justify-center">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-surface shadow-raised flex items-center justify-center">
                 <Avatar url={profile.avatarUrl} name={handle} size={96} />
               </div>
             </div>
@@ -180,16 +181,16 @@ export function ProfileClient({
             <></>
           ) : activities.length === 0 ? (
             <>
-              <h3 className="font-headline text-xl font-bold text-on-surface mb-4 px-1">
+              <h3 className="font-headline text-xl font-semibold text-on-surface mb-4 px-1">
                 {t("activities")}
               </h3>
-              <div className="bg-white p-5 rounded-2xl text-center text-sm text-on-surface-variant">
+              <div className="bg-white p-5 rounded-card text-center text-sm text-on-surface-variant">
                 {t("noActivitiesYet")}
               </div>
             </>
           ) : (
             <>
-              <h3 className="font-headline text-xl font-bold text-on-surface mb-4 px-1">
+              <h3 className="font-headline text-xl font-semibold text-on-surface mb-4 px-1">
                 {t("activities")}
               </h3>
               <ActivityFeed
@@ -204,113 +205,99 @@ export function ProfileClient({
       </main>
 
       {/* Unfriend confirmation dialog */}
-      {unfriendOpen && (
-        <div
-          className="anim-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-          onClick={() => setUnfriendOpen(false)}
-        >
-          <div
-            className="anim-pop w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div>
-              <h3 className="font-headline font-bold text-lg text-primary">{t("unfriendTitle")}</h3>
-              <p className="text-sm text-on-surface-variant mt-1">
-                {t("unfriendConfirm", { name: handle })}
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setUnfriendOpen(false)}
-                className="flex-1 py-3 rounded-2xl border border-outline-variant font-bold font-headline text-on-surface active:scale-95 transition-transform"
-              >
-                {t("cancel")}
-              </button>
-              <button
-                onClick={async () => {
-                  setUnfriendOpen(false);
-                  setLocalStatus("none");
-                  await removeFriend({ friendId: profile.id });
-                }}
-                className="flex-1 py-3 rounded-2xl bg-primary text-surface font-bold font-headline active:scale-95 transition-transform"
-              >
-                {t("unfriend")}
-              </button>
-            </div>
+      <Overlay variant="center" open={unfriendOpen} onClose={() => setUnfriendOpen(false)}>
+        <div className="w-full max-w-sm bg-surface rounded-sheet shadow-float p-6 space-y-5">
+          <div>
+            <h3 className="font-headline font-semibold text-lg text-primary">
+              {t("unfriendTitle")}
+            </h3>
+            <p className="text-sm text-on-surface-variant mt-1">
+              {t("unfriendConfirm", { name: handle })}
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setUnfriendOpen(false)}
+              className="flex-1 py-3 rounded-control border border-outline-variant font-semibold font-headline text-on-surface press transition-transform"
+            >
+              {t("cancel")}
+            </button>
+            <button
+              onClick={async () => {
+                setUnfriendOpen(false);
+                setLocalStatus("none");
+                await removeFriend({ friendId: profile.id });
+              }}
+              className="flex-1 py-3 rounded-control bg-primary text-surface font-semibold font-headline press transition-transform"
+            >
+              {t("unfriend")}
+            </button>
           </div>
         </div>
-      )}
+      </Overlay>
 
       {/* Friends popup */}
-      {friendsOpen && (
-        <div
-          className="anim-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-          onClick={() => setFriendsOpen(false)}
-        >
-          <div
-            className="anim-pop w-full max-w-sm bg-surface rounded-3xl shadow-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-5 pt-5 pb-3">
-              <h3 className="font-headline font-bold text-lg text-on-surface">
-                {t("friendsCount", { count: friends.length })}
-              </h3>
-              <button
-                onClick={() => setFriendsOpen(false)}
-                className="text-outline hover:text-on-surface transition-colors active:scale-95"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {friends.length === 0 ? (
-              <div className="px-5 pb-6 text-sm text-on-surface-variant text-center">
-                {t("noFriendsYet")}
-              </div>
-            ) : (
-              <div className="overflow-y-auto max-h-96 px-4 pb-5 space-y-3">
-                {friends.map((f) => {
-                  const name = f.searchHandle ? `@${f.searchHandle}` : "User";
-                  const popupStatus = sentIds.has(f.id) ? "sent" : f.connectionStatus;
-                  return (
-                    <div key={f.id} className="flex items-center gap-3">
-                      <Link
-                        href={`/community/${f.searchHandle ?? f.id}`}
-                        onClick={() => setFriendsOpen(false)}
-                        className="flex items-center gap-3 flex-1 min-w-0"
-                      >
-                        <Avatar url={f.avatarUrl} name={name} size={40} />
-                        <span className="flex-1 truncate font-headline font-medium text-sm text-on-surface">
-                          {name}
-                        </span>
-                      </Link>
-                      {popupStatus === "self" ? null : popupStatus === "friends" ? (
-                        <span className="text-xs font-bold text-on-surface-variant px-3 py-1 rounded-full border border-outline-variant shrink-0">
-                          {t("friend")}
-                        </span>
-                      ) : popupStatus === "sent" ? (
-                        <span className="text-xs font-bold text-on-surface-variant px-3 py-1 rounded-full border border-outline-variant shrink-0">
-                          {t("requestSent")}
-                        </span>
-                      ) : (
-                        <button
-                          onClick={async () => {
-                            setSentIds((prev) => new Set(prev).add(f.id));
-                            await requestFriend({ receiverId: f.id });
-                          }}
-                          className="text-xs font-bold text-primary px-3 py-1 rounded-full border border-primary active:scale-95 transition-transform shrink-0"
-                        >
-                          {t("add")}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+      <Overlay variant="center" open={friendsOpen} onClose={() => setFriendsOpen(false)}>
+        <div className="w-full max-w-sm bg-surface rounded-sheet shadow-float overflow-hidden">
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <h3 className="font-headline font-semibold text-lg text-on-surface">
+              {t("friendsCount", { count: friends.length })}
+            </h3>
+            <button
+              onClick={() => setFriendsOpen(false)}
+              className="tap-target text-outline hover:text-on-surface transition-colors press"
+            >
+              <X size={20} />
+            </button>
           </div>
+
+          {friends.length === 0 ? (
+            <div className="px-5 pb-6 text-sm text-on-surface-variant text-center">
+              {t("noFriendsYet")}
+            </div>
+          ) : (
+            <div className="overflow-y-auto max-h-96 px-4 pb-5 space-y-3">
+              {friends.map((f) => {
+                const name = f.searchHandle ? `@${f.searchHandle}` : "User";
+                const popupStatus = sentIds.has(f.id) ? "sent" : f.connectionStatus;
+                return (
+                  <div key={f.id} className="flex items-center gap-3">
+                    <Link
+                      href={`/community/${f.searchHandle ?? f.id}`}
+                      onClick={() => setFriendsOpen(false)}
+                      className="flex items-center gap-3 flex-1 min-w-0"
+                    >
+                      <Avatar url={f.avatarUrl} name={name} size={40} />
+                      <span className="flex-1 truncate font-headline font-medium text-sm text-on-surface">
+                        {name}
+                      </span>
+                    </Link>
+                    {popupStatus === "self" ? null : popupStatus === "friends" ? (
+                      <span className="text-xs font-semibold text-on-surface-variant px-3 py-1 rounded-full border border-outline-variant shrink-0">
+                        {t("friend")}
+                      </span>
+                    ) : popupStatus === "sent" ? (
+                      <span className="text-xs font-semibold text-on-surface-variant px-3 py-1 rounded-full border border-outline-variant shrink-0">
+                        {t("requestSent")}
+                      </span>
+                    ) : (
+                      <button
+                        onClick={async () => {
+                          setSentIds((prev) => new Set(prev).add(f.id));
+                          await requestFriend({ receiverId: f.id });
+                        }}
+                        className="tap-target text-xs font-semibold text-primary px-3 py-1 rounded-full border border-primary press transition-transform shrink-0"
+                      >
+                        {t("add")}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </Overlay>
     </div>
   );
 }

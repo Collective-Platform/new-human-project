@@ -13,7 +13,7 @@ export function DailySignupsChart({ rows }: { rows: { date: string; count: numbe
   const maxCount = Math.max(...rows.map((r) => r.count), 1);
 
   return (
-    <div className="rounded-md bg-white shadow-card overflow-hidden">
+    <div className="rounded-card bg-white shadow-card overflow-hidden">
       <div className="px-4 py-3 border-b border-zinc-100 flex items-center justify-between">
         <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
           Daily Signups (Since May 30)
@@ -37,10 +37,10 @@ export function DailySignupsChart({ rows }: { rows: { date: string; count: numbe
                   style={{ height: BAR_HEIGHT }}
                 >
                   {count > 0 && (
-                    <span className="text-[9px] text-foreground/50 leading-none">{count}</span>
+                    <span className="text-xs text-foreground/50 leading-none">{count}</span>
                   )}
                   <div
-                    className="w-5 bg-zinc-800 rounded-t-md transition-all duration-500"
+                    className="w-5 bg-zinc-800 rounded-t-md transition-all duration-(--duration-slow)"
                     style={{ height: barH, opacity: count > 0 ? 1 : 0.1 }}
                   />
                 </div>
@@ -52,7 +52,7 @@ export function DailySignupsChart({ rows }: { rows: { date: string; count: numbe
             {rows.map(({ date }) => (
               <div key={date} className="w-7 shrink-0 flex justify-center">
                 <span
-                  className="text-[9px] text-foreground/40 -rotate-45 origin-top-left translate-x-2"
+                  className="text-xs text-foreground/40 -rotate-45 origin-top-left translate-x-2"
                   title={formatDate(date)}
                 >
                   {date.slice(5)}

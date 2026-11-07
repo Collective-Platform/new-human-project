@@ -19,7 +19,7 @@ export function AdminClient({
 }) {
   return (
     <div className="px-4 pt-4 pb-4 space-y-4">
-      <h1 className="font-headline text-xl font-bold text-foreground">Admin</h1>
+      <h1 className="font-headline text-xl font-semibold text-foreground">Admin</h1>
 
       <AdminStats locale={locale} stats={stats} />
 
@@ -28,7 +28,7 @@ export function AdminClient({
       <AdminUsersTable users={users} />
 
       {/* Push Notifications */}
-      <div className="rounded-md bg-white shadow-card overflow-hidden">
+      <div className="rounded-card bg-white shadow-card overflow-hidden">
         <div className="px-4 py-3 border-b border-zinc-100">
           <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
             Push Notifications

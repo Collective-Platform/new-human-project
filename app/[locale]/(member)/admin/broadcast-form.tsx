@@ -46,7 +46,7 @@ export function BroadcastForm() {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g. Rhythm Live is happening!"
           maxLength={100}
-          className="w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+          className="w-full rounded-control border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
         />
       </div>
       <div className="space-y-1">
@@ -57,7 +57,7 @@ export function BroadcastForm() {
           placeholder="e.g. Join us on 4th July at 7pm"
           maxLength={300}
           rows={3}
-          className="w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-foreground outline-none focus:border-primary resize-none"
+          className="w-full rounded-control border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-foreground outline-none focus:border-primary resize-none"
         />
       </div>
       <div className="space-y-1">
@@ -67,7 +67,7 @@ export function BroadcastForm() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="/dashboard"
-          className="w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+          className="w-full rounded-control border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
         />
       </div>
 
@@ -84,7 +84,7 @@ export function BroadcastForm() {
       <button
         onClick={handleSend}
         disabled={sending || !title.trim() || !message.trim()}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+        className="tap-target press flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-semibold text-white disabled:opacity-50"
       >
         {sending ? (
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

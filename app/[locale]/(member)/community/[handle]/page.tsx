@@ -15,7 +15,7 @@ function Loading() {
       </div>
       <div className="space-y-3 pt-4">
         {Array.from({ length: 4 }, (_, i) => (
-          <div key={i} className="flex items-center gap-4 rounded-2xl bg-white p-5">
+          <div key={i} className="flex items-center gap-4 rounded-card bg-white p-5">
             <div className="w-14 h-14 rounded-full bg-zinc-200 shrink-0" />
             <div className="flex-1 space-y-2">
               <div className="h-3 w-1/4 rounded bg-zinc-100" />

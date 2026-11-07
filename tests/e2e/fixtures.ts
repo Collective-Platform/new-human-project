@@ -16,6 +16,10 @@ type Member = {
   cookie: string;
   tasks: ProgramTask[];
   completion: (taskId: string) => Promise<Record<string, unknown> | null | undefined>;
+  /** Block numbers of the plans this member belongs to, sorted. */
+  planBlocks: () => Promise<number[]>;
+  /** Creates a group plan and returns its invite code. Its rows go when the member is deleted. */
+  createGroupPlan: () => Promise<string>;
 };
 
 export const test = base.extend<{
@@ -30,7 +34,7 @@ export const test = base.extend<{
     // Deferred requires keep --list independent of database credentials.
     // Use Playwright's CommonJS transform so nested @/ imports resolve in workers.
     const { db } = require("../../src/db") as typeof import("../../src/db");
-    const { users, sessions, taskCompletions } =
+    const { users, sessions, taskCompletions, plans, planMembers } =
       require("../../src/db/schema") as typeof import("../../src/db/schema");
     const { generateSessionId, generateRawToken, hashToken } =
       require("../../src/features/auth/crypto") as typeof import("../../src/features/auth/crypto");
@@ -78,6 +82,24 @@ export const test = base.extend<{
         handle,
         cookie,
         tasks: getDayTasks(1, 1),
+        planBlocks: async () => {
+          const rows = await db
+            .select({ blockNumber: plans.blockNumber })
+            .from(planMembers)
+            .innerJoin(plans, eq(plans.id, planMembers.planId))
+            .where(eq(planMembers.userId, user.id));
+          return rows.map((row) => row.blockNumber).sort((a, b) => a - b);
+        },
+        createGroupPlan: async () => {
+          const inviteCode = randomUUID().replaceAll("-", "").slice(0, 24);
+          await db.insert(plans).values({
+            blockNumber: 1,
+            createdBy: user.id,
+            inviteCode,
+            isGroup: true,
+          });
+          return inviteCode;
+        },
         completion: async (taskId) => {
           const rows = await db
             .select({ data: taskCompletions.data })

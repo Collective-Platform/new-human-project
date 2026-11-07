@@ -3,7 +3,7 @@ import type { Components } from "react-markdown";
 
 const markdownComponents: Components = {
   h1: ({ children }) => (
-    <h1 className="font-headline text-2xl font-bold text-foreground mt-3">{children}</h1>
+    <h1 className="font-headline text-2xl font-semibold text-foreground mt-3">{children}</h1>
   ),
   hr: () => <hr className="my-4 border-t border-primary/40" />,
   p: ({ children }) => <p className="mb-2">{children}</p>,
@@ -40,7 +40,7 @@ export function MarkdownContent({
 
           if (tableLayout === "stacked-overview" && header.length === 4 && rows.length === 1) {
             return (
-              <div key={index} className="my-4 overflow-hidden rounded-2xl">
+              <div key={index} className="my-4 overflow-hidden rounded-control">
                 <table className="w-full border-collapse text-left">
                   <tbody>
                     {header.map((cell, cellIndex) => (

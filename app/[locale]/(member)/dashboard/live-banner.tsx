@@ -58,7 +58,7 @@ export function LiveBanner() {
       href={TICKET_URL}
       target="_blank"
       rel="noopener noreferrer"
-      className="block rounded-md bg-[#F1A100] p-4 text-black shadow-card transition-transform hover:opacity-95 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+      className="block rounded-card bg-[#F1A100] p-4 text-black shadow-card transition-transform hover:opacity-90 press-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
     >
       <div className="flex gap-4 items-center">
         <div className="shrink-0">
@@ -77,7 +77,7 @@ export function LiveBanner() {
               <p className="text-xs text-black/70">{t("dateAndTime")}</p>
               <p className="mt-1 font-nowstalgic text-xl font-black leading-none">Rhythm Live II</p>
             </div>
-            <span className="shrink-0 rounded-full bg-black px-3 py-1 text-xs font-bold text-[#F1A100]">
+            <span className="shrink-0 rounded-full bg-black px-3 py-1 text-xs font-semibold text-[#F1A100]">
               {t("cta")}
             </span>
           </div>
@@ -92,7 +92,7 @@ export function LiveBanner() {
                   </span>
                 </div>
                 {i < units.length - 1 && (
-                  <span className="mb-1 text-lg font-bold text-black/35" aria-hidden>
+                  <span className="mb-1 text-lg font-semibold text-black/35" aria-hidden>
                     :
                   </span>
                 )}

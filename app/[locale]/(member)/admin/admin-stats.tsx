@@ -62,7 +62,7 @@ export function AdminStats({ locale, stats }: { locale: string; stats: AdminStat
   return (
     <div className="space-y-4">
       {/* Summary cards */}
-      <div className="rounded-md bg-white shadow-card overflow-hidden">
+      <div className="rounded-card bg-white shadow-card overflow-hidden">
         <div className="px-4 py-3 border-b border-zinc-100">
           <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
             Users Overview
@@ -85,7 +85,7 @@ export function AdminStats({ locale, stats }: { locale: string; stats: AdminStat
         />
       </div>
 
-      <div className="rounded-md bg-white shadow-card overflow-hidden">
+      <div className="rounded-card bg-white shadow-card overflow-hidden">
         <div className="px-4 py-3 border-b border-zinc-100">
           <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
             Block Completions
@@ -151,7 +151,7 @@ function ComponentCompletionTable({
   const blocks = [...new Set(rows.map((row) => row.block))];
 
   return (
-    <div className="overflow-hidden rounded-md bg-white shadow-card">
+    <div className="overflow-hidden rounded-card bg-white shadow-card">
       <div className="px-4 py-3">
         <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
           {copy.title}
@@ -255,7 +255,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
       <span className="text-xs font-medium uppercase tracking-wider text-foreground/50">
         {label}
       </span>
-      <span className="text-2xl font-bold tabular-nums text-foreground">{value}</span>
+      <span className="text-2xl font-semibold tabular-nums text-foreground">{value}</span>
     </div>
   );
 }
@@ -272,7 +272,7 @@ function MonthTable({
   const total = rows.reduce((sum, r) => sum + r.count, 0);
 
   return (
-    <div className="rounded-md bg-white shadow-card overflow-hidden">
+    <div className="rounded-card bg-white shadow-card overflow-hidden">
       <div className="px-4 py-3 border-b border-zinc-100">
         <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">{title}</p>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Overlay } from "@/app/components/overlay";
 
 const PILLARS = [
   {
@@ -306,14 +307,14 @@ export function PillarsSection() {
                     }}
                   >
                     <div
-                      className="pillar-circle-bg absolute inset-0 flex items-center justify-center rounded-full bg-transparent transition-colors duration-200 group-hover:bg-black"
+                      className="pillar-circle-bg absolute inset-0 flex items-center justify-center rounded-full bg-transparent transition-colors duration-(--duration-base) group-hover:bg-black"
                       style={{
                         border: "2px solid #1a1a1a",
                         ...(isActive ? { backgroundColor: "black" } : {}),
                       }}
                     >
                       <span
-                        className="text-base font-semibold tracking-wide text-black transition-colors duration-200 group-hover:text-[#F1A100] md:text-xl"
+                        className="text-base font-semibold tracking-wide text-black transition-colors duration-(--duration-base) group-hover:text-[#F1A100] md:text-xl"
                         style={isActive ? { color: "#F1A100" } : undefined}
                       >
                         {circle.label}
@@ -348,39 +349,34 @@ export function PillarsSection() {
       )}
 
       {/* ── Mobile modal (tap on circle) ──────────────────────────────────── */}
-      {isMobileView &&
-        activeDetail !== null &&
-        (() => {
-          const activePillar = PILLARS[CIRCLES[activeDetail].pillarIdx];
-          return (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      <Overlay
+        variant="center"
+        open={isMobileView && activeDetail !== null}
+        onClose={() => setActiveDetail(null)}
+      >
+        {activeDetail !== null && (
+          <div className="relative w-full max-w-sm rounded-sheet bg-white p-6">
+            <button
               onClick={() => setActiveDetail(null)}
+              className="absolute right-4 top-4 text-xl leading-none text-on-surface/40 hover:text-on-surface"
             >
-              <div
-                className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  onClick={() => setActiveDetail(null)}
-                  className="absolute right-4 top-4 text-xl leading-none text-on-surface/40 hover:text-on-surface"
-                >
-                  ×
-                </button>
-                <p
-                  className="mb-1 text-xs font-bold uppercase tracking-[0.2em]"
-                  style={{ color: activePillar.color }}
-                >
-                  {activePillar.name}
-                </p>
-                <p className="mb-3 text-xl font-black text-on-surface">{activePillar.title}</p>
-                <p className="text-base md:text-lg leading-normal md:leading-relaxed text-on-surface-variant">
-                  {activePillar.detail}
-                </p>
-              </div>
-            </div>
-          );
-        })()}
+              ×
+            </button>
+            <p
+              className="mb-1 text-xs font-bold uppercase tracking-[0.2em]"
+              style={{ color: PILLARS[CIRCLES[activeDetail].pillarIdx].color }}
+            >
+              {PILLARS[CIRCLES[activeDetail].pillarIdx].name}
+            </p>
+            <p className="mb-3 text-xl font-black text-on-surface">
+              {PILLARS[CIRCLES[activeDetail].pillarIdx].title}
+            </p>
+            <p className="text-base md:text-lg leading-normal md:leading-relaxed text-on-surface-variant">
+              {PILLARS[CIRCLES[activeDetail].pillarIdx].detail}
+            </p>
+          </div>
+        )}
+      </Overlay>
     </section>
   );
 }
@@ -390,7 +386,7 @@ export function PillarsSection() {
 function DetailCard({ pillar }: { pillar: (typeof PILLARS)[0] }) {
   return (
     <div
-      className="z-9999 w-72 rounded-2xl bg-white p-5 shadow-lg"
+      className="z-9999 w-72 rounded-card bg-white p-5 shadow-float"
       style={{
         position: "fixed",
         left: "50%",

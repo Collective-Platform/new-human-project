@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes } from "react";
 
-const BASE = "w-full rounded-full px-4 py-2.5 text-center text-sm font-semibold press";
+const BASE = "tap-target w-full rounded-full px-4 py-2.5 text-center text-sm font-semibold press";
 
 const SELECTED_CLASSES = {
   secondary: "bg-secondary-container text-on-secondary-container ring-2 ring-secondary/20",

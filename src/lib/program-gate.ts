@@ -56,8 +56,9 @@ function epochDay(marker: Date): number {
  * local timezone, and no user enters it earlier.
  *
  * To schedule a future block, add an entry. To delay/lock one, raise its date.
- * A block with NO entry has no launch gate — it opens as soon as a user finishes
- * the previous block (use this when blocks should run back-to-back).
+ * A block with NO entry has no launch gate. Blocks 2+ have none, so a member
+ * may start any of them at any time. Finishing Ephesians (block 1) first is a
+ * recommendation, not a rule the code enforces.
  *
  * Dev tip: to preview a future block for cosmetic work, temporarily lower its
  * date here (e.g. set `2` to a past date) so the active block advances.
@@ -66,11 +67,6 @@ export const BLOCK_LAUNCH: Record<number, Date> = {
   // Launch dates are calendar dates; resolved via the default tz only to extract
   // the intended day from the source string (env value carries a +08:00 offset).
   1: localDateMarker(new Date(env.PROGRAM_START_AT), PROGRAM_DEFAULT_TZ), // June 1, 2026
-  2: localDateMarker(new Date("2026-07-06"), PROGRAM_DEFAULT_TZ), // block 2 launch
-  3: localDateMarker(new Date("2026-07-31"), PROGRAM_DEFAULT_TZ), // block 3 launch
-  4: localDateMarker(new Date("2026-08-25"), PROGRAM_DEFAULT_TZ), // block 4 launch
-  5: localDateMarker(new Date("2026-09-19"), PROGRAM_DEFAULT_TZ), // block 5 launch
-  6: localDateMarker(new Date("2026-10-14"), PROGRAM_DEFAULT_TZ), // block 6 launch
 };
 
 export function getBlockLaunchDate(blockNumber: number): Date | null {

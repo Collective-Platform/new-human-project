@@ -14,6 +14,7 @@ export default function OnboardingPage() {
   const [handle, setHandle] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [planId, setPlanId] = useState<string | null>(null);
   const [step, setStep] = useState<"handle" | "install">("handle");
 
   // Install prompt state
@@ -49,8 +50,12 @@ export default function OnboardingPage() {
     }
     setLoading(true);
     try {
-      const result = await completeOnboarding({ searchHandle: normalized });
+      const result = await completeOnboarding({
+        searchHandle: normalized,
+        next: new URLSearchParams(window.location.search).get("next"),
+      });
       if (!("error" in result)) {
+        setPlanId(result.planId ?? null);
         setStep("install");
         return;
       }
@@ -80,7 +85,8 @@ export default function OnboardingPage() {
   function handleContinue() {
     // Mark A2HS as seen so the floating card in the member area doesn't repeat it
     localStorage.setItem("a2hs-dismissed", "1");
-    router.push("/");
+    // A new member goes straight into their Ephesians plan to start day 1.
+    router.push(planId ? `/progress/${planId}` : "/");
     router.refresh();
   }
 
@@ -91,7 +97,7 @@ export default function OnboardingPage() {
       <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
         <div className="space-y-8 max-w-sm w-full">
           <div>
-            <h1 className="text-3xl font-bold font-headline text-foreground">
+            <h1 className="text-3xl font-semibold font-headline text-foreground">
               Set up your experience
             </h1>
             <p className="mt-2 text-foreground/60 leading-relaxed">
@@ -101,7 +107,7 @@ export default function OnboardingPage() {
 
           {/* Install section */}
           {showInstallSection && (
-            <div className="rounded-xl border border-zinc-100 bg-white p-5 text-left shadow-sm space-y-3">
+            <div className="rounded-control border border-zinc-100 bg-white p-5 text-left shadow-card space-y-3">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📱</span>
                 <div>
@@ -117,7 +123,7 @@ export default function OnboardingPage() {
               ) : (
                 <button
                   onClick={handleInstall}
-                  className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white"
+                  className="tap-target press w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-white"
                 >
                   Add to Home Screen
                 </button>
@@ -127,7 +133,7 @@ export default function OnboardingPage() {
 
           {/* Notifications section */}
           {"Notification" in (typeof window !== "undefined" ? window : {}) && (
-            <div className="rounded-xl border border-zinc-100 bg-white p-5 text-left shadow-sm space-y-3">
+            <div className="rounded-control border border-zinc-100 bg-white p-5 text-left shadow-card space-y-3">
               <div className="flex items-center gap-3">
                 <Bell size={24} className="text-primary" />
                 <div>
@@ -149,7 +155,7 @@ export default function OnboardingPage() {
               ) : (
                 <button
                   onClick={handleEnableNotifications}
-                  className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white"
+                  className="tap-target press w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-white"
                 >
                   Allow Notifications
                 </button>
@@ -159,7 +165,7 @@ export default function OnboardingPage() {
 
           <button
             onClick={handleContinue}
-            className="w-full rounded-md bg-zinc-900 py-4 text-white font-semibold text-lg transition-opacity hover:opacity-90"
+            className="press w-full rounded-control bg-zinc-900 py-4 text-white font-semibold text-lg transition-opacity hover:opacity-90"
           >
             Continue →
           </button>
@@ -174,7 +180,7 @@ export default function OnboardingPage() {
         <div className="flex items-center justify-center w-20 h-20 mx-auto rounded-full bg-primary/10">
           <AtSign size={40} className="text-primary" />
         </div>
-        <h1 className="text-3xl font-bold font-headline text-foreground">
+        <h1 className="text-3xl font-semibold font-headline text-foreground">
           {t("pickUsernameTitle")}
         </h1>
         <p className="text-foreground/60 leading-relaxed">{t("pickUsernameSubtitle")}</p>
@@ -202,7 +208,7 @@ export default function OnboardingPage() {
             placeholder={t("usernamePlaceholder")}
             aria-label={t("pickUsernameTitle")}
             aria-invalid={error ? true : undefined}
-            className="w-full rounded-md border border-zinc-200 bg-white py-3 pl-7 pr-3 text-base text-foreground outline-none focus:border-primary disabled:opacity-60"
+            className="w-full rounded-control border border-zinc-200 bg-white py-3 pl-7 pr-3 text-base text-foreground outline-none focus:border-primary disabled:opacity-60"
           />
         </div>
 
@@ -218,7 +224,7 @@ export default function OnboardingPage() {
       <button
         onClick={handleSubmit}
         disabled={loading || !isValid}
-        className="mt-8 w-full max-w-sm rounded-md bg-primary py-4 text-white font-semibold text-lg transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="press mt-8 w-full max-w-sm rounded-control bg-primary py-4 text-white font-semibold text-lg transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {loading ? t("saving") : t("getStarted")}
       </button>

@@ -11,6 +11,13 @@ export default defineConfig({
   // Only manage NHP's own schema. We share the database instance with
   // giving-platform but never touch its `public` tables.
   schemaFilter: ["nhp"],
+  // Migration log. This is the Drizzle default, written out on purpose.
+  // The giving-platform app keeps its own log in its own schema, so the two
+  // apps do not share migration history. Do not change without moving the rows.
+  migrations: {
+    schema: "drizzle",
+    table: "__drizzle_migrations",
+  },
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },

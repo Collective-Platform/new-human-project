@@ -133,6 +133,7 @@ export async function getActivityFeedRows(userId: number): Promise<
     LEFT JOIN nhp.block_day_tasks bdt ON bdt.id::text = tc.task_id
     WHERE tc.user_id IN (SELECT friend_id FROM friend_ids)
       AND u.privacy_public = true
+      AND (tc.data->>'syncedFromPlanId') IS NULL
     ORDER BY tc.completed_at DESC
     LIMIT 10
   `);

@@ -33,10 +33,12 @@ export function VerifyForm({
   email,
   mode = "login",
   queued = false,
+  next = null,
 }: {
   email: string;
   mode?: Mode;
   queued?: boolean;
+  next?: string | null;
 }) {
   const router = useRouter();
   const [otp, setOtp] = useState("");
@@ -76,7 +78,7 @@ export function VerifyForm({
         return;
       }
 
-      router.push("/");
+      router.push(next ?? "/");
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -123,7 +125,7 @@ export function VerifyForm({
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
       {queued && (
-        <p className="text-sm border-category-mental bg-category-mental-bg border rounded-xl text-foreground text-center px-4 py-2 mt-4">
+        <p className="text-sm border-category-mental bg-category-mental-bg border rounded-control text-foreground text-center px-4 py-2 mt-4">
           Due to high volume, your code will arrive in
           <br></br>
           <strong>1 minute</strong>. Thank you for your patience 🙏🏻
@@ -158,7 +160,7 @@ export function VerifyForm({
       <button
         type="submit"
         disabled={loading || otp.length !== 6}
-        className="w-full rounded-sm bg-primary py-3 text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="press w-full rounded-control bg-primary py-3 text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {loading ? "Verifying…" : "Verify"}
       </button>
@@ -168,7 +170,7 @@ export function VerifyForm({
           type="button"
           onClick={handleResend}
           disabled={resending}
-          className="text-sm text-primary hover:underline disabled:opacity-50"
+          className="tap-target text-sm text-primary hover:underline disabled:opacity-50"
         >
           {resending ? "Sending…" : "Resend code"}
         </button>

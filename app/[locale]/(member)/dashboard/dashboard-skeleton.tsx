@@ -2,7 +2,7 @@ export function DashboardSkeleton() {
   return (
     <div className="animate-pulse space-y-4 px-4 sm:px-6 md:px-8 pt-4 pb-4">
       {/* Radar chart card */}
-      <div className="rounded-md bg-white p-5 shadow-card">
+      <div className="rounded-card bg-white p-5 shadow-card">
         <div className="mx-auto aspect-200/210 w-full max-w-60 rounded-full bg-zinc-100" />
         <div className="mt-3 flex justify-between">
           <div className="h-3 w-16 rounded bg-zinc-100" />
@@ -12,7 +12,7 @@ export function DashboardSkeleton() {
       </div>
 
       {/* Foundation card */}
-      <div className="rounded-md border border-surface-container bg-white p-8 shadow-card">
+      <div className="rounded-card border border-surface-container bg-white p-8 shadow-card">
         <div className="mb-2 h-2.5 w-24 rounded bg-zinc-100" />
         <div className="mb-4 h-7 w-44 rounded bg-zinc-100" />
         <div className="mb-6 space-y-2">
@@ -29,7 +29,7 @@ export function DashboardSkeleton() {
       </div>
 
       {/* Activity calendar card */}
-      <div className="rounded-md bg-white p-5 shadow-card">
+      <div className="rounded-card bg-white p-5 shadow-card">
         <div className="mb-3 h-3 w-28 rounded bg-zinc-100" />
         <div className="mb-2 grid grid-cols-7 gap-1">
           {Array.from({ length: 7 }, (_, i) => (
@@ -48,10 +48,7 @@ export function DashboardSkeleton() {
         <div className="h-7 w-32 rounded bg-zinc-200 px-2" />
         <div className="space-y-3">
           {Array.from({ length: 3 }, (_, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-4 rounded-md bg-white p-4 shadow-[0_4px_16px_rgba(53,50,47,0.03)]"
-            >
+            <div key={i} className="flex items-center gap-4 rounded-card bg-white p-4 shadow-card">
               <div className="h-10 w-1.5 shrink-0 rounded-full bg-zinc-100" />
               <div className="min-w-0 flex-1 space-y-1.5">
                 <div className="h-4 w-3/4 rounded bg-zinc-100" />

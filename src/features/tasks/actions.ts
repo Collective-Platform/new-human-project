@@ -1,244 +1,153 @@
 "use server";
 
 import { updateTag } from "next/cache";
-import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
 import { db } from "@/src/db";
-import {
-  taskCompletions,
-  memberBlockCompletions,
-  badgeDefinitions,
-  memberBadges,
-} from "@/src/db/schema";
-import { eq, and, sql, inArray } from "drizzle-orm";
-import { getTaskById as getRegistryTaskById, getDayTasks } from "@/src/features/content/program";
+import { taskCompletions, planCompletions } from "@/src/db/schema";
+import { eq, and, sql } from "drizzle-orm";
+import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
 import { getFriendIdsRaw } from "@/src/features/community/invalidation";
-import { BLOCK_LAUNCH, BLOCK_LENGTH_DAYS, getActiveBlock } from "@/src/lib/program-gate";
+import { getPlanForMember } from "@/src/features/plans/queries";
+import { finishPlanIfComplete } from "./plan-finish";
+import { getRequestTimezone, mirrorSharedLog, removeSharedLog } from "./shared-logs";
 
 export async function completeTask(input: {
   taskId: string;
   data?: Record<string, unknown>;
-}): Promise<{ success: true; blockCompleted: boolean } | { error: string }> {
+  planId?: string;
+}): Promise<
+  | {
+      success: true;
+      blockCompleted: boolean;
+      completedBlockNumber?: number;
+      completedPlanId?: string;
+      earnedBadgeId?: string;
+    }
+  | { error: string }
+> {
   const user = await getSessionUser();
   if (!user) return { error: "Unauthorized" };
 
-  const { taskId, data } = input;
+  const { taskId, data, planId } = input;
   if (!taskId) return { error: "taskId required" };
+  if (!planId) return { error: "Choose a plan before completing tasks." };
 
-  const cookieStore = await cookies();
-  const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
-  const { blockNumber } = getActiveBlock(user.onboardedAt ?? BLOCK_LAUNCH[1], new Date(), timezone);
+  const planState = await getPlanForMember(planId, user.id);
+  const task = getRegistryTaskById(taskId);
+  if (!planState || !task || task.block !== planState.plan.blockNumber) {
+    return { error: "This task is not available in your plan." };
+  }
 
+  // One atomic upsert on the partial unique index, so two saves at the same
+  // moment (double tap, quick mood/exercise entries) cannot collide.
   await db
     .insert(taskCompletions)
     .values({
       userId: user.id,
+      planId,
       taskId,
       data: data ?? {},
       completedAt: new Date(),
     })
     .onConflictDoUpdate({
-      target: [taskCompletions.userId, taskCompletions.taskId],
+      target: [taskCompletions.planId, taskCompletions.userId, taskCompletions.taskId],
+      targetWhere: sql`plan_id IS NOT NULL`,
       set: {
         data: sql`COALESCE(${taskCompletions.data}, '{}') || ${JSON.stringify(data ?? {})}::jsonb`,
         // completedAt intentionally omitted — preserve the original timestamp
         // so notes updates don't bump the activity to the top of the feed.
       },
     });
-
-  const completions = await db
-    .select({ taskId: taskCompletions.taskId })
-    .from(taskCompletions)
-    .where(eq(taskCompletions.userId, user.id));
-
-  const dayCategories = new Map<number, Set<string>>();
-  for (const c of completions) {
-    const task = getRegistryTaskById(c.taskId);
-    if (task && task.block === blockNumber) {
-      const cats = dayCategories.get(task.day) ?? new Set<string>();
-      cats.add(task.category);
-      dayCategories.set(task.day, cats);
-    }
-  }
-
-  const allDaysComplete = Array.from({ length: BLOCK_LENGTH_DAYS }, (_, i) => i + 1).every(
-    (day) => (dayCategories.get(day)?.size ?? 0) >= 3,
-  );
-
-  let blockCompleted = false;
-  if (allDaysComplete) {
-    const existing = await db
-      .select()
-      .from(memberBlockCompletions)
-      .where(
-        and(
-          eq(memberBlockCompletions.userId, user.id),
-          eq(memberBlockCompletions.blockNumber, blockNumber),
-        ),
-      )
-      .limit(1);
-
-    if (existing.length === 0) {
-      await db.insert(memberBlockCompletions).values({
-        userId: user.id,
-        blockNumber,
-      });
-
-      const badge = await db
-        .select()
-        .from(badgeDefinitions)
-        .where(eq(badgeDefinitions.blockNumber, blockNumber))
-        .limit(1);
-
-      if (badge.length > 0) {
-        try {
-          await db.insert(memberBadges).values({
-            userId: user.id,
-            badgeId: badge[0].id,
-          });
-        } catch {
-          // Badge already awarded
-        }
-      }
-
-      blockCompleted = true;
-    }
-  }
+  // Mood and exercise logged today also count in the member's other blocks.
+  const mirrored = await mirrorSharedLog({
+    userId: user.id,
+    source: planState.plan,
+    task,
+    timezone: await getRequestTimezone(),
+  });
+  const syncedPlanIds = mirrored.planIds;
+  const own = await finishPlanIfComplete(user.id, planState.plan);
+  // A copied log can finish another block. Celebrate it now if this block did not finish.
+  const celebrated = own.blockCompleted
+    ? { ...own, planId, blockNumber: planState.plan.blockNumber }
+    : mirrored.finished;
+  const blockCompleted = celebrated !== undefined;
+  const earnedBadgeId = celebrated?.earnedBadgeId;
 
   const friendIds = await getFriendIdsRaw(user.id);
   updateTag(`dashboard:${user.id}`);
-  updateTag(`progress:${user.id}`);
   updateTag(`feed:${user.id}`);
   for (const fid of friendIds) updateTag(`feed:${fid}`);
-
-  return { success: true, blockCompleted };
+  updateTag(`plan:${planId}`);
+  updateTag(`plans:${user.id}`);
+  for (const syncedId of syncedPlanIds) updateTag(`plan:${syncedId}`);
+  return {
+    success: true,
+    blockCompleted,
+    ...(celebrated
+      ? { completedBlockNumber: celebrated.blockNumber, completedPlanId: celebrated.planId }
+      : {}),
+    ...(earnedBadgeId ? { earnedBadgeId } : {}),
+  };
 }
 
 export async function uncompleteTask(input: {
   taskId: string;
+  planId?: string;
 }): Promise<{ success: true } | { error: string }> {
   const user = await getSessionUser();
   if (!user) return { error: "Unauthorized" };
 
-  const { taskId } = input;
+  const { taskId, planId } = input;
   if (!taskId) return { error: "taskId required" };
+  if (!planId) return { error: "Choose a plan before changing tasks." };
+
+  const planState = await getPlanForMember(planId, user.id);
+  if (!planState) {
+    return { error: "This plan is unavailable." };
+  }
+  const completedPlan = await db
+    .select({ id: planCompletions.id })
+    .from(planCompletions)
+    .where(and(eq(planCompletions.planId, planId), eq(planCompletions.userId, user.id)))
+    .limit(1);
+  if (completedPlan[0]) return { error: "Completed plans cannot be changed." };
 
   await db
     .delete(taskCompletions)
-    .where(and(eq(taskCompletions.userId, user.id), eq(taskCompletions.taskId, taskId)));
-
-  const friendIds = await getFriendIdsRaw(user.id);
-  updateTag(`dashboard:${user.id}`);
-  updateTag(`progress:${user.id}`);
-  updateTag(`feed:${user.id}`);
-  for (const fid of friendIds) updateTag(`feed:${fid}`);
-
-  return { success: true };
-}
-
-/**
- * Upsert data for a task in a completed block.
- *
- * - On first save (task never individually completed): inserts a new row so the
- *   task becomes visible as completed on next load.
- * - On subsequent saves: merges the data field only — `completedAt` is never
- *   updated, so the block's streak remains frozen even after content edits.
- *
- * Does NOT recheck block-completion (the block is already done).
- */
-export async function updateCompletedTaskData(input: {
-  taskId: string;
-  data: Record<string, unknown>;
-  blockEndDate?: string;
-}): Promise<{ success: true; isNew: boolean } | { error: string }> {
-  const user = await getSessionUser();
-  if (!user) return { error: "Unauthorized" };
-
-  const { taskId, data, blockEndDate } = input;
-  if (!taskId) return { error: "taskId required" };
-
-  const existing = await db
-    .select({ id: taskCompletions.id })
-    .from(taskCompletions)
-    .where(and(eq(taskCompletions.userId, user.id), eq(taskCompletions.taskId, taskId)))
-    .limit(1);
-
-  const isNew = existing.length === 0;
-  // For skipped tasks completed while revisiting a finished block, stamp with the
-  // block's end date so the completion doesn't affect the current streak or feed.
-  const completedAt = isNew && blockEndDate ? new Date(blockEndDate) : new Date();
-
-  await db
-    .insert(taskCompletions)
-    .values({
-      userId: user.id,
-      taskId,
-      data,
-      completedAt,
-    })
-    .onConflictDoUpdate({
-      target: [taskCompletions.userId, taskCompletions.taskId],
-      set: {
-        data: sql`COALESCE(${taskCompletions.data}, '{}') || ${JSON.stringify(data)}::jsonb`,
-        // completedAt intentionally omitted — streak is frozen for completed blocks
-      },
-    });
-
-  const friendIds = await getFriendIdsRaw(user.id);
-  updateTag(`dashboard:${user.id}`);
-  updateTag(`progress:${user.id}`);
-  updateTag(`feed:${user.id}`);
-  for (const fid of friendIds) updateTag(`feed:${fid}`);
-
-  return { success: true, isNew };
-}
-
-export async function redoBlock(
-  blockNumber: number,
-): Promise<{ success: true } | { error: string }> {
-  const user = await getSessionUser();
-  if (!user) return { error: "Unauthorized" };
-
-  // Collect all task IDs for this block from the registry
-  const taskIds: string[] = [];
-  for (let day = 1; day <= BLOCK_LENGTH_DAYS; day++) {
-    for (const task of getDayTasks(blockNumber, day)) {
-      taskIds.push(task.id);
-    }
-  }
-
-  if (taskIds.length > 0) {
-    await db
-      .delete(taskCompletions)
-      .where(and(eq(taskCompletions.userId, user.id), inArray(taskCompletions.taskId, taskIds)));
-  }
-
-  await db
-    .delete(memberBlockCompletions)
     .where(
       and(
-        eq(memberBlockCompletions.userId, user.id),
-        eq(memberBlockCompletions.blockNumber, blockNumber),
+        eq(taskCompletions.userId, user.id),
+        eq(taskCompletions.taskId, taskId),
+        eq(taskCompletions.planId, planId),
       ),
     );
 
-  const badge = await db
-    .select({ id: badgeDefinitions.id })
-    .from(badgeDefinitions)
-    .where(eq(badgeDefinitions.blockNumber, blockNumber))
-    .limit(1);
-
-  if (badge.length > 0) {
-    await db
-      .delete(memberBadges)
-      .where(and(eq(memberBadges.userId, user.id), eq(memberBadges.badgeId, badge[0].id)));
-  }
+  const task = getRegistryTaskById(taskId);
+  const syncedPlanIds = task
+    ? await removeSharedLog({
+        userId: user.id,
+        source: planState.plan,
+        task,
+        timezone: await getRequestTimezone(),
+      })
+    : [];
 
   const friendIds = await getFriendIdsRaw(user.id);
   updateTag(`dashboard:${user.id}`);
   updateTag(`progress:${user.id}`);
   updateTag(`feed:${user.id}`);
   for (const fid of friendIds) updateTag(`feed:${fid}`);
+  if (planId) updateTag(`plan:${planId}`);
+  for (const syncedId of syncedPlanIds) updateTag(`plan:${syncedId}`);
 
   return { success: true };
+}
+
+export async function redoBlock(
+  _blockNumber: number,
+): Promise<{ success: true } | { error: string }> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Unauthorized" };
+  return { error: "Start a new plan to repeat a block." };
 }

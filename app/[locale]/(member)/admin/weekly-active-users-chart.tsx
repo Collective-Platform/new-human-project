@@ -23,7 +23,7 @@ export function WeeklyActiveUsersChart({ rows }: { rows: { week: string; count: 
   const thisWeekCount = thisWeekRow?.count ?? 0;
 
   return (
-    <div className="rounded-md bg-white shadow-card overflow-hidden">
+    <div className="rounded-card bg-white shadow-card overflow-hidden">
       <div className="px-4 py-3 border-b border-zinc-100 flex items-center justify-between">
         <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
           Weekly Active Users (Last 12 Weeks)
@@ -48,10 +48,10 @@ export function WeeklyActiveUsersChart({ rows }: { rows: { week: string; count: 
                   style={{ height: BAR_HEIGHT }}
                 >
                   {count > 0 && (
-                    <span className="text-[9px] text-foreground/50 leading-none">{count}</span>
+                    <span className="text-xs text-foreground/50 leading-none">{count}</span>
                   )}
                   <div
-                    className={`w-6 rounded-t-md transition-all duration-500 ${isCurrent ? "bg-blue-500" : "bg-zinc-800"}`}
+                    className={`w-6 rounded-t-md transition-all duration-(--duration-slow) ${isCurrent ? "bg-blue-500" : "bg-zinc-800"}`}
                     style={{ height: barH, opacity: count > 0 ? 1 : 0.1 }}
                   />
                 </div>
@@ -63,7 +63,7 @@ export function WeeklyActiveUsersChart({ rows }: { rows: { week: string; count: 
             {rows.map(({ week }) => (
               <div key={week} className="w-8 shrink-0 flex justify-center">
                 <span
-                  className="text-[9px] text-foreground/40 -rotate-45 origin-top-left translate-x-2"
+                  className="text-xs text-foreground/40 -rotate-45 origin-top-left translate-x-2"
                   title={formatWeek(week)}
                 >
                   {week.slice(5)}

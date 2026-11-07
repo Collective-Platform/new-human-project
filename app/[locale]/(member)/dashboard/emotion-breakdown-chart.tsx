@@ -25,20 +25,20 @@ export function EmotionBreakdownChart({
   breakdown: Record<string, number>;
   title: string;
   emptyLabel: string;
-  blockLabel: string;
+  blockLabel?: string;
 }) {
   const counts = MOOD_ORDER.map((k) => breakdown[k] ?? 0);
   const total = counts.reduce((a, b) => a + b, 0);
 
   return (
-    <div className="rounded-3xl bg-white shadow-card px-8 py-5">
+    <div className="rounded-card bg-white shadow-card px-8 py-5">
       <div className="mb-4 flex items-center gap-2">
         <Image src="/icons/Emotional.svg" alt="" width={28} height={28} />
         <div>
           <h3 className="text-xl font-headline tracking-tight font-medium text-category-emotional">
             {title}
           </h3>
-          <p className="text-xs text-foreground/40">{blockLabel}</p>
+          {blockLabel && <p className="text-xs text-foreground/40">{blockLabel}</p>}
         </div>
       </div>
 
@@ -51,17 +51,17 @@ export function EmotionBreakdownChart({
             const percentage = total > 0 ? (count / total) * 100 : 0;
 
             return (
-              <div key={key} className="flex items-center gap-3 px-2 py-1 rounded-xl">
+              <div key={key} className="flex items-center gap-3 px-2 py-1 rounded-control">
                 <span className="text-lg shrink-0">{MOOD_EMOJIS[key]}</span>
 
                 <div className="flex-1">
-                  <div className="flex justify-between items-center text-[10px] text-foreground mb-0.5">
+                  <div className="flex justify-between items-center text-xs text-foreground mb-0.5">
                     <span>{MOOD_LABELS[key]}</span>
                     <span>{count}</span>
                   </div>
                   <div className="w-full h-2 bg-(--color-bar-track) rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-(--color-category-emotional) rounded-full transition-all duration-500"
+                      className="h-full bg-(--color-category-emotional) rounded-full transition-all duration-(--duration-slow)"
                       style={{
                         width: `${count > 0 ? Math.max(percentage, 3.5) : 0}%`,
                       }}

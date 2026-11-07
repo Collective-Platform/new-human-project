@@ -1,11 +1,15 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+// The dev-only design board shows pages in iframes of the same site. Production
+// keeps the strict "never framed" rules.
+const isDev = process.env.NODE_ENV !== "production";
+
 const securityHeaders = [
   // Prevent MIME-type sniffing
   { key: "X-Content-Type-Options", value: "nosniff" },
   // Prevent clickjacking (belt-and-suspenders alongside CSP frame-ancestors)
-  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Frame-Options", value: isDev ? "SAMEORIGIN" : "DENY" },
   // Don't leak URL paths on cross-origin navigations
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // Force HTTPS for 1 year; extend to subdomains once DNS is stable
@@ -27,7 +31,7 @@ const securityHeaders = [
       "font-src 'self'",
       "media-src 'self' https://mqyxc4xvodvuodmx.public.blob.vercel-storage.com",
       "connect-src 'self' https://vitals.vercel-insights.com",
-      "frame-ancestors 'none'",
+      isDev ? "frame-ancestors 'self'" : "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
     ].join("; "),
