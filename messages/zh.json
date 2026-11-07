@@ -242,7 +242,7 @@
     "theFoundation": "根基",
     "the25DayBlock": "25 天挑战",
     "startJourney": "开始旅程",
-    "blockComplete": "恭喜你完成计划 {block}！🎉",
+    "blockComplete": "恭喜你完成{blockLabel}！🎉",
     "continue": "继续",
     "foundationDescription": "受耶稣为我们赢得的生命启发，这个计划将引导你完成一系列 25 天的挑战，涵盖心智、情绪和身体的成长。每一轮循环都让这些习惯更自然地融入你的生活。"
   },
