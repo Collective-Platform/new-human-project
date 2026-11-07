@@ -40,7 +40,9 @@ async function findOrCreateLegacyPlan(user: UserRow, blockNumber: number) {
   return plan;
 }
 
-async function main() {
+type Program = ReturnType<typeof loadProgram>;
+
+function loadProgram() {
   const allTasks = getAllTasks();
   const taskIdsByBlock = new Map<number, string[]>();
   for (const task of allTasks) {
@@ -48,13 +50,52 @@ async function main() {
     ids.push(task.id);
     taskIdsByBlock.set(task.block, ids);
   }
+  return { allTasks, taskIdsByBlock };
+}
+
+async function main() {
+  const program = loadProgram();
   const allUsers = (await db
     .select({ id: users.id, onboardedAt: users.onboardedAt })
     .from(users)) as UserRow[];
-  let migrated = 0;
+  const summary = {
+    usersSeen: allUsers.length,
+    usersSkippedNotOnboarded: 0,
+    usersDone: 0,
+    usersFailed: 0,
+    completionsLinked: 0,
+  };
+  const failures: { userId: number; error: unknown }[] = [];
 
   for (const user of allUsers) {
-    if (!user.onboardedAt) continue;
+    if (!user.onboardedAt) {
+      summary.usersSkippedNotOnboarded++;
+      continue;
+    }
+    try {
+      summary.completionsLinked += await migrateUser(
+        user as UserRow & { onboardedAt: Date },
+        program,
+      );
+      summary.usersDone++;
+    } catch (error) {
+      // One bad member must not stop the others. The script is safe to re-run.
+      summary.usersFailed++;
+      failures.push({ userId: user.id, error });
+    }
+  }
+
+  console.log("Legacy plan migration summary:", summary);
+  for (const failure of failures) {
+    console.error(`FAILED user ${failure.userId}:`, failure.error);
+  }
+  return summary.usersFailed === 0;
+}
+
+async function migrateUser(user: UserRow & { onboardedAt: Date }, program: Program) {
+  const { allTasks, taskIdsByBlock } = program;
+  let migrated = 0;
+  {
     const [completionRows, milestoneRows] = await Promise.all([
       db
         .select({ taskId: taskCompletions.taskId })
@@ -129,7 +170,12 @@ async function main() {
       await findOrCreateLegacyPlan(user, currentBlock);
     }
   }
-  console.log(`Migrated ${migrated} legacy task completions into personal plans.`);
+  return migrated;
 }
 
-void main();
+main()
+  .then((ok) => process.exit(ok ? 0 : 1))
+  .catch((error) => {
+    console.error("Legacy plan migration crashed:", error);
+    process.exit(1);
+  });
