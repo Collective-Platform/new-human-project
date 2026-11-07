@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Overlay } from "@/app/components/overlay";
+import { getBlockPrefix } from "@/src/lib/block-names";
 
 interface EarnedBadge {
   memberBadgeId: string;
@@ -24,6 +25,7 @@ export function BlockCelebration({
   onDismissAction: () => void;
 }) {
   const t = useTranslations("block");
+  const locale = useLocale();
   const [open, setOpen] = useState(true);
   const completedBlockNumber = badge?.blockNumber ?? blockNumber ?? 0;
 
@@ -53,7 +55,10 @@ export function BlockCelebration({
 
         {/* Title */}
         <h2 className="mb-2 text-center font-headline text-2xl font-semibold text-foreground">
-          {t("blockComplete", { block: completedBlockNumber })}
+          {t("blockComplete", {
+            block: completedBlockNumber,
+            blockLabel: getBlockPrefix(completedBlockNumber, locale === "zh" ? "zh" : "en"),
+          })}
         </h2>
 
         {/* Dismiss button */}
