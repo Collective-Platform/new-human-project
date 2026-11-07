@@ -10,8 +10,8 @@ interface Badge {
 export function BadgeGrid({ badges, title }: { badges: Badge[]; title: string }) {
   return (
     <div>
-      <h3 className="font-headline text-xl font-bold text-on-surface mb-4 px-1">{title}</h3>
-      <div className="rounded-md bg-white p-5 shadow-card grid grid-cols-3 gap-3">
+      <h3 className="font-headline text-xl font-semibold text-on-surface mb-4 px-1">{title}</h3>
+      <div className="rounded-card bg-white p-5 shadow-card grid grid-cols-3 gap-3">
         {badges.map((badge) => (
           <div key={badge.earnedAt} className="flex flex-col items-center">
             {badge.iconUrl ? (
@@ -27,7 +27,7 @@ export function BadgeGrid({ badges, title }: { badges: Badge[]; title: string })
               <span className="mb-2 text-3xl">🏆</span>
             )}
             <p className="text-center text-xs font-semibold text-foreground">{badge.name}</p>
-            <p className="text-center text-[10px] text-foreground/40">
+            <p className="text-center text-xs text-foreground/40">
               {new Date(badge.earnedAt).toLocaleDateString()}
             </p>
           </div>

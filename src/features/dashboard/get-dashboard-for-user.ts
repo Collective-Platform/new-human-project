@@ -1,11 +1,13 @@
 import { cacheLife, cacheTag } from "next/cache";
-import { and, eq, isNull, sql } from "drizzle-orm";
-import { db, batchOrAll } from "@/src/db";
+import { and, asc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
+import { db } from "@/src/db";
 import { taskCompletions, memberBadges, badgeDefinitions } from "@/src/db/schema";
 import { getTaskById as getRegistryTaskById } from "@/src/features/content/program";
+import { getPlanCurrentDay, getPlanDayDate } from "@/src/features/plans/queries";
 import { XP_WEIGHT_BY_TYPE } from "./queries";
 
 export interface DashboardData {
+  planId?: string;
   blockNumber: number;
   currentDay: number;
   radar: { mental: number; emotional: number; physical: number };
@@ -13,6 +15,7 @@ export interface DashboardData {
   streak: number;
   calendar: { date: string; categories: string[] }[];
   earnedBadge: {
+    memberBadgeId: string;
     badgeId: string;
     name: string;
     description: string | null;
@@ -46,8 +49,6 @@ interface BlockMetrics {
 
 /**
  * Single-pass aggregation over a user's task completions, scoped to one block.
- * Shared by the live dashboard ({@link getDashboardForUser}) and the read-only
- * historical block overview ({@link getBlockDashboardForUser}).
  */
 function computeBlockMetrics(
   allCompletions: CompletionRow[],
@@ -155,67 +156,50 @@ function computeBlockMetrics(
   return { radar, grid, calendar, emotionBreakdown, physicalActivityByDay };
 }
 
-/**
- * Read-only dashboard for a completed (historical) block. Same shape and
- * computation as the live dashboard, but scoped to a fixed block window with
- * all 25 days unlocked, the block's final streak, and no badge celebration —
- * the data never changes once the block is over.
- */
-export async function getBlockDashboardForUser(
-  userId: number,
-  blockNumber: number,
-  blockStartMs: number,
-  finalStreak: number,
-): Promise<DashboardData> {
-  const allCompletions = await db
-    .select({ taskId: taskCompletions.taskId, data: taskCompletions.data })
-    .from(taskCompletions)
-    .where(eq(taskCompletions.userId, userId));
-
-  const metrics = computeBlockMetrics(allCompletions, blockNumber, blockStartMs, 25);
-
-  return {
-    blockNumber,
-    currentDay: 25,
-    streak: finalStreak,
-    earnedBadge: null,
-    blockStartDate: new Date(blockStartMs).toISOString().slice(0, 10),
-    ...metrics,
-  };
+export interface HomeDashboardData {
+  radar: { mental: number; emotional: number; physical: number };
+  streak: number;
+  /** Activity by calendar date inside the last 25 days. */
+  calendar: { date: string; categories: string[] }[];
+  /** First date of the 25-day window, as YYYY-MM-DD. */
+  windowStartDate: string;
+  emotionBreakdown: Record<string, number>;
+  /** Exercise minutes for each of the last 25 days; `day` is the day of the month. */
+  activityLast25: { day: number; totalMinutes: number }[];
+  earnedBadge: DashboardData["earnedBadge"];
 }
 
-export async function getDashboardForUser(
+export type HomePlan = { id: string; blockNumber: number; startMs: number };
+
+const HOME_WINDOW_DAYS = 25;
+const DAY_MS = 86_400_000;
+
+/**
+ * Everything on Home, for all of a member's active blocks together.
+ * - The triangle weights each block by the days it has run (an average, not a sum).
+ * - A mood or exercise copy is skipped when the block that holds its original is
+ *   loaded, so each log counts once in the charts and the calendar. It still counts
+ *   in the triangle. If the original's block is not loaded, the copy counts instead.
+ * - Dates come from the day each task belongs to, in the member's timezone.
+ * - The streak counts any day with any completion, in any block.
+ */
+export async function computeHomeDashboard(
   userId: number,
-  blockNumber: number,
-  blockStartMs: number,
-  locale: "en" | "zh",
-  currentDay: number,
-  timezone = "UTC",
-): Promise<DashboardData> {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag(`dashboard:${userId}`);
-
-  const blockStart = new Date(blockStartMs);
-
-  // Five lazy query builders sent as ONE HTTP round-trip on the Neon-protocol
-  // batch endpoint (PlanetScale Postgres in prod). Local node-postgres falls
-  // back to Promise.all in batchOrAll().
-  const allCompletionsQ = db
-    .select({ taskId: taskCompletions.taskId, data: taskCompletions.data })
-    .from(taskCompletions)
-    .where(eq(taskCompletions.userId, userId));
-
+  activePlans: HomePlan[],
+  timezone: string,
+): Promise<HomeDashboardData> {
   const tz = safeTimezone(timezone);
-  const blockStartDate = blockStart.toISOString().slice(0, 10);
+  const today = getPlanDayDate(new Date(), 1, tz);
+  const windowStart = new Date(today.getTime() - (HOME_WINDOW_DAYS - 1) * DAY_MS);
+  const windowStartDate = windowStart.toISOString().slice(0, 10);
+  const todayDate = today.toISOString().slice(0, 10);
+
   const streakQ = db.execute<{ streak: number }>(sql`
     WITH completion_dates AS (
       SELECT DISTINCT (tc.completed_at AT TIME ZONE ${tz})::date AS d
       FROM nhp.task_completions tc
       WHERE tc.user_id = ${userId}
-        AND (tc.completed_at AT TIME ZONE ${tz})::date >= ${blockStartDate}::date
-        AND (tc.completed_at AT TIME ZONE ${tz})::date
-              <= (NOW() AT TIME ZONE ${tz})::date
+        AND (tc.completed_at AT TIME ZONE ${tz})::date <= (NOW() AT TIME ZONE ${tz})::date
     ),
     numbered AS (
       SELECT d, d - (ROW_NUMBER() OVER (ORDER BY d ASC))::int AS grp
@@ -230,10 +214,24 @@ export async function getDashboardForUser(
       LIMIT 1
     )
   `);
-
+  const planIds = activePlans.map((plan) => plan.id);
+  const rowsQ =
+    planIds.length === 0
+      ? Promise.resolve([])
+      : db
+          .select({
+            planId: taskCompletions.planId,
+            taskId: taskCompletions.taskId,
+            data: taskCompletions.data,
+          })
+          .from(taskCompletions)
+          .where(and(eq(taskCompletions.userId, userId), inArray(taskCompletions.planId, planIds)));
+  // A badge is earned when its plan finishes, so its plan is never in activePlans.
+  // Legacy badges have no plan and are not celebrated.
   const badgeQ = db
     .select({
       badgeId: memberBadges.badgeId,
+      memberBadgeId: memberBadges.id,
       earnedAt: memberBadges.earnedAt,
       name: badgeDefinitions.name,
       description: badgeDefinitions.description,
@@ -245,46 +243,156 @@ export async function getDashboardForUser(
     .where(
       and(
         eq(memberBadges.userId, userId),
-        eq(badgeDefinitions.blockNumber, blockNumber),
+        isNotNull(memberBadges.planId),
         isNull(memberBadges.seenAt),
       ),
     )
+    .orderBy(asc(memberBadges.earnedAt))
     .limit(1);
 
-  const [allCompletions, streakResult, badgeRows] = await batchOrAll([
-    allCompletionsQ,
-    streakQ,
-    badgeQ,
-  ]);
-
+  const [streakResult, rows, badgeRows] = await Promise.all([streakQ, rowsQ, badgeQ]);
   const streakRow = (streakResult as unknown as { rows: { streak: number }[] }).rows[0];
-  const streak = streakRow ? Number(streakRow.streak) : 0;
-  const earnedBadge = badgeRows[0] ?? null;
+  const badge = badgeRows[0];
 
-  // Single pass over allCompletions builds radar, grid, and calendar together.
-  // All task resolution is via the registry — block_day_tasks is legacy/empty.
-  const metrics = computeBlockMetrics(
-    allCompletions,
-    blockNumber,
-    blockStart.getTime(),
-    currentDay,
-  );
+  const planById = new Map(activePlans.map((plan) => [plan.id, plan]));
+  const logKey = (plan: (typeof activePlans)[number], task: { day: number; type: string }) =>
+    `${getPlanDayDate(new Date(plan.startMs), task.day, tz).toISOString().slice(0, 10)}:${task.type}`;
+  const categoriesByDate = new Map<string, Set<string>>();
+  const minutesByDate = new Map<string, number>();
+  const emotionBreakdown: Record<string, number> = {};
+  // A copied log counts only when its original block is not loaded here (the
+  // original's block finished, was deleted or was left), and only once for each
+  // date and type. The date match below is the fallback for that case.
+  const originalLogKeys = new Set<string>();
+  for (const row of rows) {
+    const plan = row.planId ? planById.get(row.planId) : undefined;
+    const task = getRegistryTaskById(row.taskId);
+    if (!plan || !task || task.block !== plan.blockNumber) continue;
+    if (((row.data ?? {}) as Record<string, unknown>).syncedFromPlanId !== undefined) continue;
+    originalLogKeys.add(logKey(plan, task));
+  }
+  const countedCopyKeys = new Set<string>();
+  for (const row of rows) {
+    const plan = row.planId ? planById.get(row.planId) : undefined;
+    const task = getRegistryTaskById(row.taskId);
+    if (!plan || !task || task.block !== plan.blockNumber) continue;
+
+    // A copy whose original block is loaded adds nothing: the original already
+    // counts the log. Match by block, not by date, because a block older than
+    // 25 days holds today's copy on its Day 25, which has an older date.
+    const sourcePlanId = ((row.data ?? {}) as Record<string, unknown>).syncedFromPlanId;
+    if (
+      typeof sourcePlanId === "string" &&
+      sourcePlanId !== row.planId &&
+      planById.has(sourcePlanId)
+    ) {
+      continue;
+    }
+
+    const dateStr = getPlanDayDate(new Date(plan.startMs), task.day, tz).toISOString().slice(0, 10);
+    if (dateStr >= windowStartDate && dateStr <= todayDate) {
+      const categories = categoriesByDate.get(dateStr) ?? new Set<string>();
+      categories.add(task.category);
+      categoriesByDate.set(dateStr, categories);
+    }
+
+    const data = (row.data ?? {}) as Record<string, unknown>;
+    if (data.syncedFromPlanId !== undefined) {
+      const key = logKey(plan, task);
+      if (originalLogKeys.has(key) || countedCopyKeys.has(key)) continue;
+      countedCopyKeys.add(key);
+    }
+
+    if (task.type === "exercise" && dateStr >= windowStartDate && dateStr <= todayDate) {
+      const entries = Array.isArray(data.entries)
+        ? (data.entries as Array<{ sportKey?: string; hours?: number; minutes?: number }>)
+        : [];
+      for (const entry of entries) {
+        if (entry.sportKey === "rest") continue;
+        const minutes = (entry.hours ?? 0) * 60 + (entry.minutes ?? 0);
+        minutesByDate.set(dateStr, (minutesByDate.get(dateStr) ?? 0) + minutes);
+      }
+    }
+    if (task.type === "mood_log") {
+      const moodEntries: { moods?: string[] }[] = Array.isArray(data.entries)
+        ? (data.entries as { moods?: string[] }[])
+        : Array.isArray(data.moods)
+          ? [{ moods: data.moods as string[] }]
+          : data.mood
+            ? [{ moods: [data.mood as string] }]
+            : [];
+      for (const entry of moodEntries) {
+        for (const mood of entry.moods ?? []) {
+          emotionBreakdown[mood] = (emotionBreakdown[mood] ?? 0) + 1;
+        }
+      }
+    }
+  }
+
+  // Triangle: one score set per block, averaged by days elapsed.
+  let totalWeight = 0;
+  const sum = { mental: 0, emotional: 0, physical: 0 };
+  for (const plan of activePlans) {
+    const currentDay = getPlanCurrentDay(new Date(plan.startMs), tz);
+    const weight = Math.max(currentDay - 1, 0);
+    if (weight === 0) continue;
+    const { radar } = computeBlockMetrics(
+      rows.filter((row) => row.planId === plan.id),
+      plan.blockNumber,
+      plan.startMs,
+      currentDay,
+    );
+    totalWeight += weight;
+    sum.mental += radar.mental * weight;
+    sum.emotional += radar.emotional * weight;
+    sum.physical += radar.physical * weight;
+  }
+
+  const activityLast25 = Array.from({ length: HOME_WINDOW_DAYS }, (_, index) => {
+    const date = new Date(windowStart.getTime() + index * DAY_MS);
+    return {
+      day: date.getUTCDate(),
+      totalMinutes: minutesByDate.get(date.toISOString().slice(0, 10)) ?? 0,
+    };
+  });
 
   return {
-    blockNumber,
-    currentDay,
-    streak,
-    earnedBadge: earnedBadge
+    radar:
+      totalWeight === 0
+        ? { mental: 0, emotional: 0, physical: 0 }
+        : {
+            mental: sum.mental / totalWeight,
+            emotional: sum.emotional / totalWeight,
+            physical: sum.physical / totalWeight,
+          },
+    streak: streakRow ? Number(streakRow.streak) : 0,
+    calendar: Array.from(categoriesByDate.entries())
+      .map(([date, categories]) => ({ date, categories: Array.from(categories) }))
+      .sort((a, b) => a.date.localeCompare(b.date)),
+    windowStartDate,
+    emotionBreakdown,
+    activityLast25,
+    earnedBadge: badge
       ? {
-          badgeId: earnedBadge.badgeId,
-          name: earnedBadge.name,
-          description: earnedBadge.description,
-          iconUrl: earnedBadge.iconUrl,
-          blockNumber: earnedBadge.blockNumber,
-          earnedAt: earnedBadge.earnedAt.toISOString(),
+          badgeId: badge.badgeId,
+          memberBadgeId: badge.memberBadgeId,
+          name: badge.name,
+          description: badge.description,
+          iconUrl: badge.iconUrl,
+          blockNumber: badge.blockNumber,
+          earnedAt: badge.earnedAt.toISOString(),
         }
       : null,
-    blockStartDate: blockStart.toISOString().slice(0, 10),
-    ...metrics,
   };
+}
+
+export async function getHomeDashboard(
+  userId: number,
+  activePlans: HomePlan[],
+  timezone: string,
+): Promise<HomeDashboardData> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(`dashboard:${userId}`);
+  return computeHomeDashboard(userId, activePlans, timezone);
 }

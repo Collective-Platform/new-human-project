@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { User, Heart, X } from "lucide-react";
 import { Link } from "@/src/i18n/navigation";
 import { getActivityLikers } from "@/src/features/community/actions";
+import { Overlay } from "@/app/components/overlay";
 
 export interface FeedItem {
   id?: string;
@@ -166,7 +167,7 @@ function ActivityCard({
     <>
       <div
         onClick={handleTap}
-        className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
+        className="group bg-white p-5 rounded-card flex items-center gap-4 transition-all hover:shadow-card"
       >
         {isSelf ? (
           <div className="relative shrink-0">{avatarNode}</div>
@@ -192,13 +193,13 @@ function ActivityCard({
               <span className="text-on-surface-variant">{t("completedActivity")}</span>{" "}
               <span className={`font-medium ${style.accentText}`}>{item.activity}</span>
             </p>
-            <span className="text-[10px] font-normal text-outline uppercase tracking-tighter shrink-0 ml-2">
+            <span className="text-xs font-normal text-outline uppercase tracking-tighter shrink-0 ml-2">
               {relativeTime(item.completedAt, t)}
             </span>
           </div>
           <div className="mt-2 flex items-center justify-between gap-2">
             <span
-              className={`px-3 py-1 ${style.badgeBg} rounded-full text-[10px] font-bold ${style.badgeText} uppercase tracking-widest`}
+              className={`px-3 py-1 ${style.badgeBg} rounded-full text-xs font-semibold ${style.badgeText} uppercase tracking-widest`}
             >
               {categoryLabels[item.category] ?? item.category}
             </span>
@@ -209,7 +210,7 @@ function ActivityCard({
                     e.stopPropagation();
                     onLikeAction?.(item.completionId);
                   }}
-                  className="flex items-center text-outline hover:text-primary transition-colors"
+                  className="tap-target press flex items-center text-outline hover:text-primary transition-colors"
                 >
                   <Heart size={14} className={likeInfo.liked ? "fill-primary text-primary" : ""} />
                 </button>
@@ -217,7 +218,7 @@ function ActivityCard({
               {likeInfo.count > 0 && (
                 <button
                   onClick={handleCountClick}
-                  className="text-xs text-outline hover:text-primary transition-colors"
+                  className="tap-target text-xs text-outline hover:text-primary transition-colors"
                 >
                   {likeInfo.count}
                 </button>
@@ -227,70 +228,62 @@ function ActivityCard({
         </div>
       </div>
 
-      {likersOpen && (
-        <div
-          className="anim-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-          onClick={() => setLikersOpen(false)}
-        >
-          <div
-            className="anim-pop w-full max-w-sm bg-surface rounded-3xl shadow-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-5 pt-5 pb-3">
-              <h3 className="font-headline font-bold text-lg text-on-surface">
-                {likeInfo.count} {likeInfo.count === 1 ? "Like" : "Likes"}
-              </h3>
-              <button
-                onClick={() => setLikersOpen(false)}
-                className="text-outline hover:text-on-surface transition-colors active:scale-95"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            {likers === null ? (
-              <div className="flex justify-center py-6">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              </div>
-            ) : likers.length === 0 ? (
-              <div className="px-5 pb-6 text-sm text-on-surface-variant text-center">
-                No likes yet
-              </div>
-            ) : (
-              <div className="overflow-y-auto max-h-80 px-4 pb-5 space-y-3">
-                {likers.map((liker) => {
-                  const likerName = liker.searchHandle ? `@${liker.searchHandle}` : "User";
-                  return (
-                    <Link
-                      key={liker.id}
-                      href={`/community/${liker.searchHandle ?? liker.id}`}
-                      onClick={() => setLikersOpen(false)}
-                      className="flex items-center gap-3"
-                    >
-                      {liker.avatarUrl ? (
-                        <Image
-                          src={liker.avatarUrl}
-                          alt={likerName}
-                          width={40}
-                          height={40}
-                          unoptimized
-                          className="w-10 h-10 rounded-full object-cover shrink-0"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">
-                          <User size={16} className="text-on-surface-variant" />
-                        </div>
-                      )}
-                      <span className="flex-1 truncate font-headline font-medium text-sm text-on-surface">
-                        {likerName}
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
+      <Overlay variant="center" open={likersOpen} onClose={() => setLikersOpen(false)}>
+        <div className="w-full max-w-sm bg-surface rounded-sheet shadow-float overflow-hidden">
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <h3 className="font-headline font-semibold text-lg text-on-surface">
+              {likeInfo.count} {likeInfo.count === 1 ? "Like" : "Likes"}
+            </h3>
+            <button
+              onClick={() => setLikersOpen(false)}
+              className="tap-target text-outline hover:text-on-surface transition-colors press"
+            >
+              <X size={20} />
+            </button>
           </div>
+          {likers === null ? (
+            <div className="flex justify-center py-6">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+          ) : likers.length === 0 ? (
+            <div className="px-5 pb-6 text-sm text-on-surface-variant text-center">
+              No likes yet
+            </div>
+          ) : (
+            <div className="overflow-y-auto max-h-80 px-4 pb-5 space-y-3">
+              {likers.map((liker) => {
+                const likerName = liker.searchHandle ? `@${liker.searchHandle}` : "User";
+                return (
+                  <Link
+                    key={liker.id}
+                    href={`/community/${liker.searchHandle ?? liker.id}`}
+                    onClick={() => setLikersOpen(false)}
+                    className="flex items-center gap-3"
+                  >
+                    {liker.avatarUrl ? (
+                      <Image
+                        src={liker.avatarUrl}
+                        alt={likerName}
+                        width={40}
+                        height={40}
+                        unoptimized
+                        className="w-10 h-10 rounded-full object-cover shrink-0"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">
+                        <User size={16} className="text-on-surface-variant" />
+                      </div>
+                    )}
+                    <span className="flex-1 truncate font-headline font-medium text-sm text-on-surface">
+                      {likerName}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </Overlay>
     </>
   );
 }

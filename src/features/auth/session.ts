@@ -5,6 +5,8 @@ import { db } from "@/src/db";
 import { sessions, users } from "@/src/db/schema";
 import { and, eq } from "drizzle-orm";
 import { hashToken, generateSessionId, generateRawToken } from "./crypto";
+import { isBoardLiveDataEnabled } from "@/src/dev-board/enabled";
+import { getBoardUser } from "@/src/dev-board/board-user";
 
 const SESSION_COOKIE = "__session";
 const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
@@ -24,6 +26,12 @@ export interface SessionUser {
 }
 
 async function _getSessionUser(): Promise<SessionUser | null> {
+  // Design board "view as" mode. Off unless local dev with a local database.
+  if (isBoardLiveDataEnabled()) {
+    const boardUser = await getBoardUser();
+    if (boardUser) return boardUser;
+  }
+
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(SESSION_COOKIE);
 

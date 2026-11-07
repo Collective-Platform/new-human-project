@@ -52,11 +52,11 @@ export function PeopleYouMayKnow({
         return (
           <div
             key={s.id}
-            className="shrink-0 w-40 bg-surface-container-low rounded-xl p-4 flex flex-col items-center text-center relative"
+            className="shrink-0 w-40 bg-surface-container-low rounded-card p-4 flex flex-col items-center text-center relative"
           >
             <button
               onClick={() => handleDismiss(s.id)}
-              className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-surface-container-highest rounded-full text-on-surface-variant"
+              className="tap-target press absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-surface-container-highest rounded-full text-on-surface-variant"
             >
               <X size={14} />
             </button>
@@ -72,12 +72,12 @@ export function PeopleYouMayKnow({
                 />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-3">
-                  <span className="text-2xl font-bold text-on-surface-variant font-headline">
+                  <span className="text-2xl font-semibold text-on-surface-variant font-headline">
                     {suggestionName.charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
-              <p className="font-bold text-sm truncate w-full mb-0.5 text-on-surface">
+              <p className="font-semibold text-sm truncate w-full mb-0.5 text-on-surface">
                 {suggestionName}
               </p>
             </Link>
@@ -87,7 +87,7 @@ export function PeopleYouMayKnow({
             <button
               onClick={() => handleAdd(s.id)}
               disabled={sentIds.has(s.id)}
-              className={`w-full py-1.5 rounded-full text-xs font-bold transition-opacity ${
+              className={`tap-target press w-full py-1.5 rounded-full text-xs font-semibold transition-opacity ${
                 sentIds.has(s.id)
                   ? "bg-surface-container-high text-on-surface-variant"
                   : "bg-on-surface text-surface hover:opacity-90"

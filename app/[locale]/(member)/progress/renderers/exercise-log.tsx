@@ -157,8 +157,8 @@ export function ExerciseLogRenderer({
   // simple confirmation card instead of an empty form.
   if (readOnly && isEditingRest) {
     return (
-      <div className="rounded-lg bg-white p-6 text-center shadow-card">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">
+      <div className="rounded-card bg-white p-6 text-center shadow-card">
+        <p className="text-xs font-semibold uppercase tracking-widest text-outline">
           {SPORT_EMOJIS.rest} {t("rested")}
         </p>
       </div>
@@ -167,9 +167,9 @@ export function ExerciseLogRenderer({
 
   return (
     <>
-      <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-card-hover">
+      <div className="space-y-6 rounded-card bg-white p-6 shadow-card transition-shadow hover:shadow-raised">
         <section className="space-y-4 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-outline">
+          <p className="text-xs font-semibold uppercase tracking-widest text-outline">
             {t("selectActivity")}
           </p>
           <div className="grid grid-cols-2 gap-2.5">
@@ -200,7 +200,7 @@ export function ExerciseLogRenderer({
         </section>
 
         <section className="space-y-4 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-outline">
+          <p className="text-xs font-semibold uppercase tracking-widest text-outline">
             {t("duration")}
           </p>
           <div className="flex gap-3 text-left">
@@ -238,8 +238,8 @@ export function ExerciseLogRenderer({
         )}
       </div>
       {!readOnly && showRestCard && (
-        <div className="mt-8 rounded-lg bg-white p-6 shadow-card text-center space-y-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-outline">
+        <div className="mt-8 rounded-card bg-white p-6 shadow-card text-center space-y-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-outline">
             🛌 {t("takeRestToday")}
           </p>
           <PrimaryButton

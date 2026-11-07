@@ -10,10 +10,7 @@ export default function Loading() {
       {/* Friend/feed cards */}
       <div className="space-y-3">
         {Array.from({ length: 5 }, (_, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-3 rounded-md bg-white p-4 shadow-[0_4px_16px_rgba(53,50,47,0.03)]"
-          >
+          <div key={i} className="flex items-center gap-3 rounded-card bg-white p-4 shadow-card">
             <div className="h-10 w-10 shrink-0 rounded-full bg-zinc-200" />
             <div className="min-w-0 flex-1 space-y-1.5">
               <div className="h-4 w-2/5 rounded bg-zinc-100" />

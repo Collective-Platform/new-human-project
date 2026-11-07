@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import "react-easy-crop/react-easy-crop.css";
+import { Overlay } from "@/app/components/overlay";
 
 const MAX_AVATAR_DIMENSION = 256;
 
@@ -39,7 +40,10 @@ interface Props {
   onCancel: () => void;
 }
 
-export function AvatarCropModal({ imageSrc, onConfirm, onCancel }: Props) {
+export function AvatarCropModal({ imageSrc, onConfirm, onCancel: onExited }: Props) {
+  // Cancel plays the exit animation first; the parent is told once it is done.
+  const [open, setOpen] = useState(true);
+  const onCancel = () => setOpen(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -61,12 +65,17 @@ export function AvatarCropModal({ imageSrc, onConfirm, onCancel }: Props) {
   }
 
   return (
-    <div className="anim-overlay fixed inset-0 z-50 flex flex-col bg-black">
+    <Overlay
+      variant="fullscreen"
+      open={open}
+      onExited={onExited}
+      className="flex flex-col bg-black"
+    >
       <div className="flex items-center justify-between px-4 py-3 text-white">
         <button
           type="button"
           onClick={onCancel}
-          className="text-sm font-medium opacity-80 active:opacity-60"
+          className="tap-target text-sm font-medium opacity-80 active:opacity-60"
         >
           Cancel
         </button>
@@ -75,7 +84,7 @@ export function AvatarCropModal({ imageSrc, onConfirm, onCancel }: Props) {
           type="button"
           onClick={handleConfirm}
           disabled={confirming || !croppedAreaPixels}
-          className="text-sm font-semibold text-primary disabled:opacity-40"
+          className="tap-target text-sm font-semibold text-primary disabled:opacity-40"
         >
           {confirming ? "Saving…" : "Choose"}
         </button>
@@ -108,6 +117,6 @@ export function AvatarCropModal({ imageSrc, onConfirm, onCancel }: Props) {
         />
         <span className="text-sm text-white/50">+</span>
       </div>
-    </div>
+    </Overlay>
   );
 }

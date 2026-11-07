@@ -29,6 +29,8 @@ Members progress through a structured programme of blocks and daily tasks in an 
 - Programme content is stored as Markdown, not in the database. Its immutable `t_` + ULID task identifiers must be preserved because progress records reference them.
 - Devotional and emotional programme content is supplied by the content team in Word documents and must be imported verbatim rather than rewritten.
 - Member progress supports optimistic updates; the programme’s Mental, Emotional, and Physical dimensions are fixed product terminology.
+- Group-plan members can join, leave, invite friends, and post day-specific discussions.
+- A hidden member-only UI lab may use representative preview data but must not persist data or expose actions in the live product.
 
 ## Brand Commitments
 
@@ -53,3 +55,7 @@ Members progress through a structured programme of blocks and daily tasks in an 
 3. Treat mental, emotional, and physical wellbeing as connected parts of one rhythm.
 4. Keep the programme faithful to its authored content and continuous across member progress.
 5. Give English- and Simplified-Chinese-speaking members equivalent access to the experience.
+
+## Accessibility & Inclusion
+
+The mobile PWA must retain accessible labels, keyboard-accessible controls, clear focus states, and viable layouts in both English and Simplified Chinese.

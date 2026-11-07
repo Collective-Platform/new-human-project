@@ -1,14 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { ArrowLeft } from "lucide-react";
 import { DayCarousel } from "./day-carousel";
 import { TaskList } from "./task-list";
 import { TaskDetail } from "./task-detail";
+import { GroupDiscussionTask } from "./group-discussion-task";
+import { PlanOverflowMenu } from "./plan-overflow-menu";
+import { PlanDaySocial } from "../plans/plan-day-social";
+import { BlockCelebration } from "../dashboard/block-celebration";
+import { markBadgeSeen } from "@/src/features/badges/actions";
+import { CopiedLogsNotice } from "./copied-logs-notice";
 import type { ProgressPayload, ProgressTask, DayContentTask } from "@/src/features/progress";
 import { useProgressContext } from "@/src/features/progress/progress-context";
-import { redoBlock } from "@/src/features/tasks/actions";
+import type { PlanDiscussionThread, PlanMember } from "@/src/features/plans/queries";
+import { useRouter } from "@/src/i18n/navigation";
 
 type TaskData = ProgressTask;
 
@@ -50,28 +58,44 @@ export function ProgressClient({
   locale,
   initialData,
   initialTaskId,
+  planSocial,
+  planControls,
+  dayFromLink = false,
+  showCopiedLogsNotice = false,
 }: {
   locale: string;
   initialData: ProgressPayload;
   initialTaskId?: string;
+  /** The URL names a day (`?day=`), so it wins over the day saved in the context. */
+  dayFromLink?: boolean;
+  /** Earlier mood and exercise were copied in when this member joined the block. */
+  showCopiedLogsNotice?: boolean;
+  planSocial?: {
+    selfUserId: number;
+    isOwner: boolean;
+    inviteCode?: string;
+    initialData: { members: PlanMember[]; discussion: PlanDiscussionThread[] };
+  };
+  planControls?: { isGroup: boolean; isOwner: boolean };
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("progress");
   const ctx = useProgressContext();
+  // The provider lives in the member layout, so it can still hold another plan's state.
+  const planState = ctx.state?.planId === initialData.planId ? ctx.state : null;
 
-  const [locked, setLocked] = useState(false);
-  const [isRestarting, startRestartTransition] = useTransition();
+  const locked = false;
 
-  // Restore to the day the user was on before navigating away. ctx.state is
-  // already set on soft navigation back (layout provider persists). Fall back
-  // to the SSR-provided selectedDay on first load / hard reload.
+  // Restore to the day the user was on before navigating away from this plan.
+  // planState is already set on soft navigation back (layout provider persists).
+  // Fall back to the SSR-provided selectedDay on first load / hard reload.
   const [selectedDay, setSelectedDay] = useState<number>(
-    ctx.state?.selectedDay ?? initialData.selectedDay,
+    (!dayFromLink && planState?.selectedDay) || initialData.selectedDay,
   );
 
   // Day content only — no completion state. Merged with context at render time.
-  // On soft navigation back, ctx.state.selectedDay may differ from initialData
+  // On soft navigation back, planState.selectedDay may differ from initialData
   // (user had navigated to a different day). The restore effect below fetches
   // the correct day's content if needed.
   const [dayTasks, setDayTasks] = useState<DayContentTask[]>(() =>
@@ -80,6 +104,10 @@ export function ProgressClient({
 
   const [activeTask, setActiveTask] = useState<TaskData | null>(null);
   const [activeTaskMode, setActiveTaskMode] = useState<"add" | number>("add");
+  const [showBlockCelebration, setShowBlockCelebration] = useState(false);
+  const [completedBadgeId, setCompletedBadgeId] = useState<string | null>(null);
+  const [completedBlockNumber, setCompletedBlockNumber] = useState(initialData.blockNumber);
+  const [completedPlanId, setCompletedPlanId] = useState<string | undefined>();
 
   // Static day content cache: day → DayContentTask[].
   // Content never changes so cache entries never need invalidation.
@@ -100,6 +128,7 @@ export function ProgressClient({
   // this is a no-op on soft navigation back (context already has correct state).
   useEffect(() => {
     ctx.initialize({
+      planId: initialData.planId,
       blockNumber: initialData.blockNumber,
       blockStartDate: initialData.blockStartDate,
       currentDay: computeLocalCurrentDay(initialData.blockStartDate),
@@ -112,11 +141,15 @@ export function ProgressClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // mount-only
 
-  // On soft navigation back, ctx.state.selectedDay may differ from the SSR
+  // On soft navigation back, planState.selectedDay may differ from the SSR
   // initialData (user was on a different day when they left). Fetch that day's
   // content so the task list matches the restored carousel selection.
   useEffect(() => {
-    const restoredDay = ctx.state?.selectedDay;
+    if (dayFromLink) {
+      if (planState) ctx.updateSelectedDay(initialData.selectedDay);
+      return;
+    }
+    const restoredDay = planState?.selectedDay;
     if (!restoredDay) return;
     // Keep a hard reload on the day restored from the persistent context.
     const url = new URL(window.location.href);
@@ -132,12 +165,12 @@ export function ProgressClient({
       if (content) setDayTasks(content);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // mount-only — ctx.state is synchronously available on soft nav back
+  }, []); // mount-only — planState is synchronously available on soft nav back
 
   // Open deep-linked task. Runs once state is ready; no-op after initialTaskId is cleared.
   useEffect(() => {
     if (!initialTaskIdRef.current) return;
-    const completions = ctx.state?.completions ?? initialCompletions.current;
+    const completions = planState?.completions ?? initialCompletions.current;
     const tasks = mergedTasks(dayTasks, completions);
     const task = tasks.find((t) => t.id === initialTaskIdRef.current);
     if (task) {
@@ -145,7 +178,7 @@ export function ProgressClient({
       initialTaskIdRef.current = undefined;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ctx.state]); // fires once ctx.state becomes non-null (or immediately if already set)
+  }, [planState]); // fires once planState becomes non-null (or immediately if already set)
 
   // Advance currentDay at the user's local midnight so the "Today" label updates.
   useEffect(() => {
@@ -249,18 +282,36 @@ export function ProgressClient({
     if (content) setDayTasks(content);
   }
 
+  function celebrateIfFinished(result: Awaited<ReturnType<typeof ctx.markComplete>>) {
+    if (!result.blockCompleted) return;
+    setCompletedBadgeId(result.earnedBadgeId ?? null);
+    // A copied log can finish another block, so the block on screen may not be the one.
+    setCompletedBlockNumber(result.completedBlockNumber ?? initialData.blockNumber);
+    setCompletedPlanId(result.completedPlanId);
+    setShowBlockCelebration(true);
+  }
+
+  function dismissCelebration() {
+    if (completedBadgeId) void markBadgeSeen(completedBadgeId);
+    setCompletedBadgeId(null);
+    setShowBlockCelebration(false);
+    // This plan is finished, so go to the Active tab to start a new block. If a copied
+    // log finished another block, this plan still has tasks left, so stay here.
+    if (completedPlanId === initialData.planId) router.push("/progress");
+  }
+
   async function handleComplete(taskId: string, taskData?: Record<string, unknown>) {
     if (locked) return;
-    await ctx.markComplete(taskId, taskData);
+    celebrateIfFinished(await ctx.markComplete(taskId, taskData));
   }
 
   async function handleToggleComplete(taskId: string) {
     if (locked) return;
-    const completions = ctx.state?.completions ?? initialCompletions.current;
+    const completions = planState?.completions ?? initialCompletions.current;
     if (taskId in completions) {
       await ctx.markIncomplete(taskId);
     } else {
-      await ctx.markComplete(taskId);
+      celebrateIfFinished(await ctx.markComplete(taskId));
     }
   }
 
@@ -287,60 +338,123 @@ export function ProgressClient({
     setActiveTask(task);
   }
 
-  function handleRestartConfirm() {
-    startRestartTransition(async () => {
-      const result = await redoBlock(initialData.blockNumber);
-      if ("success" in result) {
-        ctx.reset();
-        router.refresh();
-      }
-    });
-  }
-
   // Derive rendered state: context when available, SSR fallback on first paint.
-  // On soft navigation back, ctx.state is already set (layout provider persists).
-  // On first load, ctx.state is null until the mount effect fires; SSR data fills in.
-  const completions = ctx.state?.completions ?? initialCompletions.current;
-  const carousel = ctx.state?.carousel ?? initialData.carousel;
-  const missedDays = ctx.state?.missedDays ?? initialData.missedDays;
-  const currentDay = ctx.state?.currentDay ?? initialData.currentDay;
+  // On soft navigation back, planState is already set (layout provider persists).
+  // On first load, planState is null until the mount effect fires; SSR data fills in.
+  const completions = planState?.completions ?? initialCompletions.current;
+  const carousel = planState?.carousel ?? initialData.carousel;
+  const missedDays = planState?.missedDays ?? initialData.missedDays;
+  const currentDay = planState?.currentDay ?? initialData.currentDay;
 
   const tasks = mergedTasks(dayTasks, completions);
+  const talkItOutTask: TaskData | null =
+    planSocial && initialData.planId
+      ? {
+          id: `group-discussion-${initialData.planId}`,
+          category: "Mental",
+          taskType: "group_discussion",
+          name: t("talkItOut"),
+          content: null,
+          completed: false,
+          completionData: null,
+        }
+      : null;
+  const listTasks = talkItOutTask ? [...tasks, talkItOutTask] : tasks;
 
   if (activeTask) {
     const current = tasks.find((t) => t.id === activeTask.id) ?? activeTask;
-    const categoryTasks = tasks.filter((t) => t.category === current.category);
+    const categoryTasks = listTasks.filter((t) => t.category === current.category);
     return (
-      <TaskDetail
-        task={current}
-        locale={locale}
-        blockNumber={initialData.blockNumber}
-        dayNumber={selectedDay}
-        onCompleteAction={handleComplete}
-        onCloseAction={() => {
-          const depth = taskNavStack.current.length;
-          taskNavStack.current = [];
-          setActiveTask(null);
-          setActiveTaskMode("add");
-          if (depth > 0) {
-            skipNextPopRef.current = true;
-            window.history.go(-depth);
-          }
-        }}
-        categoryTasks={categoryTasks}
-        onNavigateAction={(t) => {
-          taskNavStack.current.push({ task: t, mode: "add" });
-          window.history.pushState({ taskNav: true }, "");
-          setActiveTaskMode("add");
-          setActiveTask(t);
-        }}
-        mode={activeTaskMode}
-      />
+      <>
+        {current.taskType === "group_discussion" && planSocial && initialData.planId ? (
+          <GroupDiscussionTask
+            locale={locale === "zh" ? "zh" : "en"}
+            planId={initialData.planId}
+            selectedDay={selectedDay}
+            selfUserId={planSocial.selfUserId}
+            isOwner={planSocial.isOwner}
+            initialData={planSocial.initialData}
+            blockNumber={initialData.blockNumber}
+            categoryTasks={categoryTasks}
+            onNavigateAction={(task) => {
+              taskNavStack.current.push({ task, mode: "add" });
+              window.history.pushState({ taskNav: true }, "");
+              setActiveTaskMode("add");
+              setActiveTask(task);
+            }}
+            onCloseAction={() => {
+              const depth = taskNavStack.current.length;
+              taskNavStack.current = [];
+              setActiveTask(null);
+              setActiveTaskMode("add");
+              if (depth > 0) {
+                skipNextPopRef.current = true;
+                window.history.go(-depth);
+              }
+            }}
+          />
+        ) : (
+          <TaskDetail
+            task={current}
+            locale={locale}
+            blockNumber={initialData.blockNumber}
+            dayNumber={selectedDay}
+            onCompleteAction={handleComplete}
+            onCloseAction={() => {
+              const depth = taskNavStack.current.length;
+              taskNavStack.current = [];
+              setActiveTask(null);
+              setActiveTaskMode("add");
+              if (depth > 0) {
+                skipNextPopRef.current = true;
+                window.history.go(-depth);
+              }
+            }}
+            categoryTasks={categoryTasks}
+            onNavigateAction={(t) => {
+              taskNavStack.current.push({ task: t, mode: "add" });
+              window.history.pushState({ taskNav: true }, "");
+              setActiveTaskMode("add");
+              setActiveTask(t);
+            }}
+            mode={activeTaskMode}
+          />
+        )}
+        {showBlockCelebration && (
+          <BlockCelebration
+            blockNumber={completedBlockNumber}
+            onDismissAction={dismissCelebration}
+          />
+        )}
+      </>
     );
   }
 
   return (
-    <div inert={!ctx.state} className="px-4 sm:px-6 md:px-8 pt-4 pb-8">
+    <div inert={!planState} className="px-4 sm:px-6 md:px-8 pt-4 pb-8">
+      {initialData.planId && planControls && (
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-surface-container-high active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-container"
+            aria-label={t("backToPlans")}
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <PlanOverflowMenu
+            locale={locale === "zh" ? "zh" : "en"}
+            planId={initialData.planId}
+            blockNumber={initialData.blockNumber}
+            isGroup={planControls.isGroup}
+            isOwner={planControls.isOwner}
+            inviteCode={planSocial?.inviteCode}
+          />
+        </div>
+      )}
+      {showCopiedLogsNotice && initialData.planId && (
+        <CopiedLogsNotice planId={initialData.planId} />
+      )}
       <DayCarousel
         days={carousel}
         selectedDay={selectedDay}
@@ -352,7 +466,9 @@ export function ProgressClient({
         todayLabel={t("today")}
       />
 
-      <div className="flex items-center justify-between mt-6 mb-6">
+      <div
+        className={`mt-6 flex items-center justify-between ${planSocial && initialData.planId ? "mb-4" : "mb-6"}`}
+      >
         <h2 className="text-2xl font-headline font-bold text-foreground">
           {locale === "zh"
             ? t("dayLabel", { day: toChineseNumeral(selectedDay) })
@@ -373,8 +489,21 @@ export function ProgressClient({
         )}
       </div>
 
+      {planSocial && initialData.planId && (
+        <PlanDaySocial
+          locale={locale === "zh" ? "zh" : "en"}
+          planId={initialData.planId}
+          selectedDay={selectedDay}
+          selfUserId={planSocial.selfUserId}
+          isOwner={planSocial.isOwner}
+          initialData={planSocial.initialData}
+          showDiscussion={false}
+          compact
+        />
+      )}
+
       <TaskList
-        tasks={tasks}
+        tasks={listTasks}
         onTaskTapAction={handleTaskTap}
         onToggleCompleteAction={handleToggleComplete}
         onAddEntryAction={handleAddEntry}
@@ -386,6 +515,9 @@ export function ProgressClient({
         }}
         locked={locked}
       />
+      {showBlockCelebration && (
+        <BlockCelebration blockNumber={completedBlockNumber} onDismissAction={dismissCelebration} />
+      )}
     </div>
   );
 }

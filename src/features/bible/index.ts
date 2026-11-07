@@ -37,6 +37,8 @@ const BOOK_TO_USFM: Record<string, string> = {
  * Add the chapter here whenever new program content needs it.
  */
 const CHAPTER_LAST_VERSE: Record<string, number> = {
+  "1CO.3": 23,
+  "1CO.10": 33,
   "COL.3": 25,
   "PHP.3": 21,
 };

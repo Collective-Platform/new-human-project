@@ -130,6 +130,22 @@ DESIGN.md             # Visual design system spec
 
 **Optimistic updates** — the progress page uses optimistic UI via `ProgressContext` (`src/features/progress/progress-context.tsx`) with rollback on API error. Preserve the `markComplete` / `markIncomplete` pattern when modifying this area.
 
+**Shared mood and exercise logs** — a member logs mood and exercise once a day, whatever blocks they run. `src/features/tasks/shared-logs.ts` copies a saved mood or exercise log to the other active blocks (a log for a block's current day goes to every other block's current day; a backfilled day goes to the same calendar date). Copies carry `data.syncedFromPlanId`; feed queries and the Home mood and exercise charts skip them so each log counts once. Home counts a copy only when its original is not among the loaded rows, once for each date and type, so a log survives when the original's block finishes. `deleteOwnedPlan` and `leaveGroupPlan` call `keepSharedLogsOfPlan` before deleting rows, which turns one copy of each log into an original. A block past its 25 days neither sends nor receives copies, because its current day stays Day 25 and a copy would overwrite that day's real log. A member who joins a running block gets mood and exercise for its earlier days through `copyPastLogsIntoPlan`: it reads their other blocks, including finished ones, by calendar date, never overwrites a log, and keeps the original date, so these copies count in the block's final streak. When an owner adds a friend, the copy uses the owner's timezone, because the app does not save one for each member. `copyPastLogsIntoPlan` skips Day 25 of a block past its 25 days, because that row can hold a log from a later date. Its copies carry `data.copiedOnJoin`, and `CopiedLogsNotice` shows on the plan day screen while the block has one, until the member closes it on that device. Do not use `planMembers.joinedAt` for this: reopening an invite and adding back a removed member change it. Do not write mood or exercise completions without going through `completeTask` / `uncompleteTask`.
+
+**Block names and release** — member-facing block names live in `src/lib/block-names.ts` (EN and ZH). Add the name there when you add a block. The Chinese UI word for a block is 计划. A block opens for members when its content files exist in `data/program/`. Only block 1 has a launch date in `BLOCK_LAUNCH` (`src/lib/program-gate.ts`), so a new block needs no date and stays hidden until its content is in. A member picks any block after Ephesians (block 1).
+
+**Legacy plans** — `pnpm plans:migrate-legacy` (`scripts/migrate-legacy-plans.ts`) gives older members plan records for work done before plans existed. It makes a plan with invite code `legacy-<userId>-<block>` for each block they did, links their old task completions to it, and saves finished dates. It writes only to `nhp` tables and deletes nothing. It is safe to run again. Run it after `pnpm db:migrate`. Do not remove the `legacy-` code lookup while the script can still run.
+
+**Home reads all active blocks together** — there is no block picker. `getHomeDashboard` (`src/features/dashboard/`) builds the triangle, streak, mood chart, exercise chart and 25-day calendar from every active block. Home shows stats only; a task list on Home was considered and dropped. The daily reminder job (`src/features/notifications/daily-reminder.ts`) also reads all active blocks and sends one reminder when any block has tasks left today. A block past its 25 days does not count. The old `users.dashboard_plan_id` column is gone from the schema (migration `0006`).
+
+**Overlays (modals, sheets, full-screen pages)** — always use `app/components/overlay.tsx`. It gives every overlay the same backdrop, enter motion and exit motion. Keep it mounted and flip `open`; never write `{open && <div className="fixed inset-0 …">}`. Variants: `center`, `sheet`, `fullscreen`, `panel`. Motion comes from the tokens in `app/globals.css` (`--duration-*`, `--ease-*`).
+
+**Touch targets and press feedback** — every tappable control needs a touch area of at least 44px and press feedback. Add `press` (or `press-soft` for wide cards) for the press effect. Add `tap-target` to any button or link smaller than 44px. It grows the touch area without changing how the control looks. Do not add it to full-width list rows, calendar cells or links inside a sentence.
+
+**Invite links and login** — an invite sends a signed-out visitor to `/login?next=/join/<code>`. Login, signup, verify and onboarding keep `next`. `safeReturnPath` (`src/lib/return-path.ts`) accepts invite pages only, so `next` cannot send a member to another site. Onboarding returns to the invite from the `completeOnboarding` server action, because `OnboardingGate` is in a layout and cannot read the URL.
+
+**Maintenance window** — `MAINTENANCE_MODE=1` makes `proxy.ts` answer pages, server actions, API routes and cron jobs with a 503 notice in both languages (`src/lib/maintenance.ts`). Rhythm Live pages stay open. A Vercel variable takes effect only after a redeploy. `?maintenance_bypass=<MAINTENANCE_BYPASS_SECRET>` lets you test behind the notice.
+
 **Rhythm Live event launches** — when creating or updating a Rhythm Live event in `app/live/`, ask the user whether the member-dashboard event banner should be added or updated too. The banner lives at `app/[locale]/(member)/dashboard/live-banner.tsx`, is rendered by `dashboard-client.tsx`, and needs the current event date, time, ticket URL, artwork, and EN/ZH strings.
 
 ---
@@ -183,6 +199,12 @@ Key tables in `src/db/schema.ts`:
 
 ---
 
+## Design Board
+
+A dev-only canvas at `/en/dev/board` shows every screen and popup as a live frame and can write text, class and colour edits into the code. Its "Local DB" mode shows real rows, but only from a local database (`DATABASE_PROVIDER=local`). When you add, rename or remove a page or popup, update `src/dev-board/registry.ts` (and `fixtures.ts` / `frames.tsx` for sample-data frames). See `src/dev-board/README.md`.
+
+---
+
 ## Design System
 
 See `DESIGN.md` — the full visual spec lives there (colors, typography, spacing, shadows, component specs). Always read DESIGN.md before touching UI. Do not duplicate it here.
@@ -196,4 +218,6 @@ See `DESIGN.md` — the full visual spec lives there (colors, typography, spacin
 - **Neon serverless driver** — use `@neondatabase/serverless`, never a native TCP `pg` pool in serverless functions.
 - **`nhp` Postgres schema** — all tables live in schema `nhp`, not `public`. Drizzle handles this; don't write raw SQL that assumes `public`.
 - **Oxlint / Oxfmt only** — not ESLint/Prettier. Run `pnpm lint` and `pnpm fmt:check` before committing.
+- **Shared database, `nhp` only** — the live database is shared with another app (`giving-platform`). Touch only schema `nhp`. Never touch its other schemas or `public`. The Drizzle migration log for this app is `drizzle.__drizzle_migrations` (set in `drizzle.config.ts`). The other app keeps its own log, so migration numbers like `0004` do not clash. Do not change that setting without moving the rows.
+- **Migrations on live need the user's yes** — to check what has run, read `drizzle.__drizzle_migrations` and compare it with `drizzle/migrations/`. Order for a release: check, migrate, then deploy. Say which database a command hits before you run it.
 - **Bilingual** — every UI surface must work in both English and Simplified Chinese. Test locale switching when changing UI.

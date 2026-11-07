@@ -2,7 +2,7 @@ import { db } from "@/src/db";
 import { taskCompletions } from "@/src/db/schema";
 import { sql, inArray } from "drizzle-orm";
 import { getDayTasks as getRegistryDayTasks } from "@/src/features/content/program";
-import { getActiveBlock } from "@/src/lib/program-gate";
+import { getPlanCurrentDay, isPlanPastLastDay } from "@/src/features/plans/queries";
 import { sendPushToUser } from "./push";
 
 const messages: Record<string, { title: string; body: string }> = {
@@ -40,151 +40,159 @@ export interface ReminderEligibilityResult {
   skipReason?: ReminderSkipReason;
 }
 
+interface ReminderPlanRow {
+  id: number;
+  notification_prefs: Record<string, string> | null;
+  plan_id: string;
+  block_number: number;
+  started_at: string;
+}
+
+interface ReminderDecision extends ReminderEligibilityResult {
+  /** The plan the reminder opens. Set only when willSend is true. */
+  planId?: string;
+}
+
+/**
+ * One row per subscribed user and active, unfinished plan. The reminder looks
+ * at every active block together, like Home does.
+ */
+async function getReminderPlanRows(): Promise<ReminderPlanRow[]> {
+  const result = await db.execute(sql`
+    SELECT DISTINCT u.id, u.notification_prefs, p.id AS plan_id, p.block_number, p.started_at
+    FROM nhp.users u
+    JOIN nhp.push_subscriptions ps ON ps.user_id = u.id
+    JOIN nhp.plan_members pm ON pm.user_id = u.id AND pm.status = 'active'
+    JOIN nhp.plans p ON p.id = pm.plan_id
+    WHERE (u.notification_prefs->>'daily_reminder')::boolean = true
+      AND NOT EXISTS (
+        SELECT 1 FROM nhp.plan_completions pc
+        WHERE pc.plan_id = p.id AND pc.user_id = u.id
+      )
+    ORDER BY u.id, p.started_at DESC
+  `);
+  return result.rows as unknown as ReminderPlanRow[];
+}
+
+async function getCompletionsByPlanMember(userIds: number[]) {
+  const completionsByPlanMember = new Map<string, Set<string>>();
+  if (userIds.length === 0) return completionsByPlanMember;
+  const completionRows = await db
+    .select({
+      userId: taskCompletions.userId,
+      planId: taskCompletions.planId,
+      taskId: taskCompletions.taskId,
+    })
+    .from(taskCompletions)
+    .where(inArray(taskCompletions.userId, userIds));
+  for (const c of completionRows) {
+    if (!c.planId) continue;
+    const key = `${c.userId}:${c.planId}`;
+    const ids = completionsByPlanMember.get(key) ?? new Set<string>();
+    ids.add(c.taskId);
+    completionsByPlanMember.set(key, ids);
+  }
+  return completionsByPlanMember;
+}
+
+/**
+ * Decide, for each user, whether to send one reminder. A user gets a reminder
+ * when any active block still has tasks left for today. A block past its 25 days
+ * does not count: it has no "today" left. Rows must be sorted so
+ * the newest plan of each user comes first.
+ */
+async function decideReminders(rows: ReminderPlanRow[], now: Date): Promise<ReminderDecision[]> {
+  const rowsByUser = new Map<number, ReminderPlanRow[]>();
+  for (const row of rows) {
+    const list = rowsByUser.get(Number(row.id)) ?? [];
+    list.push(row);
+    rowsByUser.set(Number(row.id), list);
+  }
+
+  // Only load completions for users whose reminder hour is now.
+  const dueUserIds = [...rowsByUser.entries()]
+    .filter(([, list]) => isReminderHour(list[0], now))
+    .map(([userId]) => userId);
+  const completionsByPlanMember = await getCompletionsByPlanMember(dueUserIds);
+
+  const decisions: ReminderDecision[] = [];
+  for (const [userId, list] of rowsByUser) {
+    const timezone = list[0].notification_prefs?.reminder_timezone ?? "UTC";
+    const newestDay = getPlanCurrentDay(new Date(list[0].started_at), timezone, now);
+
+    if (!isReminderHour(list[0], now)) {
+      // Report currentDay anyway so the preview shows it regardless.
+      decisions.push({
+        userId,
+        currentDay: newestDay,
+        willSend: false,
+        skipReason: "wrong_hour",
+      });
+      continue;
+    }
+
+    let sawTasks = false;
+    let pending: { planId: string; day: number } | null = null;
+    for (const row of list) {
+      if (isPlanPastLastDay(new Date(row.started_at), timezone, now)) continue;
+      const day = getPlanCurrentDay(new Date(row.started_at), timezone, now);
+      const todayTasks = getRegistryDayTasks(Number(row.block_number), day);
+      // No tasks authored for today — block is complete or content not yet released.
+      if (todayTasks.length === 0) continue;
+      sawTasks = true;
+      const completedIds = completionsByPlanMember.get(`${userId}:${row.plan_id}`) ?? new Set();
+      if (todayTasks.every((t) => completedIds.has(t.id))) continue;
+      pending = { planId: row.plan_id, day };
+      break;
+    }
+
+    if (pending) {
+      decisions.push({ userId, currentDay: pending.day, willSend: true, planId: pending.planId });
+    } else {
+      decisions.push({
+        userId,
+        currentDay: newestDay,
+        willSend: false,
+        skipReason: sawTasks ? "day_complete" : "no_tasks_today",
+      });
+    }
+  }
+  return decisions;
+}
+
+function isReminderHour(row: ReminderPlanRow, now: Date): boolean {
+  const prefs = row.notification_prefs ?? {};
+  const reminderTime = prefs.reminder_time ?? "08:00";
+  const timezone = prefs.reminder_timezone ?? "UTC";
+  const reminderHour = `${reminderTime.slice(0, 2)}:00`;
+  return localHourForUser(now, timezone) === reminderHour;
+}
+
 /**
  * Evaluate reminder eligibility for all subscribed users without sending
  * any push notifications. Used by the admin preview endpoint.
  */
 export async function getDailyReminderPreview(): Promise<ReminderEligibilityResult[]> {
-  const now = new Date();
-
-  const result = await db.execute(sql`
-    SELECT DISTINCT u.id, u.notification_prefs, u.onboarded_at
-    FROM nhp.users u
-    JOIN nhp.push_subscriptions ps ON ps.user_id = u.id
-    WHERE u.onboarded_at IS NOT NULL
-      AND (u.notification_prefs->>'daily_reminder')::boolean = true
-  `);
-
-  const allRows = result.rows as {
-    id: number;
-    notification_prefs: Record<string, string>;
-    onboarded_at: string;
-  }[];
-
-  const userIds = allRows.map((r) => Number(r.id));
-  const completionRows =
-    userIds.length > 0
-      ? await db
-          .select({ userId: taskCompletions.userId, taskId: taskCompletions.taskId })
-          .from(taskCompletions)
-          .where(inArray(taskCompletions.userId, userIds))
-      : [];
-
-  const completionsByUser = new Map<number, Set<string>>();
-  for (const c of completionRows) {
-    if (!completionsByUser.has(c.userId)) completionsByUser.set(c.userId, new Set());
-    completionsByUser.get(c.userId)!.add(c.taskId);
-  }
-
-  return allRows.map((row) => {
-    const prefs = row.notification_prefs ?? {};
-    const reminderTime = prefs.reminder_time ?? "08:00";
-    const timezone = prefs.reminder_timezone ?? "UTC";
-    const reminderHour = `${reminderTime.slice(0, 2)}:00`;
-
-    const { blockNumber, currentDay } = getActiveBlock(new Date(row.onboarded_at), now, timezone);
-
-    if (localHourForUser(now, timezone) !== reminderHour) {
-      // Report currentDay anyway so the preview shows it regardless.
-      return {
-        userId: Number(row.id),
-        currentDay,
-        willSend: false,
-        skipReason: "wrong_hour" as ReminderSkipReason,
-      };
-    }
-
-    const todayTasks = getRegistryDayTasks(blockNumber, currentDay);
-
-    if (todayTasks.length === 0) {
-      return {
-        userId: Number(row.id),
-        currentDay,
-        willSend: false,
-        skipReason: "no_tasks_today" as ReminderSkipReason,
-      };
-    }
-
-    const completedIds = completionsByUser.get(Number(row.id)) ?? new Set<string>();
-    if (todayTasks.every((t) => completedIds.has(t.id))) {
-      return {
-        userId: Number(row.id),
-        currentDay,
-        willSend: false,
-        skipReason: "day_complete" as ReminderSkipReason,
-      };
-    }
-
-    return { userId: Number(row.id), currentDay, willSend: true };
-  });
+  const decisions = await decideReminders(await getReminderPlanRows(), new Date());
+  return decisions.map(({ planId: _planId, ...result }) => result);
 }
 
 /**
  * Send daily reminders to users whose reminder_time matches the current hour
- * in their own timezone. Skips users who have already completed all tasks for
- * today, and users who have finished the entire block with no new content yet.
- * Called from a cron job every hour.
+ * in their own timezone. A user gets one reminder when any active block still
+ * has tasks left for today. Called from a cron job every hour.
  */
 export async function sendDailyReminders() {
-  const now = new Date();
-
-  const result = await db.execute(sql`
-    SELECT DISTINCT u.id, u.notification_prefs, u.onboarded_at
-    FROM nhp.users u
-    JOIN nhp.push_subscriptions ps ON ps.user_id = u.id
-    WHERE u.onboarded_at IS NOT NULL
-      AND (u.notification_prefs->>'daily_reminder')::boolean = true
-  `);
-
-  const allRows = result.rows as {
-    id: number;
-    notification_prefs: Record<string, string>;
-    onboarded_at: string;
-  }[];
-
-  // Filter to users whose reminder hour matches the current hour.
-  const eligibleRows = allRows.filter((row) => {
-    const prefs = row.notification_prefs ?? {};
-    const reminderTime = prefs.reminder_time ?? "08:00";
-    const timezone = prefs.reminder_timezone ?? "UTC";
-    const reminderHour = `${reminderTime.slice(0, 2)}:00`;
-    return localHourForUser(now, timezone) === reminderHour;
-  });
-
-  if (eligibleRows.length === 0) return 0;
-
-  // Batch-fetch completions for all eligible users in one query.
-  const userIds = eligibleRows.map((r) => Number(r.id));
-  const completionRows = await db
-    .select({ userId: taskCompletions.userId, taskId: taskCompletions.taskId })
-    .from(taskCompletions)
-    .where(inArray(taskCompletions.userId, userIds));
-
-  const completionsByUser = new Map<number, Set<string>>();
-  for (const c of completionRows) {
-    if (!completionsByUser.has(c.userId)) completionsByUser.set(c.userId, new Set());
-    completionsByUser.get(c.userId)!.add(c.taskId);
-  }
+  const decisions = await decideReminders(await getReminderPlanRows(), new Date());
 
   let sent = 0;
-  for (const row of eligibleRows) {
-    const timezone = row.notification_prefs?.reminder_timezone ?? "UTC";
-    const { blockNumber, currentDay } = getActiveBlock(new Date(row.onboarded_at), now, timezone);
-
-    const todayTasks = getRegistryDayTasks(blockNumber, currentDay);
-
-    // No tasks authored for today — block is complete or content not yet released.
-    if (todayTasks.length === 0) continue;
-
-    // All of today's tasks already done — nothing left to remind about.
-    const completedIds = completionsByUser.get(Number(row.id)) ?? new Set<string>();
-    if (todayTasks.every((t) => completedIds.has(t.id))) continue;
-
+  for (const decision of decisions) {
+    if (!decision.willSend || !decision.planId) continue;
     const msg = messages.en;
     try {
       await sendPushToUser(
-        Number(row.id),
-        { title: msg.title, body: msg.body, url: "/" },
+        decision.userId,
+        { title: msg.title, body: msg.body, url: `/progress/${decision.planId}` },
         "daily_reminder",
       );
       sent++;

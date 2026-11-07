@@ -224,15 +224,15 @@ export function SettingsClient() {
         <div className="flex items-center gap-3">
           <Link
             href="/profile"
-            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-zinc-100"
+            className="tap-target flex h-8 w-8 items-center justify-center rounded-full hover:bg-on-surface/5"
           >
             <ArrowLeft size={20} className="text-foreground/60" />
           </Link>
-          <h1 className="font-headline text-lg font-bold text-foreground">{st("title")}</h1>
+          <h1 className="font-headline text-lg font-semibold text-foreground">{st("title")}</h1>
         </div>
 
         {/* Profile */}
-        <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
+        <div className="rounded-card bg-white shadow-card divide-y divide-zinc-100">
           <div className="px-4 py-3">
             <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
               {st("profileSection")}
@@ -263,7 +263,7 @@ export function SettingsClient() {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
                 aria-label="Change photo"
-                className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow ring-2 ring-white disabled:opacity-60"
+                className="tap-target press absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow ring-2 ring-white disabled:opacity-60"
               >
                 {uploadingAvatar ? (
                   <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -295,7 +295,7 @@ export function SettingsClient() {
                   autoCorrect="off"
                   maxLength={30}
                   placeholder="yourhandle"
-                  className="w-full rounded-md border border-zinc-200 bg-zinc-50 py-2 pl-7 pr-3 text-sm text-foreground outline-none focus:border-primary"
+                  className="w-full rounded-control border border-zinc-200 bg-zinc-50 py-2 pl-7 pr-3 text-sm text-foreground outline-none focus:border-primary"
                 />
               </div>
             </div>
@@ -317,7 +317,7 @@ export function SettingsClient() {
             <button
               onClick={saveProfile}
               disabled={savingProfile}
-              className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+              className="tap-target press w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-white disabled:opacity-60"
             >
               {savingProfile ? t("saving") : st("saveProfile")}
             </button>
@@ -325,7 +325,7 @@ export function SettingsClient() {
         </div>
 
         {/* Notifications */}
-        <div className="rounded-md bg-white shadow-card divide-y divide-zinc-100">
+        <div className="rounded-card bg-white shadow-card divide-y divide-zinc-100">
           <div className="px-4 py-3">
             <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
               {t("notifications")}
@@ -349,7 +349,7 @@ export function SettingsClient() {
                 <button
                   onClick={sendTestNotification}
                   disabled={testingSend === "sending"}
-                  className="rounded-full border border-zinc-200 px-2.5 py-1 text-xs font-medium text-foreground/60 hover:bg-zinc-50 disabled:opacity-50"
+                  className="tap-target press rounded-full border border-zinc-200 px-2.5 py-1 text-xs font-medium text-foreground/60 hover:bg-on-surface/5 disabled:opacity-50"
                 >
                   {testingSend === "sending"
                     ? st("pushSending")
@@ -364,7 +364,7 @@ export function SettingsClient() {
             {pushStatus === "not-subscribed" && (
               <button
                 onClick={enablePush}
-                className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white"
+                className="tap-target press rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white"
               >
                 {st("pushEnable")}
               </button>
@@ -398,7 +398,7 @@ export function SettingsClient() {
                     reminder_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                   })
                 }
-                className="rounded-md bg-zinc-100 px-2 py-1 text-xs text-foreground"
+                className="rounded-card bg-zinc-100 px-2 py-1 text-xs text-foreground"
               />
             </div>
           )}
@@ -417,7 +417,7 @@ export function SettingsClient() {
         </div>
 
         {/* Privacy */}
-        <div className="rounded-md bg-white shadow-card">
+        <div className="rounded-card bg-white shadow-card">
           <div className="px-4 py-3">
             <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">
               {t("privacy")}
@@ -434,7 +434,7 @@ export function SettingsClient() {
         {/* Contact Support */}
         <a
           href="mailto:developer@collective.my"
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3.5 text-sm font-semibold text-foreground shadow-[0_4px_20px_rgba(53,50,47,0.04)]"
+          className="flex w-full items-center justify-center gap-2 rounded-control bg-white py-3.5 text-sm font-semibold text-foreground shadow-card"
         >
           <Mail size={16} className="text-foreground/60" />
           {st("contactSupportLabel")}
@@ -444,7 +444,7 @@ export function SettingsClient() {
         <button
           onClick={handleLogout}
           disabled={loggingOut}
-          className="w-full rounded-2xl bg-white py-3.5 text-sm font-semibold text-primary shadow-[0_4px_20px_rgba(53,50,47,0.04)] transition-colors active:bg-surface-container disabled:opacity-50"
+          className="press w-full rounded-control bg-white py-3.5 text-sm font-semibold text-primary shadow-card transition-colors active:bg-surface-container disabled:opacity-50"
         >
           {loggingOut ? st("loggingOut") : t("logOut")}
         </button>
@@ -472,7 +472,7 @@ function ToggleRow({
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className={`relative h-6 w-11 rounded-full transition-colors ${
+        className={`tap-target press relative h-6 w-11 rounded-full transition-colors ${
           checked ? "bg-primary" : "bg-zinc-300"
         }`}
       >

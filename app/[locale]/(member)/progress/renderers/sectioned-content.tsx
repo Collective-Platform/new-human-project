@@ -54,7 +54,7 @@ export function SectionedContentRenderer({
   return (
     <div className="space-y-6">
       {passageRef && (
-        <p className="font-headline text-lg font-bold text-foreground">{passageRef}</p>
+        <p className="font-headline text-lg font-semibold text-foreground">{passageRef}</p>
       )}
 
       {sections.map((section, index) => (
@@ -111,7 +111,9 @@ function Section({
   if (slug === "key-idea") {
     return (
       <blockquote className="border-l-4 border-primary bg-primary/10 p-4 text-foreground">
-        <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">{heading}</p>
+        <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-primary">
+          {heading}
+        </p>
         <div className="text-xl leading-8 tracking-tight">
           <MarkdownContent>{markdown}</MarkdownContent>
         </div>
@@ -126,7 +128,7 @@ function Section({
 
   return (
     <div className="space-y-3">
-      <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">{heading}</p>
+      <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-primary">{heading}</p>
       {markdown && (
         <div className="space-y-2 text-xl leading-8 tracking-tight text-foreground">
           <MarkdownContent>{markdown}</MarkdownContent>

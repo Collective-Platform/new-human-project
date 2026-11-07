@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/src/i18n/navigation";
+import { safeReturnPath, withReturnPath } from "@/src/lib/return-path";
 import NextLink from "next/link";
 
 export function SignupForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const next = safeReturnPath(searchParams.get("next"));
   const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -62,7 +64,7 @@ export function SignupForm() {
 
       const data = await res.json().catch(() => ({}));
       const base = `/signup/verify?email=${encodeURIComponent(email)}`;
-      router.push(data.queued ? `${base}&queued=true` : base);
+      router.push(withReturnPath(data.queued ? `${base}&queued=true` : base, next));
     } catch {
       setError("Failed to send verification code. Please try again.");
       setCooldownSeconds(30);
@@ -86,7 +88,7 @@ export function SignupForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email..."
-          className="w-full rounded-sm border border-foreground/10 bg-white px-4 py-3 text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+          className="w-full rounded-control border border-foreground/10 bg-white px-4 py-3 text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
         />
       </div>
 
@@ -96,7 +98,7 @@ export function SignupForm() {
           An account with this email already exists.
           <br />
           <Link
-            href={`/login?email=${encodeURIComponent(email)}`}
+            href={withReturnPath(`/login?email=${encodeURIComponent(email)}`, next)}
             className="underline font-medium"
           >
             Log in instead?
@@ -107,7 +109,7 @@ export function SignupForm() {
       <button
         type="submit"
         disabled={loading || cooldownSeconds > 0}
-        className="w-full rounded-sm bg-primary py-3 text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="press w-full rounded-control bg-primary py-3 text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {cooldownSeconds > 0
           ? `Try again in ${cooldownSeconds}s`
@@ -116,7 +118,7 @@ export function SignupForm() {
             : "Create account"}
       </button>
 
-      <p className="text-center text-xs font-light text-foreground/60">
+      <p className="text-center text-xs font-normal text-foreground/60">
         By signing up, you agree to our <br />
         <NextLink href="https://collective.my/terms/" className="text-primary hover:underline">
           Terms of Use

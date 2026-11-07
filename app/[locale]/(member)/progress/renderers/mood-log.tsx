@@ -136,9 +136,9 @@ export function MoodLogRenderer({
   const isEditing = typeof openMode === "number";
 
   return (
-    <div className="space-y-6 rounded-lg bg-white p-6 shadow-card transition-shadow hover:shadow-card-hover">
+    <div className="space-y-6 rounded-card bg-white p-6 shadow-card transition-shadow hover:shadow-raised">
       <section className="space-y-4 text-center">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">
+        <p className="text-xs font-semibold uppercase tracking-widest text-outline">
           {tm("pickEmoji")}
         </p>
         <div className="flex items-center justify-around gap-2">
@@ -170,7 +170,7 @@ export function MoodLogRenderer({
       </section>
 
       <section className="space-y-4 text-center">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">
+        <p className="text-xs font-semibold uppercase tracking-widest text-outline">
           {tm("influences")}
         </p>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
@@ -190,7 +190,7 @@ export function MoodLogRenderer({
       </section>
 
       <section className="space-y-3 text-center">
-        <p className="text-xs font-bold uppercase tracking-widest text-outline">
+        <p className="text-xs font-semibold uppercase tracking-widest text-outline">
           {tm("moreContext")}
         </p>
         <textarea
@@ -203,7 +203,7 @@ export function MoodLogRenderer({
             setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "nearest" }), 300);
           }}
           style={{ minHeight: "4.5rem" }}
-          className="w-full resize-none overflow-hidden rounded-sm border-0 bg-surface-container-high px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
+          className="w-full resize-none overflow-hidden rounded-control border-0 bg-surface-container-high px-4 py-3 text-sm font-medium text-foreground placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
         />
       </section>
 
