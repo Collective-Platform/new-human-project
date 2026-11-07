@@ -8,9 +8,20 @@ const BLOCK_NAMES = {
   7: { en: "1 Corinthians", zh: "哥林多前书" },
 } as const;
 
+const ZH_DIGITS = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+
+/** 1 → 一, 10 → 十, 11 → 十一, 20 → 二十, 21 → 二十一 (up to 99). */
+function toChineseNumber(n: number): string {
+  if (n < 10) return ZH_DIGITS[n];
+  if (n >= 100) return String(n);
+  const tens = Math.floor(n / 10);
+  const ones = n % 10;
+  return `${tens === 1 ? "" : ZH_DIGITS[tens]}十${ones ? ZH_DIGITS[ones] : ""}`;
+}
+
 /** The canonical member-facing label for a numbered program block. */
 export function getBlockLabel(blockNumber: number, locale: "en" | "zh"): string {
-  const prefix = locale === "zh" ? `计划 ${blockNumber}` : `Block ${blockNumber}`;
+  const prefix = getBlockPrefix(blockNumber, locale);
   const name = BLOCK_NAMES[blockNumber as keyof typeof BLOCK_NAMES]?.[locale];
   return name ? `${prefix} - ${name}` : prefix;
 }
@@ -22,5 +33,5 @@ export function getBlockName(blockNumber: number, locale: "en" | "zh"): string |
 
 /** Just the "Block 1" part of the label, without the name. */
 export function getBlockPrefix(blockNumber: number, locale: "en" | "zh"): string {
-  return locale === "zh" ? `计划 ${blockNumber}` : `Block ${blockNumber}`;
+  return locale === "zh" ? `第${toChineseNumber(blockNumber)}卷` : `Block ${blockNumber}`;
 }

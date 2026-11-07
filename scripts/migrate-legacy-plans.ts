@@ -11,6 +11,14 @@
  *
  * Run after `pnpm db:migrate` against production:
  *   pnpm plans:migrate-legacy
+ *
+ * STATUS: ALREADY RUN ON PRODUCTION, 8 Nov 2026 at 4:28am (Malaysia time),
+ * after migrations 0000-0006 and the deploy of PR #39. Result: 1135 users seen,
+ * 6 skipped (not onboarded), 1129 done, 0 failed, 81052 completions linked,
+ * exit code 0. The four checks after the run returned 0 (unlinked completions,
+ * wrong-user rows, duplicate codes, missing finish records).
+ * Do NOT run it again on production unless the checks find completions with an
+ * empty plan_id. It is safe to re-run, but it needs no further run otherwise.
  */
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/src/db";
