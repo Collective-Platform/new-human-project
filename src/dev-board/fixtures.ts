@@ -69,6 +69,7 @@ export interface PlanCard {
   isGroup: boolean;
   completedAt: string | null;
   progress: PlanCardProgress | null;
+  finalStreak: number;
 }
 
 function makeProfile(base: number) {
@@ -326,6 +327,7 @@ export function buildFixtures(
       role: "owner",
       isGroup: false,
       completedAt: null,
+      finalStreak: 0,
       progress: { currentDay: 9, totalDays: 25, todayTotal: 5, todayDone: 5, members: [] },
     },
     {
@@ -338,6 +340,7 @@ export function buildFixtures(
       role: "owner",
       isGroup: true,
       completedAt: null,
+      finalStreak: 0,
       progress: {
         currentDay: 5,
         totalDays: 25,
@@ -378,6 +381,7 @@ export function buildFixtures(
       role: "member",
       isGroup: true,
       completedAt: null,
+      finalStreak: 0,
       progress: {
         currentDay: 13,
         totalDays: 25,
@@ -418,6 +422,7 @@ export function buildFixtures(
       role: "owner",
       isGroup: false,
       completedAt: new Date(base - 33 * DAY).toISOString(),
+      finalStreak: 12,
       progress: null,
     },
   ];

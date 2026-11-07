@@ -1,7 +1,7 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, inArray, or } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { db } from "@/src/db";
@@ -18,6 +18,7 @@ import { getSessionUser } from "@/src/features/auth";
 import { getDayTasks } from "@/src/features/content/program";
 import { sendPushToUser } from "@/src/features/notifications";
 import {
+  copyPastLogsIntoPlan,
   copyTodaysLogsIntoPlan,
   getRequestTimezone,
   keepSharedLogsOfPlan,
@@ -56,6 +57,24 @@ async function copyTodaysLogsBestEffort(
     await copyTodaysLogsIntoPlan({ userId, plan, timezone: await getRequestTimezone() });
   } catch {
     // The block is already created. A missed copy only means the member logs again.
+  }
+}
+
+/**
+ * A member who joins a running block also brings their mood and exercise from its earlier days.
+ * The timezone comes from the request. When an owner adds a friend, that is the owner's timezone,
+ * because the app does not save one for each member.
+ */
+async function copyLogsForNewMemberBestEffort(
+  userId: number,
+  plan: { id: string; blockNumber: number; startedAt: Date },
+) {
+  try {
+    const timezone = await getRequestTimezone();
+    await copyTodaysLogsIntoPlan({ userId, plan, timezone });
+    await copyPastLogsIntoPlan({ userId, plan, timezone });
+  } catch {
+    // The member is already in the block. A missed copy only means they log again.
   }
 }
 
@@ -106,9 +125,11 @@ export async function createPlan(input: {
         ? `@${user.searchHandle}`
         : (user.displayName ?? "Someone");
       const planName = title || `Block ${input.blockNumber}`;
+      await Promise.all(selected.map((friendId) => copyLogsForNewMemberBestEffort(friendId, plan)));
       await Promise.all(
         selected.map((friendId) => {
           updateTag(`plans:${friendId}`);
+          updateTag(`dashboard:${friendId}`);
           return sendPushToUser(
             friendId,
             {
@@ -167,16 +188,20 @@ export async function joinPlan(input: {
   if (existing[0]?.status === "kicked") {
     return { error: "The plan creator removed you from this plan.", code: "kicked" };
   }
-  if (existing[0]) {
+  // A member who is already active only reopened the link, so their row stays as it is.
+  if (existing[0] && existing[0].status !== "active") {
     await db
       .update(planMembers)
-      .set({ status: "active", removedAt: null })
+      .set({ status: "active", removedAt: null, joinedAt: new Date() })
       .where(eq(planMembers.id, existing[0].id));
-  } else {
+  } else if (!existing[0]) {
     await db.insert(planMembers).values({ planId: plan.id, userId: user.id });
   }
-  await copyTodaysLogsBestEffort(user.id, plan);
+  // A member who is already active only reopened the link. Do not refill a log they removed.
+  if (existing[0]?.status === "active") await copyTodaysLogsBestEffort(user.id, plan);
+  else await copyLogsForNewMemberBestEffort(user.id, plan);
   updateTag(`plans:${user.id}`);
+  updateTag(`dashboard:${user.id}`);
   updateTag(`plan:${plan.id}`);
   return { success: true, data: { planId: plan.id } };
 }
@@ -255,6 +280,7 @@ export async function addFriendToPlan(input: {
   if ((await reinstateMember(input.planId, input.friendId)) === "already") {
     return { success: true, data: { alreadyMember: true } };
   }
+  await copyLogsForNewMemberBestEffort(input.friendId, planState.plan);
 
   const senderName = user.searchHandle ? `@${user.searchHandle}` : (user.displayName ?? "Someone");
   const planName = planState.plan.title?.trim() || `Block ${planState.plan.blockNumber}`;
@@ -269,6 +295,7 @@ export async function addFriendToPlan(input: {
   ).catch(() => {});
 
   updateTag(`plans:${input.friendId}`);
+  updateTag(`dashboard:${input.friendId}`);
   updateTag(`plan:${input.planId}`);
   return { success: true, data: { alreadyMember: false } };
 }
@@ -286,10 +313,14 @@ export async function deleteOwnedPlan(input: {
     return { error: "Only the plan creator can delete this plan." };
   }
 
+  // Removed (`kicked`) members keep their rows in the plan, so their logs need the same care.
+  // Members who left already went through keepSharedLogsOfPlan when they left.
   const members = await db
     .select({ userId: planMembers.userId })
     .from(planMembers)
-    .where(and(eq(planMembers.planId, input.planId), eq(planMembers.status, "active")));
+    .where(
+      and(eq(planMembers.planId, input.planId), inArray(planMembers.status, ["active", "kicked"])),
+    );
   await keepSharedLogsOfPlan({
     planId: input.planId,
     userIds: members.map((member) => member.userId),

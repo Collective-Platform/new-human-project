@@ -8,6 +8,7 @@ import {
   getPlanDayDate,
   getPlanDayOnDate,
   isPlanPastLastDay,
+  PLAN_LENGTH_DAYS,
 } from "@/src/features/plans/queries";
 import { finishPlanIfComplete } from "./plan-finish";
 
@@ -30,11 +31,23 @@ import { finishPlanIfComplete } from "./plan-finish";
  */
 const SHARED_TASK_TYPES = ["mood_log", "exercise"];
 export const SYNC_MARKER = "syncedFromPlanId";
+/** Set only on the copies `copyPastLogsIntoPlan` writes, so the plan day screen can explain them. */
+export const JOIN_COPY_MARKER = "copiedOnJoin";
 
 type PlanSummary = { id: string; blockNumber: number; startedAt: Date };
 type LogTask = { id: string; type: string; day: number };
 type Target = { plan: PlanSummary; taskId: string };
 type LogData = Record<string, unknown>;
+
+/** Splits a saved log into its copy marker and the part that is copied to other blocks. */
+function splitLog(data: unknown): { marker: unknown; shared: LogData } {
+  const {
+    [SYNC_MARKER]: marker,
+    [JOIN_COPY_MARKER]: _joinCopy,
+    ...shared
+  } = (data ?? {}) as LogData;
+  return { marker, shared };
+}
 
 /** The block that holds the original of a log: the marker if the row is a copy, else its own block. */
 function originOf(marker: unknown, ownPlanId: string): string {
@@ -191,7 +204,7 @@ export async function mirrorSharedLog(input: {
     )
     .limit(1);
   if (!sourceRow) return { planIds: [] };
-  const { [SYNC_MARKER]: sourceMarker, ...shared } = (sourceRow.data ?? {}) as LogData;
+  const { marker: sourceMarker, shared } = splitLog(sourceRow.data);
   // When the source is itself a copy, the new copies point to its original.
   const originPlanId = originOf(sourceMarker, source.id);
 
@@ -269,7 +282,7 @@ export async function copyTodaysLogsIntoPlan(input: {
       .orderBy(desc(taskCompletions.completedAt))
       .limit(1);
     if (!latest?.planId) continue;
-    const { [SYNC_MARKER]: latestMarker, ...shared } = (latest.data ?? {}) as LogData;
+    const { marker: latestMarker, shared } = splitLog(latest.data);
     const copyTarget = { plan, taskId: target.id };
     await writeCopy(
       userId,
@@ -279,6 +292,108 @@ export async function copyTodaysLogsIntoPlan(input: {
       originOf(latestMarker, latest.planId),
     );
   }
+}
+
+/**
+ * When a member joins a block that is already running, bring in the mood and exercise they
+ * logged on its earlier days, from any of their other blocks on the same calendar date.
+ * Finished blocks and blocks past their 25 days count too, because their logs are real and
+ * this only reads them. Their emotional and mental tasks stay for the member to do.
+ *
+ * A day that already has a log keeps it. A copy keeps the date of its original, so it does
+ * not add a streak day today and it counts toward the block's streak on the day it was logged.
+ */
+export async function copyPastLogsIntoPlan(input: {
+  userId: number;
+  plan: PlanSummary;
+  timezone: string;
+}): Promise<void> {
+  const { userId, plan, timezone } = input;
+  const today = getPlanCurrentDay(plan.startedAt, timezone);
+  if (today === 1) return;
+
+  const rows = await db
+    .select({
+      planId: taskCompletions.planId,
+      taskId: taskCompletions.taskId,
+      data: taskCompletions.data,
+      completedAt: taskCompletions.completedAt,
+      startedAt: plans.startedAt,
+    })
+    .from(taskCompletions)
+    .innerJoin(plans, eq(taskCompletions.planId, plans.id))
+    .innerJoin(
+      planMembers,
+      and(
+        eq(planMembers.planId, plans.id),
+        eq(planMembers.userId, userId),
+        eq(planMembers.status, "active"),
+      ),
+    )
+    .where(and(eq(taskCompletions.userId, userId), ne(taskCompletions.planId, plan.id)));
+
+  // One log for each day and type. An original wins over a copy, then the newest wins.
+  const best = new Map<string, { taskId: string; row: (typeof rows)[number]; isCopy: boolean }>();
+  for (const row of rows) {
+    const task = getTaskById(row.taskId);
+    if (!row.planId || !task || !isSharedLogType(task.type)) continue;
+    // A block past its 25 days keeps logging on Day 25, so that row may hold a log from a
+    // later date. Its real date is unknown, so it is not copied.
+    if (task.day === PLAN_LENGTH_DAYS && isPlanPastLastDay(row.startedAt, timezone)) continue;
+    const date = getPlanDayDate(row.startedAt, task.day, timezone);
+    const day = getPlanDayOnDate(plan.startedAt, date, timezone);
+    if (day === null || day >= today) continue;
+    const target = getDayTasks(plan.blockNumber, day).find((item) => item.type === task.type);
+    if (!target) continue;
+    const isCopy = typeof ((row.data ?? {}) as LogData)[SYNC_MARKER] === "string";
+    const current = best.get(target.id);
+    const better =
+      !current ||
+      (current.isCopy && !isCopy) ||
+      (current.isCopy === isCopy && row.completedAt > current.row.completedAt);
+    if (better) best.set(target.id, { taskId: target.id, row, isCopy });
+  }
+  if (best.size === 0) return;
+
+  const values = [...best.values()].map(({ taskId, row }) => {
+    const sourcePlanId = row.planId as string;
+    const { marker, shared } = splitLog(row.data);
+    const origin = originOf(marker, sourcePlanId);
+    return {
+      userId,
+      planId: plan.id,
+      taskId,
+      // A copy never points to its own block. That happens only when the original's row is gone.
+      data: {
+        ...shared,
+        [SYNC_MARKER]: origin === plan.id ? sourcePlanId : origin,
+        [JOIN_COPY_MARKER]: true,
+      },
+      completedAt: row.completedAt,
+    };
+  });
+  await db.insert(taskCompletions).values(values).onConflictDoNothing();
+  await finishPlanIfComplete(userId, plan);
+}
+
+/**
+ * True when `copyPastLogsIntoPlan` brought earlier mood or exercise into this block.
+ * Only those copies carry `copiedOnJoin`. A later edit of the original rewrites the
+ * copy without the flag, so the notice stops once every such copy has been rewritten.
+ */
+export async function hasCopiedPastLogs(userId: number, planId: string) {
+  const [row] = await db
+    .select({ id: taskCompletions.id })
+    .from(taskCompletions)
+    .where(
+      and(
+        eq(taskCompletions.userId, userId),
+        eq(taskCompletions.planId, planId),
+        sql`${taskCompletions.data} ? ${JOIN_COPY_MARKER}`,
+      ),
+    )
+    .limit(1);
+  return row !== undefined;
 }
 
 /**

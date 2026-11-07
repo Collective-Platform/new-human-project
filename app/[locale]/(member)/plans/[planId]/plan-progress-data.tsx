@@ -9,6 +9,7 @@ import {
   getPlanForMember,
   getPlanMembersForDay,
 } from "@/src/features/plans/queries";
+import { hasCopiedPastLogs } from "@/src/features/tasks/shared-logs";
 import { ProgressClient } from "../../progress/progress-client";
 
 export async function PlanProgressData({
@@ -45,12 +46,17 @@ export async function PlanProgressData({
         getPlanDiscussion(planId, selectedDay),
       ])
     : Promise.resolve(undefined);
-  const [initialData, socialData] = await Promise.all([initialDataPromise, socialDataPromise]);
+  const [initialData, socialData, showCopiedLogsNotice] = await Promise.all([
+    initialDataPromise,
+    socialDataPromise,
+    hasCopiedPastLogs(user.id, planId),
+  ]);
   return (
     <ProgressClient
       locale={locale}
       initialData={initialData}
       dayFromLink={initialDay !== undefined}
+      showCopiedLogsNotice={showCopiedLogsNotice}
       planControls={{
         isGroup: planState.plan.isGroup,
         isOwner: planState.membership.role === "owner",

@@ -10,6 +10,10 @@ export default defineConfig({
   dialect: "postgresql",
   casing: "snake_case",
   schemaFilter: ["nhp"],
+  migrations: {
+    schema: "drizzle",
+    table: "__drizzle_migrations",
+  },
   dbCredentials: {
     url: settings.DATABASE_URL,
   },

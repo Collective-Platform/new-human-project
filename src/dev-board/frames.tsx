@@ -119,10 +119,12 @@ function PlanDay({
   fx,
   locale,
   open,
+  copiedLogsNotice = false,
 }: {
   fx: BoardFixtures;
   locale: string;
   open?: "menu" | "members" | "leave" | "stop" | "none";
+  copiedLogsNotice?: boolean;
 }) {
   const isMember = open === "leave";
   const solo = open === "stop";
@@ -135,6 +137,7 @@ function PlanDay({
     <ProgressClient
       locale={locale}
       initialData={group}
+      showCopiedLogsNotice={copiedLogsNotice}
       planControls={{ isGroup: !solo, isOwner: !isMember }}
       planSocial={{
         selfUserId: 1,
@@ -249,6 +252,8 @@ function Body({ id, fx, locale }: { id: string; fx: BoardFixtures; locale: strin
       return <PlanDay fx={fx} locale={locale} open="leave" />;
     case "plan-group":
       return <PlanDay fx={fx} locale={locale} />;
+    case "plan-copied-logs":
+      return <PlanDay fx={fx} locale={locale} copiedLogsNotice />;
     case "plan-stop":
       return <PlanDay fx={fx} locale={locale} open="stop" />;
     case "plan-menu":

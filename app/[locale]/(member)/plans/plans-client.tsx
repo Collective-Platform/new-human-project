@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { Check, ChevronRight, Plus, Search, UserPlus, X } from "lucide-react";
+import { Check, CheckCircle2, ChevronRight, Plus, Search, UserPlus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/src/i18n/navigation";
 import { createPlan, getFriendsForNewPlan } from "@/src/features/plans/actions";
 import type { PlanCardProgress, PlanFriend } from "@/src/features/plans/queries";
 import { SlidingTabs } from "@/app/components/sliding-tabs";
 import { Avatar } from "./plan-day-social";
+import { StreakBadge } from "../dashboard/streak-badge";
 import { getBlockLabel, getBlockName, getBlockPrefix } from "@/src/lib/block-names";
 import { Overlay } from "@/app/components/overlay";
 import { Crossfade } from "@/app/components/crossfade";
@@ -23,6 +24,7 @@ type PlanCard = {
   isGroup: boolean;
   completedAt: string | null;
   progress: PlanCardProgress | null;
+  finalStreak: number;
 };
 
 /** Day/month/year, such as 14/10/2026, in both languages. */
@@ -202,15 +204,30 @@ export function PlansClient({
                     <p className="truncate text-xs font-medium text-on-surface-variant">
                       {getBlockPrefix(plan.blockNumber, locale)}
                     </p>
-                    <h2 className="font-headline truncate text-lg font-medium text-on-surface">
-                      {getBlockName(plan.blockNumber, locale) ?? plan.title}
-                    </h2>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <h2 className="font-headline truncate text-lg font-medium text-on-surface">
+                        {getBlockName(plan.blockNumber, locale) ?? plan.title}
+                      </h2>
+                      {plan.completedAt && (
+                        <>
+                          <CheckCircle2
+                            className="h-4 w-4 shrink-0 text-primary"
+                            aria-hidden="true"
+                          />
+                          {plan.finalStreak > 0 && (
+                            <div className="shrink-0">
+                              <StreakBadge count={plan.finalStreak} size="sm" />
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
                     {plan.title && getBlockName(plan.blockNumber, locale) && (
                       <p className="truncate text-sm text-on-surface">{plan.title}</p>
                     )}
                     {plan.completedAt && (
                       <p className="text-xs text-on-surface-variant">
-                        {formatCompletedDate(plan.completedAt)}
+                        {t("completedOn", { date: formatCompletedDate(plan.completedAt) })}
                       </p>
                     )}
                   </div>

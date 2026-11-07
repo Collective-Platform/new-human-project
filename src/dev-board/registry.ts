@@ -358,6 +358,15 @@ export const FRAMES: FrameDef[] = [
     ],
   },
   {
+    id: "plan-copied-logs",
+    title: "Group plan day (copied logs notice)",
+    group: "plans",
+    render: "fixture",
+    width: 390,
+    height: 844,
+    files: [`${M}/progress/copied-logs-notice.tsx`, `${M}/progress/progress-client.tsx`],
+  },
+  {
     id: "plan-discussion",
     title: "Group discussion (“Talk it out”)",
     group: "plans",

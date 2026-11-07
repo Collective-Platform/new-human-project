@@ -30,6 +30,8 @@
     "seconds": "秒"
   },
   "progress": {
+    "copiedLogsNotice": "你在其他计划中的心情和运动记录已添加到这里之前的日子。",
+    "copiedLogsNoticeClose": "关闭",
     "dayLabel": "第{day}天",
     "blockLabel": "第 {block} 阶段",
     "mental": "心理",
@@ -72,6 +74,7 @@
     "members": "{count} 位成员",
     "member": "{count} 位成员",
     "completedPlan": "已完成",
+    "completedOn": "完成：{date}",
     "active": "进行中",
     "completed": "已完成",
     "noCompletedPlans": "你完成的计划会显示在这里。",

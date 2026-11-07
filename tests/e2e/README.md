@@ -40,12 +40,18 @@ The separate [auth proxy check](../../scripts/auth-proxy.test.ts) runs with
 cookie permits EN/ZH login, signup, and verification routes, while a signed-out
 visitor is redirected from progress to login. It needs no server or database.
 
+The separate [maintenance check](../../scripts/maintenance.test.ts) runs with
+`pnpm exec tsx --test scripts/maintenance.test.ts`. It has 7 tests. They check that with
+`MAINTENANCE_MODE=1` pages, server actions, API routes and cron jobs get a 503, that the notice has
+both languages, that Rhythm Live pages stay open, and that only the right secret bypasses it. It
+needs no server or database.
+
 The separate [return path check](../../scripts/return-path.test.ts) runs with
 `pnpm exec tsx --test scripts/return-path.test.ts`. It has 2 tests. They check that only invite
 pages are accepted as a return path after login. It needs no server or database.
 
 The separate [shared logs check](../../scripts/shared-logs.test.ts) runs with
-`pnpm exec tsx --test scripts/shared-logs.test.ts`. It has 14 tests. They check that
+`pnpm exec tsx --test scripts/shared-logs.test.ts`. It has 20 tests. They check that
 mood and exercise logs are copied between a member's active blocks (a today log goes to
 each block's current day, a backfilled day goes to the same calendar date), that edits and removals follow in both directions, that
 several exercise entries all copy, that copied rows are marked, that dates outside
@@ -54,7 +60,13 @@ that a block started mid-day receives today's logs, and that a block past its 25
 neither receives nor sends copies and keeps its own Day 25 log, that deleting or leaving a block
 turns exactly one copy of each of its logs into an original, that a copied log that finishes
 another block reports that block, that a new block ignores an older day of another plan of the same
-block, and that two saves of a plan's last task at once finish it once without an error. It needs `.env.test.local` and the
+block, that two saves of a plan's last task at once finish it once without an error, that a member
+who joins a running block gets mood and exercise from its earlier days (also from a finished block)
+with the original dates and without overwriting a day that has a log, that a second copy changes
+nothing, that copied logs count in the plan's final streak, and that the notice about copied logs
+shows only for logs that were copied in when the member joined (not for ordinary copies, even old
+ones), that this flag is not passed on to other blocks, and that Day 25 of a block past its 25 days
+is not copied in, because its real date is unknown. It needs `.env.test.local` and the
 local `rhythm_test` database with all migrations applied, and it refuses any other
 database. It creates one test user with three blocks and deletes them at the end.
 It is not part of `pnpm test:e2e`.
@@ -216,6 +228,11 @@ with the not-found content, because the response starts before the page decides.
 returns 404. No browser test covers staying on the plan when a copied log finishes another block.
 `scripts/` checks on `rhythm_test`, which does not have migration `0006` yet: shared logs 14 of 14,
 home dashboard 9 of 9, member status 5 of 5, daily reminder 7 of 7, legacy plan script 5 of 5.
+
+Review fixes (7 November 2026): shared logs 20 of 20 and member status 5 of 5 passed on
+`rhythm_test`. No test covers two of the fixes, because they are server actions that need a signed-in
+session: `joinPlan` no longer changes the row of an active member who reopens the invite, and
+`deleteOwnedPlan` also keeps the shared logs of removed (`kicked`) members.
 
 Legacy plan script check: 5 of 5 passed on `rhythm_test`. It has not run against the live database.
 

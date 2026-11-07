@@ -30,6 +30,8 @@
     "seconds": "Sec"
   },
   "progress": {
+    "copiedLogsNotice": "Your mood and exercise from your other blocks were added to earlier days here.",
+    "copiedLogsNoticeClose": "Close",
     "dayLabel": "Day {day}",
     "blockLabel": "Block {block}",
     "mental": "Mental",
@@ -72,6 +74,7 @@
     "members": "{count} members",
     "member": "{count} member",
     "completedPlan": "Completed",
+    "completedOn": "Completed: {date}",
     "active": "Active",
     "completed": "Completed",
     "noCompletedPlans": "Your completed blocks will appear here.",

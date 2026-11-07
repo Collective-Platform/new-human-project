@@ -265,6 +265,54 @@ export async function getPlanCardProgress(
   return result;
 }
 
+function safeTimezone(tz: string): string {
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tz });
+    return tz;
+  } catch {
+    return "UTC";
+  }
+}
+
+/**
+ * Final streak of each plan: the length of the consecutive-day chain that ends
+ * on the member's last active day in that plan. Plans with no activity are missing from the map.
+ */
+export async function getPlanFinalStreaks(
+  userId: number,
+  planIds: string[],
+  timezone: string,
+): Promise<Map<string, number>> {
+  const result = new Map<string, number>();
+  if (planIds.length === 0) return result;
+  const tz = safeTimezone(timezone);
+  const idList = sql.join(
+    planIds.map((id) => sql`${id}::uuid`),
+    sql`, `,
+  );
+  const queried = await db.execute<{ plan_id: string; streak: number }>(sql`
+    WITH completion_dates AS (
+      SELECT DISTINCT tc.plan_id, (tc.completed_at AT TIME ZONE ${tz})::date AS d
+      FROM nhp.task_completions tc
+      WHERE tc.user_id = ${userId} AND tc.plan_id IN (${idList})
+    ),
+    numbered AS (
+      SELECT plan_id, d, d - (ROW_NUMBER() OVER (PARTITION BY plan_id ORDER BY d ASC))::int AS grp
+      FROM completion_dates
+    ),
+    last_chain AS (
+      SELECT DISTINCT ON (plan_id) plan_id, grp FROM numbered ORDER BY plan_id, d DESC
+    )
+    SELECT n.plan_id, COUNT(*)::int AS streak
+    FROM numbered n
+    JOIN last_chain l ON l.plan_id = n.plan_id AND l.grp = n.grp
+    GROUP BY n.plan_id
+  `);
+  const rows = (queried as unknown as { rows: { plan_id: string; streak: number }[] }).rows;
+  for (const row of rows) result.set(row.plan_id, Number(row.streak));
+  return result;
+}
+
 export async function getCompletedPlansForUser(userId: number) {
   return db
     .select({

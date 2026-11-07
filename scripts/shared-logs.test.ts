@@ -325,6 +325,158 @@ test("a new block ignores an older day of another plan of the same block", async
   assert.equal(await readRow(fresh.id, taskOf(7, 1, "mood_log").id), null);
 });
 
+test("a member who joins on Day 10 gets mood and exercise from earlier days, and only those", async () => {
+  const t = m.schema.taskCompletions;
+  const { and, eq } = m.orm;
+  await m.db.delete(t).where(eq(t.userId, userId));
+
+  // Own block, finished: started 11 days ago, so its Day 3 is the group plan's Day 1.
+  const own = await makePlan(5, 11);
+  await m.db.insert(m.schema.planCompletions).values({ planId: own.id, userId });
+  const loggedAt = new Date(Date.now() - 9 * DAY);
+  await m.db.insert(t).values([
+    {
+      userId,
+      planId: own.id,
+      taskId: taskOf(5, 3, "mood_log").id,
+      data: { entries: [{ moods: ["joy"] }] },
+      completedAt: loggedAt,
+    },
+    { userId, planId: own.id, taskId: taskOf(5, 4, "exercise").id, data: { minutes: 20 } },
+    // The group plan's Day 5 already has the member's own log, set up below.
+    {
+      userId,
+      planId: own.id,
+      taskId: taskOf(5, 7, "mood_log").id,
+      data: { entries: [{ moods: ["from-own-block"] }] },
+    },
+    // Today is not a past day, so this path leaves it alone.
+    { userId, planId: own.id, taskId: taskOf(5, 12, "mood_log").id, data: { entries: [] } },
+  ]);
+  const devotional = m.program
+    .getDayTasks(5, 3)
+    .find((task) => task.type !== "mood_log" && task.type !== "exercise");
+  assert.ok(devotional);
+  await saveRow(own.id, devotional.id, {});
+
+  const group = await makePlan(6, 9); // today is Day 10
+  const kept = { entries: [{ moods: ["already-here"] }] };
+  await saveRow(group.id, taskOf(6, 5, "mood_log").id, kept);
+
+  await m.shared.copyPastLogsIntoPlan({ userId, plan: group, timezone: TZ });
+
+  const mood = await readRow(group.id, taskOf(6, 1, "mood_log").id);
+  assert.deepEqual(mood?.entries, [{ moods: ["joy"] }]);
+  assert.equal(mood?.syncedFromPlanId, own.id);
+  assert.equal((await readRow(group.id, taskOf(6, 2, "exercise").id))?.minutes, 20);
+  assert.deepEqual(await readRow(group.id, taskOf(6, 5, "mood_log").id), kept);
+  assert.equal(await readRow(group.id, taskOf(6, 10, "mood_log").id), null);
+
+  const groupRows = await m.db
+    .select({ taskId: t.taskId, completedAt: t.completedAt })
+    .from(t)
+    .where(and(eq(t.userId, userId), eq(t.planId, group.id)));
+  assert.equal(groupRows.length, 3, "only mood and exercise are copied");
+  const copied = groupRows.find((row) => row.taskId === taskOf(6, 1, "mood_log").id);
+  assert.equal(copied?.completedAt.getTime(), loggedAt.getTime(), "the copy keeps its date");
+});
+
+test("the notice shows only for logs copied in when the member joined", async () => {
+  const t = m.schema.taskCompletions;
+  const { eq } = m.orm;
+  await m.db.delete(t).where(eq(t.userId, userId));
+  const own = await makePlan(5, 4);
+  const group = await makePlan(6, 4);
+
+  // An ordinary copy, even an old one (for example from before an owner added the
+  // member back), does not count.
+  await m.db.insert(t).values({
+    userId,
+    planId: group.id,
+    taskId: taskOf(6, 3, "mood_log").id,
+    data: { syncedFromPlanId: own.id },
+    completedAt: new Date(Date.now() - 2 * DAY),
+  });
+  // The member's own log is not a copy, so it does not count.
+  await saveRow(group.id, taskOf(6, 1, "exercise").id, {});
+  assert.equal(await m.shared.hasCopiedPastLogs(userId, group.id), false);
+
+  await saveRow(own.id, taskOf(5, 2, "mood_log").id, { entries: [] });
+  await m.shared.copyPastLogsIntoPlan({ userId, plan: group, timezone: TZ });
+  assert.equal(await m.shared.hasCopiedPastLogs(userId, group.id), true);
+  assert.equal((await readRow(group.id, taskOf(6, 2, "mood_log").id))?.copiedOnJoin, true);
+});
+
+test("the join flag stays in the block it was written to", async () => {
+  const t = m.schema.taskCompletions;
+  const { eq } = m.orm;
+  await m.db.delete(t).where(eq(t.userId, userId));
+  const own = await makePlan(5, 4);
+  await saveRow(own.id, taskOf(5, 2, "mood_log").id, { entries: [] });
+  const group = await makePlan(6, 4);
+  await m.shared.copyPastLogsIntoPlan({ userId, plan: group, timezone: TZ });
+
+  // Editing the group block's copy and sharing it must not flag the other blocks' rows.
+  const today = taskOf(6, 5, "mood_log");
+  await saveRow(group.id, today.id, { entries: [], copiedOnJoin: true });
+  await mirror(group, today);
+  assert.equal((await readRow(own.id, taskOf(5, 5, "mood_log").id))?.copiedOnJoin, undefined);
+});
+
+test("Day 25 of a block past its 25 days is not copied, because its date is unknown", async () => {
+  const t = m.schema.taskCompletions;
+  const { eq } = m.orm;
+  await m.db.delete(t).where(eq(t.userId, userId));
+  // Started 30 days ago, so its Day 25 is 6 days ago, but it keeps logging on Day 25 today.
+  const old = await makePlan(5, 30);
+  await saveRow(old.id, taskOf(5, 25, "mood_log").id, { entries: [{ moods: ["today"] }] });
+  await saveRow(old.id, taskOf(5, 24, "exercise").id, { minutes: 15 });
+  const group = await makePlan(6, 9); // today is Day 10; 6 days ago is Day 4, 7 days ago Day 3
+
+  await m.shared.copyPastLogsIntoPlan({ userId, plan: group, timezone: TZ });
+  assert.equal(await readRow(group.id, taskOf(6, 4, "mood_log").id), null);
+  assert.equal((await readRow(group.id, taskOf(6, 3, "exercise").id))?.minutes, 15);
+});
+
+test("copying past logs a second time changes nothing, and Day 1 has nothing to copy", async () => {
+  const t = m.schema.taskCompletions;
+  const { eq } = m.orm;
+  await m.db.delete(t).where(eq(t.userId, userId));
+  const own = await makePlan(5, 4);
+  await saveRow(own.id, taskOf(5, 2, "mood_log").id, { entries: [{ moods: ["first"] }] });
+  const group = await makePlan(6, 4);
+  await m.shared.copyPastLogsIntoPlan({ userId, plan: group, timezone: TZ });
+  await saveRow(own.id, taskOf(5, 2, "mood_log").id, { entries: [{ moods: ["changed"] }] });
+  await m.shared.copyPastLogsIntoPlan({ userId, plan: group, timezone: TZ });
+  const mood = await readRow(group.id, taskOf(6, 2, "mood_log").id);
+  assert.deepEqual(mood?.entries, [{ moods: ["first"] }]);
+
+  const fresh = await makePlan(7, 0);
+  await m.shared.copyPastLogsIntoPlan({ userId, plan: fresh, timezone: TZ });
+  const freshRows = await m.db.select({ id: t.id }).from(t).where(eq(t.planId, fresh.id));
+  assert.equal(freshRows.length, 0);
+});
+
+test("a copied past log can carry a plan's final streak back to the day it was logged", async () => {
+  const t = m.schema.taskCompletions;
+  const { eq } = m.orm;
+  await m.db.delete(t).where(eq(t.userId, userId));
+  const own = await makePlan(5, 3);
+  const inserts = [3, 2, 1].map((daysAgo) => ({
+    userId,
+    planId: own.id,
+    taskId: taskOf(5, 4 - daysAgo, "mood_log").id,
+    data: { entries: [] },
+    completedAt: new Date(Date.now() - daysAgo * DAY),
+  }));
+  await m.db.insert(t).values(inserts);
+  const group = await makePlan(6, 3);
+  await m.shared.copyPastLogsIntoPlan({ userId, plan: group, timezone: TZ });
+  const { getPlanFinalStreaks } = await import("@/src/features/plans/queries");
+  const streaks = await getPlanFinalStreaks(userId, [group.id], TZ);
+  assert.equal(streaks.get(group.id), 3);
+});
+
 test("two saves of a plan's last task at once finish it once, without an error", async () => {
   const plan = await makePlan(4, 2);
   for (let day = 1; day <= 25; day++) {

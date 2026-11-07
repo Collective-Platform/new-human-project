@@ -12,6 +12,7 @@ import { PlanOverflowMenu } from "./plan-overflow-menu";
 import { PlanDaySocial } from "../plans/plan-day-social";
 import { BlockCelebration } from "../dashboard/block-celebration";
 import { markBadgeSeen } from "@/src/features/badges/actions";
+import { CopiedLogsNotice } from "./copied-logs-notice";
 import type { ProgressPayload, ProgressTask, DayContentTask } from "@/src/features/progress";
 import { useProgressContext } from "@/src/features/progress/progress-context";
 import type { PlanDiscussionThread, PlanMember } from "@/src/features/plans/queries";
@@ -60,12 +61,15 @@ export function ProgressClient({
   planSocial,
   planControls,
   dayFromLink = false,
+  showCopiedLogsNotice = false,
 }: {
   locale: string;
   initialData: ProgressPayload;
   initialTaskId?: string;
   /** The URL names a day (`?day=`), so it wins over the day saved in the context. */
   dayFromLink?: boolean;
+  /** Earlier mood and exercise were copied in when this member joined the block. */
+  showCopiedLogsNotice?: boolean;
   planSocial?: {
     selfUserId: number;
     isOwner: boolean;
@@ -447,6 +451,9 @@ export function ProgressClient({
             inviteCode={planSocial?.inviteCode}
           />
         </div>
+      )}
+      {showCopiedLogsNotice && initialData.planId && (
+        <CopiedLogsNotice planId={initialData.planId} />
       )}
       <DayCarousel
         days={carousel}
