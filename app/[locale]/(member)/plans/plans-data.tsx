@@ -1,6 +1,7 @@
+import { cookies } from "next/headers";
 import { getSessionUser } from "@/src/features/auth";
 import { getMaxContentBlock } from "@/src/features/content/program";
-import { getPlansForUser } from "@/src/features/plans/queries";
+import { getPlanCardProgress, getPlansForUser } from "@/src/features/plans/queries";
 import { isBlockReleased, PROGRAM_DEFAULT_TZ } from "@/src/lib/program-gate";
 import { PlansClient } from "./plans-client";
 
@@ -13,12 +14,17 @@ export async function PlansData({
 }) {
   const user = await getSessionUser();
   if (!user) return null;
+  const cookieStore = await cookies();
+  const timezone = decodeURIComponent(cookieStore.get("tz")?.value ?? "UTC");
   const plans = await getPlansForUser(user.id);
+  const activePlans = plans.filter((plan) => !plan.completedAt);
+  const progress = await getPlanCardProgress(user.id, timezone, activePlans);
   return (
     <PlansClient
       locale={locale}
       plans={plans.map((plan) => ({
         ...plan,
+        progress: progress.get(plan.id) ?? null,
         startedAt: plan.startedAt.toISOString(),
         completedAt: plan.completedAt?.toISOString() ?? null,
       }))}

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { BottomNav } from "@/app/[locale]/(member)/bottom-nav";
 import { NavVisibilityProvider } from "@/app/[locale]/(member)/nav-visibility";
 import { ProgressProvider } from "@/src/features/progress/progress-context";
+import type { HomeDashboardData } from "@/src/features/dashboard";
 import { DashboardClient } from "@/app/[locale]/(member)/dashboard/dashboard-client";
 import { FoundationCard } from "@/app/[locale]/(member)/dashboard/foundation-card";
 import { BlockCelebration } from "@/app/[locale]/(member)/dashboard/block-celebration";
@@ -53,33 +54,66 @@ export function Shell({ children, nav = true }: { children: ReactNode; nav?: boo
   );
 }
 
-/** Clicks a button inside once, so a popup that opens on tap shows already open. */
+/**
+ * Clicks a button inside once, so a popup that opens on tap shows already open.
+ * Pass `thenSelector` to click a second control after the first one opens
+ * (for example a menu item inside a menu).
+ */
 function OpenOnMount({
   children,
   selector = "button",
+  thenSelector,
 }: {
   children: ReactNode;
   selector?: string;
+  thenSelector?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const id = setTimeout(() => ref.current?.querySelector<HTMLElement>(selector)?.click(), 400);
-    return () => clearTimeout(id);
-  }, [selector]);
+    const first = setTimeout(() => ref.current?.querySelector<HTMLElement>(selector)?.click(), 400);
+    const second = thenSelector
+      ? setTimeout(() => ref.current?.querySelector<HTMLElement>(thenSelector)?.click(), 700)
+      : undefined;
+    return () => {
+      clearTimeout(first);
+      if (second) clearTimeout(second);
+    };
+  }, [selector, thenSelector]);
   return <div ref={ref}>{children}</div>;
 }
 
 /** Opens a popup by clicking the button with a translated label (plans namespace). */
-function OpenByLabel({ labelKey, children }: { labelKey: string; children: ReactNode }) {
+function OpenByLabel({
+  labelKey,
+  thenSelector,
+  children,
+}: {
+  labelKey: string;
+  thenSelector?: string;
+  children: ReactNode;
+}) {
   const t = useTranslations("plans");
   return (
-    <OpenOnMount selector={`button[aria-label=${JSON.stringify(t(labelKey as never))}]`}>
+    <OpenOnMount
+      selector={`button[aria-label=${JSON.stringify(t(labelKey as never))}]`}
+      thenSelector={thenSelector}
+    >
       {children}
     </OpenOnMount>
   );
 }
 
 const AVAILABLE_BLOCKS = [1, 2, 3, 4, 5, 6];
+
+const EMPTY_HOME: HomeDashboardData = {
+  radar: { mental: 0, emotional: 0, physical: 0 },
+  streak: 0,
+  calendar: [],
+  windowStartDate: "1970-01-01",
+  emotionBreakdown: {},
+  activityLast25: Array.from({ length: 25 }, (_, i) => ({ day: i + 1, totalMinutes: 0 })),
+  earnedBadge: null,
+};
 
 function PlanDay({
   fx,
@@ -88,8 +122,10 @@ function PlanDay({
 }: {
   fx: BoardFixtures;
   locale: string;
-  open?: "menu" | "members" | "none";
+  open?: "menu" | "members" | "leave" | "stop" | "none";
 }) {
+  const isMember = open === "leave";
+  const solo = open === "stop";
   const group = {
     ...fx.progress,
     planId: "demo-group",
@@ -99,10 +135,10 @@ function PlanDay({
     <ProgressClient
       locale={locale}
       initialData={group}
-      planControls={{ isGroup: true, isOwner: true }}
+      planControls={{ isGroup: !solo, isOwner: !isMember }}
       planSocial={{
         selfUserId: 1,
-        isOwner: true,
+        isOwner: !isMember,
         inviteCode: "DEMO1234",
         initialData: { members: fx.members, discussion: fx.discussion },
       }}
@@ -112,6 +148,14 @@ function PlanDay({
     <Shell>
       {open === "menu" ? (
         <OpenByLabel labelKey="moreActions">{client}</OpenByLabel>
+      ) : open === "leave" ? (
+        <OpenByLabel labelKey="moreActions" thenSelector='[role="menuitem"]:last-of-type'>
+          {client}
+        </OpenByLabel>
+      ) : open === "stop" ? (
+        <OpenByLabel labelKey="moreActions" thenSelector='[role="menuitem"]:last-of-type'>
+          {client}
+        </OpenByLabel>
       ) : open === "members" ? (
         <OpenOnMount selector='button[aria-haspopup="dialog"]'>{client}</OpenOnMount>
       ) : (
@@ -160,10 +204,8 @@ function Body({ id, fx, locale }: { id: string; fx: BoardFixtures; locale: strin
       return (
         <Shell>
           <DashboardClient
-            initialData={fx.dashboard}
+            data={fx.dashboard}
             plans={fx.plans.filter((p) => !p.completedAt)}
-            availableBlocks={AVAILABLE_BLOCKS}
-            selectedPlanId="demo-solo"
             locale={locale === "zh" ? "zh" : "en"}
           >
             <FoundationCard />
@@ -173,13 +215,7 @@ function Body({ id, fx, locale }: { id: string; fx: BoardFixtures; locale: strin
     case "dashboard-empty":
       return (
         <Shell>
-          <DashboardClient
-            initialData={null}
-            plans={[]}
-            availableBlocks={AVAILABLE_BLOCKS}
-            selectedPlanId={null}
-            locale={locale === "zh" ? "zh" : "en"}
-          >
+          <DashboardClient data={EMPTY_HOME} plans={[]} locale={locale === "zh" ? "zh" : "en"}>
             <FoundationCard />
           </DashboardClient>
         </Shell>
@@ -197,10 +233,9 @@ function Body({ id, fx, locale }: { id: string; fx: BoardFixtures; locale: strin
         </Shell>
       );
     case "plan-create":
-    case "plan-leave":
       return (
         <Shell>
-          <OpenByLabel labelKey={id === "plan-create" ? "startPlan" : "leavePlan"}>
+          <OpenByLabel labelKey="startPlan">
             <PlansClient
               locale={locale === "zh" ? "zh" : "en"}
               plans={fx.plans}
@@ -210,8 +245,12 @@ function Body({ id, fx, locale }: { id: string; fx: BoardFixtures; locale: strin
           </OpenByLabel>
         </Shell>
       );
+    case "plan-leave":
+      return <PlanDay fx={fx} locale={locale} open="leave" />;
     case "plan-group":
       return <PlanDay fx={fx} locale={locale} />;
+    case "plan-stop":
+      return <PlanDay fx={fx} locale={locale} open="stop" />;
     case "plan-menu":
       return <PlanDay fx={fx} locale={locale} open="menu" />;
     case "plan-members":
@@ -245,9 +284,17 @@ function Body({ id, fx, locale }: { id: string; fx: BoardFixtures; locale: strin
       );
     case "join-plan":
     case "join-plan-expired":
+    case "join-plan-removed":
+    case "join-plan-error":
       return (
         <Shell nav={false}>
-          <JoinPlanClient inviteCode="DEMO1234" expired={id === "join-plan-expired"} />
+          <JoinPlanClient
+            inviteCode="DEMO1234"
+            expired={id === "join-plan-expired"}
+            initialNotice={
+              id === "join-plan-removed" ? "kicked" : id === "join-plan-error" ? "failed" : null
+            }
+          />
         </Shell>
       );
     case "ui-lab":

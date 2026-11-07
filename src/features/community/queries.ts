@@ -242,6 +242,7 @@ export async function getUserActivities(
     JOIN nhp.users u ON tc.user_id = u.id
     LEFT JOIN nhp.block_day_tasks bdt ON bdt.id::text = tc.task_id
     WHERE tc.user_id = ${targetUserId}
+      AND (tc.data->>'syncedFromPlanId') IS NULL
       AND (
         ${viewerUserId} = ${targetUserId}
         OR u.privacy_public = true
@@ -304,6 +305,7 @@ export async function getActivityFeedPaged(
     LEFT JOIN nhp.block_day_tasks bdt ON bdt.id::text = tc.task_id
     WHERE tc.user_id IN (SELECT friend_id FROM friend_ids)
       AND u.privacy_public = true
+      AND (tc.data->>'syncedFromPlanId') IS NULL
       ${cursorClause}
     ORDER BY tc.completed_at DESC
     LIMIT ${limit}

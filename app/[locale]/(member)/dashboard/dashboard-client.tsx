@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { RadarChart } from "./radar-chart";
@@ -9,10 +9,8 @@ import { ActivityCalendar } from "./activity-calendar";
 import { EmotionBreakdownChart } from "./emotion-breakdown-chart";
 import { PhysicalActivityChart } from "./physical-activity-chart";
 // import { LiveBanner } from "./live-banner";
-import type { DashboardData } from "@/src/features/dashboard";
+import type { HomeDashboardData } from "@/src/features/dashboard";
 import { markBadgeSeen } from "@/src/features/badges/actions";
-import { createPlan, selectDashboardPlan } from "@/src/features/plans/actions";
-import { useRouter } from "@/src/i18n/navigation";
 import { getBlockLabel } from "@/src/lib/block-names";
 
 const BlockCelebration = dynamic(
@@ -21,112 +19,31 @@ const BlockCelebration = dynamic(
 );
 
 export function DashboardClient({
-  initialData,
+  data,
   plans,
-  availableBlocks,
-  selectedPlanId,
   locale,
   children,
 }: {
-  initialData: DashboardData | null;
+  /** Everything on Home, for all active blocks together. */
+  data: HomeDashboardData;
   plans: Array<{ id: string; blockNumber: number; title: string | null }>;
-  availableBlocks: number[];
-  selectedPlanId: string | null;
   locale: "en" | "zh";
   children?: React.ReactNode;
 }) {
   const t = useTranslations("dashboard");
   const tp = useTranslations("progress");
-  const tpl = useTranslations("plans");
-  const router = useRouter();
-  const [showCelebration, setShowCelebration] = useState(!!initialData?.earnedBadge);
-  const [isPending, startTransition] = useTransition();
-  const [selectionError, setSelectionError] = useState<string | null>(null);
+  const [showCelebration, setShowCelebration] = useState(!!data.earnedBadge);
 
   useEffect(() => {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     document.cookie = `tz=${encodeURIComponent(tz)}; path=/; SameSite=Lax; max-age=31536000`;
   }, []);
 
-  const hasSelectedPlan = initialData !== null;
-  const data: DashboardData = initialData ?? {
-    blockNumber: 0,
-    currentDay: 0,
-    radar: { mental: 0, emotional: 0, physical: 0 },
-    grid: [],
-    streak: 0,
-    calendar: [],
-    earnedBadge: null,
-    emotionBreakdown: {},
-    physicalActivityByDay: [],
-    blockStartDate: "1970-01-01",
-  };
-  const blockLabel = hasSelectedPlan
-    ? getBlockLabel(data.blockNumber, locale)
-    : t("chooseAnotherBlock");
-
-  function updateDashboardPlan(planId: string) {
-    setSelectionError(null);
-    startTransition(async () => {
-      if (planId.startsWith("new:")) {
-        const result = await createPlan({ blockNumber: Number(planId.slice(4)), mode: "solo" });
-        if ("success" in result) {
-          router.push(`/progress/${result.data.planId}?day=1`);
-        } else {
-          setSelectionError(tpl("actionError"));
-        }
-        return;
-      }
-
-      const result = await selectDashboardPlan({ planId });
-      if ("success" in result) {
-        router.refresh();
-      } else {
-        setSelectionError(tpl("actionError"));
-      }
-    });
-  }
+  // With one active block the charts name it; with several they cover all of them.
+  const blockLabel = plans.length === 1 ? getBlockLabel(plans[0].blockNumber, locale) : undefined;
 
   return (
     <div className="space-y-4 px-4 sm:px-6 md:px-8 pt-4 pb-4">
-      <label className="block">
-        <span className="sr-only">{t("dashboardPlan")}</span>
-        <select
-          value={selectedPlanId ?? ""}
-          disabled={isPending}
-          onChange={(event) => updateDashboardPlan(event.target.value)}
-          className="w-full rounded-full bg-white px-4 py-3 text-sm font-medium text-on-surface shadow-[0_8px_24px_rgba(53,50,47,0.05)] focus:outline-none focus:ring-2 focus:ring-primary-container disabled:opacity-50"
-        >
-          {!hasSelectedPlan && (
-            <option value="" disabled>
-              {t("chooseAnotherBlock")}
-            </option>
-          )}
-          {plans.length > 0 && (
-            <optgroup label={t("yourActiveBlocks")}>
-              {plans.map((plan) => (
-                <option key={plan.id} value={plan.id}>
-                  {plan.title || getBlockLabel(plan.blockNumber, locale)}
-                </option>
-              ))}
-            </optgroup>
-          )}
-          {!hasSelectedPlan && (
-            <optgroup label={t("startAnotherBlock")}>
-              {availableBlocks.map((blockNumber) => (
-                <option key={blockNumber} value={`new:${blockNumber}`}>
-                  {getBlockLabel(blockNumber, locale)}
-                </option>
-              ))}
-            </optgroup>
-          )}
-        </select>
-      </label>
-      {selectionError && (
-        <p role="alert" className="text-sm text-primary">
-          {selectionError}
-        </p>
-      )}
       {showCelebration && data.earnedBadge && (
         <BlockCelebration
           badge={data.earnedBadge}
@@ -157,8 +74,7 @@ export function DashboardClient({
         />
       </div>
 
-      {/* The Foundation card only shows for block 1 (or before a plan is chosen). */}
-      {data.blockNumber <= 1 && children}
+      {children}
 
       <div className="grid md:grid-cols-2 gap-4">
         <EmotionBreakdownChart
@@ -169,8 +85,8 @@ export function DashboardClient({
         />
 
         <PhysicalActivityChart
-          activityByDay={data.physicalActivityByDay}
-          blockLabel={blockLabel}
+          activityByDay={data.activityLast25}
+          blockLabel={t("last25Days")}
           title={t("physicalActivity")}
           emptyLabel={t("noActivityLogs")}
         />
@@ -178,10 +94,10 @@ export function DashboardClient({
 
       <ActivityCalendar
         data={data.calendar}
-        startDate={data.blockStartDate}
+        startDate={data.windowStartDate}
         title={t("activityCalendar")}
-        blockLabel={blockLabel}
-        planId={data.planId}
+        blockLabel={t("last25Days")}
+        labelByDate
       />
     </div>
   );

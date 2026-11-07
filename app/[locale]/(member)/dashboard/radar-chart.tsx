@@ -32,7 +32,7 @@ export function RadarChart({
 
   return (
     <>
-      <div className="rounded-md bg-white p-5 shadow-card">
+      <div className="rounded-card bg-white p-5 shadow-card">
         <svg viewBox="0 0 200 210" className="mx-auto w-full max-w-60">
           {gridLevels.map((level) => {
             const pts = angles.map((a) => pointOnAxis(a, level, cx, cy, r));

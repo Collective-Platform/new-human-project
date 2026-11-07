@@ -27,7 +27,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
             The New Human Project
           </p>
           <h1
-            className="mb-4 text-5xl font-bold tracking-tight text-white md:mb-6 md:text-[9rem] md:leading-none"
+            className="mb-4 text-5xl font-semibold tracking-tight text-white md:mb-6 md:text-[9rem] md:leading-none"
             style={{ fontFamily: "var(--font-nowstalgic), serif" }}
           >
             Rhythm
@@ -40,13 +40,13 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           <div className="flex flex-col gap-4 md:flex-row">
             <Link
               href="/signup"
-              className="w-full rounded-xl bg-primary py-2.5 text-center text-base font-bold text-white shadow-lg transition-opacity hover:opacity-90 active:scale-[0.98] md:w-auto md:rounded-full md:px-8 md:py-3.5"
+              className="w-full rounded-control bg-primary py-2.5 text-center text-base font-semibold text-white shadow-glow transition-opacity hover:opacity-90 press md:w-auto md:rounded-full md:px-8 md:py-3.5"
             >
               Sign Up
             </Link>
             <Link
               href="/login"
-              className="w-full rounded-xl border border-white/30 bg-white/10 py-2.5 text-center text-base font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 active:scale-[0.98] md:w-auto md:rounded-full md:px-8 md:py-3.5"
+              className="w-full rounded-control border border-white/30 bg-white/10 py-2.5 text-center text-base font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 press md:w-auto md:rounded-full md:px-8 md:py-3.5"
             >
               Log In
             </Link>
@@ -61,7 +61,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
             What is Rhythm?
           </p>
           <h2
-            className="mb-6 text-4xl text-balance font-bold leading-tight text-on-surface md:text-5xl"
+            className="mb-6 text-4xl text-balance font-semibold leading-tight text-on-surface md:text-5xl"
             style={{ fontFamily: "var(--font-nowstalgic), serif" }}
           >
             A community practice.
@@ -78,13 +78,13 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
       {/* Categories */}
       <section className="grid grid-cols-1 gap-4 px-4  md:px-32 py-8 lg:grid-cols-3 lg:gap-5 lg:px-20 lg:pb-20 lg:pt-10">
         {/* Mental */}
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-category-mental">
+        <div className="flex flex-col overflow-hidden rounded-card border border-category-mental">
           <div className="px-8 py-12">
             <span className="mb-4 inline-block self-start rounded-full bg-category-mental-bg px-3 py-1 text-xs font-semibold uppercase tracking-widest text-category-mental">
               Mental
             </span>
             <h3
-              className="mb-4 mt-4 text-3xl font-bold capitalize leading-tight text-on-surface"
+              className="mb-4 mt-4 text-3xl font-semibold capitalize leading-tight text-on-surface"
               style={{ fontFamily: "var(--font-nowstalgic), serif" }}
             >
               Focus, clarity, learning.
@@ -107,13 +107,13 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </div>
 
         {/* Emotional */}
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-category-emotional">
+        <div className="flex flex-col overflow-hidden rounded-card border border-category-emotional">
           <div className="px-8 py-12">
             <span className="mb-4 inline-block self-start rounded-full bg-category-emotional-bg px-3 py-1 text-xs font-semibold uppercase tracking-widest text-category-emotional">
               Emotional
             </span>
             <h3
-              className="mb-4 mt-4 text-3xl font-bold capitalize leading-tight text-on-surface"
+              className="mb-4 mt-4 text-3xl font-semibold capitalize leading-tight text-on-surface"
               style={{ fontFamily: "var(--font-nowstalgic), serif" }}
             >
               Resilience, regulation, inner work.
@@ -136,13 +136,13 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </div>
 
         {/* Physical */}
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-category-physical">
+        <div className="flex flex-col overflow-hidden rounded-card border border-category-physical">
           <div className="px-8 py-12">
             <span className="mb-4 inline-block self-start rounded-full bg-category-physical-bg px-3 py-1 text-xs font-semibold uppercase tracking-widest text-category-physical">
               Physical
             </span>
             <h3
-              className="mb-4 mt-4 text-3xl font-bold capitalize leading-tight text-on-surface"
+              className="mb-4 mt-4 text-3xl font-semibold capitalize leading-tight text-on-surface"
               style={{ fontFamily: "var(--font-nowstalgic), serif" }}
             >
               Movement, recovery, sleep.
@@ -169,7 +169,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
       <section className="bg-primary px-6 pt-20 text-center md:px-12">
         <div className="mx-auto max-w-lg">
           <h2
-            className="mb-4 text-4xl font-bold leading-tight text-black md:text-5xl"
+            className="mb-4 text-4xl font-semibold leading-tight text-black md:text-5xl"
             style={{ fontFamily: "var(--font-nowstalgic), serif" }}
           >
             Start your journey.
@@ -197,7 +197,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-8 text-center text-[11px] font-medium uppercase tracking-widest text-on-surface bg-primary md:px-12">
+      <footer className="px-6 py-8 text-center text-xs font-medium uppercase tracking-widest text-on-surface bg-primary md:px-12">
         © 2026 Collective Central. All Rights Reserved.
       </footer>
     </div>

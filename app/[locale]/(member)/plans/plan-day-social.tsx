@@ -13,6 +13,7 @@ import {
   removePlanMember,
 } from "@/src/features/plans/actions";
 import type { PlanDiscussionThread, PlanFriend, PlanMember } from "@/src/features/plans/queries";
+import { Overlay } from "@/app/components/overlay";
 
 type DayData = { members: PlanMember[]; discussion: PlanDiscussionThread[] };
 
@@ -230,8 +231,8 @@ export function PlanDaySocial({
             }}
             className={
               compact
-                ? "flex items-start gap-3 rounded-2xl text-left transition-opacity active:opacity-70"
-                : "mb-6 flex items-center gap-1.5 rounded-full border border-foreground/80 px-3 py-1.5 text-foreground transition-colors hover:bg-surface-container-high active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-container"
+                ? "flex items-start gap-3 rounded-control text-left transition-opacity active:opacity-70"
+                : "mb-6 flex items-center gap-1.5 rounded-full border border-foreground/80 px-3 py-1.5 text-foreground transition-colors hover:bg-on-surface/5 press focus:outline-none focus:ring-2 focus:ring-primary-container"
             }
             aria-haspopup="dialog"
             aria-label={memberLabel}
@@ -242,11 +243,7 @@ export function PlanDaySocial({
                   {stackMembers.map((member) => (
                     <span key={member.id} className="relative flex h-8 w-8 justify-center">
                       <span className="flex rounded-full ring-2 ring-surface">
-                        <Avatar
-                          member={member}
-                          size="sm"
-                          placeholderClassName="bg-white shadow-[0_1px_4px_rgba(53,50,47,0.12)]"
-                        />
+                        <Avatar member={member} size="sm" placeholderClassName="bg-white" />
                       </span>
                       {member.completed && (
                         <span className="absolute -bottom-1.5 flex h-4 w-4 items-center justify-center text-on-surface">
@@ -270,21 +267,21 @@ export function PlanDaySocial({
 
       {showDiscussion && (
         <>
-          <div className="rounded-3xl bg-white p-4 shadow-[0_12px_32px_rgba(53,50,47,0.06)]">
+          <div className="rounded-card bg-white p-4 shadow-card">
             <textarea
               value={body}
               onChange={(event) => setBody(event.target.value)}
               maxLength={1000}
               placeholder={t("takeawayPlaceholder")}
               aria-label={t("takeawayPlaceholder")}
-              className="min-h-24 w-full resize-none rounded-2xl bg-surface-container-high p-3 text-sm text-on-surface placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
+              className="min-h-24 w-full resize-none rounded-control bg-surface-container-high p-3 text-sm text-on-surface placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
             />
             <div className="mt-3 flex justify-end">
               <button
                 type="button"
                 disabled={!body.trim() || isPending}
                 onClick={() => submit()}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_16px_rgba(190,43,23,0.2)] transition hover:opacity-90 disabled:opacity-50"
+                className="tap-target press inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-glow transition hover:opacity-90 disabled:opacity-50"
               >
                 <Send size={15} />
                 {isPending ? t("posting") : t("post")}
@@ -295,7 +292,7 @@ export function PlanDaySocial({
           {actionError && (
             <p
               role="alert"
-              className="mt-3 rounded-2xl bg-primary-container px-4 py-3 text-sm text-on-primary-container"
+              className="mt-3 rounded-control bg-primary-container px-4 py-3 text-sm text-on-primary-container"
             >
               {actionError}
             </p>
@@ -303,15 +300,12 @@ export function PlanDaySocial({
 
           <div className="mt-5 space-y-4">
             {data.discussion.length === 0 ? (
-              <p className="rounded-2xl bg-tertiary-container px-4 py-5 text-center text-sm text-on-tertiary-fixed-variant">
+              <p className="rounded-control bg-tertiary-container px-4 py-5 text-center text-sm text-on-tertiary-fixed-variant">
                 {t("noDiscussion")}
               </p>
             ) : (
               data.discussion.map((thread) => (
-                <article
-                  key={thread.id}
-                  className="rounded-3xl bg-white p-4 shadow-[0_8px_24px_rgba(53,50,47,0.05)]"
-                >
+                <article key={thread.id} className="rounded-card bg-white p-4 shadow-card">
                   <PostRow
                     post={thread}
                     canDelete={thread.user.id === selfUserId}
@@ -351,7 +345,7 @@ export function PlanDaySocial({
                         type="button"
                         disabled={!replyBody.trim() || isPending}
                         onClick={() => submit(thread.id)}
-                        className="rounded-full bg-primary px-3 text-white disabled:opacity-50"
+                        className="tap-target press rounded-full bg-primary px-3 text-white disabled:opacity-50"
                         aria-label={t("post")}
                       >
                         <Send size={15} />
@@ -361,7 +355,7 @@ export function PlanDaySocial({
                     <button
                       type="button"
                       onClick={() => setReplyTo(thread.id)}
-                      className="mt-3 text-sm font-medium text-secondary hover:underline"
+                      className="tap-target mt-3 text-sm font-medium text-secondary hover:underline"
                     >
                       {t("reply")}
                     </button>
@@ -373,148 +367,150 @@ export function PlanDaySocial({
         </>
       )}
 
-      {showControls && membersOpen && (
+      <Overlay
+        variant="sheet"
+        open={showControls && membersOpen}
+        onClose={() => setMembersOpen(false)}
+      >
         <div
-          className="fixed inset-0 z-50 flex items-end bg-black/40 p-4 sm:items-center sm:justify-center"
-          onClick={() => setMembersOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="plan-members-title"
+          className="w-full max-w-md rounded-sheet bg-surface p-5 shadow-float"
         >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="plan-members-title"
-            className="w-full max-w-md rounded-3xl bg-surface p-5 shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <h3
-                id="plan-members-title"
-                className="font-headline text-xl font-medium text-on-surface"
-              >
-                {t("membersTitle")}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setMembersOpen(false)}
-                className="rounded-full p-1 text-on-surface-variant hover:bg-surface-container"
-                aria-label={t("close")}
-              >
-                <X size={20} />
-              </button>
+          <div className="mb-4 flex items-center justify-between">
+            <h3
+              id="plan-members-title"
+              className="font-headline text-xl font-medium text-on-surface"
+            >
+              {t("membersTitle")}
+            </h3>
+            <button
+              type="button"
+              onClick={() => setMembersOpen(false)}
+              className="tap-target press rounded-full p-1 text-on-surface-variant hover:bg-on-surface/5"
+              aria-label={t("close")}
+            >
+              <X size={20} />
+            </button>
+          </div>
+          {isOwner && (
+            <SlidingTabs
+              ariaLabel={t("membersTitle")}
+              className="mb-4"
+              pillClassName="bg-white"
+              activeTextClassName="text-on-surface"
+              tabs={[
+                { value: "members", label: t("membersTab") },
+                { value: "add", label: t("addMembers") },
+              ]}
+              value={memberTab}
+              onChange={setMemberTab}
+            />
+          )}
+          {actionError && (
+            <p
+              role="alert"
+              className="mb-3 rounded-control bg-primary-container px-4 py-3 text-sm text-on-primary-container"
+            >
+              {actionError}
+            </p>
+          )}
+          {memberTab === "members" ? (
+            <div className="max-h-[60dvh] space-y-3 overflow-y-auto">
+              {data.members.map((member) => (
+                <div key={member.id} className="flex items-center gap-3">
+                  <Avatar member={member} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-on-surface">
+                      {member.searchHandle
+                        ? `@${member.searchHandle}`
+                        : member.displayName || t("you")}
+                      {member.id === selfUserId ? ` · ${t("you")}` : ""}
+                    </p>
+                  </div>
+                  {isOwner && member.id !== selfUserId && (
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => remove(member.id)}
+                      className="tap-target press text-xs font-medium text-primary hover:underline"
+                    >
+                      {t("remove")}
+                    </button>
+                  )}
+                  <span className="flex w-5 shrink-0 justify-end">
+                    {member.completed && (
+                      <Check
+                        size={19}
+                        className="text-category-emotional"
+                        aria-label={t("completedDay")}
+                      />
+                    )}
+                  </span>
+                </div>
+              ))}
             </div>
-            {isOwner && (
-              <SlidingTabs
-                ariaLabel={t("membersTitle")}
-                className="mb-4"
-                pillClassName="bg-white shadow-[0_4px_12px_rgba(53,50,47,0.08)]"
-                activeTextClassName="text-on-surface"
-                tabs={[
-                  { value: "members", label: t("membersTab") },
-                  { value: "add", label: t("addMembers") },
-                ]}
-                value={memberTab}
-                onChange={setMemberTab}
-              />
-            )}
-            {actionError && (
-              <p
-                role="alert"
-                className="mb-3 rounded-2xl bg-primary-container px-4 py-3 text-sm text-on-primary-container"
-              >
-                {actionError}
-              </p>
-            )}
-            {memberTab === "members" ? (
-              <div className="max-h-[60dvh] space-y-3 overflow-y-auto">
-                {data.members.map((member) => (
-                  <div key={member.id} className="flex items-center gap-3">
-                    <Avatar member={member} />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-on-surface">
-                        {member.searchHandle
-                          ? `@${member.searchHandle}`
-                          : member.displayName || t("you")}
-                        {member.id === selfUserId ? ` · ${t("you")}` : ""}
-                      </p>
+          ) : (
+            <div>
+              <div className="relative mb-4">
+                <Search
+                  size={18}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
+                />
+                <input
+                  type="search"
+                  value={friendQuery}
+                  onChange={(event) => setFriendQuery(event.target.value)}
+                  placeholder={t("searchFriendsPlaceholder")}
+                  aria-label={t("searchFriends")}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  className="w-full rounded-control bg-white py-3 pl-11 pr-4 text-sm text-on-surface placeholder:text-outline-variant outline-none ring-1 ring-outline-variant/40 focus:ring-2 focus:ring-primary-container"
+                />
+              </div>
+              {friendsLoading ? (
+                <div className="animate-pulse space-y-3" aria-hidden="true">
+                  {Array.from({ length: 3 }, (_, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div className="h-10 w-10 shrink-0 rounded-full bg-surface-container-high" />
+                      <div className="h-4 flex-1 rounded bg-surface-container-high" />
+                      <div className="h-8 w-16 shrink-0 rounded-full bg-surface-container-high" />
                     </div>
-                    {isOwner && member.id !== selfUserId && (
+                  ))}
+                </div>
+              ) : availableFriends.length > 0 ? (
+                <div className="max-h-[50dvh] space-y-3 overflow-y-auto">
+                  <p className="text-xs font-medium text-on-surface-variant">{t("yourFriends")}</p>
+                  {availableFriends.map((friend) => (
+                    <div key={friend.id} className="flex items-center gap-3">
+                      <Avatar member={friend} />
+                      <p className="min-w-0 flex-1 truncate text-sm font-medium text-on-surface">
+                        {friend.searchHandle
+                          ? `@${friend.searchHandle}`
+                          : friend.displayName || t("you")}
+                      </p>
                       <button
                         type="button"
                         disabled={isPending}
-                        onClick={() => remove(member.id)}
-                        className="text-xs font-medium text-primary hover:underline"
+                        onClick={() => addFriend(friend.id)}
+                        className="tap-target press inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-white shadow-glow transition hover:opacity-90 disabled:opacity-50"
                       >
-                        {t("remove")}
+                        <UserPlus size={14} />
+                        {isPending ? t("adding") : t("add")}
                       </button>
-                    )}
-                    <span className="flex w-5 shrink-0 justify-end">
-                      {member.completed && (
-                        <Check
-                          size={19}
-                          className="text-category-emotional"
-                          aria-label={t("completedDay")}
-                        />
-                      )}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div>
-                <div className="relative mb-4">
-                  <Search
-                    size={18}
-                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
-                  />
-                  <input
-                    type="search"
-                    value={friendQuery}
-                    onChange={(event) => setFriendQuery(event.target.value)}
-                    placeholder={t("searchFriendsPlaceholder")}
-                    aria-label={t("searchFriends")}
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-sm text-on-surface placeholder:text-outline-variant outline-none ring-1 ring-outline-variant/40 focus:ring-2 focus:ring-primary-container"
-                  />
+                    </div>
+                  ))}
                 </div>
-                {friendsLoading ? (
-                  <div className="flex justify-center py-10">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                  </div>
-                ) : availableFriends.length > 0 ? (
-                  <div className="max-h-[50dvh] space-y-3 overflow-y-auto">
-                    <p className="text-xs font-medium text-on-surface-variant">
-                      {t("yourFriends")}
-                    </p>
-                    {availableFriends.map((friend) => (
-                      <div key={friend.id} className="flex items-center gap-3">
-                        <Avatar member={friend} />
-                        <p className="min-w-0 flex-1 truncate text-sm font-medium text-on-surface">
-                          {friend.searchHandle
-                            ? `@${friend.searchHandle}`
-                            : friend.displayName || t("you")}
-                        </p>
-                        <button
-                          type="button"
-                          disabled={isPending}
-                          onClick={() => addFriend(friend.id)}
-                          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-white shadow-[0_8px_16px_rgba(190,43,23,0.2)] transition hover:opacity-90 disabled:opacity-50"
-                        >
-                          <UserPlus size={14} />
-                          {isPending ? t("adding") : t("add")}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="py-8 text-center text-sm text-on-surface-variant">
-                    {normalizedFriendQuery ? t("noFriendMatches") : t("noFriendsToAdd")}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+              ) : (
+                <p className="py-8 text-center text-sm text-on-surface-variant">
+                  {normalizedFriendQuery ? t("noFriendMatches") : t("noFriendsToAdd")}
+                </p>
+              )}
+            </div>
+          )}
         </div>
-      )}
+      </Overlay>
     </section>
   );
 }
@@ -560,7 +556,7 @@ function PostRow({
           <button
             type="button"
             onClick={() => onDelete(post.id)}
-            className="mt-2 inline-flex items-center gap-1 text-xs text-outline hover:text-primary"
+            className="tap-target mt-2 inline-flex items-center gap-1 text-xs text-outline hover:text-primary"
           >
             <Trash2 size={12} />
             {deleteLabel}

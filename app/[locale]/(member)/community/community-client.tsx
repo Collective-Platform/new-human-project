@@ -192,7 +192,7 @@ export function CommunityClient({
       <div className="flex items-center justify-between gap-2 mb-6">
         <Link
           href="/community/friends"
-          className="flex items-center w-full gap-2 justify-center px-4 py-2.5 bg-white rounded-2xl shadow-[0_4px_12px_rgba(53,50,47,0.03)] hover:shadow-card transition-all"
+          className="tap-target flex items-center w-full gap-2 justify-center px-4 py-2.5 bg-white rounded-control shadow-card hover:shadow-card transition-all"
         >
           <Users size={18} className="text-primary" />
           <span className="font-headline font-medium text-on-surface">
@@ -201,7 +201,7 @@ export function CommunityClient({
         </Link>
         <button
           onClick={() => setSearching(true)}
-          className="flex items-center gap-2 w-full justify-center px-4 py-2.5 bg-white rounded-2xl shadow-[0_4px_12px_rgba(53,50,47,0.03)] font-headline font-bold text-on-surface hover:shadow-card transition-all"
+          className="tap-target press-soft flex items-center gap-2 w-full justify-center px-4 py-2.5 bg-white rounded-control shadow-card font-headline font-semibold text-on-surface hover:shadow-card transition-all"
         >
           <UserPlus size={18} className="text-primary" />
           <span>{t("addFriend")}</span>
@@ -223,7 +223,7 @@ export function CommunityClient({
               </h2>
               <button
                 onClick={() => setShowSuggestions(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-colors"
+                className="tap-target press w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/5 transition-colors"
                 aria-label={t("dismissSuggestions")}
               >
                 <X size={16} />

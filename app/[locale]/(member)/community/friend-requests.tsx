@@ -45,7 +45,7 @@ export function FriendRequests({
         return (
           <div
             key={req.requestId}
-            className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
+            className="group bg-white p-5 rounded-card flex items-center gap-4 transition-all hover:shadow-card"
           >
             {req.avatarUrl ? (
               <Image
@@ -62,7 +62,7 @@ export function FriendRequests({
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="truncate font-headline text-sm font-bold text-on-surface">
+              <p className="truncate font-headline text-sm font-semibold text-on-surface">
                 {requesterName}
               </p>
               <p className="text-xs text-on-surface-variant mt-0.5">{t("sentFriendRequest")}</p>
@@ -70,13 +70,13 @@ export function FriendRequests({
             <div className="flex gap-2 shrink-0">
               <button
                 onClick={() => handleAction(req.requestId, "accept")}
-                className="rounded-full bg-on-surface px-3 py-1.5 text-xs font-bold text-surface hover:opacity-90"
+                className="tap-target press rounded-full bg-on-surface px-3 py-1.5 text-xs font-semibold text-surface hover:opacity-90"
               >
                 {t("accept")}
               </button>
               <button
                 onClick={() => handleAction(req.requestId, "reject")}
-                className="rounded-full bg-surface-container-highest px-3 py-1.5 text-xs font-bold text-on-surface-variant hover:opacity-90"
+                className="tap-target press rounded-full bg-surface-container-highest px-3 py-1.5 text-xs font-semibold text-on-surface-variant hover:opacity-90"
               >
                 {t("reject")}
               </button>

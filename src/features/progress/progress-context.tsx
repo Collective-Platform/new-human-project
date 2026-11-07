@@ -25,7 +25,12 @@ interface ProgressContextValue {
   markComplete: (
     taskId: string,
     data?: Record<string, unknown>,
-  ) => Promise<{ blockCompleted: boolean; earnedBadgeId?: string }>;
+  ) => Promise<{
+    blockCompleted: boolean;
+    completedBlockNumber?: number;
+    completedPlanId?: string;
+    earnedBadgeId?: string;
+  }>;
   markIncomplete: (taskId: string) => Promise<void>;
 }
 
@@ -131,6 +136,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     }
     return {
       blockCompleted: result.blockCompleted,
+      ...(result.completedBlockNumber ? { completedBlockNumber: result.completedBlockNumber } : {}),
+      ...(result.completedPlanId ? { completedPlanId: result.completedPlanId } : {}),
       ...(result.earnedBadgeId ? { earnedBadgeId: result.earnedBadgeId } : {}),
     };
   }

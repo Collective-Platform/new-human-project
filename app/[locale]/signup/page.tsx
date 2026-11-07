@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/src/i18n/navigation";
+import { AuthSwitchLink } from "../auth-switch-link";
 import { SignupForm } from "./signup-form";
 
 export default async function SignupPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -12,7 +13,7 @@ export default async function SignupPage({ params }: { params: Promise<{ locale:
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-sm space-y-6 p-8">
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold font-headline text-primary">Welcome to Rhythm</h1>
+            <h1 className="text-2xl font-semibold font-headline text-primary">Welcome to Rhythm</h1>
             <p className="text-sm text-foreground/60">Create your account to begin your journey</p>
           </div>
           <Suspense>
@@ -23,9 +24,17 @@ export default async function SignupPage({ params }: { params: Promise<{ locale:
 
       <p className="pb-8 text-center text-sm text-foreground/60">
         Already have an account?{" "}
-        <Link href="/login" className="text-primary hover:underline font-headline">
-          Log in
-        </Link>
+        <Suspense
+          fallback={
+            <Link href="/login" className="text-primary hover:underline font-headline">
+              Log in
+            </Link>
+          }
+        >
+          <AuthSwitchLink href="/login" className="text-primary hover:underline font-headline">
+            Log in
+          </AuthSwitchLink>
+        </Suspense>
       </p>
     </div>
   );

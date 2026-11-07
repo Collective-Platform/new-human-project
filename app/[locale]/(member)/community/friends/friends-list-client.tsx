@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { User, Minus, ChevronRight } from "lucide-react";
 import { Link, useRouter } from "@/src/i18n/navigation";
 import { removeFriend } from "@/src/features/community/actions";
+import { Overlay } from "@/app/components/overlay";
 
 interface Friend {
   id: number;
@@ -73,13 +74,13 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
           ) : (
             <button
               onClick={() => router.back()}
-              className="text-primary font-bold active:scale-95 transition-transform justify-self-start"
+              className="tap-target text-primary font-semibold press transition-transform justify-self-start"
             >
               <ChevronRight size={22} className="rotate-180" />
             </button>
           )}
 
-          <h2 className="font-headline font-bold text-on-surface">
+          <h2 className="font-headline font-semibold text-on-surface">
             {t("friendsCount", { count: visible.length })}
           </h2>
 
@@ -88,14 +89,14 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
               <button
                 onClick={handleDone}
                 disabled={isPending}
-                className="text-primary font-bold font-headline active:scale-95 transition-transform disabled:opacity-50"
+                className="tap-target text-primary font-semibold font-headline press transition-transform disabled:opacity-50"
               >
                 {t("done")}
               </button>
             ) : (
               <button
                 onClick={() => setEditing(true)}
-                className="text-on-surface-variant font-semibold font-headline hover:text-primary transition-colors active:scale-95"
+                className="tap-target text-on-surface-variant font-semibold font-headline hover:text-primary transition-colors press"
               >
                 {t("edit")}
               </button>
@@ -118,13 +119,13 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
               return (
                 <div
                   key={friend.id}
-                  className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-[0_4px_12px_rgba(53,50,47,0.03)]"
+                  className="flex items-center gap-4 bg-white p-4 rounded-card shadow-card"
                 >
                   {editing && (
                     <button
                       onClick={() => setPendingRemove({ id: friend.id, name })}
                       aria-label={t("removeAriaLabel", { name })}
-                      className="w-7 h-7 flex items-center justify-center bg-primary rounded-full text-surface shrink-0 active:scale-90 transition-transform"
+                      className="tap-target w-7 h-7 flex items-center justify-center bg-primary rounded-full text-surface shrink-0 press transition-transform"
                     >
                       <Minus size={14} />
                     </button>
@@ -133,7 +134,7 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
                   {editing ? (
                     <>
                       <Avatar url={friend.avatarUrl} name={name} />
-                      <span className="font-headline font-bold text-on-surface flex-1 truncate">
+                      <span className="font-headline font-semibold text-on-surface flex-1 truncate">
                         {name}
                       </span>
                     </>
@@ -143,7 +144,7 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
                       className="flex items-center gap-4 flex-1 min-w-0"
                     >
                       <Avatar url={friend.avatarUrl} name={name} />
-                      <span className="font-headline font-bold text-on-surface flex-1 truncate">
+                      <span className="font-headline font-semibold text-on-surface flex-1 truncate">
                         {name}
                       </span>
                       <ChevronRight size={16} className="text-outline shrink-0" />
@@ -157,39 +158,37 @@ export function FriendsListClient({ friends: initialFriends }: { friends: Friend
       </main>
 
       {/* Unfriend confirmation dialog */}
-      {pendingRemove && (
-        <div
-          className="anim-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-          onClick={() => setPendingRemove(null)}
-        >
-          <div
-            className="anim-pop w-full max-w-sm bg-surface rounded-3xl shadow-2xl p-6 space-y-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div>
-              <h3 className="font-headline font-bold text-lg text-primary">{t("unfriendTitle")}</h3>
-              <p className="text-sm text-on-surface-variant mt-1">
-                {t("unfriendConfirm", { name: pendingRemove.name })}
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setPendingRemove(null)}
-                className="flex-1 py-3 rounded-2xl border border-outline-variant font-bold font-headline text-on-surface active:scale-95 transition-transform"
-              >
-                {t("cancel")}
-              </button>
-              <button
-                onClick={confirmRemove}
-                disabled={isPending}
-                className="flex-1 py-3 rounded-2xl bg-primary text-on-primary font-bold font-headline active:scale-95 transition-transform disabled:opacity-50"
-              >
-                {t("unfriend")}
-              </button>
-            </div>
+      <Overlay
+        variant="center"
+        open={pendingRemove !== null}
+        onClose={() => setPendingRemove(null)}
+      >
+        <div className="w-full max-w-sm bg-surface rounded-sheet shadow-float p-6 space-y-5">
+          <div>
+            <h3 className="font-headline font-semibold text-lg text-primary">
+              {t("unfriendTitle")}
+            </h3>
+            <p className="text-sm text-on-surface-variant mt-1">
+              {t("unfriendConfirm", { name: pendingRemove?.name ?? "" })}
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setPendingRemove(null)}
+              className="flex-1 py-3 rounded-control border border-outline-variant font-semibold font-headline text-on-surface press transition-transform"
+            >
+              {t("cancel")}
+            </button>
+            <button
+              onClick={confirmRemove}
+              disabled={isPending}
+              className="flex-1 py-3 rounded-control bg-primary text-on-primary font-semibold font-headline press transition-transform disabled:opacity-50"
+            >
+              {t("unfriend")}
+            </button>
           </div>
         </div>
-      )}
+      </Overlay>
     </div>
   );
 }

@@ -1,7 +1,13 @@
 /**
  * One-time data migration for the move from automatic blocks to member-started
  * plans. It is deliberately idempotent: re-running it only fills legacy
- * completion rows whose plan_id is still null.
+ * completion rows whose plan_id is still null, and sets each finished block's
+ * completion date from its original milestone again.
+ *
+ * The old Completed tab counted every block before the member's current one as
+ * completed because its time had passed, even with tasks left. That list was never
+ * saved, so this script saves it: each of those blocks gets a plan and a finished
+ * record. It gives no badges, because the old rule gave none.
  *
  * Run after `pnpm db:migrate` against production:
  *   pnpm plans:migrate-legacy
@@ -17,7 +23,7 @@ import {
   users,
 } from "@/src/db/schema";
 import { getAllTasks } from "@/src/features/content/program";
-import { getActiveBlock, getBlockStart, PROGRAM_DEFAULT_TZ } from "@/src/lib/program-gate";
+import { legacyActiveBlock, legacyBlockEnd, legacyBlockStart } from "./legacy-block-schedule";
 
 type UserRow = { id: number; onboardedAt: Date | null };
 
@@ -25,7 +31,7 @@ async function findOrCreateLegacyPlan(user: UserRow, blockNumber: number) {
   const inviteCode = `legacy-${user.id}-${blockNumber}`;
   const [existing] = await db.select().from(plans).where(eq(plans.inviteCode, inviteCode)).limit(1);
   if (existing) return existing;
-  const startedAt = getBlockStart(user.onboardedAt!, blockNumber, PROGRAM_DEFAULT_TZ);
+  const startedAt = legacyBlockStart(user.onboardedAt!, blockNumber);
   const [plan] = await db
     .insert(plans)
     .values({ blockNumber, createdBy: user.id, inviteCode, startedAt })
@@ -55,7 +61,10 @@ async function main() {
         .from(taskCompletions)
         .where(and(eq(taskCompletions.userId, user.id), isNull(taskCompletions.planId))),
       db
-        .select({ blockNumber: memberBlockCompletions.blockNumber })
+        .select({
+          blockNumber: memberBlockCompletions.blockNumber,
+          completedAt: memberBlockCompletions.completedAt,
+        })
         .from(memberBlockCompletions)
         .where(eq(memberBlockCompletions.userId, user.id)),
     ]);
@@ -68,18 +77,36 @@ async function main() {
     // Preserve an empty in-progress run, but never materialize a brand-new
     // automatic block on its first day. That would undermine manual start for
     // members who cross a former block boundary before migration runs.
-    const activeLegacyBlock = getActiveBlock(user.onboardedAt, new Date(), PROGRAM_DEFAULT_TZ);
+    const activeLegacyBlock = legacyActiveBlock(user.onboardedAt);
     const currentBlock = activeLegacyBlock.blockNumber;
     if (activeLegacyBlock.currentDay > 1 || blocks.has(currentBlock)) {
       blocks.add(currentBlock);
     }
+    for (let blockNumber = 1; blockNumber < currentBlock; blockNumber++) {
+      blocks.add(blockNumber);
+    }
 
     for (const blockNumber of blocks) {
       const plan = await findOrCreateLegacyPlan(user, blockNumber);
-      if (milestoneRows.some((row) => row.blockNumber === blockNumber)) {
+      const milestone = milestoneRows.find((row) => row.blockNumber === blockNumber);
+      if (milestone) {
+        // Keep the date the member really finished, not the date this script runs.
         await db
           .insert(planCompletions)
-          .values({ planId: plan.id, userId: user.id })
+          .values({ planId: plan.id, userId: user.id, completedAt: milestone.completedAt })
+          .onConflictDoUpdate({
+            target: [planCompletions.planId, planCompletions.userId],
+            set: { completedAt: milestone.completedAt },
+          });
+      } else if (blockNumber < currentBlock) {
+        // Completed by time passing. Keep any finished record the block already has.
+        await db
+          .insert(planCompletions)
+          .values({
+            planId: plan.id,
+            userId: user.id,
+            completedAt: legacyBlockEnd(user.onboardedAt, blockNumber),
+          })
           .onConflictDoNothing();
       }
       const taskIds = taskIdsByBlock.get(blockNumber) ?? [];
@@ -99,11 +126,7 @@ async function main() {
     }
 
     if (blocks.has(currentBlock)) {
-      const currentPlan = await findOrCreateLegacyPlan(user, currentBlock);
-      await db
-        .update(users)
-        .set({ dashboardPlanId: currentPlan.id, updatedAt: new Date() })
-        .where(and(eq(users.id, user.id), isNull(users.dashboardPlanId)));
+      await findOrCreateLegacyPlan(user, currentBlock);
     }
   }
   console.log(`Migrated ${migrated} legacy task completions into personal plans.`);

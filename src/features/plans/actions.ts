@@ -13,24 +13,31 @@ import {
   planMembers,
   plans,
   taskCompletions,
-  users,
 } from "@/src/db/schema";
 import { getSessionUser } from "@/src/features/auth";
 import { getDayTasks } from "@/src/features/content/program";
 import { sendPushToUser } from "@/src/features/notifications";
+import {
+  copyTodaysLogsIntoPlan,
+  getRequestTimezone,
+  keepSharedLogsOfPlan,
+} from "@/src/features/tasks/shared-logs";
 import { isBlockReleased, PROGRAM_DEFAULT_TZ } from "@/src/lib/program-gate";
 import {
   getActivePlanMembership,
-  getDashboardPlanForUser,
   getFriendsForPlanMember,
   getPlanByInviteCode,
   getPlanCurrentDay,
   getPlanForMember,
+  getPlansForUser,
   type PlanFriend,
 } from "./queries";
+import { kickMember, reinstateMember } from "./membership";
 
 type ActionResult<T = undefined> = { success: true } & (T extends undefined ? object : { data: T });
-type ActionError = { error: string };
+/** `code` lets the screen show a translated message; `error` stays for logs and plain callers. */
+export type JoinErrorCode = "signed_out" | "invalid" | "closed" | "expired" | "kicked";
+type ActionError = { error: string; code?: JoinErrorCode };
 
 function makeInviteCode() {
   return randomBytes(12).toString("base64url");
@@ -38,6 +45,18 @@ function makeInviteCode() {
 
 function validBlock(blockNumber: number) {
   return Number.isInteger(blockNumber) && blockNumber > 0 && getDayTasks(blockNumber, 1).length > 0;
+}
+
+/** A member who starts or joins a block mid-day brings today's mood and exercise with them. */
+async function copyTodaysLogsBestEffort(
+  userId: number,
+  plan: { id: string; blockNumber: number; startedAt: Date },
+) {
+  try {
+    await copyTodaysLogsIntoPlan({ userId, plan, timezone: await getRequestTimezone() });
+  } catch {
+    // The block is already created. A missed copy only means the member logs again.
+  }
 }
 
 export async function createPlan(input: {
@@ -103,37 +122,51 @@ export async function createPlan(input: {
       );
     }
   }
-  // A first usable plan gives Home a useful default without overriding a
-  // deliberate active selection. This also repairs stale legacy preferences.
-  if (!(await getDashboardPlanForUser(user.id))) {
-    await db
-      .update(users)
-      .set({ dashboardPlanId: plan.id, updatedAt: new Date() })
-      .where(eq(users.id, user.id));
-  }
+  await copyTodaysLogsBestEffort(user.id, plan);
   updateTag(`plans:${user.id}`);
   updateTag(`dashboard:${user.id}`);
   return { success: true, data: { planId: plan.id, inviteCode } };
+}
+
+/**
+ * Onboarding starts the foundation block (block 1, Ephesians) for a new member.
+ * A member who already has a block 1 plan gets that plan back, so a repeated call
+ * never creates a second one.
+ */
+export async function startFoundationPlan(): Promise<
+  ActionResult<{ planId: string }> | ActionError
+> {
+  const user = await getSessionUser();
+  if (!user) return { error: "Unauthorized" };
+  const existing = (await getPlansForUser(user.id)).find((plan) => plan.blockNumber === 1);
+  if (existing) return { success: true, data: { planId: existing.id } };
+  const result = await createPlan({ blockNumber: 1, mode: "solo" });
+  if ("error" in result) return result;
+  return { success: true, data: { planId: result.data.planId } };
 }
 
 export async function joinPlan(input: {
   inviteCode: string;
 }): Promise<ActionResult<{ planId: string }> | ActionError> {
   const user = await getSessionUser();
-  if (!user) return { error: "Unauthorized" };
+  if (!user) return { error: "Unauthorized", code: "signed_out" };
   const plan = await getPlanByInviteCode(input.inviteCode);
-  if (!plan) return { error: "This invitation is invalid." };
-  if (!plan.isGroup) return { error: "This plan is not open to new members." };
+  if (!plan) return { error: "This invitation is invalid.", code: "invalid" };
+  if (!plan.isGroup) return { error: "This plan is not open to new members.", code: "closed" };
   const timezone = decodeURIComponent((await cookies()).get("tz")?.value ?? "UTC");
   if (getPlanCurrentDay(plan.startedAt, timezone) >= 25) {
-    return { error: "This plan has finished and its invitation has expired." };
+    return { error: "This plan has finished and its invitation has expired.", code: "expired" };
   }
 
   const existing = await db
-    .select({ id: planMembers.id })
+    .select({ id: planMembers.id, status: planMembers.status })
     .from(planMembers)
     .where(and(eq(planMembers.planId, plan.id), eq(planMembers.userId, user.id)))
     .limit(1);
+  // Only the owner can bring back a member they removed (see addFriendToPlan).
+  if (existing[0]?.status === "kicked") {
+    return { error: "The plan creator removed you from this plan.", code: "kicked" };
+  }
   if (existing[0]) {
     await db
       .update(planMembers)
@@ -142,35 +175,10 @@ export async function joinPlan(input: {
   } else {
     await db.insert(planMembers).values({ planId: plan.id, userId: user.id });
   }
+  await copyTodaysLogsBestEffort(user.id, plan);
   updateTag(`plans:${user.id}`);
   updateTag(`plan:${plan.id}`);
   return { success: true, data: { planId: plan.id } };
-}
-
-export async function selectDashboardPlan(input: {
-  planId: string | null;
-}): Promise<ActionResult | ActionError> {
-  const user = await getSessionUser();
-  if (!user) return { error: "Unauthorized" };
-
-  if (input.planId && !(await getActivePlanMembership(input.planId, user.id))) {
-    return { error: "This plan is unavailable." };
-  }
-  if (input.planId) {
-    const completed = await db
-      .select({ id: planCompletions.id })
-      .from(planCompletions)
-      .where(and(eq(planCompletions.planId, input.planId), eq(planCompletions.userId, user.id)))
-      .limit(1);
-    if (completed[0]) return { error: "Completed plans cannot be shown on Home." };
-  }
-
-  await db
-    .update(users)
-    .set({ dashboardPlanId: input.planId, updatedAt: new Date() })
-    .where(eq(users.id, user.id));
-  updateTag(`dashboard:${user.id}`);
-  return { success: true };
 }
 
 export async function removePlanMember(input: {
@@ -184,15 +192,8 @@ export async function removePlanMember(input: {
     return { error: "Only the plan creator can remove participants." };
   if (input.memberId === user.id) return { error: "The plan creator cannot be removed." };
 
-  await db
-    .update(planMembers)
-    .set({ status: "removed", removedAt: new Date() })
-    .where(and(eq(planMembers.planId, input.planId), eq(planMembers.userId, input.memberId)));
+  await kickMember(input.planId, input.memberId);
   updateTag(`plans:${input.memberId}`);
-  await db
-    .update(users)
-    .set({ dashboardPlanId: null, updatedAt: new Date() })
-    .where(and(eq(users.id, input.memberId), eq(users.dashboardPlanId, input.planId)));
   updateTag(`dashboard:${input.memberId}`);
   updateTag(`plan:${input.planId}`);
   return { success: true };
@@ -251,20 +252,8 @@ export async function addFriendToPlan(input: {
     .limit(1);
   if (!friendship) return { error: "You can only add your friends to this plan." };
 
-  const [existing] = await db
-    .select({ id: planMembers.id, status: planMembers.status })
-    .from(planMembers)
-    .where(and(eq(planMembers.planId, input.planId), eq(planMembers.userId, input.friendId)))
-    .limit(1);
-  if (existing?.status === "active") return { success: true, data: { alreadyMember: true } };
-
-  if (existing) {
-    await db
-      .update(planMembers)
-      .set({ status: "active", removedAt: null, joinedAt: new Date() })
-      .where(eq(planMembers.id, existing.id));
-  } else {
-    await db.insert(planMembers).values({ planId: input.planId, userId: input.friendId });
+  if ((await reinstateMember(input.planId, input.friendId)) === "already") {
+    return { success: true, data: { alreadyMember: true } };
   }
 
   const senderName = user.searchHandle ? `@${user.searchHandle}` : (user.displayName ?? "Someone");
@@ -301,15 +290,16 @@ export async function deleteOwnedPlan(input: {
     .select({ userId: planMembers.userId })
     .from(planMembers)
     .where(and(eq(planMembers.planId, input.planId), eq(planMembers.status, "active")));
+  await keepSharedLogsOfPlan({
+    planId: input.planId,
+    userIds: members.map((member) => member.userId),
+    timezone: await getRequestTimezone(),
+  });
   const [deletedPlan] = await db
     .delete(plans)
     .where(and(eq(plans.id, input.planId), eq(plans.createdBy, user.id)))
     .returning();
   if (!deletedPlan) return { error: "This plan is unavailable." };
-  await db
-    .update(users)
-    .set({ dashboardPlanId: null, updatedAt: new Date() })
-    .where(eq(users.dashboardPlanId, input.planId));
 
   for (const member of members) {
     updateTag(`dashboard:${member.userId}`);
@@ -346,6 +336,11 @@ export async function leaveGroupPlan(input: {
     .returning();
   if (!removedMembership) return { error: "This plan is unavailable." };
 
+  await keepSharedLogsOfPlan({
+    planId: input.planId,
+    userIds: [user.id],
+    timezone: await getRequestTimezone(),
+  });
   await Promise.all([
     db
       .delete(taskCompletions)
@@ -356,10 +351,6 @@ export async function leaveGroupPlan(input: {
     db
       .delete(memberBadges)
       .where(and(eq(memberBadges.planId, input.planId), eq(memberBadges.userId, user.id))),
-    db
-      .update(users)
-      .set({ dashboardPlanId: null, updatedAt: new Date() })
-      .where(and(eq(users.id, user.id), eq(users.dashboardPlanId, input.planId))),
   ]);
 
   updateTag(`dashboard:${user.id}`);

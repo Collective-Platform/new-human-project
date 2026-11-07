@@ -3,6 +3,9 @@ const BLOCK_NAMES = {
   2: { en: "Philippians", zh: "腓立比书" },
   3: { en: "The Holy Spirit", zh: "圣灵" },
   4: { en: "Romans", zh: "罗马书" },
+  5: { en: "Jesus", zh: "耶稣生平" },
+  6: { en: "Galatians & Colossians", zh: "加拉太书与歌罗西书" },
+  7: { en: "1 Corinthians", zh: "哥林多前书" },
 } as const;
 
 /** The canonical member-facing label for a numbered program block. */

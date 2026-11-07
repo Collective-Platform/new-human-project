@@ -26,7 +26,7 @@ export function SlidingTabs<T extends string>({
   onChange,
   ariaLabel,
   className = "",
-  pillClassName = "bg-primary shadow-[0_4px_12px_rgba(190,43,23,0.2)]",
+  pillClassName = "bg-primary shadow-glow",
   activeTextClassName = "text-on-primary",
 }: SlidingTabsProps<T>) {
   const activeIndex = Math.max(
@@ -61,7 +61,7 @@ export function SlidingTabs<T extends string>({
             role="tab"
             aria-selected={selected}
             onClick={() => onChange(tab.value)}
-            className={`relative z-10 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container ${
+            className={`tap-target relative z-10 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors duration-(--duration-base) focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container ${
               selected ? activeTextClassName : "text-on-surface-variant hover:text-on-surface"
             }`}
           >

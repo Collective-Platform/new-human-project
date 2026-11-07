@@ -4,6 +4,7 @@ import { getSessionUser } from "@/src/features/auth";
 import { getProgressForUser } from "@/src/features/progress";
 import {
   getPlanCurrentDay,
+  getPlanDayDate,
   getPlanDiscussion,
   getPlanForMember,
   getPlanMembersForDay,
@@ -30,7 +31,8 @@ export async function PlanProgressData({
   const selectedDay = Math.min(Math.max(initialDay ?? currentDay, 1), 25);
   const initialDataPromise = getProgressForUser(
     user.id,
-    planState.plan.startedAt.getTime(),
+    // Same convention as the legacy path: a UTC-midnight marker of the member's local start date.
+    getPlanDayDate(planState.plan.startedAt, 1, timezone).getTime(),
     selectedDay,
     locale,
     currentDay,
@@ -48,6 +50,7 @@ export async function PlanProgressData({
     <ProgressClient
       locale={locale}
       initialData={initialData}
+      dayFromLink={initialDay !== undefined}
       planControls={{
         isGroup: planState.plan.isGroup,
         isOwner: planState.membership.role === "owner",

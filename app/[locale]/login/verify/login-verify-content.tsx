@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/src/i18n/navigation";
+import { safeReturnPath } from "@/src/lib/return-path";
 import { VerifyForm } from "./verify-form";
 
 export function LoginVerifyContent() {
@@ -22,7 +23,7 @@ export function LoginVerifyContent() {
       <p className="text-sm text-foreground/60">
         We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>
       </p>
-      <VerifyForm email={email} queued={queued} />
+      <VerifyForm email={email} queued={queued} next={safeReturnPath(searchParams.get("next"))} />
     </>
   );
 }

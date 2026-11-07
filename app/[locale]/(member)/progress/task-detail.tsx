@@ -10,6 +10,7 @@ import { ExerciseLogRenderer } from "./renderers/exercise-log";
 import { BilingualPassage } from "./renderers/bilingual-passage";
 import { SectionedContentRenderer } from "./renderers/sectioned-content";
 import { localizeScriptureRef } from "@/src/features/bible/localize";
+import { Overlay } from "@/app/components/overlay";
 
 interface TaskData {
   id: string;
@@ -33,7 +34,7 @@ export function TaskDetail({
   blockNumber,
   dayNumber,
   onCompleteAction,
-  onCloseAction,
+  onCloseAction: onExitedAction,
   categoryTasks,
   onNavigateAction,
   mode = "add",
@@ -52,6 +53,9 @@ export function TaskDetail({
 }) {
   const t = useTranslations("progress");
   const [loading, setLoading] = useState(false);
+  // Closing plays the exit animation first; the parent is told once it is done.
+  const [open, setOpen] = useState(true);
+  const onCloseAction = useCallback(() => setOpen(false), []);
   const { setHidden } = useNavVisibility();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -161,13 +165,18 @@ export function TaskDetail({
     : null;
 
   return (
-    <div className="anim-overlay fixed inset-0 z-50 flex flex-col bg-surface">
+    <Overlay
+      variant="fullscreen"
+      open={open}
+      onExited={onExitedAction}
+      className="flex flex-col bg-surface"
+    >
       {/* Header */}
       <div className="border-b border-zinc-100 bg-white px-4 sm:px-6 md:px-8">
         <div className="mx-auto flex max-w-3xl items-center gap-3 py-3">
           <button
             onClick={onCloseAction}
-            className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-zinc-100"
+            className="tap-target press flex h-7 w-7 items-center justify-center rounded-full hover:bg-on-surface/5"
           >
             <ArrowLeft size={20} />
           </button>
@@ -191,7 +200,7 @@ export function TaskDetail({
           {task.taskType === "scripture_reading" && (
             <div className="space-y-6">
               <div>
-                <p className="mb-3 font-headline text-lg font-bold text-foreground">
+                <p className="mb-3 font-headline text-lg font-semibold text-foreground">
                   {localizeScriptureRef(
                     (content.prefetched_passage as { reference: string; content: string } | null)
                       ?.reference ??
@@ -242,7 +251,7 @@ export function TaskDetail({
             {hasPrev ? (
               <button
                 onClick={handlePrev}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 active:scale-95 transition-all"
+                className="tap-target flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white hover:bg-on-surface/5 press transition-all"
                 aria-label="Previous task"
               >
                 <ArrowLeft size={20} className="text-foreground" />
@@ -261,7 +270,7 @@ export function TaskDetail({
             <button
               onClick={handleNext}
               disabled={loading}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-60"
+              className="tap-target flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-glow hover:opacity-90 press transition-all disabled:opacity-60"
               aria-label="Next task"
             >
               {loading ? (
@@ -273,6 +282,6 @@ export function TaskDetail({
           </div>
         </div>
       )}
-    </div>
+    </Overlay>
   );
 }

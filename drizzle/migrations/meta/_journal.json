@@ -43,6 +43,13 @@
       "when": 1787553060428,
       "tag": "0005_early_warpath",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794025490041,
+      "tag": "0006_wild_magus",
+      "breakpoints": true
     }
   ]
 }

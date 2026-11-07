@@ -4,9 +4,9 @@ import {
   getPlanDiscussion,
   getPlanForMember,
   getPlanMembersForDay,
+  isPlanId,
 } from "@/src/features/plans/queries";
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
 function json(data: unknown, status = 200) {
@@ -18,7 +18,7 @@ export async function GET(request: Request, context: RouteContext<"/api/plans/[p
   if (!user) return json({ error: "Unauthorized" }, 401);
 
   const { planId } = await context.params;
-  if (!UUID_PATTERN.test(planId)) return json({ error: "Not found" }, 404);
+  if (!isPlanId(planId)) return json({ error: "Not found" }, 404);
 
   const day = Number(new URL(request.url).searchParams.get("day"));
   if (!Number.isInteger(day) || day < 1 || day > PLAN_LENGTH_DAYS) {

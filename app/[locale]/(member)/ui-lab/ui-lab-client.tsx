@@ -162,7 +162,7 @@ export function UiLabClient({ locale }: { locale: Locale }) {
           <button
             type="button"
             onClick={reset}
-            className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-semibold text-on-surface shadow-[0_8px_24px_rgba(53,50,47,0.05)] transition hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary-container"
+            className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-semibold text-on-surface shadow-card transition hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary-container"
           >
             {t.reset}
           </button>
@@ -180,7 +180,7 @@ export function UiLabClient({ locale }: { locale: Locale }) {
                 onClick={() => setScreen(id)}
                 className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-container ${
                   screen === id
-                    ? "bg-white text-on-surface shadow-[0_4px_12px_rgba(53,50,47,0.08)]"
+                    ? "bg-white text-on-surface shadow-card"
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
@@ -221,7 +221,7 @@ function CelebrationPreview({
 }) {
   const t = COPY[locale];
   return (
-    <section className="relative overflow-hidden rounded-[2rem] bg-white px-6 py-16 text-center shadow-card">
+    <section className="relative overflow-hidden rounded-card bg-white px-6 py-16 text-center shadow-card">
       <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
         <Check size={48} className="text-primary" strokeWidth={2.5} aria-hidden="true" />
       </div>
@@ -234,7 +234,7 @@ function CelebrationPreview({
       <button
         type="button"
         onClick={onShow}
-        className="mt-7 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_15px_-3px_rgba(190,43,23,0.2)] transition hover:opacity-90 active:scale-[0.99]"
+        className="mt-7 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:opacity-90 press"
       >
         {t.preview}
       </button>
@@ -252,7 +252,7 @@ function CelebrationModal({ locale, onDismiss }: { locale: Locale; onDismiss: ()
       aria-modal="true"
       aria-labelledby="lab-complete-title"
     >
-      <div className="w-full max-w-sm rounded-[2rem] bg-white px-8 py-10 text-center shadow-2xl">
+      <div className="w-full max-w-sm rounded-sheet bg-white px-8 py-10 text-center shadow-float">
         <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
           <Check size={48} className="text-primary" strokeWidth={2.5} aria-hidden="true" />
         </div>
@@ -262,7 +262,7 @@ function CelebrationModal({ locale, onDismiss }: { locale: Locale; onDismiss: ()
         <button
           type="button"
           onClick={onDismiss}
-          className="mt-6 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white shadow-[0_10px_15px_-3px_rgba(190,43,23,0.2)]"
+          className="mt-6 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white shadow-glow"
         >
           {t.continue}
         </button>
@@ -277,7 +277,7 @@ function BlocksPreview({ locale }: { locale: Locale }) {
   const [startOpen, setStartOpen] = useState(false);
   const [mode, setMode] = useState<"solo" | "friends">("friends");
   return (
-    <section className="rounded-[2rem] bg-surface-container-high p-4 sm:p-5">
+    <section className="rounded-card bg-surface-container-high p-4 sm:p-5">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="inline-flex rounded-full bg-white p-1">
           {(["active", "completed"] as const).map((value) => (
@@ -285,7 +285,7 @@ function BlocksPreview({ locale }: { locale: Locale }) {
               key={value}
               type="button"
               onClick={() => setTab(value)}
-              className={`rounded-full px-4 py-2 text-sm font-medium ${tab === value ? "bg-primary text-white shadow-[0_4px_12px_rgba(190,43,23,0.2)]" : "text-on-surface-variant"}`}
+              className={`rounded-full px-4 py-2 text-sm font-medium ${tab === value ? "bg-primary text-white shadow-glow" : "text-on-surface-variant"}`}
             >
               {t[value]}
             </button>
@@ -294,7 +294,7 @@ function BlocksPreview({ locale }: { locale: Locale }) {
         <button
           type="button"
           onClick={() => setStartOpen(true)}
-          className="rounded-full bg-primary p-3 text-white shadow-[0_10px_15px_-3px_rgba(190,43,23,0.2)]"
+          className="rounded-full bg-primary p-3 text-white shadow-glow"
           aria-label={t.startPlan}
         >
           <Plus size={20} />
@@ -333,7 +333,7 @@ function PlanCard({
 }) {
   const t = COPY[locale];
   return (
-    <article className="group rounded-[2rem] bg-white p-5 shadow-card">
+    <article className="group rounded-card bg-white p-5 shadow-card">
       <button
         type="button"
         className="flex w-full items-start justify-between gap-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-container"
@@ -380,7 +380,7 @@ function StartPlanDialog({
       aria-modal="true"
       aria-labelledby="lab-start-title"
     >
-      <div className="w-full max-w-md rounded-[2rem] bg-surface p-5 shadow-2xl">
+      <div className="w-full max-w-md rounded-sheet bg-surface p-5 shadow-float">
         <div className="mb-5 flex items-center justify-between">
           <h2 id="lab-start-title" className="font-headline text-2xl text-on-surface">
             {t.startPlan}
@@ -395,19 +395,19 @@ function StartPlanDialog({
           </button>
         </div>
         <label className="text-sm font-medium text-on-surface">{t.chooseBlock}</label>
-        <select className="mt-2 w-full rounded-2xl bg-white px-4 py-3 text-sm text-on-surface">
+        <select className="mt-2 w-full rounded-control bg-white px-4 py-3 text-sm text-on-surface">
           <option>{getBlockLabel(3, locale)}</option>
           <option>{getBlockLabel(4, locale)}</option>
         </select>
         <fieldset className="mt-5">
           <legend className="text-sm font-medium text-on-surface">{t.startWith}</legend>
-          <div className="mt-2 grid grid-cols-2 gap-2 rounded-2xl bg-white p-1">
+          <div className="mt-2 grid grid-cols-2 gap-2 rounded-control bg-white p-1">
             {(["solo", "friends"] as const).map((value) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => setMode(value)}
-                className={`rounded-2xl px-3 py-3 text-sm font-medium ${mode === value ? "bg-surface-container-high text-on-surface shadow-[0_4px_12px_rgba(53,50,47,0.08)]" : "text-on-surface-variant"}`}
+                className={`rounded-control px-3 py-3 text-sm font-medium ${mode === value ? "bg-surface-container-high text-on-surface shadow-card" : "text-on-surface-variant"}`}
               >
                 {t[value]}
               </button>
@@ -422,14 +422,14 @@ function StartPlanDialog({
             <label className="mt-4 block text-sm font-medium text-on-surface">{t.planName}</label>
             <input
               placeholder={t.planPlaceholder}
-              className="mt-2 w-full rounded-2xl bg-white px-4 py-3 text-sm text-on-surface placeholder:text-outline-variant"
+              className="mt-2 w-full rounded-control bg-white px-4 py-3 text-sm text-on-surface placeholder:text-outline-variant"
             />
           </>
         )}
         <button
           type="button"
           onClick={onClose}
-          className="mt-6 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-[0_10px_15px_-3px_rgba(190,43,23,0.2)]"
+          className="mt-6 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-glow"
         >
           {t.create}
         </button>
@@ -446,7 +446,7 @@ function SharedPlanPreview({ locale }: { locale: Locale }) {
   const [post, setPost] = useState("");
   const [posts, setPosts] = useState(["The reminder to slow down stayed with me today."]);
   return (
-    <section className="rounded-[2rem] bg-surface-container-high p-4 sm:p-5">
+    <section className="rounded-card bg-surface-container-high p-4 sm:p-5">
       <div className="mb-6 flex items-center justify-between">
         <button
           type="button"
@@ -466,11 +466,11 @@ function SharedPlanPreview({ locale }: { locale: Locale }) {
             <MoreHorizontal size={21} />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 z-10 mt-2 min-w-48 rounded-2xl bg-white p-1.5 shadow-[0_12px_32px_rgba(53,50,47,0.12)]">
+            <div className="absolute right-0 z-10 mt-2 min-w-48 rounded-control bg-white p-1.5 shadow-raised">
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-on-surface hover:bg-surface-container-high"
+                className="flex w-full items-center gap-3 rounded-control px-3 py-2.5 text-left text-sm font-medium text-on-surface hover:bg-surface-container-high"
               >
                 <Copy size={17} className="text-secondary" />
                 {t.copyInvite}
@@ -481,7 +481,7 @@ function SharedPlanPreview({ locale }: { locale: Locale }) {
                   setMenuOpen(false);
                   setDeleteOpen(true);
                 }}
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-primary hover:bg-primary-container"
+                className="flex w-full items-center gap-3 rounded-control px-3 py-2.5 text-left text-sm font-medium text-primary hover:bg-primary-container"
               >
                 <Trash2 size={17} />
                 {t.deletePlan}
@@ -490,12 +490,12 @@ function SharedPlanPreview({ locale }: { locale: Locale }) {
           )}
         </div>
       </div>
-      <div className="rounded-[2rem] bg-white p-4 shadow-card">
+      <div className="rounded-card bg-white p-4 shadow-card">
         <textarea
           value={post}
           onChange={(event) => setPost(event.target.value)}
           placeholder={t.takeaway}
-          className="min-h-24 w-full resize-none rounded-2xl bg-surface-container-high p-3 text-sm text-on-surface placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
+          className="min-h-24 w-full resize-none rounded-control bg-surface-container-high p-3 text-sm text-on-surface placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
         />
         <div className="mt-3 flex justify-end">
           <button
@@ -507,7 +507,7 @@ function SharedPlanPreview({ locale }: { locale: Locale }) {
               }
             }}
             disabled={!post.trim()}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_16px_rgba(190,43,23,0.2)] disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
           >
             <Send size={15} />
             {t.post}
@@ -529,7 +529,7 @@ function DiscussionPost({ body, locale }: { body: string; locale: Locale }) {
   const t = COPY[locale];
   const [replying, setReplying] = useState(false);
   return (
-    <article className="rounded-[2rem] bg-white p-4 shadow-[0_8px_24px_rgba(53,50,47,0.05)]">
+    <article className="rounded-card bg-white p-4 shadow-card">
       <div className="flex items-start gap-3">
         <Avatar initials="AK" />
         <div>
@@ -585,7 +585,7 @@ function MembersDialog({ locale, onClose }: { locale: Locale; onClose: () => voi
       aria-modal="true"
       aria-labelledby="lab-members-title"
     >
-      <div className="w-full max-w-md rounded-[2rem] bg-surface p-5 shadow-2xl">
+      <div className="w-full max-w-md rounded-sheet bg-surface p-5 shadow-float">
         <div className="mb-4 flex items-center justify-between">
           <h2 id="lab-members-title" className="font-headline text-xl text-on-surface">
             {t.membersTitle}
@@ -644,7 +644,7 @@ function MembersDialog({ locale, onClose }: { locale: Locale; onClose: () => voi
               <input
                 type="search"
                 placeholder={locale === "en" ? "Search your friends" : "搜索你的好友"}
-                className="w-full rounded-2xl bg-white py-3 pl-11 pr-4 text-sm"
+                className="w-full rounded-control bg-white py-3 pl-11 pr-4 text-sm"
               />
             </label>
             <div className="mt-5 flex items-center gap-3">
@@ -675,7 +675,7 @@ function DeleteDialog({ locale, onClose }: { locale: Locale; onClose: () => void
       aria-modal="true"
       aria-labelledby="lab-delete-title"
     >
-      <div className="w-full max-w-md rounded-[2rem] bg-surface p-5 shadow-2xl">
+      <div className="w-full max-w-md rounded-sheet bg-surface p-5 shadow-float">
         <h2 id="lab-delete-title" className="font-headline text-2xl text-on-surface">
           {t.deletePlan}
         </h2>
@@ -697,7 +697,7 @@ function DeleteDialog({ locale, onClose }: { locale: Locale; onClose: () => void
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white shadow-[0_8px_16px_rgba(190,43,23,0.2)]"
+            className="flex-1 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white shadow-glow"
           >
             {t.deletePlan}
           </button>
@@ -712,7 +712,7 @@ function DiscussionTaskPreview({ locale }: { locale: Locale }) {
   const [closed, setClosed] = useState(false);
   if (closed)
     return (
-      <section className="rounded-[2rem] bg-white p-8 text-center shadow-card">
+      <section className="rounded-card bg-white p-8 text-center shadow-card">
         <h2 className="font-headline text-2xl text-on-surface">
           {locale === "en" ? "Task closed" : "任务已关闭"}
         </h2>
@@ -726,7 +726,7 @@ function DiscussionTaskPreview({ locale }: { locale: Locale }) {
       </section>
     );
   return (
-    <section className="overflow-hidden rounded-[2rem] bg-surface shadow-card">
+    <section className="overflow-hidden rounded-card bg-surface shadow-card">
       <header className="flex items-center gap-3 border-b border-outline-variant/30 bg-white px-4 py-3">
         <button
           type="button"
@@ -739,7 +739,7 @@ function DiscussionTaskPreview({ locale }: { locale: Locale }) {
         <h2 className="flex-1 font-headline text-lg text-foreground">{t.talkItOut}</h2>
       </header>
       <div className="p-4">
-        <p className="rounded-2xl bg-tertiary-container px-4 py-5 text-center text-sm text-on-tertiary-fixed-variant">
+        <p className="rounded-control bg-tertiary-container px-4 py-5 text-center text-sm text-on-tertiary-fixed-variant">
           {locale === "en"
             ? "Be the first to share what stayed with you today."
             : "成为第一个分享今天触动你内容的人。"}
@@ -755,7 +755,7 @@ function DiscussionTaskPreview({ locale }: { locale: Locale }) {
         </div>
         <button
           type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white shadow-sm"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white shadow-card"
         >
           <ArrowRight size={20} />
         </button>
@@ -768,7 +768,7 @@ function InvitePreview({ locale }: { locale: Locale }) {
   const t = COPY[locale];
   const [state, setState] = useState<"ready" | "joined" | "expired">("ready");
   return (
-    <section className="rounded-[2rem] bg-white p-7 text-center shadow-card">
+    <section className="rounded-card bg-white p-7 text-center shadow-card">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-secondary-container">
         <Users size={25} className="text-on-secondary-container" />
       </div>
@@ -787,7 +787,7 @@ function InvitePreview({ locale }: { locale: Locale }) {
           type="button"
           onClick={() => setState("joined")}
           disabled={state !== "ready"}
-          className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-[0_10px_15px_-3px_rgba(190,43,23,0.2)] disabled:opacity-50"
+          className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
         >
           {state === "joined" ? t.joined : t.join}
         </button>

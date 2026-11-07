@@ -1,3 +1,3 @@
 export { getCurrentDay } from "./queries";
-export { getDashboardForUser, getBlockDashboardForUser } from "./get-dashboard-for-user";
-export type { DashboardData } from "./get-dashboard-for-user";
+export { computeHomeDashboard, getHomeDashboard } from "./get-dashboard-for-user";
+export type { DashboardData, HomeDashboardData, HomePlan } from "./get-dashboard-for-user";

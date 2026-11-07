@@ -1,9 +1,13 @@
 // Sample data for the design board. Plain data only — nothing here touches the
 // database. Shapes match the real components' props.
 
-import type { DashboardData } from "@/src/features/dashboard";
+import type { DashboardData, HomeDashboardData } from "@/src/features/dashboard";
 import type { ProgressPayload, ProgressTask } from "@/src/features/progress";
-import type { PlanDiscussionThread, PlanMember } from "@/src/features/plans/queries";
+import type {
+  PlanCardProgress,
+  PlanDiscussionThread,
+  PlanMember,
+} from "@/src/features/plans/queries";
 
 const DAY = 86_400_000;
 
@@ -15,7 +19,7 @@ export interface BoardFixtures {
   progress: ProgressPayload;
   /** One real task per type, for the popup frames. */
   samples: Partial<Record<"devotional" | "scripture" | "mood" | "exercise", ProgressTask>>;
-  dashboard: DashboardData;
+  dashboard: HomeDashboardData;
   feed: Feed[];
   people: Person[];
   profile: ReturnType<typeof makeProfile>;
@@ -64,6 +68,7 @@ export interface PlanCard {
   role: string;
   isGroup: boolean;
   completedAt: string | null;
+  progress: PlanCardProgress | null;
 }
 
 function makeProfile(base: number) {
@@ -224,26 +229,21 @@ export function buildFixtures(
     completions,
   };
 
-  const dashboard: DashboardData = {
-    blockNumber: 1,
-    currentDay,
+  const windowStart = base - 24 * DAY;
+  const dashboard: HomeDashboardData = {
     radar: { mental: 72, emotional: 55, physical: 38 },
-    grid: Array.from({ length: 25 }, (_, i) => ({
-      day: i + 1,
-      categoriesCompleted: i + 1 < currentDay ? (i * 5) % 4 : 0,
-    })),
     streak: 9,
-    calendar: Array.from({ length: currentDay - 1 }, (_, i) => ({
-      date: isoDay(blockStart, i),
+    calendar: Array.from({ length: 12 }, (_, i) => ({
+      date: isoDay(windowStart, 12 + i),
       categories: ["Mental", "Emotional", "Physical"].slice(0, 1 + ((i * 5) % 3)),
     })),
-    earnedBadge: null,
+    windowStartDate: isoDay(windowStart, 0),
     emotionBreakdown: { good: 6, okay: 4, excellent: 3, bad: 1 },
-    physicalActivityByDay: Array.from({ length: currentDay - 1 }, (_, i) => ({
-      day: i + 1,
-      totalMinutes: ((i * 17) % 60) + 10,
+    activityLast25: Array.from({ length: 25 }, (_, i) => ({
+      day: new Date(windowStart + i * DAY).getUTCDate(),
+      totalMinutes: i > 11 ? ((i * 17) % 60) + 10 : 0,
     })),
-    blockStartDate: isoDay(blockStart, 0),
+    earnedBadge: null,
   };
 
   const people: Person[] = [
@@ -326,6 +326,7 @@ export function buildFixtures(
       role: "owner",
       isGroup: false,
       completedAt: null,
+      progress: { currentDay: 9, totalDays: 25, todayTotal: 5, todayDone: 5, members: [] },
     },
     {
       id: "demo-group",
@@ -337,6 +338,35 @@ export function buildFixtures(
       role: "owner",
       isGroup: true,
       completedAt: null,
+      progress: {
+        currentDay: 5,
+        totalDays: 25,
+        todayTotal: 5,
+        todayDone: 2,
+        members: [
+          {
+            id: 2,
+            displayName: "Grace Lim",
+            searchHandle: "grace",
+            avatarUrl: null,
+            completedToday: true,
+          },
+          {
+            id: 3,
+            displayName: "Daniel Tan",
+            searchHandle: "dan_tan",
+            avatarUrl: null,
+            completedToday: false,
+          },
+          {
+            id: 4,
+            displayName: "Mei Ling",
+            searchHandle: "meiling",
+            avatarUrl: null,
+            completedToday: false,
+          },
+        ],
+      },
     },
     {
       id: "demo-group-2",
@@ -348,6 +378,35 @@ export function buildFixtures(
       role: "member",
       isGroup: true,
       completedAt: null,
+      progress: {
+        currentDay: 13,
+        totalDays: 25,
+        todayTotal: 5,
+        todayDone: 0,
+        members: [
+          {
+            id: 2,
+            displayName: "Grace Lim",
+            searchHandle: "grace",
+            avatarUrl: null,
+            completedToday: true,
+          },
+          {
+            id: 5,
+            displayName: "Sam Ong",
+            searchHandle: "sam_ong",
+            avatarUrl: null,
+            completedToday: false,
+          },
+          {
+            id: 6,
+            displayName: "Ruth Koh",
+            searchHandle: "ruth",
+            avatarUrl: null,
+            completedToday: true,
+          },
+        ],
+      },
     },
     {
       id: "demo-done",
@@ -359,6 +418,7 @@ export function buildFixtures(
       role: "owner",
       isGroup: false,
       completedAt: new Date(base - 33 * DAY).toISOString(),
+      progress: null,
     },
   ];
   const members: PlanMember[] = [

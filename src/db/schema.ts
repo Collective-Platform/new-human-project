@@ -43,9 +43,6 @@ export const users = nhp.table(
     avatarUrl: text(),
     churchId: uuid(),
     onboardedAt: timestamp({ withTimezone: true }),
-    // The member-selected plan that powers their Home dashboard and daily reminder.
-    // Access is validated through plan_members before this value is used.
-    dashboardPlanId: uuid(),
     // Preferences
     notificationPrefs: jsonb()
       .$type<{
@@ -222,7 +219,7 @@ export const planMembers = nhp.table(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     role: text().notNull().default("member"), // owner | member
-    status: text().notNull().default("active"), // active | removed
+    status: text().notNull().default("active"), // active | removed (left) | kicked (removed by the owner)
     joinedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     removedAt: timestamp({ withTimezone: true }),
   },

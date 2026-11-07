@@ -34,7 +34,7 @@ function formatDate(iso: string | null): string {
 
 export function AdminUsersTable({ users }: { users: UserRow[] }) {
   return (
-    <div className="rounded-md bg-white shadow-card overflow-hidden">
+    <div className="rounded-card bg-white shadow-card overflow-hidden">
       <div className="px-4 py-3 border-b border-zinc-100 flex items-center justify-between">
         <p className="text-xs font-medium uppercase tracking-wider text-foreground/50">All Users</p>
         <span className="text-xs text-foreground/40 tabular-nums">{users.length} rows</span>
@@ -57,7 +57,7 @@ export function AdminUsersTable({ users }: { users: UserRow[] }) {
           </thead>
           <tbody className="divide-y divide-zinc-100">
             {users.map((u) => (
-              <tr key={u.id} className="hover:bg-zinc-50/60 transition-colors">
+              <tr key={u.id} className="hover:bg-on-surface/5 transition-colors">
                 <Td muted>{u.id}</Td>
                 <Td>{u.email}</Td>
                 <Td>{u.displayName ?? <span className="text-foreground/30">—</span>}</Td>

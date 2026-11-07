@@ -14,7 +14,7 @@ export default async function SignupVerifyPage({
     <div className="flex min-h-[100svh] w-full flex-col items-center justify-center">
       <div className="w-full max-w-sm space-y-6 p-8">
         <div className="space-y-2 text-center">
-          <h1 className="font-(family-name:--font-headline) text-2xl font-bold text-foreground">
+          <h1 className="font-(family-name:--font-headline) text-2xl font-semibold text-foreground">
             Check your email
           </h1>
           <Suspense>

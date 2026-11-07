@@ -59,22 +59,22 @@ export function ProfileClient({
         <section className="mb-10">
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-4">
-              <h2 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface">
+              <h2 className="font-headline text-3xl font-semibold tracking-tight text-on-surface">
                 {user.searchHandle ? `@${user.searchHandle}` : t("username")}
               </h2>
               <div className="flex items-center gap-2">
                 <Link
                   href="/community/friends"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container hover:border-primary/30 hover:text-primary transition-all active:scale-95"
+                  className="tap-target inline-flex items-center gap-1.5 px-3 py-1 border border-outline-variant rounded-full text-on-surface-variant hover:bg-on-surface/5 hover:border-primary/30 hover:text-primary transition-all press"
                 >
                   <User size={14} />
-                  <span className="text-sm font-bold font-headline">{friendCount} Friends</span>
+                  <span className="text-sm font-semibold font-headline">{friendCount} Friends</span>
                 </Link>
                 {user.searchHandle && (
                   <button
                     onClick={() => setShareOpen(true)}
                     aria-label="Share profile"
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all active:scale-95"
+                    className="tap-target flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant text-on-surface-variant hover:bg-on-surface/5 hover:text-primary transition-all press"
                   >
                     <QrCode size={16} />
                   </button>
@@ -82,7 +82,7 @@ export function ProfileClient({
                 <Link
                   href="/profile/settings"
                   aria-label="Settings"
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all active:scale-95"
+                  className="tap-target flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant text-on-surface-variant hover:bg-on-surface/5 hover:text-primary transition-all press"
                 >
                   <Settings size={16} />
                 </Link>
@@ -91,7 +91,7 @@ export function ProfileClient({
 
             {/* Avatar (display only) */}
             <div className="relative shrink-0">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-surface shadow-xl flex items-center justify-center">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-surface shadow-raised flex items-center justify-center">
                 {user.avatarUrl ? (
                   <NextImage
                     src={user.avatarUrl}

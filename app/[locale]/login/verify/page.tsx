@@ -10,7 +10,7 @@ export default async function VerifyPage({ params }: { params: Promise<{ locale:
     <div className="flex min-h-[100svh] w-full flex-col items-center justify-center">
       <div className="w-full max-w-sm space-y-6 p-8">
         <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-bold font-headline text-primary">Check your email</h1>
+          <h1 className="text-2xl font-semibold font-headline text-primary">Check your email</h1>
           <Suspense>
             <LoginVerifyContent />
           </Suspense>

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PlanDaySocial } from "../plans/plan-day-social";
 import { useNavVisibility } from "../nav-visibility";
 import type { PlanDiscussionThread, PlanMember } from "@/src/features/plans/queries";
 import type { ProgressTask } from "@/src/features/progress";
+import { Overlay } from "@/app/components/overlay";
 
 export function GroupDiscussionTask({
   locale,
@@ -18,7 +19,7 @@ export function GroupDiscussionTask({
   blockNumber,
   categoryTasks,
   onNavigateAction,
-  onCloseAction,
+  onCloseAction: onExitedAction,
 }: {
   locale: "en" | "zh";
   planId: string;
@@ -33,6 +34,9 @@ export function GroupDiscussionTask({
 }) {
   const t = useTranslations("progress");
   const { setHidden } = useNavVisibility();
+  // Closing plays the exit animation first; the parent is told once it is done.
+  const [open, setOpen] = useState(true);
+  const onCloseAction = () => setOpen(false);
 
   useEffect(() => {
     setHidden(true);
@@ -53,13 +57,18 @@ export function GroupDiscussionTask({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-surface">
+    <Overlay
+      variant="fullscreen"
+      open={open}
+      onExited={onExitedAction}
+      className="flex flex-col bg-surface"
+    >
       <header className="border-b border-zinc-100 bg-white px-4 sm:px-6 md:px-8">
         <div className="mx-auto flex max-w-3xl items-center gap-3 py-3">
           <button
             type="button"
             onClick={onCloseAction}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-foreground transition-colors hover:bg-surface-container-high focus:outline-none focus:ring-2 focus:ring-primary-container"
+            className="tap-target press flex h-7 w-7 items-center justify-center rounded-full text-foreground transition-colors hover:bg-on-surface/5 focus:outline-none focus:ring-2 focus:ring-primary-container"
             aria-label={t("closeTask")}
           >
             <ArrowLeft size={20} />
@@ -90,7 +99,7 @@ export function GroupDiscussionTask({
             <button
               type="button"
               onClick={goPrevious}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm transition-all hover:bg-zinc-50 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-container"
+              className="tap-target flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white transition-all hover:bg-on-surface/5 press focus:outline-none focus:ring-2 focus:ring-primary-container"
               aria-label={t("previousTask")}
             >
               <ArrowLeft size={20} className="text-foreground" />
@@ -109,13 +118,13 @@ export function GroupDiscussionTask({
           <button
             type="button"
             onClick={goNext}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition-all hover:opacity-90 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-container"
+            className="tap-target flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-glow transition-all hover:opacity-90 press focus:outline-none focus:ring-2 focus:ring-primary-container"
             aria-label={t("nextTask")}
           >
             <ArrowRight size={20} />
           </button>
         </div>
       </footer>
-    </div>
+    </Overlay>
   );
 }

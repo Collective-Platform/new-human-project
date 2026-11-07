@@ -110,10 +110,21 @@ typography:
     fontWeight: 900
     lineHeight: "1.2"
 rounded:
-  sm: 1rem
-  md: 2rem
-  lg: 3rem
+  control: 1rem
+  card: 1.5rem
+  sheet: 2rem
   full: 9999px
+shadows:
+  card: "0 4px 16px rgba(53,50,47,0.06)"
+  raised: "0 16px 40px rgba(53,50,47,0.10)"
+  float: "0 24px 64px rgba(53,50,47,0.18)"
+  glow: "0 10px 15px -3px rgba(190,43,23,0.2)"
+motion:
+  duration-fast: 120ms
+  duration-base: 200ms
+  duration-slow: 280ms
+  ease-out: "cubic-bezier(0.23, 1, 0.32, 1)"
+  ease-drawer: "cubic-bezier(0.32, 0.72, 0, 1)"
 spacing:
   xs: 4px
   sm: 8px
@@ -128,7 +139,8 @@ components:
     fontWeight: 600
     fontSize: "{typography.body-sm.fontSize}"
     paddingY: 14px
-    shadow: "0 10px 15px -3px rgba(190,43,23,0.2)"
+    shadow: "{shadows.glow}"
+    pressScale: 0.97
   button-emotional:
     backgroundColor: "{colors.category-emotional}"
     textColor: "#ffffff"
@@ -141,7 +153,7 @@ components:
     backgroundColor: "{colors.surface-container-high}"
     textColor: "{colors.foreground}"
     placeholderColor: "{colors.outline-variant}"
-    radius: "{rounded.md}"
+    radius: "{rounded.control}"
     focusRing: "{colors.primary-container}"
     paddingX: 16px
     paddingY: 12px
@@ -153,9 +165,15 @@ components:
     unselectedText: "{colors.on-surface-variant}"
   card:
     backgroundColor: "{colors.surface-container}"
-    radius: "{rounded.md}"
-    shadow: "0 12px 32px rgba(53,50,47,0.06)"
-    shadowHover: "0 16px 40px rgba(53,50,47,0.08)"
+    radius: "{rounded.card}"
+    shadow: "{shadows.card}"
+    shadowHover: "{shadows.raised}"
+  sheet:
+    backgroundColor: "{colors.surface}"
+    radius: "{rounded.sheet}"
+    shadow: "{shadows.float}"
+  hover-tint:
+    backgroundColor: "rgba(53,50,47,0.05)"
 ---
 
 ## Overview
@@ -163,7 +181,7 @@ components:
 Rhythm is a calm, editorial wellness app. The mood is **warm and grounded** — a
 soft off-white canvas, ink-dark text, and a single confident red that owns every
 call to action. It should feel less like a clinical dashboard and more like a
-thoughtfully printed journal: generous whitespace, large rounded surfaces, and
+thoughtfully printed journal: tight, calm spacing, softly rounded surfaces, and
 big expressive numerals for moments that matter (streaks, day counts, scores).
 
 The product is **bilingual (English / Simplified Chinese)**. Every type and
@@ -207,9 +225,9 @@ Three typeface roles, with Chinese fallbacks injected via `next/font`.
 
 - **GT America** — the workhorse for `h1`–`h3`, titles, body, labels, and
   captions. Headline elements (`.font-headline`) are pinned to **weight 500
-  (Medium)**; this is intentional and overrides Tailwind's `font-bold` to keep a
-  consistent type hierarchy. GT America has no semibold, so weight 600 resolves
-  to Bold via fallback.
+  (Medium)**; this is intentional and overrides any `font-*` weight class on a
+  headline, so do not add one. GT America has no semibold, so weight 600
+  resolves to Bold via fallback.
 - **Nowstalgic** — the **display** face. Reserve it for large expressive moments:
   oversized numerals, the wordmark, hero counts (`display-lg` / `display-xl`).
   Never use it for body copy.
@@ -221,54 +239,106 @@ Body text defaults to `body-md`/`body-sm`. The two densest UI sizes — `0.75rem
 (caption) and `0.875rem` (body-sm/label) — carry most of the interface, so keep
 them at sufficient contrast (`on-surface` / `on-surface-variant`).
 
+- **Smallest size is `text-xs` (12px).** Do not use `text-[9px]`, `text-[10px]`
+  or `text-[11px]`, including bottom-nav labels, chips and chart labels. Text
+  inputs are 16px, so iOS does not zoom the page.
+- **Weights in use:** `font-normal` for body, `font-medium` for labels and
+  emphasis, `font-semibold` for buttons and strong emphasis. Do not use
+  `font-bold`, `font-extrabold` or `font-light`. `font-black` is only for
+  Nowstalgic display numerals (for example the live banner) and `/live`.
+
 ## Layout
 
 - **Mobile-first PWA.** The app is designed for a portrait phone viewport with
   safe-area insets (`viewportFit: cover`) and a persistent bottom navigation bar.
 - **Spacing scale** is an 8px-based rhythm: `xs 4 / sm 8 / md 16 / lg 24 /
 xl 32`. Prefer multiples of 8 for padding and gaps.
-- **Generous padding.** Cards and inputs use comfortable internal padding
-  (16px horizontal, 12–14px vertical) and sit on the warm `surface` shell.
+- **Tight and calm.** Cards use 16px internal padding (`p-4`), inputs use 16px
+  horizontal and 12px vertical, and gaps between cards are 12px (`gap-3`). Do not
+  add extra padding to make a screen feel roomy. Show more content per screen.
 - **Content width** is constrained to a single readable column on mobile; avoid
-  multi-column dense layouts.
+  multi-column layouts.
+- **Touch targets are at least 44px.** A small control keeps its look and gets
+  an invisible 44px area through the `tap-target` class. Do not add it to
+  full-width list rows, calendar cells or links inside a sentence.
 
 ## Elevation & Depth
 
 Depth is expressed through **soft, warm, low-opacity shadows**, never hard lines.
+Use only these tokens. Do not write custom `shadow-[...]` values.
 
-- **Card:** `0 12px 32px rgba(53,50,47,0.06)` at rest, lifting to
-  `0 16px 40px rgba(53,50,47,0.08)` on hover.
-- **Primary button:** colored shadow tinted toward the button's own hue
-  (e.g. red glow under the primary CTA) for a tactile, lifted feel.
-- Shadows use the ink color () at very low alpha — keep them subtle and diffuse.
+| Token           | Value                                  | Use                                 |
+| --------------- | -------------------------------------- | ----------------------------------- |
+| `shadow-card`   | `0 4px 16px rgba(53,50,47,0.06)`       | A card at rest                      |
+| `shadow-raised` | `0 16px 40px rgba(53,50,47,0.10)`      | Hover lift, menus, avatars          |
+| `shadow-float`  | `0 24px 64px rgba(53,50,47,0.18)`      | Dialogs and sheets                  |
+| `shadow-glow`   | `0 10px 15px -3px rgba(190,43,23,0.2)` | Red glow under primary buttons only |
+
+- Shadows use the ink color (`#35322f`) at low alpha. Keep them diffuse.
+- Do not use Tailwind's default `shadow-sm`, `shadow-lg`, `shadow-xl` or
+  `shadow-2xl`.
 
 ## Shapes
 
-Rhythm is defined by **large, friendly corner radii**.
+Rhythm uses **soft, friendly corner radii**, not bubbles. Use only these tokens.
 
-- `rounded.sm` = **1rem (16px)** — inputs, small chips.
-- `rounded.md` = **2rem (32px)** — cards, panels, the default surface radius.
-- `rounded.lg` = **3rem (48px)** — large hero containers.
-- `rounded.full` = **9999px** — all buttons and toggle pills are fully rounded.
+| Token             | Value  | Use                                           |
+| ----------------- | ------ | --------------------------------------------- |
+| `rounded-control` | 16px   | Inputs, buttons that are not pills, menu rows |
+| `rounded-card`    | 24px   | Content cards                                 |
+| `rounded-sheet`   | 32px   | Dialogs and bottom sheets                     |
+| `rounded-full`    | 9999px | Pill buttons, toggle pills, tags, avatars     |
 
-When in doubt, round more, not less. Sharp 4px corners are off-brand.
+- Do not round more than the token for the surface. Sharp 4px corners are off-brand.
+- Do not use Tailwind's `rounded-sm`, `-md`, `-lg`, `-xl`, `-2xl` or `-3xl` in new
+  code. The theme still defines `--radius-sm/md/lg` (16, 32 and 48px) for a few
+  small tiles: skeleton blocks, calendar cells and chart bar tops. These are
+  data shapes, not UI surfaces.
+
+## Motion
+
+Motion tokens live in `app/globals.css`. Use the tokens. Do not type a number.
+
+| Token             | Value                            | Use                                                             |
+| ----------------- | -------------------------------- | --------------------------------------------------------------- |
+| `--duration-fast` | 120ms                            | Press, hover, color changes (also the default for `transition`) |
+| `--duration-base` | 200ms                            | Fades, small popups, pop-in                                     |
+| `--duration-slow` | 280ms                            | Sheets, slide-in panels, the nav pill                           |
+| `--ease-out`      | `cubic-bezier(0.23, 1, 0.32, 1)` | Default curve. Also the Tailwind `ease-out`.                    |
+| `--ease-drawer`   | `cubic-bezier(0.32, 0.72, 0, 1)` | Sheets and panels (`ease-drawer`)                               |
+
+- **Never use `ease-in`.** It feels slow.
+- **Name the properties.** Do not use `transition-all`.
+- **Exit is faster than enter.** Fades leave in 120ms. Sheets and panels leave in 200ms.
+- **Press feedback:** every tappable control shrinks to 97% on press, in 120ms.
+  Add `press`. Wide cards use `press-soft` (99%). Disabled controls do not move.
+- **Hover:** use one tint for neutral controls: `hover:bg-on-surface/5` (5% warm
+  ink). Filled buttons use `hover:opacity-90`. Plain text rows use
+  `hover:opacity-70`.
+- **Reduced motion:** the app falls back to a plain fade. Keep this working.
 
 ## Components
 
 - **Primary Button:** Full-pill, `primary` background, white text, semibold,
-  ~14px vertical padding, full-width, with a soft colored shadow. Variants
+  ~14px vertical padding, full-width, with `shadow-glow`. Variants
   `emotional` and `physical` swap the fill to the matching category color.
-  States: `hover:opacity-90`, `active:scale-[0.99]`, disabled at 50% opacity with
-  no shadow.
-- **Field Input:** Borderless, fill on `surface-container-high`, `rounded.sm`,
+  States: `hover:opacity-90`, `press` (shrinks to 97% on press), disabled at
+  50% opacity with no shadow.
+- **Field Input:** Borderless, fill on `surface-container-high`, `rounded-control`,
   medium-weight foreground text, `outline-variant` placeholder, focus ring in
   `primary-container`.
 - **Toggle Pill:** Full-pill segmented control. Selected state uses a tonal
   container + matching `ring-*/20` (secondary, tertiary, emotional, physical);
   unselected sits on `surface-container-high` with `on-surface-variant` text and
-  brightens on hover. `active:scale-95` for tactile press.
-- **Card:** White `surface-container`, `rounded.md`, soft card shadow — the
-  primary content container throughout the app.
+  brightens on hover. Uses `press` for tactile press.
+- **Card:** White `surface-container`, `rounded-card`, `shadow-card` — the
+  primary content container throughout the app. A card that can be tapped uses
+  `press-soft` and may lift to `shadow-raised` on hover.
+- **Overlay (modal, sheet, full-screen page, side panel):** Always use
+  `app/components/overlay.tsx`. Variants: `center`, `sheet` (bottom sheet on
+  phones, centered dialog from 640px wide), `fullscreen`, `panel` (slides in from
+  the right). One shared backdrop (black at 40% with a light blur), one enter
+  motion, one exit motion. Dialog panels use `rounded-sheet` and `shadow-float`.
 
 ## Do's and Don'ts
 
@@ -278,8 +348,14 @@ When in doubt, round more, not less. Sharp 4px corners are off-brand.
 - **Do** use Nowstalgic only for large display numerals and the wordmark.
 - **Do** keep headline elements at weight 500 — don't bold them.
 - **Do** design mobile-first with the bottom nav and safe-area insets in mind.
+- **Do** use the radius, shadow and motion tokens. Do not type custom values.
+- **Do** add `press` to every tappable control and `tap-target` to any control under 44px.
+- **Do** keep text at 12px or larger.
 - **Do** verify every screen in both English and Simplified Chinese.
 - **Don't** introduce new accent colors or gradients outside this palette.
 - **Don't** use hard borders or heavy drop shadows for elevation.
-- **Don't** use small, sharp corners — favor the generous radius scale.
+- **Don't** use small, sharp corners. Use the radius tokens.
+- **Don't** write `{open && <div className="fixed inset-0 …">}`. Use the Overlay component.
+- **Don't** use `transition-all`, `ease-in`, or `font-bold` / `font-light`.
+- **Don't** use raw Tailwind greys (`zinc-*`, `neutral-*`) or hex colors in components. Use the tokens.
 - **Don't** set body copy in Nowstalgic or use category colors decoratively.

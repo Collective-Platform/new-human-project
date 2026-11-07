@@ -47,8 +47,8 @@ The app is plan-based now: `/progress` lists plans, `/progress/[planId]` is a pl
 shared plans add members, invite links and a discussion ("Talk it out"). The board has frames for
 the plans list, solo and group day views, the discussion screen, the join-by-invite pages, the
 create / leave / menu / members popups, the empty dashboard and the UI lab. The old Complete
-Block button and the two "finished block" screens are no longer reachable in the app, so they
-have no frame. Their files still exist in the code.
+Block button is no longer reachable in the app, so it has no frame. The two "finished block"
+screens were removed from the code.
 
 ## Limits
 

@@ -87,13 +87,13 @@ export function AddFriends({
             autoCorrect="off"
             spellCheck={false}
             autoFocus
-            className="w-full rounded-xl border border-outline-variant bg-white py-3 pl-11 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-control border border-outline-variant bg-white py-3 pl-11 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
         {onCancel && (
           <button
             onClick={onCancel}
-            className="shrink-0 text-primary font-bold font-headline active:scale-95 transition-transform"
+            className="tap-target shrink-0 text-primary font-semibold font-headline press transition-transform"
           >
             {t("cancel")}
           </button>
@@ -116,7 +116,7 @@ export function AddFriends({
           {results.map((user) => (
             <div
               key={user.id}
-              className="group bg-white p-5 rounded-2xl flex items-center gap-4 transition-all hover:shadow-card"
+              className="group bg-white p-5 rounded-card flex items-center gap-4 transition-all hover:shadow-card"
             >
               <Link
                 href={`/community/${user.searchHandle ?? user.id}`}
@@ -136,7 +136,7 @@ export function AddFriends({
                     <User size={24} className="text-on-surface-variant" />
                   </div>
                 )}
-                <p className="truncate font-headline text-sm font-bold text-on-surface">
+                <p className="truncate font-headline text-sm font-semibold text-on-surface">
                   {user.searchHandle ? `@${user.searchHandle}` : "User"}
                 </p>
               </Link>
@@ -147,7 +147,7 @@ export function AddFriends({
                   <button
                     onClick={() => handleAdd(user.id)}
                     disabled={status !== "none"}
-                    className={`rounded-full px-4 py-1.5 text-xs font-bold transition-opacity shrink-0 ${
+                    className={`tap-target press rounded-full px-4 py-1.5 text-xs font-semibold transition-opacity shrink-0 ${
                       status !== "none"
                         ? "bg-surface-container-highest text-on-surface-variant"
                         : "bg-on-surface text-surface hover:opacity-90"

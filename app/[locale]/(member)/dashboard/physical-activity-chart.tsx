@@ -18,7 +18,7 @@ export function PhysicalActivityChart({
   emptyLabel,
 }: {
   activityByDay: { day: number; totalMinutes: number }[];
-  blockLabel: string;
+  blockLabel?: string;
   title: string;
   emptyLabel: string;
 }) {
@@ -26,7 +26,7 @@ export function PhysicalActivityChart({
   const maxMinutes = Math.max(...activityByDay.map((d) => d.totalMinutes), 1);
 
   return (
-    <div className="rounded-3xl bg-white shadow-card px-8 py-5 overflow-hidden flex flex-col">
+    <div className="rounded-card bg-white shadow-card px-8 py-5 overflow-hidden flex flex-col">
       <div className="mb-4">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -35,12 +35,12 @@ export function PhysicalActivityChart({
               <h3 className="text-xl font-headline tracking-tight font-medium text-category-physical">
                 {title}
               </h3>
-              <p className="text-xs text-foreground/40">{blockLabel}</p>
+              {blockLabel && <p className="text-xs text-foreground/40">{blockLabel}</p>}
             </div>
           </div>
           {totalMinutes > 0 && (
             <div className="flex flex-col items-end">
-              <span className="text-[10px] text-foreground/40">Total hours</span>
+              <span className="text-xs text-foreground/40">Total hours</span>
               <span className="text-sm font-medium text-category-physical">
                 {formatMins(totalMinutes)}
               </span>
@@ -55,21 +55,21 @@ export function PhysicalActivityChart({
         <div className="mt-auto overflow-x-auto -mx-8 px-8">
           {/* Bars with duration label floating just above each bar */}
           <div className="flex gap-1" style={{ minWidth: "max-content" }}>
-            {activityByDay.map(({ day, totalMinutes: mins }) => {
+            {activityByDay.map(({ totalMinutes: mins }, index) => {
               const barH = mins > 0 ? Math.max((mins / maxMinutes) * BAR_HEIGHT, 6) : 2;
               return (
                 <div
-                  key={day}
+                  key={index}
                   className="w-7 shrink-0 flex flex-col justify-end items-center gap-0.5"
                   style={{ height: BAR_HEIGHT }}
                 >
                   {mins > 0 && (
-                    <span className="text-[9px] text-foreground/50 leading-none">
+                    <span className="text-xs text-foreground/50 leading-none">
                       {formatMins(mins)}
                     </span>
                   )}
                   <div
-                    className="w-2 bg-(--color-category-physical) rounded-t-md transition-all duration-500"
+                    className="w-2 bg-(--color-category-physical) rounded-t-md transition-all duration-(--duration-slow)"
                     style={{ height: barH, opacity: mins > 0 ? 1 : 0.12 }}
                   />
                 </div>
@@ -79,9 +79,9 @@ export function PhysicalActivityChart({
 
           {/* Day number labels */}
           <div className="flex gap-1 mt-2" style={{ minWidth: "max-content" }}>
-            {activityByDay.map(({ day }) => (
-              <div key={day} className="w-7 shrink-0 flex justify-center">
-                <span className="text-[10px] text-foreground/40">{day}</span>
+            {activityByDay.map(({ day }, index) => (
+              <div key={index} className="w-7 shrink-0 flex justify-center">
+                <span className="text-xs text-foreground/40">{day}</span>
               </div>
             ))}
           </div>

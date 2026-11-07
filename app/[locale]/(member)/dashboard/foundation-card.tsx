@@ -23,7 +23,7 @@ const foundationColors = [
 export function FoundationCard() {
   const t = useTranslations("block");
   return (
-    <section className="flex flex-col justify-between rounded-md border border-surface-container bg-white px-8 py-8 shadow-card">
+    <section className="flex flex-col justify-between rounded-card border border-surface-container bg-white px-8 py-8 shadow-card">
       <div>
         <p className="mb-2 text-sm font-medium uppercase tracking-widest text-primary">
           {t("theFoundation")}
@@ -47,7 +47,7 @@ export function FoundationCard() {
       <Link
         href="/progress"
         prefetch
-        className="flex w-full items-center justify-center rounded-full bg-primary px-6 py-4 font-bold text-white shadow-lg shadow-red-200 transition-transform active:scale-95"
+        className="flex w-full items-center justify-center rounded-full bg-primary px-6 py-4 font-semibold text-white shadow-glow shadow-red-200 transition-transform press"
       >
         {t("startJourney")}
         <ChevronRight size={20} className="ml-2" aria-hidden="true" />

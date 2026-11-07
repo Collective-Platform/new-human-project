@@ -1,0 +1,1 @@
+ALTER TABLE "nhp"."users" DROP COLUMN "dashboard_plan_id";

@@ -100,11 +100,13 @@ export function TaskList({
           <section key={cat} className="space-y-3">
             <div className="flex items-center gap-2">
               <Image src={config.iconSrc} alt={cat} width={32} height={32} />
-              <h3 className="text-xl font-bold font-headline text-foreground">{labelMap[cat]}</h3>
+              <h3 className="text-xl font-semibold font-headline text-foreground">
+                {labelMap[cat]}
+              </h3>
             </div>
 
             {/* Main card — all task rows and entry rows, no add rows */}
-            <div className="rounded-3xl bg-white shadow-card overflow-hidden">
+            <div className="rounded-card bg-white shadow-card overflow-hidden">
               {catTasks.map((task, taskIdx) => {
                 const isExercise = task.taskType === "exercise";
                 const isMoodLog = task.taskType === "mood_log";
@@ -227,7 +229,7 @@ export function TaskList({
                             onToggleCompleteAction(task.id);
                           }
                         }}
-                        className="shrink-0 flex items-center justify-center transition-transform active:scale-90"
+                        className="tap-target shrink-0 flex items-center justify-center transition-transform press"
                         aria-label={
                           locked || completionFrozen
                             ? `Open ${task.name}`
@@ -286,7 +288,7 @@ export function TaskList({
                   <button
                     key={`${task.id}-add`}
                     onClick={() => onAddEntryAction(task)}
-                    className={`w-full rounded-full border-2 border-dashed py-2 text-sm font-semibold transition-all active:scale-[0.99] ${categoryAddColor[cat]}`}
+                    className={`tap-target w-full rounded-full border-2 border-dashed py-2 text-sm font-semibold transition-all press ${categoryAddColor[cat]}`}
                   >
                     + {isMoodLog ? tm("addMoodLog") : te("addExercise")}
                   </button>

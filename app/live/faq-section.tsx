@@ -295,7 +295,7 @@ export function FaqSection() {
             <details key={q} className="group py-5">
               <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-lg md:text-xl leading-tight font-semibold text-on-surface">
                 <span>{q}</span>
-                <ChevronDown className="mt-0.5 size-5 shrink-0 text-outline transition-transform duration-200 group-open:rotate-180" />
+                <ChevronDown className="mt-0.5 size-5 shrink-0 text-outline transition-transform duration-(--duration-base) group-open:rotate-180" />
               </summary>
               <div className="mt-3 text-base md:text-lg leading-normal md:leading-relaxed text-black/90">
                 {typeof a === "string" ? <p>{a}</p> : a}

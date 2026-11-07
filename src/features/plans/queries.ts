@@ -10,7 +10,22 @@ import {
 } from "@/src/db/schema";
 import { getDayTasks } from "@/src/features/content/program";
 
-export const PLAN_LENGTH_DAYS = 25;
+import { PLAN_LENGTH_DAYS, getPlanCurrentDay } from "./dates";
+
+export {
+  PLAN_LENGTH_DAYS,
+  getPlanCurrentDay,
+  getPlanDayDate,
+  getPlanDayOnDate,
+  isPlanPastLastDay,
+} from "./dates";
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Plan ids can come from a URL. Postgres throws on a value that is not a UUID. */
+export function isPlanId(value: string): boolean {
+  return UUID_PATTERN.test(value);
+}
 
 export type PlanMember = {
   id: number;
@@ -57,29 +72,6 @@ export async function getFriendsForPlanMember(userId: number): Promise<PlanFrien
   }));
 }
 
-function dateAtTimezone(date: Date, timezone: string): Date {
-  try {
-    const parts = new Intl.DateTimeFormat("en-CA", {
-      timeZone: timezone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).formatToParts(date);
-    const value = (type: string) => Number(parts.find((part) => part.type === type)?.value);
-    return new Date(Date.UTC(value("year"), value("month") - 1, value("day")));
-  } catch {
-    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-  }
-}
-
-/** Each participant advances according to their own local calendar. */
-export function getPlanCurrentDay(startedAt: Date, timezone: string, now = new Date()): number {
-  const start = dateAtTimezone(startedAt, timezone);
-  const today = dateAtTimezone(now, timezone);
-  const elapsed = Math.floor((today.getTime() - start.getTime()) / 86_400_000);
-  return Math.min(Math.max(elapsed + 1, 1), PLAN_LENGTH_DAYS);
-}
-
 export async function getActivePlanMembership(planId: string, userId: number) {
   const rows = await db
     .select({ id: planMembers.id, role: planMembers.role })
@@ -95,12 +87,23 @@ export async function getActivePlanMembership(planId: string, userId: number) {
   return rows[0] ?? null;
 }
 
+/** A member's status in a plan (active | removed | kicked), or null if they never joined. */
+export async function getPlanMemberStatus(planId: string, userId: number) {
+  const rows = await db
+    .select({ status: planMembers.status })
+    .from(planMembers)
+    .where(and(eq(planMembers.planId, planId), eq(planMembers.userId, userId)))
+    .limit(1);
+  return rows[0]?.status ?? null;
+}
+
 export async function getPlanByInviteCode(inviteCode: string) {
   const rows = await db.select().from(plans).where(eq(plans.inviteCode, inviteCode)).limit(1);
   return rows[0] ?? null;
 }
 
 export async function getPlanForMember(planId: string, userId: number) {
+  if (!isPlanId(planId)) return null;
   const [plan] = await db.select().from(plans).where(eq(plans.id, planId)).limit(1);
   if (!plan) return null;
   const membership = await getActivePlanMembership(planId, userId);
@@ -138,6 +141,130 @@ export async function getPlansForUser(userId: number) {
   return rows.map((row) => ({ ...row, memberCount: byPlan.get(row.id) ?? 0 }));
 }
 
+export type PlanCardMember = {
+  id: number;
+  displayName: string | null;
+  searchHandle: string | null;
+  avatarUrl: string | null;
+  completedToday: boolean;
+};
+
+export type PlanCardProgress = {
+  currentDay: number;
+  totalDays: number;
+  todayTotal: number;
+  todayDone: number;
+  /** Other members of a shared plan, at most `CARD_MEMBER_PREVIEW` of them. */
+  members: PlanCardMember[];
+};
+
+const CARD_MEMBER_PREVIEW = 3;
+
+/**
+ * Today's status for each plan card on the plans list.
+ * Every member is judged against the viewer's current plan day, so the dots
+ * answer "who has done today's tasks?" from the viewer's point of view.
+ */
+export async function getPlanCardProgress(
+  userId: number,
+  timezone: string,
+  cards: { id: string; blockNumber: number; startedAt: Date; isGroup: boolean }[],
+): Promise<Map<string, PlanCardProgress>> {
+  const result = new Map<string, PlanCardProgress>();
+  if (cards.length === 0) return result;
+
+  const expectedByPlan = new Map<string, { day: number; taskIds: Set<string> }>();
+  const allTaskIds = new Set<string>();
+  for (const card of cards) {
+    const day = getPlanCurrentDay(card.startedAt, timezone);
+    const taskIds = new Set(getDayTasks(card.blockNumber, day).map((task) => task.id));
+    expectedByPlan.set(card.id, { day, taskIds });
+    for (const id of taskIds) allTaskIds.add(id);
+  }
+
+  const planIds = cards.map((card) => card.id);
+  const groupPlanIds = cards.filter((card) => card.isGroup).map((card) => card.id);
+  const [completions, memberRows] = await Promise.all([
+    allTaskIds.size === 0
+      ? Promise.resolve([])
+      : db
+          .select({
+            planId: taskCompletions.planId,
+            userId: taskCompletions.userId,
+            taskId: taskCompletions.taskId,
+          })
+          .from(taskCompletions)
+          .where(
+            and(
+              inArray(taskCompletions.planId, planIds),
+              inArray(taskCompletions.taskId, [...allTaskIds]),
+            ),
+          ),
+    groupPlanIds.length === 0
+      ? Promise.resolve([])
+      : db
+          .select({
+            planId: planMembers.planId,
+            id: users.id,
+            displayName: users.displayName,
+            searchHandle: users.searchHandle,
+            avatarUrl: users.avatarUrl,
+          })
+          .from(planMembers)
+          .innerJoin(users, eq(planMembers.userId, users.id))
+          .where(
+            and(
+              inArray(planMembers.planId, groupPlanIds),
+              eq(planMembers.status, "active"),
+              sql`${planMembers.userId} <> ${userId}`,
+            ),
+          )
+          .orderBy(asc(users.displayName)),
+  ]);
+
+  const doneByPlanUser = new Map<string, Set<string>>();
+  for (const completion of completions) {
+    if (!completion.planId) continue;
+    const key = `${completion.planId}:${completion.userId}`;
+    const done = doneByPlanUser.get(key) ?? new Set<string>();
+    done.add(completion.taskId);
+    doneByPlanUser.set(key, done);
+  }
+
+  function doneCount(planId: string, memberId: number, taskIds: Set<string>) {
+    const done = doneByPlanUser.get(`${planId}:${memberId}`);
+    if (!done) return 0;
+    let count = 0;
+    for (const id of taskIds) if (done.has(id)) count += 1;
+    return count;
+  }
+
+  for (const card of cards) {
+    const expected = expectedByPlan.get(card.id);
+    if (!expected) continue;
+    const members = memberRows
+      .filter((row) => row.planId === card.id)
+      .slice(0, CARD_MEMBER_PREVIEW)
+      .map((row) => ({
+        id: row.id,
+        displayName: row.displayName,
+        searchHandle: row.searchHandle,
+        avatarUrl: row.avatarUrl,
+        completedToday:
+          expected.taskIds.size > 0 &&
+          doneCount(card.id, row.id, expected.taskIds) === expected.taskIds.size,
+      }));
+    result.set(card.id, {
+      currentDay: expected.day,
+      totalDays: PLAN_LENGTH_DAYS,
+      todayTotal: expected.taskIds.size,
+      todayDone: doneCount(card.id, userId, expected.taskIds),
+      members,
+    });
+  }
+  return result;
+}
+
 export async function getCompletedPlansForUser(userId: number) {
   return db
     .select({
@@ -150,35 +277,6 @@ export async function getCompletedPlansForUser(userId: number) {
     .innerJoin(plans, eq(planCompletions.planId, plans.id))
     .where(eq(planCompletions.userId, userId))
     .orderBy(desc(planCompletions.completedAt));
-}
-
-/** The member-approved plan used for their personal Home dashboard. */
-export async function getDashboardPlanForUser(userId: number) {
-  const rows = await db
-    .select({
-      id: plans.id,
-      blockNumber: plans.blockNumber,
-      title: plans.title,
-      isGroup: plans.isGroup,
-      startedAt: plans.startedAt,
-    })
-    .from(users)
-    .innerJoin(plans, eq(users.dashboardPlanId, plans.id))
-    .innerJoin(
-      planMembers,
-      and(
-        eq(planMembers.planId, plans.id),
-        eq(planMembers.userId, userId),
-        eq(planMembers.status, "active"),
-      ),
-    )
-    .leftJoin(
-      planCompletions,
-      and(eq(planCompletions.planId, plans.id), eq(planCompletions.userId, userId)),
-    )
-    .where(and(eq(users.id, userId), isNull(planCompletions.id)))
-    .limit(1);
-  return rows[0] ?? null;
 }
 
 export async function getPlanMembersForDay(

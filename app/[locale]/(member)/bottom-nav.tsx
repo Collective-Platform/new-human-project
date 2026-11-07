@@ -55,7 +55,7 @@ export function BottomNav() {
               redirects it mid-flight. Critically damped, no overshoot. */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute top-0 left-0 flex h-9 w-1/4 justify-center transition-[transform,opacity] duration-350 ease-[cubic-bezier(0.32,0.72,0,1)]"
+            className="pointer-events-none absolute top-0 left-0 flex h-9 w-1/4 justify-center transition-[transform,opacity] duration-(--duration-slow) ease-drawer"
             style={{
               transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`,
               opacity: activeIndex === -1 ? 0 : 1,
@@ -75,11 +75,11 @@ export function BottomNav() {
                 <span className="flex h-9 w-14 items-center justify-center">
                   <TabIcon
                     size={22}
-                    className={`transition-colors duration-200 ${active ? "text-white" : "text-on-surface-variant"}`}
+                    className={`transition-colors duration-(--duration-base) ${active ? "text-white" : "text-on-surface-variant"}`}
                   />
                 </span>
                 <span
-                  className={`text-[10px] font-medium transition-colors duration-200 ${active ? "text-primary" : "text-on-surface-variant"}`}
+                  className={`text-xs font-medium transition-colors duration-(--duration-base) ${active ? "text-primary" : "text-on-surface-variant"}`}
                 >
                   {t(tab.key)}
                 </span>

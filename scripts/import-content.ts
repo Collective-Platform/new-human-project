@@ -119,26 +119,34 @@ function normalizeMarkdownSource(text: string): string {
     return (tens ? chineseDigits[tens] : 1) * 10 + (ones ? chineseDigits[ones] : 0);
   };
 
-  return text
-    .replace(/^(?:#{1,6}[ \t]+)(.*)$/gm, "$1")
-    .replace(
-      /^\*\*(DAY\s+\d{1,2}\s+[—–-]{1,2}\s+.+|第\s*\d{1,2}\s*天\s*[—–-]{1,2}\s+.+|第[一二三四五六七八九十]+日\s*[—–-]{1,2}\s+.+)\*\*\s*$/gimu,
-      "$1\n",
-    )
-    .replace(
-      /^(第)([一二三四五六七八九十]+)日(\s*[—–-]{1,2}\s+.+)$/gmu,
-      (_, prefix, numeral, suffix) => `${prefix}${chineseToNumber(numeral)}天${suffix}`,
-    )
-    .replace(/^\*\*经文[：:]\s*(.+)\*\*\s*$/gmu, "经文: $1")
-    .replace(
-      /^\*\*(Scripture|Practice|Questions?|经文|操练|实践|反思问题|省思问题|问题)[：:]\*\*\s*/gimu,
-      "$1: ",
-    )
-    .replace(
-      /^\*\*(Scripture|Practice|Questions?|经文|操练|实践|反思问题|省思问题|问题)\*\*[：:]\s*/gimu,
-      "$1: ",
-    )
-    .replace(/^(Practice|Questions?|操练|实践|反思问题|省思问题|问题)[：:]/gimu, "\n\n$1:");
+  return (
+    text
+      .replace(/^(?:#{1,6}[ \t]+)(.*)$/gm, "$1")
+      .replace(
+        /^\*\*(DAY\s+\d{1,2}\s+[—–-]{1,2}\s+.+|第\s*\d{1,2}\s*[天日]\s*[—–-]{1,2}\s+.+|第[一二三四五六七八九十]+日\s*[—–-]{1,2}\s+.+)\*\*\s*$/gimu,
+        "$1\n",
+      )
+      .replace(
+        /^(第)([一二三四五六七八九十]+)日(\s*[—–-]{1,2}\s+.+)$/gmu,
+        (_, prefix, numeral, suffix) => `${prefix}${chineseToNumber(numeral)}天${suffix}`,
+      )
+      .replace(/^第\s*(\d{1,2})\s*日(\s*[—–-]{1,2}\s+.+)$/gmu, "第$1天$2")
+      .replace(/^\*\*经文\s*[：:]\s*(.+)\*\*[ \t]*$/gmu, "经文: $1")
+      // "**Scripture: Ref**" or "**Scripture: Ref \-** verse text" (label and reference inside the bold).
+      .replace(/^\*\*(Scripture|经文)\s*[：:]\s*(.*?)\*\*(.*)$/gimu, "$1: $2$3")
+      .replace(
+        /^\*\*(Scripture|Practice|Questions?|经文|操练|实践|反思问题|省思问题|思考问题|问题)\s*[：:]\s*\*\*\s*/gimu,
+        "$1: ",
+      )
+      .replace(
+        /^\*\*(Scripture|Practice|Questions?|经文|操练|实践|反思问题|省思问题|思考问题|问题)\*\*\s*[：:]\s*/gimu,
+        "$1: ",
+      )
+      .replace(
+        /^(Practice|Questions?|操练|实践|反思问题|省思问题|思考问题|问题)\s*[：:]/gimu,
+        "\n\n$1:",
+      )
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -399,10 +407,10 @@ function parseEmotionalZH(text: string): ParsedDay[] {
     // Scripture reference: "经文：Ref"
     let passageRef: string | undefined;
     let zhVerseText = "";
-    if (i < paragraphs.length && /^经文[：:]/.test(paragraphs[i])) {
-      const scriptureContent = paragraphs[i].replace(/^经文[：:]\s*/, "").trim();
+    if (i < paragraphs.length && /^经文\s*[：:]/.test(paragraphs[i])) {
+      const scriptureContent = paragraphs[i].replace(/^经文\s*[：:]\s*/, "").trim();
       // Format: "Ref —— verse text" (verse text is optional)
-      const separator = scriptureContent.match(/\s[—–]{1,2}\s/);
+      const separator = scriptureContent.match(/\s(?:[—–]{1,2}|\\?-)\s/);
       if (separator?.index !== undefined) {
         passageRef = scriptureContent.substring(0, separator.index).trim();
         zhVerseText = scriptureContent.substring(separator.index + separator[0].length).trim();
@@ -460,7 +468,9 @@ function parseEmotionalZH(text: string): ParsedDay[] {
     // Question
     let reflectionText = "";
     if (i < paragraphs.length && isQuestionLabel(paragraphs[i], "zh")) {
-      reflectionText = paragraphs[i].replace(/^(反思问题|省思问题|问题)[：:]\s*/, "").trim();
+      reflectionText = paragraphs[i]
+        .replace(/^(反思问题|省思问题|思考问题|问题)\s*[：:]\s*/, "")
+        .trim();
       i++;
       // Numbered follow-up questions belong to the same reflection.
       const followUps: string[] = [];
@@ -508,7 +518,7 @@ function isPracticeLabel(para: string, lang: "en" | "zh"): boolean {
 
 function isQuestionLabel(para: string, lang: "en" | "zh"): boolean {
   if (lang === "en") return /^Questions?:/i.test(para);
-  return /^(反思问题|省思问题|问题)[：:]/.test(para);
+  return /^(反思问题|省思问题|思考问题|问题)\s*[：:]/.test(para);
 }
 
 function isEmotionalDayStart(para: string, lang: "en" | "zh"): boolean {

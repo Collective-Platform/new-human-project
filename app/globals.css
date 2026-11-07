@@ -20,7 +20,20 @@
   }
 }
 
+/* Motion tokens. Use these instead of typing a number.
+   fast: press, hover, colour change. base: fades, small popups.
+   slow: sheets, slide-in panels, the nav pill. */
+@theme static {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --default-transition-duration: 120ms;
+  --default-transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
 :root {
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 280ms;
   --background: #fafafa;
   --foreground: #171717;
 
@@ -84,9 +97,16 @@
   --radius-lg: 3rem;
   --radius-full: 9999px;
 
-  /* Card shadow */
-  --shadow-card: 0 12px 32px rgba(53, 50, 47, 0.06);
-  --shadow-card-hover: 0 16px 40px rgba(53, 50, 47, 0.08);
+  /* Radius tokens. Use these three (plus rounded-full for pills). */
+  --radius-control: 1rem; /* inputs, buttons, menu rows */
+  --radius-card: 1.5rem; /* content cards */
+  --radius-sheet: 2rem; /* dialogs and bottom sheets */
+
+  /* Shadow tokens. Warm ink at low alpha. */
+  --shadow-card: 0 4px 16px rgba(53, 50, 47, 0.06); /* card at rest */
+  --shadow-raised: 0 16px 40px rgba(53, 50, 47, 0.1); /* hover, menus, avatars */
+  --shadow-float: 0 24px 64px rgba(53, 50, 47, 0.18); /* dialogs and sheets */
+  --shadow-glow: 0 10px 15px -3px rgba(190, 43, 23, 0.2); /* red glow under primary buttons */
 
   /* Font families with CJK fallbacks (CSS vars injected by next/font) */
   --font-headline:
@@ -134,16 +154,46 @@ button,
    overrides Tailwind transition-* utilities: list every animated property. */
 .press {
   transition:
-    transform 100ms ease-out,
-    scale 150ms ease-out,
-    opacity 100ms ease-out,
-    filter 200ms ease-out,
-    color 200ms ease-out,
-    background-color 200ms ease-out,
-    box-shadow 200ms ease-out;
+    transform var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out),
+    filter var(--duration-base) var(--ease-out),
+    color var(--duration-base) var(--ease-out),
+    background-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
 }
 .press:active {
   transform: scale(0.97);
+}
+/* Wide cards: a smaller squeeze, so a big surface does not visibly shrink. */
+.press-soft {
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out),
+    background-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
+}
+.press-soft:active {
+  transform: scale(0.99);
+}
+/* Touch target: an invisible area of at least 44px around a small control.
+   It does not change how the control looks. Controls that are already 44px
+   or larger are unchanged. */
+.tap-target:not(.absolute, .fixed, .sticky) {
+  position: relative;
+}
+.tap-target::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+/* Disabled controls do not react to touch. */
+.press:disabled:active,
+.press-soft:disabled:active {
+  transform: none;
 }
 
 /* Translucent chrome (header, bottom nav). */
@@ -153,9 +203,26 @@ button,
   backdrop-filter: blur(20px) saturate(180%);
 }
 
-/* Sheet / overlay motion: enter and exit along the same path. */
+/* Overlay motion (see app/components/overlay.tsx).
+   Enter is slower, exit is faster. Sheets and panels leave along the path they came in. */
+/* A list that swaps content (for example, a tab change) fades up a little. */
+@keyframes list-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.animate-list-in {
+  animation: list-in var(--duration-base) var(--ease-out);
+}
+
 @keyframes overlay-in {
   from {
+    opacity: 0;
+  }
+}
+@keyframes overlay-out {
+  to {
     opacity: 0;
   }
 }
@@ -164,8 +231,18 @@ button,
     transform: translateY(100%);
   }
 }
+@keyframes sheet-down {
+  to {
+    transform: translateY(100%);
+  }
+}
 @keyframes slide-in-right {
   from {
+    transform: translateX(100%);
+  }
+}
+@keyframes slide-out-right {
+  to {
     transform: translateX(100%);
   }
 }
@@ -175,17 +252,58 @@ button,
     transform: scale(0.94);
   }
 }
-.anim-overlay {
-  animation: overlay-in 200ms ease-out;
+@keyframes pop-out {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
 }
-.anim-sheet {
-  animation: sheet-up 350ms cubic-bezier(0.32, 0.72, 0, 1);
+
+.overlay[data-state="closed"] {
+  pointer-events: none;
 }
-.anim-slide-right {
-  animation: slide-in-right 350ms cubic-bezier(0.32, 0.72, 0, 1);
+
+.overlay-backdrop {
+  animation: overlay-in var(--duration-base) var(--ease-out);
 }
-.anim-pop {
-  animation: pop-in 220ms cubic-bezier(0.32, 0.72, 0, 1);
+.overlay[data-state="closed"] > .overlay-backdrop {
+  animation: overlay-out var(--duration-fast) var(--ease-out) forwards;
+}
+
+.overlay-center > :not(.overlay-backdrop) {
+  animation: pop-in var(--duration-base) var(--ease-drawer);
+}
+.overlay-center[data-state="closed"] > :not(.overlay-backdrop) {
+  animation: pop-out var(--duration-fast) var(--ease-out) forwards;
+}
+
+.overlay-sheet > :not(.overlay-backdrop) {
+  animation: sheet-up var(--duration-slow) var(--ease-drawer);
+}
+.overlay-sheet[data-state="closed"] > :not(.overlay-backdrop) {
+  animation: sheet-down var(--duration-base) var(--ease-out) forwards;
+}
+@media (min-width: 640px) {
+  .overlay-sheet > :not(.overlay-backdrop) {
+    animation: pop-in var(--duration-base) var(--ease-drawer);
+  }
+  .overlay-sheet[data-state="closed"] > :not(.overlay-backdrop) {
+    animation: pop-out var(--duration-fast) var(--ease-out) forwards;
+  }
+}
+
+.overlay-fullscreen {
+  animation: overlay-in var(--duration-base) var(--ease-out);
+}
+.overlay-fullscreen[data-state="closed"] {
+  animation: overlay-out var(--duration-fast) var(--ease-out) forwards;
+}
+
+.overlay-panel {
+  animation: slide-in-right var(--duration-slow) var(--ease-drawer);
+}
+.overlay-panel[data-state="closed"] {
+  animation: slide-out-right var(--duration-base) var(--ease-out) forwards;
 }
 
 @media (prefers-reduced-transparency: reduce) {
@@ -223,10 +341,15 @@ button,
   .press:active {
     transform: none;
   }
-  .anim-sheet,
-  .anim-slide-right,
-  .anim-pop {
-    animation: overlay-in 150ms ease-out;
+  .overlay-sheet > :not(.overlay-backdrop),
+  .overlay-center > :not(.overlay-backdrop),
+  .overlay-panel {
+    animation-name: overlay-in;
+  }
+  .overlay-sheet[data-state="closed"] > :not(.overlay-backdrop),
+  .overlay-center[data-state="closed"] > :not(.overlay-backdrop),
+  .overlay-panel[data-state="closed"] {
+    animation-name: overlay-out;
   }
 }
 
