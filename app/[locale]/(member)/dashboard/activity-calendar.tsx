@@ -20,58 +20,74 @@ const categorySegments: Record<string, { strokeColor: string; offset: number }> 
   },
 };
 
+/**
+ * One calendar month, Monday to Sunday. It shows the month that holds `monthStartDate`
+ * (the member's current month). Days after today stay empty.
+ */
 export function ActivityCalendar({
   data,
-  startDate,
+  monthStartDate,
   title,
-  blockLabel,
-  planId,
-  labelByDate = false,
+  locale,
 }: {
   data: { date: string; categories: string[] }[];
-  startDate: string;
+  /** First day of the month, as YYYY-MM-01. */
+  monthStartDate: string;
   title: string;
-  blockLabel?: string;
-  planId?: string;
-  /** Label each cell with its day of the month, not its block day number. */
-  labelByDate?: boolean;
+  locale: string;
 }) {
   const dateMap = new Map(data.map((d) => [d.date, d.categories]));
 
-  const start = new Date(startDate + "T00:00:00Z");
+  const start = new Date(monthStartDate + "T00:00:00Z");
+  const year = start.getUTCFullYear();
+  const month = start.getUTCMonth();
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  // Monday is column 0.
+  const leadingBlanks = (start.getUTCDay() + 6) % 7;
+
+  const monthLabel = new Intl.DateTimeFormat(locale, {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(start);
+  // 1 Jan 2024 was a Monday.
+  const weekdayFormat = new Intl.DateTimeFormat(locale, { weekday: "narrow", timeZone: "UTC" });
+  const weekdays = Array.from({ length: 7 }, (_, i) =>
+    weekdayFormat.format(new Date(Date.UTC(2024, 0, 1 + i))),
+  );
 
   return (
-    <div className="rounded-card bg-white py-5 px-8 shadow-card">
+    <div className="rounded-card bg-white py-5 px-5 shadow-card">
       <p className="mb-0 text-xl font-headline tracking-tight font-medium text-on-surface">
         {title}
       </p>
-      {blockLabel ? (
-        <p className="mb-3 text-xs text-foreground/40">{blockLabel}</p>
-      ) : (
-        <div className="mb-3" />
-      )}
+      <p className="mb-3 text-xs text-foreground/40">{monthLabel}</p>
 
-      <div className="mt-4 grid grid-cols-5 gap-2">
-        {Array.from({ length: 25 }, (_, i) => {
+      <div className="mt-4 grid grid-cols-7 gap-1">
+        {weekdays.map((label, i) => (
+          <span key={i} className="pb-1 text-center text-xs text-foreground/40">
+            {label}
+          </span>
+        ))}
+        {Array.from({ length: leadingBlanks }, (_, i) => (
+          <div key={`blank-${i}`} />
+        ))}
+        {Array.from({ length: daysInMonth }, (_, i) => {
           const day = i + 1;
-          const d = new Date(start);
-          d.setUTCDate(d.getUTCDate() + i);
-          const dateStr = d.toISOString().slice(0, 10);
+          const dateStr = `${monthStartDate.slice(0, 8)}${String(day).padStart(2, "0")}`;
           const categories = dateMap.get(dateStr) ?? [];
           const hasActivity = categories.length > 0;
 
           return (
             <Link
               key={day}
-              href={planId ? `/progress/${planId}?day=${day}` : "/progress"}
+              href="/progress"
               className={`flex items-center justify-center rounded-sm p-0.5 transition-colors ${hasActivity ? "hover:bg-on-surface/5" : ""}`}
             >
-              <div className="relative flex h-10 w-10 items-center justify-center">
+              <div className="relative flex aspect-square w-full max-w-10 items-center justify-center">
                 {hasActivity && (
                   <svg
-                    className="absolute inset-0 overflow-visible"
-                    width="40"
-                    height="40"
+                    className="absolute inset-0 h-full w-full overflow-visible"
                     viewBox="0 0 40 40"
                   >
                     {categories.map((cat) => {
@@ -98,9 +114,7 @@ export function ActivityCalendar({
                     })}
                   </svg>
                 )}
-                <span className="relative text-base text-foreground/70">
-                  {labelByDate ? d.getUTCDate() : day}
-                </span>
+                <span className="relative text-sm text-foreground/70">{day}</span>
               </div>
             </Link>
           );

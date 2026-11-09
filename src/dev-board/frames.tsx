@@ -109,7 +109,7 @@ const EMPTY_HOME: HomeDashboardData = {
   radar: { mental: 0, emotional: 0, physical: 0 },
   streak: 0,
   calendar: [],
-  windowStartDate: "1970-01-01",
+  monthStartDate: "1970-01-01",
   emotionBreakdown: {},
   activityLast25: Array.from({ length: 25 }, (_, i) => ({ day: i + 1, totalMinutes: 0 })),
   earnedBadge: null,
