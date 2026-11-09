@@ -23,14 +23,17 @@ export async function DashboardData({
   const showFoundation =
     allPlans.length === 0 ||
     (allPlans.length === 1 && allPlans[0].blockNumber === 1 && !allPlans[0].completedAt);
+  const toHomePlan = (plan: (typeof allPlans)[number]) => ({
+    id: plan.id,
+    blockNumber: plan.blockNumber,
+    startMs: plan.startedAt.getTime(),
+  });
+  // Finished blocks only keep the month calendar lit; everything else on Home is for active blocks.
   const data = await getHomeDashboard(
     user.id,
-    activePlans.map((plan) => ({
-      id: plan.id,
-      blockNumber: plan.blockNumber,
-      startMs: plan.startedAt.getTime(),
-    })),
+    activePlans.map(toHomePlan),
     timezone,
+    allPlans.filter((plan) => plan.completedAt).map(toHomePlan),
   );
   return (
     <DashboardClient

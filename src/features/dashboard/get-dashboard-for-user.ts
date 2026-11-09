@@ -182,11 +182,14 @@ const DAY_MS = 86_400_000;
  *   in the triangle. If the original's block is not loaded, the copy counts instead.
  * - Dates come from the day each task belongs to, in the member's timezone.
  * - The streak counts any day with any completion, in any block.
+ * - The month calendar also reads `finishedPlans`, so a finished block keeps its days
+ *   lit. Nothing else reads them: the triangle and the charts use active blocks only.
  */
 export async function computeHomeDashboard(
   userId: number,
   activePlans: HomePlan[],
   timezone: string,
+  finishedPlans: HomePlan[] = [],
 ): Promise<HomeDashboardData> {
   const tz = safeTimezone(timezone);
   const today = getPlanDayDate(new Date(), 1, tz);
@@ -215,7 +218,7 @@ export async function computeHomeDashboard(
       LIMIT 1
     )
   `);
-  const planIds = activePlans.map((plan) => plan.id);
+  const planIds = [...activePlans, ...finishedPlans].map((plan) => plan.id);
   const rowsQ =
     planIds.length === 0
       ? Promise.resolve([])
@@ -272,6 +275,31 @@ export async function computeHomeDashboard(
     if (((row.data ?? {}) as Record<string, unknown>).syncedFromPlanId !== undefined) continue;
     originalLogKeys.add(logKey(plan, task));
   }
+  // Month calendar: every block, finished or not. A copy adds nothing when the block
+  // that holds its original is loaded, because the original already lights the date.
+  const calendarPlanById = new Map(
+    [...activePlans, ...finishedPlans].map((plan) => [plan.id, plan]),
+  );
+  for (const row of rows) {
+    const plan = row.planId ? calendarPlanById.get(row.planId) : undefined;
+    const task = getRegistryTaskById(row.taskId);
+    if (!plan || !task || task.block !== plan.blockNumber) continue;
+    const sourcePlanId = ((row.data ?? {}) as Record<string, unknown>).syncedFromPlanId;
+    if (
+      typeof sourcePlanId === "string" &&
+      sourcePlanId !== row.planId &&
+      calendarPlanById.has(sourcePlanId)
+    ) {
+      continue;
+    }
+    const dateStr = getPlanDayDate(new Date(plan.startMs), task.day, tz).toISOString().slice(0, 10);
+    if (dateStr >= monthStartDate && dateStr <= todayDate) {
+      const categories = categoriesByDate.get(dateStr) ?? new Set<string>();
+      categories.add(task.category);
+      categoriesByDate.set(dateStr, categories);
+    }
+  }
+
   const countedCopyKeys = new Set<string>();
   for (const row of rows) {
     const plan = row.planId ? planById.get(row.planId) : undefined;
@@ -291,11 +319,6 @@ export async function computeHomeDashboard(
     }
 
     const dateStr = getPlanDayDate(new Date(plan.startMs), task.day, tz).toISOString().slice(0, 10);
-    if (dateStr >= monthStartDate && dateStr <= todayDate) {
-      const categories = categoriesByDate.get(dateStr) ?? new Set<string>();
-      categories.add(task.category);
-      categoriesByDate.set(dateStr, categories);
-    }
 
     const data = (row.data ?? {}) as Record<string, unknown>;
     if (data.syncedFromPlanId !== undefined) {
@@ -391,9 +414,10 @@ export async function getHomeDashboard(
   userId: number,
   activePlans: HomePlan[],
   timezone: string,
+  finishedPlans: HomePlan[] = [],
 ): Promise<HomeDashboardData> {
   "use cache";
   cacheLife("minutes");
   cacheTag(`dashboard:${userId}`);
-  return computeHomeDashboard(userId, activePlans, timezone);
+  return computeHomeDashboard(userId, activePlans, timezone, finishedPlans);
 }
