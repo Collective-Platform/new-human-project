@@ -74,7 +74,7 @@ It is not part of `pnpm test:e2e`.
 The separate [home dashboard check](../../scripts/home-dashboard.test.ts) runs with
 `pnpm exec tsx --test scripts/home-dashboard.test.ts`. It has 9 tests. They check that Home
 reads all active blocks together: copied mood and exercise logs are counted once in the mood
-and exercise charts, the 25-day calendar shows each date once with its categories, the streak
+and exercise charts, the month calendar shows each date once with its categories, the streak
 counts any day with any completion in any block, a member with no active block gets an empty
 Home, the triangle averages blocks by days elapsed, and Home celebrates an unseen badge of a
 finished block but not a legacy badge. It uses the same `rhythm_test`

@@ -159,10 +159,10 @@ function computeBlockMetrics(
 export interface HomeDashboardData {
   radar: { mental: number; emotional: number; physical: number };
   streak: number;
-  /** Activity by calendar date inside the last 25 days. */
+  /** Activity by calendar date, from the 1st of the current month up to today. */
   calendar: { date: string; categories: string[] }[];
-  /** First date of the 25-day window, as YYYY-MM-DD. */
-  windowStartDate: string;
+  /** First day of the current month in the member's timezone, as YYYY-MM-DD. */
+  monthStartDate: string;
   emotionBreakdown: Record<string, number>;
   /** Exercise minutes for each of the last 25 days; `day` is the day of the month. */
   activityLast25: { day: number; totalMinutes: number }[];
@@ -193,6 +193,7 @@ export async function computeHomeDashboard(
   const windowStart = new Date(today.getTime() - (HOME_WINDOW_DAYS - 1) * DAY_MS);
   const windowStartDate = windowStart.toISOString().slice(0, 10);
   const todayDate = today.toISOString().slice(0, 10);
+  const monthStartDate = `${todayDate.slice(0, 8)}01`;
 
   const streakQ = db.execute<{ streak: number }>(sql`
     WITH completion_dates AS (
@@ -290,7 +291,7 @@ export async function computeHomeDashboard(
     }
 
     const dateStr = getPlanDayDate(new Date(plan.startMs), task.day, tz).toISOString().slice(0, 10);
-    if (dateStr >= windowStartDate && dateStr <= todayDate) {
+    if (dateStr >= monthStartDate && dateStr <= todayDate) {
       const categories = categoriesByDate.get(dateStr) ?? new Set<string>();
       categories.add(task.category);
       categoriesByDate.set(dateStr, categories);
@@ -369,7 +370,7 @@ export async function computeHomeDashboard(
     calendar: Array.from(categoriesByDate.entries())
       .map(([date, categories]) => ({ date, categories: Array.from(categories) }))
       .sort((a, b) => a.date.localeCompare(b.date)),
-    windowStartDate,
+    monthStartDate,
     emotionBreakdown,
     activityLast25,
     earnedBadge: badge

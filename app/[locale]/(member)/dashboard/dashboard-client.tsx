@@ -94,10 +94,9 @@ export function DashboardClient({
 
       <ActivityCalendar
         data={data.calendar}
-        startDate={data.windowStartDate}
+        monthStartDate={data.monthStartDate}
         title={t("activityCalendar")}
-        blockLabel={t("last25Days")}
-        labelByDate
+        locale={locale}
       />
     </div>
   );

@@ -238,7 +238,7 @@ export function buildFixtures(
       date: isoDay(windowStart, 12 + i),
       categories: ["Mental", "Emotional", "Physical"].slice(0, 1 + ((i * 5) % 3)),
     })),
-    windowStartDate: isoDay(windowStart, 0),
+    monthStartDate: `${isoDay(base, 0).slice(0, 8)}01`,
     emotionBreakdown: { good: 6, okay: 4, excellent: 3, bad: 1 },
     activityLast25: Array.from({ length: 25 }, (_, i) => ({
       day: new Date(windowStart + i * DAY).getUTCDate(),

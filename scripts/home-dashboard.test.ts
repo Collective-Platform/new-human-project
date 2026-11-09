@@ -146,11 +146,16 @@ test("a copy already saved on an old block's Day 25 is not counted a second time
   ];
   const home = await m.home.computeHomeDashboard(userId, plans, TZ);
   assert.deepEqual(home.emotionBreakdown, { good: 1, peace: 1 });
+  // The calendar starts on the 1st of this month. Before the 17th, the Day 25 date is in
+  // last month and is cut by that filter, so the calendar check proves nothing then.
+  // The emotion check above covers the skipped copy on every day of the month.
   const oldDate = new Date(Date.now() - 16 * DAY).toISOString().slice(0, 10);
-  assert.equal(
-    home.calendar.find((entry) => entry.date === oldDate),
-    undefined,
-  );
+  if (oldDate >= home.monthStartDate) {
+    assert.equal(
+      home.calendar.find((entry) => entry.date === oldDate),
+      undefined,
+    );
+  }
 });
 
 test("an old block's own Day 25 log and today's log each count once", async () => {
@@ -177,7 +182,10 @@ test("the calendar shows each date once with its categories, from every block", 
   const todayEntry = home.calendar.find((entry) => entry.date === today);
   assert.deepEqual(todayEntry?.categories.sort(), ["Emotional", "Physical"]);
   assert.equal(new Set(home.calendar.map((entry) => entry.date)).size, home.calendar.length);
-  assert.equal(home.windowStartDate, new Date(Date.now() - 24 * DAY).toISOString().slice(0, 10));
+  assert.equal(home.monthStartDate, `${today.slice(0, 8)}01`);
+  assert.ok(
+    home.calendar.every((entry) => entry.date >= home.monthStartDate && entry.date <= today),
+  );
 });
 
 test("the streak counts any day with any completion in any block", async () => {
