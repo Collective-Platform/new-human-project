@@ -11,7 +11,7 @@ import { PhysicalActivityChart } from "./physical-activity-chart";
 // import { LiveBanner } from "./live-banner";
 import type { HomeDashboardData } from "@/src/features/dashboard";
 import { markBadgeSeen } from "@/src/features/badges/actions";
-import { getBlockLabel } from "@/src/lib/block-names";
+import { formatMonthLabel } from "./month-label";
 
 const BlockCelebration = dynamic(
   () => import("./block-celebration").then((m) => m.BlockCelebration),
@@ -20,13 +20,11 @@ const BlockCelebration = dynamic(
 
 export function DashboardClient({
   data,
-  plans,
   locale,
   children,
 }: {
   /** Everything on Home, for all active blocks together. */
   data: HomeDashboardData;
-  plans: Array<{ id: string; blockNumber: number; title: string | null }>;
   locale: "en" | "zh";
   children?: React.ReactNode;
 }) {
@@ -39,8 +37,8 @@ export function DashboardClient({
     document.cookie = `tz=${encodeURIComponent(tz)}; path=/; SameSite=Lax; max-age=31536000`;
   }, []);
 
-  // With one active block the charts name it; with several they cover all of them.
-  const blockLabel = plans.length === 1 ? getBlockLabel(plans[0].blockNumber, locale) : undefined;
+  // The mood chart, the exercise chart and the calendar all show the current month.
+  const monthLabel = formatMonthLabel(data.monthStartDate, locale);
 
   return (
     <div className="space-y-4 px-4 sm:px-6 md:px-8 pt-4 pb-4">
@@ -81,12 +79,12 @@ export function DashboardClient({
           breakdown={data.emotionBreakdown}
           title={t("emotionBreakdown")}
           emptyLabel={t("noMoodLogs")}
-          blockLabel={blockLabel}
+          blockLabel={monthLabel}
         />
 
         <PhysicalActivityChart
-          activityByDay={data.activityLast25}
-          blockLabel={t("last25Days")}
+          activityByDay={data.activityThisMonth}
+          blockLabel={monthLabel}
           title={t("physicalActivity")}
           emptyLabel={t("noActivityLogs")}
         />

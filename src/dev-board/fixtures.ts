@@ -230,18 +230,22 @@ export function buildFixtures(
     completions,
   };
 
-  const windowStart = base - 24 * DAY;
+  const monthStart = new Date(base);
+  const monthStartMs = Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth(), 1);
+  const daysInMonth = new Date(
+    Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth() + 1, 0),
+  ).getUTCDate();
   const dashboard: HomeDashboardData = {
     radar: { mental: 72, emotional: 55, physical: 38 },
     streak: 9,
     calendar: Array.from({ length: 12 }, (_, i) => ({
-      date: isoDay(windowStart, 12 + i),
+      date: isoDay(monthStartMs, i),
       categories: ["Mental", "Emotional", "Physical"].slice(0, 1 + ((i * 5) % 3)),
     })),
-    monthStartDate: `${isoDay(base, 0).slice(0, 8)}01`,
+    monthStartDate: isoDay(monthStartMs, 0),
     emotionBreakdown: { good: 6, okay: 4, excellent: 3, bad: 1 },
-    activityLast25: Array.from({ length: 25 }, (_, i) => ({
-      day: new Date(windowStart + i * DAY).getUTCDate(),
+    activityThisMonth: Array.from({ length: daysInMonth }, (_, i) => ({
+      day: i + 1,
       totalMinutes: i > 11 ? ((i * 17) % 60) + 10 : 0,
     })),
     earnedBadge: null,

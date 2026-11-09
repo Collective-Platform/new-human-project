@@ -164,15 +164,12 @@ export interface HomeDashboardData {
   /** First day of the current month in the member's timezone, as YYYY-MM-DD. */
   monthStartDate: string;
   emotionBreakdown: Record<string, number>;
-  /** Exercise minutes for each of the last 25 days; `day` is the day of the month. */
-  activityLast25: { day: number; totalMinutes: number }[];
+  /** Exercise minutes for each day of the current month; `day` is the day of the month. */
+  activityThisMonth: { day: number; totalMinutes: number }[];
   earnedBadge: DashboardData["earnedBadge"];
 }
 
 export type HomePlan = { id: string; blockNumber: number; startMs: number };
-
-const HOME_WINDOW_DAYS = 25;
-const DAY_MS = 86_400_000;
 
 /**
  * Everything on Home, for all of a member's active blocks together.
@@ -182,8 +179,9 @@ const DAY_MS = 86_400_000;
  *   in the triangle. If the original's block is not loaded, the copy counts instead.
  * - Dates come from the day each task belongs to, in the member's timezone.
  * - The streak counts any day with any completion, in any block.
- * - The month calendar also reads `finishedPlans`, so a finished block keeps its days
- *   lit. Nothing else reads them: the triangle and the charts use active blocks only.
+ * - The calendar, the mood chart and the exercise chart show the current month and also
+ *   read `finishedPlans`, so a finished block keeps its days. The triangle and the
+ *   reminders use active blocks only.
  */
 export async function computeHomeDashboard(
   userId: number,
@@ -193,8 +191,6 @@ export async function computeHomeDashboard(
 ): Promise<HomeDashboardData> {
   const tz = safeTimezone(timezone);
   const today = getPlanDayDate(new Date(), 1, tz);
-  const windowStart = new Date(today.getTime() - (HOME_WINDOW_DAYS - 1) * DAY_MS);
-  const windowStartDate = windowStart.toISOString().slice(0, 10);
   const todayDate = today.toISOString().slice(0, 10);
   const monthStartDate = `${todayDate.slice(0, 8)}01`;
 
@@ -258,8 +254,9 @@ export async function computeHomeDashboard(
   const streakRow = (streakResult as unknown as { rows: { streak: number }[] }).rows[0];
   const badge = badgeRows[0];
 
-  const planById = new Map(activePlans.map((plan) => [plan.id, plan]));
-  const logKey = (plan: (typeof activePlans)[number], task: { day: number; type: string }) =>
+  // The calendar and both charts read every block, finished or not.
+  const planById = new Map([...activePlans, ...finishedPlans].map((plan) => [plan.id, plan]));
+  const logKey = (plan: HomePlan, task: { day: number; type: string }) =>
     `${getPlanDayDate(new Date(plan.startMs), task.day, tz).toISOString().slice(0, 10)}:${task.type}`;
   const categoriesByDate = new Map<string, Set<string>>();
   const minutesByDate = new Map<string, number>();
@@ -275,31 +272,6 @@ export async function computeHomeDashboard(
     if (((row.data ?? {}) as Record<string, unknown>).syncedFromPlanId !== undefined) continue;
     originalLogKeys.add(logKey(plan, task));
   }
-  // Month calendar: every block, finished or not. A copy adds nothing when the block
-  // that holds its original is loaded, because the original already lights the date.
-  const calendarPlanById = new Map(
-    [...activePlans, ...finishedPlans].map((plan) => [plan.id, plan]),
-  );
-  for (const row of rows) {
-    const plan = row.planId ? calendarPlanById.get(row.planId) : undefined;
-    const task = getRegistryTaskById(row.taskId);
-    if (!plan || !task || task.block !== plan.blockNumber) continue;
-    const sourcePlanId = ((row.data ?? {}) as Record<string, unknown>).syncedFromPlanId;
-    if (
-      typeof sourcePlanId === "string" &&
-      sourcePlanId !== row.planId &&
-      calendarPlanById.has(sourcePlanId)
-    ) {
-      continue;
-    }
-    const dateStr = getPlanDayDate(new Date(plan.startMs), task.day, tz).toISOString().slice(0, 10);
-    if (dateStr >= monthStartDate && dateStr <= todayDate) {
-      const categories = categoriesByDate.get(dateStr) ?? new Set<string>();
-      categories.add(task.category);
-      categoriesByDate.set(dateStr, categories);
-    }
-  }
-
   const countedCopyKeys = new Set<string>();
   for (const row of rows) {
     const plan = row.planId ? planById.get(row.planId) : undefined;
@@ -319,6 +291,12 @@ export async function computeHomeDashboard(
     }
 
     const dateStr = getPlanDayDate(new Date(plan.startMs), task.day, tz).toISOString().slice(0, 10);
+    const inMonth = dateStr >= monthStartDate && dateStr <= todayDate;
+    if (inMonth) {
+      const categories = categoriesByDate.get(dateStr) ?? new Set<string>();
+      categories.add(task.category);
+      categoriesByDate.set(dateStr, categories);
+    }
 
     const data = (row.data ?? {}) as Record<string, unknown>;
     if (data.syncedFromPlanId !== undefined) {
@@ -327,7 +305,7 @@ export async function computeHomeDashboard(
       countedCopyKeys.add(key);
     }
 
-    if (task.type === "exercise" && dateStr >= windowStartDate && dateStr <= todayDate) {
+    if (task.type === "exercise" && inMonth) {
       const entries = Array.isArray(data.entries)
         ? (data.entries as Array<{ sportKey?: string; hours?: number; minutes?: number }>)
         : [];
@@ -337,7 +315,7 @@ export async function computeHomeDashboard(
         minutesByDate.set(dateStr, (minutesByDate.get(dateStr) ?? 0) + minutes);
       }
     }
-    if (task.type === "mood_log") {
+    if (task.type === "mood_log" && inMonth) {
       const moodEntries: { moods?: string[] }[] = Array.isArray(data.entries)
         ? (data.entries as { moods?: string[] }[])
         : Array.isArray(data.moods)
@@ -372,13 +350,14 @@ export async function computeHomeDashboard(
     sum.physical += radar.physical * weight;
   }
 
-  const activityLast25 = Array.from({ length: HOME_WINDOW_DAYS }, (_, index) => {
-    const date = new Date(windowStart.getTime() + index * DAY_MS);
-    return {
-      day: date.getUTCDate(),
-      totalMinutes: minutesByDate.get(date.toISOString().slice(0, 10)) ?? 0,
-    };
-  });
+  const daysInMonth = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  const activityThisMonth = Array.from({ length: daysInMonth }, (_, index) => ({
+    day: index + 1,
+    totalMinutes:
+      minutesByDate.get(`${monthStartDate.slice(0, 8)}${String(index + 1).padStart(2, "0")}`) ?? 0,
+  }));
 
   return {
     radar:
@@ -395,7 +374,7 @@ export async function computeHomeDashboard(
       .sort((a, b) => a.date.localeCompare(b.date)),
     monthStartDate,
     emotionBreakdown,
-    activityLast25,
+    activityThisMonth,
     earnedBadge: badge
       ? {
           badgeId: badge.badgeId,

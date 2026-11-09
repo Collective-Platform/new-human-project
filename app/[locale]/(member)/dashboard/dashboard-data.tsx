@@ -36,15 +36,7 @@ export async function DashboardData({
     allPlans.filter((plan) => plan.completedAt).map(toHomePlan),
   );
   return (
-    <DashboardClient
-      data={data}
-      plans={activePlans.map((plan) => ({
-        id: plan.id,
-        blockNumber: plan.blockNumber,
-        title: plan.title,
-      }))}
-      locale={locale}
-    >
+    <DashboardClient data={data} locale={locale}>
       {showFoundation ? children : null}
     </DashboardClient>
   );

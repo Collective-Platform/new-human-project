@@ -111,7 +111,7 @@ const EMPTY_HOME: HomeDashboardData = {
   calendar: [],
   monthStartDate: "1970-01-01",
   emotionBreakdown: {},
-  activityLast25: Array.from({ length: 25 }, (_, i) => ({ day: i + 1, totalMinutes: 0 })),
+  activityThisMonth: Array.from({ length: 30 }, (_, i) => ({ day: i + 1, totalMinutes: 0 })),
   earnedBadge: null,
 };
 
@@ -206,11 +206,7 @@ function Body({ id, fx, locale }: { id: string; fx: BoardFixtures; locale: strin
     case "dashboard":
       return (
         <Shell>
-          <DashboardClient
-            data={fx.dashboard}
-            plans={fx.plans.filter((p) => !p.completedAt)}
-            locale={locale === "zh" ? "zh" : "en"}
-          >
+          <DashboardClient data={fx.dashboard} locale={locale === "zh" ? "zh" : "en"}>
             <FoundationCard />
           </DashboardClient>
         </Shell>
@@ -218,7 +214,7 @@ function Body({ id, fx, locale }: { id: string; fx: BoardFixtures; locale: strin
     case "dashboard-empty":
       return (
         <Shell>
-          <DashboardClient data={EMPTY_HOME} plans={[]} locale={locale === "zh" ? "zh" : "en"}>
+          <DashboardClient data={EMPTY_HOME} locale={locale === "zh" ? "zh" : "en"}>
             <FoundationCard />
           </DashboardClient>
         </Shell>

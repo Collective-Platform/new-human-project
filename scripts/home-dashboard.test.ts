@@ -16,6 +16,13 @@ process.env.SESSION_SECRET = settings.SESSION_SECRET || "test-only";
 
 const TZ = "UTC";
 const DAY = 86_400_000;
+// Home shows the current month, so a log from earlier days counts only when that day is
+// still in this month. These flags keep the checks right on the first days of a month.
+const dayOfMonth = new Date().getUTCDate();
+const goodInMonth = dayOfMonth > 3; // block A's Day 1 mood is 3 days ago
+const oldDay25InMonth = dayOfMonth > 16; // an old block's Day 25 is 16 days ago
+const withGood = (breakdown: Record<string, number>) =>
+  goodInMonth ? { good: 1, ...breakdown } : breakdown;
 
 type Modules = {
   db: typeof import("@/src/db").db;
@@ -120,10 +127,15 @@ after(async () => {
 
 test("a mood or exercise copied to another block is counted once in the charts", async () => {
   const home = await m.home.computeHomeDashboard(userId, plansArg(), TZ);
-  assert.deepEqual(home.emotionBreakdown, { good: 1, peace: 1 });
-  assert.equal(home.activityLast25.length, 25);
-  assert.equal(home.activityLast25[24].totalMinutes, 30); // today, not 60
-  assert.equal(home.activityLast25[23].totalMinutes, 60); // yesterday
+  assert.deepEqual(home.emotionBreakdown, withGood({ peace: 1 }));
+  const daysInMonth = new Date(
+    Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  assert.equal(home.activityThisMonth.length, daysInMonth);
+  assert.equal(home.activityThisMonth[dayOfMonth - 1].totalMinutes, 30); // today, not 60
+  if (dayOfMonth > 1) {
+    assert.equal(home.activityThisMonth[dayOfMonth - 2].totalMinutes, 60); // yesterday
+  }
 });
 
 test("a copied log still counts when the block that holds the original is no longer active", async () => {
@@ -131,7 +143,7 @@ test("a copied log still counts when the block that holds the original is no lon
   const onlyB = plansArg().filter((plan) => plan.id === blockB.id);
   const home = await m.home.computeHomeDashboard(userId, onlyB, TZ);
   assert.deepEqual(home.emotionBreakdown, { peace: 1 });
-  assert.equal(home.activityLast25[24].totalMinutes, 30);
+  assert.equal(home.activityThisMonth[dayOfMonth - 1].totalMinutes, 30);
 });
 
 test("a copy already saved on an old block's Day 25 is not counted a second time", async () => {
@@ -145,7 +157,7 @@ test("a copy already saved on an old block's Day 25 is not counted a second time
     { id: stale.id, blockNumber: stale.blockNumber, startMs: stale.startedAt.getTime() },
   ];
   const home = await m.home.computeHomeDashboard(userId, plans, TZ);
-  assert.deepEqual(home.emotionBreakdown, { good: 1, peace: 1 });
+  assert.deepEqual(home.emotionBreakdown, withGood({ peace: 1 }));
   // The calendar starts on the 1st of this month. Before the 17th, the Day 25 date is in
   // last month and is cut by that filter, so the calendar check proves nothing then.
   // The emotion check above covers the skipped copy on every day of the month.
@@ -173,7 +185,10 @@ test("an old block's own Day 25 log and today's log each count once", async () =
     { id: stale.id, blockNumber: stale.blockNumber, startMs: stale.startedAt.getTime() },
   ];
   const home = await m.home.computeHomeDashboard(userId, plans, TZ);
-  assert.deepEqual(home.emotionBreakdown, { good: 1, peace: 1, "day-25": 1 });
+  assert.deepEqual(
+    home.emotionBreakdown,
+    withGood({ peace: 1, ...(oldDay25InMonth ? { "day-25": 1 } : {}) }),
+  );
 });
 
 test("the calendar shows each date once with its categories, from every block", async () => {
@@ -188,12 +203,13 @@ test("the calendar shows each date once with its categories, from every block", 
   );
 });
 
-test("a finished block keeps its days lit on the calendar, and nothing else", async () => {
-  // A block that started today and is finished. Its Day 1 Mental task is today.
+test("a finished block keeps its days on the calendar and the charts, not the triangle", async () => {
+  // A block that started today and is finished. Its Day 1 has a Mental task and a mood log.
   const finished = await makePlan(1, 0);
   const mental = m.program.getDayTasks(1, 1).find((task) => task.category === "Mental");
   assert.ok(mental, "block 1 day 1 has no Mental task");
   await save(finished, mental, { done: true }, 0);
+  await save(finished, taskOf(1, 1, "mood_log"), { entries: [{ moods: ["finished-mood"] }] }, 0);
   const today = new Date().toISOString().slice(0, 10);
   const asPlan = (plan: TestPlan) => ({
     id: plan.id,
@@ -203,14 +219,14 @@ test("a finished block keeps its days lit on the calendar, and nothing else", as
 
   const without = await m.home.computeHomeDashboard(userId, plansArg(), TZ);
   assert.ok(!without.calendar.find((e) => e.date === today)?.categories.includes("Mental"));
+  assert.equal(without.emotionBreakdown["finished-mood"], undefined);
 
   const withFinished = await m.home.computeHomeDashboard(userId, plansArg(), TZ, [
     asPlan(finished),
   ]);
   assert.ok(withFinished.calendar.find((e) => e.date === today)?.categories.includes("Mental"));
-  // The charts and the triangle ignore the finished block.
-  assert.deepEqual(withFinished.emotionBreakdown, without.emotionBreakdown);
-  assert.deepEqual(withFinished.activityLast25, without.activityLast25);
+  assert.equal(withFinished.emotionBreakdown["finished-mood"], 1);
+  // The triangle uses active blocks only.
   assert.deepEqual(withFinished.radar, without.radar);
 });
 
