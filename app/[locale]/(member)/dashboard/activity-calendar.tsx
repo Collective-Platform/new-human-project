@@ -1,4 +1,5 @@
 import { Link } from "@/src/i18n/navigation";
+import { formatMonthLabel } from "./month-label";
 
 const r = 17;
 const circumference = 2 * Math.PI * r;
@@ -45,11 +46,7 @@ export function ActivityCalendar({
   // Monday is column 0.
   const leadingBlanks = (start.getUTCDay() + 6) % 7;
 
-  const monthLabel = new Intl.DateTimeFormat(locale, {
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(start);
+  const monthLabel = formatMonthLabel(monthStartDate, locale);
   // 1 Jan 2024 was a Monday.
   const weekdayFormat = new Intl.DateTimeFormat(locale, { weekday: "narrow", timeZone: "UTC" });
   const weekdays = Array.from({ length: 7 }, (_, i) =>

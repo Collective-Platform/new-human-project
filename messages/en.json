@@ -18,8 +18,7 @@
     "emotionBreakdown": "Mood Breakdown",
     "noMoodLogs": "No mood logs yet",
     "physicalActivity": "Exercise Duration",
-    "noActivityLogs": "No activity logs yet",
-    "last25Days": "Last 25 days"
+    "noActivityLogs": "No activity logs yet"
   },
   "liveBanner": {
     "dateAndTime": "October 3 · 9AM–12PM",

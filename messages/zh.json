@@ -18,8 +18,7 @@
     "emotionBreakdown": "心情分析",
     "noMoodLogs": "暂无心情记录",
     "physicalActivity": "运动时长",
-    "noActivityLogs": "暂无运动记录",
-    "last25Days": "最近 25 天"
+    "noActivityLogs": "暂无运动记录"
   },
   "liveBanner": {
     "dateAndTime": "10月3日 · 上午9时至中午12时",

@@ -73,11 +73,15 @@ It is not part of `pnpm test:e2e`.
 
 The separate [home dashboard check](../../scripts/home-dashboard.test.ts) runs with
 `pnpm exec tsx --test scripts/home-dashboard.test.ts`. It has 10 tests. They check that Home
-reads all active blocks together: copied mood and exercise logs are counted once in the mood
-and exercise charts, the month calendar shows each date once with its categories and keeps the days of finished blocks lit, the streak
+reads a member's blocks together: copied mood and exercise logs are counted once in the mood
+and exercise charts, the month calendar shows each date once with its categories, the calendar
+and both charts show the current month and keep the days of finished blocks (the triangle
+does not), the streak
 counts any day with any completion in any block, a member with no active block gets an empty
 Home, the triangle averages blocks by days elapsed, and Home celebrates an unseen badge of a
-finished block but not a legacy badge. It uses the same `rhythm_test`
+finished block but not a legacy badge. Because Home shows the current month, some checks
+skip an older log on the first days of a month (day 1 to 3 or day 1 to 16 of the month),
+where that log falls in last month. It uses the same `rhythm_test`
 guard and clean-up as the shared logs check and is not part of `pnpm test:e2e`.
 
 The separate [legacy plan script check](../../scripts/migrate-legacy-plans.test.ts) runs with
