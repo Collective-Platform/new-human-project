@@ -207,11 +207,11 @@ export function ExerciseLogRenderer({
             <label className="flex flex-1 flex-col gap-1.5">
               <span className="text-xs font-semibold text-on-surface-variant">{t("hours")}</span>
               <FieldInput
-                type="number"
-                min="0"
-                max="23"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={hours}
-                onChange={(e) => setHours(e.target.value)}
+                onChange={(e) => setHours(e.target.value.replace(/\D/g, "").slice(0, 2))}
                 placeholder="0"
                 readOnly={readOnly}
               />
@@ -219,11 +219,11 @@ export function ExerciseLogRenderer({
             <label className="flex flex-1 flex-col gap-1.5">
               <span className="text-xs font-semibold text-on-surface-variant">{t("minutes")}</span>
               <FieldInput
-                type="number"
-                min="0"
-                max="59"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={minutes}
-                onChange={(e) => setMinutes(e.target.value)}
+                onChange={(e) => setMinutes(e.target.value.replace(/\D/g, "").slice(0, 2))}
                 placeholder="0"
                 readOnly={readOnly}
               />
