@@ -188,6 +188,32 @@ test("the calendar shows each date once with its categories, from every block", 
   );
 });
 
+test("a finished block keeps its days lit on the calendar, and nothing else", async () => {
+  // A block that started today and is finished. Its Day 1 Mental task is today.
+  const finished = await makePlan(1, 0);
+  const mental = m.program.getDayTasks(1, 1).find((task) => task.category === "Mental");
+  assert.ok(mental, "block 1 day 1 has no Mental task");
+  await save(finished, mental, { done: true }, 0);
+  const today = new Date().toISOString().slice(0, 10);
+  const asPlan = (plan: TestPlan) => ({
+    id: plan.id,
+    blockNumber: plan.blockNumber,
+    startMs: plan.startedAt.getTime(),
+  });
+
+  const without = await m.home.computeHomeDashboard(userId, plansArg(), TZ);
+  assert.ok(!without.calendar.find((e) => e.date === today)?.categories.includes("Mental"));
+
+  const withFinished = await m.home.computeHomeDashboard(userId, plansArg(), TZ, [
+    asPlan(finished),
+  ]);
+  assert.ok(withFinished.calendar.find((e) => e.date === today)?.categories.includes("Mental"));
+  // The charts and the triangle ignore the finished block.
+  assert.deepEqual(withFinished.emotionBreakdown, without.emotionBreakdown);
+  assert.deepEqual(withFinished.activityLast25, without.activityLast25);
+  assert.deepEqual(withFinished.radar, without.radar);
+});
+
 test("the streak counts any day with any completion in any block", async () => {
   const home = await m.home.computeHomeDashboard(userId, plansArg(), TZ);
   assert.equal(home.streak, 3); // today, yesterday and two days ago
